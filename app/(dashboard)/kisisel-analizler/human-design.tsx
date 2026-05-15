@@ -1,75 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
-import Svg, { Polygon, Rect, Line, Circle, Polyline, Text as SvgText, G, Path } from 'react-native-svg';
+import Svg, { Polygon, Rect, Line, Circle, Polyline, Text as SvgText, G, Path, Image as SvgImage } from 'react-native-svg';
 import { generateChart, HumanDesignChart, CenterCode, PLANET_SYMBOLS, CHANNELS } from '../../../src/utils/HumanDesignEngine';
 import { Ionicons } from '@expo/vector-icons';
 import moment from 'moment-timezone';
 
 const COLORS = {
-  background: '#0B0F19',
-  primary: '#D4AF37', // Gold
+  background: '#0F172A', // Dark Navy to match the app's theme
+  primary: '#0EA5E9', // Cyan/Blue to match the title text in the screenshot
   accent: '#E63946', // Red for unconscious (Design)
-  conscious: '#111111', // Black for conscious (Personality)
+  conscious: '#FFFFFF', // White for conscious (Personality) text on dark bg
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
-  cardBg: 'rgba(20, 25, 40, 0.8)',
+  cardBg: 'rgba(15, 23, 42, 0.8)',
 };
 
-const CENTER_COORDS: Record<CenterCode, { x: number, y: number, shape: string, color: string }> = {
-  Head: { x: 150, y: 40, shape: 'triangle', color: '#FFF' },
-  Ajna: { x: 150, y: 90, shape: 'triangle-down', color: '#A8D5BA' }, // Greenish
-  Throat: { x: 150, y: 160, shape: 'square', color: '#D2B48C' }, // Brownish
-  G: { x: 150, y: 230, shape: 'diamond', color: '#F4D03F' }, // Yellow
-  Heart: { x: 180, y: 200, shape: 'triangle', color: '#E63946' }, // Red
-  Sacral: { x: 150, y: 300, shape: 'square', color: '#E63946' }, // Red
-  Root: { x: 150, y: 370, shape: 'square', color: '#D2B48C' }, // Brownish
-  Spleen: { x: 60, y: 300, shape: 'triangle-left', color: '#D2B48C' },
-  SolarPlexus: { x: 240, y: 300, shape: 'triangle-right', color: '#D2B48C' },
+const CENTER_COORDS: Record<CenterCode, { x: number, y: number, shape: string, color: string, s: number }> = {
+  Head: { x: 150, y: 35, shape: 'triangle', color: '#F4D03F', s: 22 },
+  Ajna: { x: 150, y: 70, shape: 'triangle-down', color: '#A8D5BA', s: 22 },
+  Throat: { x: 150, y: 115, shape: 'square', color: '#D2B48C', s: 20 },
+  G: { x: 150, y: 175, shape: 'diamond', color: '#F4D03F', s: 24 },
+  Heart: { x: 185, y: 160, shape: 'triangle', color: '#E63946', s: 18 },
+  Sacral: { x: 150, y: 265, shape: 'square', color: '#E63946', s: 22 },
+  Root: { x: 150, y: 335, shape: 'square', color: '#D2B48C', s: 22 },
+  Spleen: { x: 60, y: 305, shape: 'triangle-left', color: '#D2B48C', s: 24 },
+  SolarPlexus: { x: 240, y: 305, shape: 'triangle-right', color: '#D2B48C', s: 24 },
 };
 
 const GATE_COORDS: Record<number, { x: number, y: number }> = {
   // Head
-  64: { x: 138, y: 56 }, 61: { x: 150, y: 56 }, 63: { x: 162, y: 56 },
+  64: { x: 142, y: 40 }, 61: { x: 150, y: 40 }, 63: { x: 158, y: 40 },
   // Ajna
-  47: { x: 138, y: 74 }, 24: { x: 150, y: 74 }, 4: { x: 162, y: 74 },
-  17: { x: 142, y: 90 }, 11: { x: 158, y: 90 },
-  43: { x: 150, y: 106 },
+  47: { x: 142, y: 52 }, 24: { x: 150, y: 52 }, 4: { x: 158, y: 52 },
+  17: { x: 146, y: 68 }, 11: { x: 154, y: 68 },
+  43: { x: 150, y: 84 },
   // Throat
-  62: { x: 138, y: 144 }, 23: { x: 150, y: 144 }, 56: { x: 162, y: 144 },
-  16: { x: 134, y: 150 }, 35: { x: 166, y: 150 },
-  20: { x: 134, y: 158 }, 12: { x: 166, y: 158 },
-  45: { x: 166, y: 166 },
-  31: { x: 138, y: 176 }, 8: { x: 150, y: 176 }, 33: { x: 162, y: 176 },
+  62: { x: 140, y: 100 }, 23: { x: 150, y: 100 }, 56: { x: 160, y: 100 },
+  16: { x: 135, y: 108 }, 35: { x: 165, y: 108 },
+  20: { x: 135, y: 118 }, 12: { x: 165, y: 118 },
+  31: { x: 135, y: 128 }, 45: { x: 165, y: 128 },
+  8: { x: 145, y: 135 }, 33: { x: 155, y: 135 },
   // G
-  7: { x: 142, y: 222 }, 1: { x: 150, y: 214 }, 13: { x: 158, y: 222 },
-  10: { x: 134, y: 230 }, 25: { x: 166, y: 230 },
-  15: { x: 142, y: 238 }, 46: { x: 158, y: 238 },
-  2: { x: 150, y: 246 },
+  7: { x: 145, y: 140 }, 1: { x: 150, y: 135 }, 13: { x: 155, y: 140 },
+  10: { x: 132, y: 155 }, 25: { x: 168, y: 155 },
+  15: { x: 145, y: 170 }, 46: { x: 155, y: 170 },
+  2: { x: 150, y: 177 },
   // Heart
-  21: { x: 180, y: 184 }, 51: { x: 164, y: 216 },
-  26: { x: 180, y: 216 }, 40: { x: 196, y: 216 },
+  21: { x: 185, y: 145 }, 51: { x: 175, y: 165 },
+  26: { x: 175, y: 175 }, 40: { x: 195, y: 175 },
   // Sacral
-  5: { x: 138, y: 284 }, 14: { x: 150, y: 284 }, 29: { x: 162, y: 284 },
-  34: { x: 134, y: 292 }, 59: { x: 166, y: 292 },
-  27: { x: 138, y: 316 }, 42: { x: 146, y: 316 }, 3: { x: 154, y: 316 }, 9: { x: 162, y: 316 },
+  5: { x: 140, y: 230 }, 14: { x: 150, y: 230 }, 29: { x: 160, y: 230 },
+  34: { x: 135, y: 240 }, 59: { x: 165, y: 240 },
+  27: { x: 140, y: 260 }, 3: { x: 150, y: 260 }, 9: { x: 160, y: 260 },
   // Root
-  53: { x: 138, y: 354 }, 60: { x: 146, y: 354 }, 52: { x: 154, y: 354 }, 19: { x: 162, y: 354 },
-  54: { x: 134, y: 362 }, 38: { x: 134, y: 370 }, 58: { x: 134, y: 378 },
-  39: { x: 166, y: 370 }, 41: { x: 166, y: 378 },
+  53: { x: 140, y: 300 }, 60: { x: 150, y: 300 }, 52: { x: 160, y: 300 },
+  54: { x: 135, y: 310 }, 19: { x: 165, y: 310 },
+  38: { x: 135, y: 320 }, 39: { x: 165, y: 320 },
+  58: { x: 135, y: 330 }, 41: { x: 165, y: 330 },
   // Spleen
-  48: { x: 76, y: 284 }, 57: { x: 76, y: 294 }, 44: { x: 76, y: 304 }, 50: { x: 76, y: 316 },
-  32: { x: 70, y: 316 }, 28: { x: 60, y: 316 }, 18: { x: 50, y: 316 },
+  48: { x: 55, y: 275 }, 57: { x: 65, y: 280 }, 44: { x: 75, y: 285 }, 50: { x: 85, y: 290 },
+  32: { x: 80, y: 305 }, 28: { x: 70, y: 305 }, 18: { x: 60, y: 305 },
   // Solar Plexus
-  36: { x: 224, y: 284 }, 22: { x: 224, y: 294 }, 37: { x: 224, y: 304 }, 6: { x: 224, y: 316 },
-  49: { x: 230, y: 316 }, 55: { x: 240, y: 316 }, 30: { x: 250, y: 316 },
-};
-
-const CHANNEL_MIDS: Record<number, { x: number, y: number }> = {
-  2034: { x: 120, y: 225 }, // Bypasses G center on the left
-  2644: { x: 140, y: 250 }, // Bypasses G center slightly down
-  1222: { x: 215, y: 220 }, // Bypasses Heart on the right
-  3536: { x: 205, y: 220 }, // Bypasses Heart on the right
+  36: { x: 215, y: 285 }, 22: { x: 225, y: 280 }, 37: { x: 235, y: 275 },
+  6: { x: 215, y: 290 }, 49: { x: 225, y: 300 }, 55: { x: 235, y: 310 }, 30: { x: 245, y: 320 },
 };
 
 const ALL_CITIES = [
@@ -144,17 +138,32 @@ export default function HumanDesignScreen() {
     c.name.toLocaleLowerCase('tr-TR').startsWith(searchQuery.toLocaleLowerCase('tr-TR'))
   ).slice(0, 3);
 
+  const dateInputRef = useRef<TextInput>(null);
+  const timeInputRef = useRef<TextInput>(null);
+
   const handleDateChange = (text: string) => {
-    let cleaned = text.replace(/[^0-9]/g, '');
-    if (cleaned.length > 4) cleaned = cleaned.slice(0, 4) + '-' + cleaned.slice(4);
-    if (cleaned.length > 7) cleaned = cleaned.slice(0, 7) + '-' + cleaned.slice(7);
-    setDateStr(cleaned.slice(0, 10));
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 4);
+    if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+    if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 8);
+    
+    setDateStr(formatted);
+
+    if (cleaned.length === 8) {
+      timeInputRef.current?.focus();
+    }
   };
 
   const handleTimeChange = (text: string) => {
-    let cleaned = text.replace(/[^0-9]/g, '');
-    if (cleaned.length > 2) cleaned = cleaned.slice(0, 2) + ':' + cleaned.slice(2);
-    setTimeStr(cleaned.slice(0, 5));
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 2);
+    if (cleaned.length > 2) formatted += ':' + cleaned.substring(2, 4);
+    
+    setTimeStr(formatted);
   };
 
   const handleCalculate = () => {
@@ -187,11 +196,13 @@ export default function HumanDesignScreen() {
 
   const drawSilhouette = () => {
     return (
-      <Path 
-        d="M150 15 C 135 15, 125 30, 125 45 C 125 50, 115 55, 115 65 C 115 75, 120 80, 120 85 C 115 90, 118 95, 120 100 C 125 110, 130 115, 130 125 C 120 135, 100 150, 80 170 C 50 200, 30 260, 20 370 L 280 370 C 270 260, 250 200, 220 170 C 200 150, 180 135, 170 125 C 170 115, 175 100, 175 80 C 175 60, 170 40, 165 30 C 160 20, 155 15, 150 15 Z" 
-        fill="rgba(180, 185, 190, 0.3)" 
-        stroke="rgba(150, 150, 150, 0.4)" 
-        strokeWidth="1.5" 
+      <SvgImage
+        x="40"
+        y="20"
+        width="220"
+        height="370"
+        preserveAspectRatio="none"
+        href={require('../../../assets/images/human_design_bg.png')}
       />
     );
   };
@@ -208,42 +219,29 @@ export default function HumanDesignScreen() {
        const c2 = GATE_COORDS[g2];
        if (!c1 || !c2) return;
 
-       let mx = (c1.x + c2.x) / 2;
-       let my = (c1.y + c2.y) / 2;
-
-       if (CHANNEL_MIDS[ch.id]) {
-         mx = CHANNEL_MIDS[ch.id].x;
-         my = CHANNEL_MIDS[ch.id].y;
-       }
-
-       // Base pipe (black border with white inside)
-       elements.push(
-         <Polyline points={`${c1.x},${c1.y} ${mx},${my} ${c2.x},${c2.y}`} fill="none" stroke="#666" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" key={`base-d-${ch.id}`} />
-       );
-       elements.push(
-         <Polyline points={`${c1.x},${c1.y} ${mx},${my} ${c2.x},${c2.y}`} fill="none" stroke="#FFF" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" key={`base-w-${ch.id}`} />
-       );
+       const mx = (c1.x + c2.x) / 2;
+       const my = (c1.y + c2.y) / 2;
+       const g1Path = `M ${c1.x} ${c1.y} L ${mx} ${my}`;
+       const g2Path = `M ${c2.x} ${c2.y} L ${mx} ${my}`;
 
        const g1Cons = chart.conscious.some(p => p.gate === g1);
        const g1Unc = chart.unconscious.some(p => p.gate === g1);
-       
        const g2Cons = chart.conscious.some(p => p.gate === g2);
        const g2Unc = chart.unconscious.some(p => p.gate === g2);
 
-       // Helper to draw the path line
-       const drawHalfLine = (xA: number, yA: number, isConscious: boolean, isUnconscious: boolean, keyPrefix: string) => {
+       const drawHalf = (pathD: string, isConscious: boolean, isUnconscious: boolean, keyPrefix: string) => {
           if (isConscious && isUnconscious) {
-            elements.push(<Line x1={xA} y1={yA} x2={mx} y2={my} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" key={`${keyPrefix}-b`} />);
-            elements.push(<Line x1={xA} y1={yA} x2={mx} y2={my} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" strokeDasharray="4 4" key={`${keyPrefix}-r`} />);
+            elements.push(<Path d={pathD} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-b`} />);
+            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" strokeDasharray="4 4" fill="none" key={`${keyPrefix}-r`} />);
           } else if (isConscious) {
-            elements.push(<Line x1={xA} y1={yA} x2={mx} y2={my} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" key={`${keyPrefix}-con`} />);
+            elements.push(<Path d={pathD} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-con`} />);
           } else if (isUnconscious) {
-            elements.push(<Line x1={xA} y1={yA} x2={mx} y2={my} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" key={`${keyPrefix}-unc`} />);
+            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-unc`} />);
           }
        }
 
-       drawHalfLine(c1.x, c1.y, g1Cons, g1Unc, `g1-${ch.id}`);
-       drawHalfLine(c2.x, c2.y, g2Cons, g2Unc, `g2-${ch.id}`);
+       drawHalf(g1Path, g1Cons, g1Unc, `g1-${ch.id}`);
+       drawHalf(g2Path, g2Cons, g2Unc, `g2-${ch.id}`);
     });
     
     return elements;
@@ -253,35 +251,33 @@ export default function HumanDesignScreen() {
     if (!chart) return null;
     return Object.entries(CENTER_COORDS).map(([center, def]) => {
       const isDefined = chart.definedCenters.includes(center as CenterCode);
-      const fill = isDefined ? def.color : '#FFF';
-      const stroke = '#333';
-      const s = 16; 
+      if (!isDefined) return null; // İnaktifleri boyama, şablonda beyaz kalacak
       
-      const drawShape = (dx: number, dy: number, isShadow: boolean) => {
-        const pfill = isShadow ? 'rgba(0,0,0,0.35)' : fill;
-        const pstroke = isShadow ? 'none' : stroke;
-        const sw = isShadow ? "0" : "1.5";
-        
+      const fill = def.color;
+      const stroke = 'none'; // Şablonda kenar çizgileri var
+      const s = def.s; // Her merkezin kendi boyutunu kullan
+      
+      const drawShape = (dx: number, dy: number) => {
+        const sw = "0";
         if (def.shape === 'square') {
-          return <Rect x={def.x - s + dx} y={def.y - s + dy} width={s*2} height={s*2} fill={pfill} stroke={pstroke} strokeWidth={sw} key={isShadow ? 'sh' : 'mg'} />;
+          return <Rect x={def.x - s + dx} y={def.y - s + dy} width={s*2} height={s*2} fill={fill} stroke={stroke} strokeWidth={sw} key="mg" />;
         } else if (def.shape === 'diamond') {
-          return <Polygon points={`${def.x + dx},${def.y-s-2 + dy} ${def.x+s+2 + dx},${def.y + dy} ${def.x + dx},${def.y+s+2 + dy} ${def.x-s-2 + dx},${def.y + dy}`} fill={pfill} stroke={pstroke} strokeWidth={sw} strokeLinejoin="round" key={isShadow ? 'sh' : 'mg'} />;
+          return <Polygon points={`${def.x + dx},${def.y-s-2 + dy} ${def.x+s+2 + dx},${def.y + dy} ${def.x + dx},${def.y+s+2 + dy} ${def.x-s-2 + dx},${def.y + dy}`} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" key="mg" />;
         } else if (def.shape === 'triangle') {
-          return <Polygon points={`${def.x + dx},${def.y-s + dy} ${def.x+s + dx},${def.y+s + dy} ${def.x-s + dx},${def.y+s + dy}`} fill={pfill} stroke={pstroke} strokeWidth={sw} strokeLinejoin="round" key={isShadow ? 'sh' : 'mg'} />;
+          return <Polygon points={`${def.x + dx},${def.y-s + dy} ${def.x+s + dx},${def.y+s + dy} ${def.x-s + dx},${def.y+s + dy}`} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" key="mg" />;
         } else if (def.shape === 'triangle-down') {
-          return <Polygon points={`${def.x-s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y-s + dy} ${def.x + dx},${def.y+s + dy}`} fill={pfill} stroke={pstroke} strokeWidth={sw} strokeLinejoin="round" key={isShadow ? 'sh' : 'mg'} />;
+          return <Polygon points={`${def.x-s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y-s + dy} ${def.x + dx},${def.y+s + dy}`} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" key="mg" />;
         } else if (def.shape === 'triangle-left') {
-          return <Polygon points={`${def.x+s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y+s + dy} ${def.x-s + dx},${def.y + dy}`} fill={pfill} stroke={pstroke} strokeWidth={sw} strokeLinejoin="round" key={isShadow ? 'sh' : 'mg'} />;
+          return <Polygon points={`${def.x+s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y+s + dy} ${def.x-s + dx},${def.y + dy}`} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" key="mg" />;
         } else if (def.shape === 'triangle-right') {
-          return <Polygon points={`${def.x-s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y + dy} ${def.x-s + dx},${def.y+s + dy}`} fill={pfill} stroke={pstroke} strokeWidth={sw} strokeLinejoin="round" key={isShadow ? 'sh' : 'mg'} />;
+          return <Polygon points={`${def.x-s + dx},${def.y-s + dy} ${def.x+s + dx},${def.y + dy} ${def.x-s + dx},${def.y+s + dy}`} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" key="mg" />;
         }
         return null;
       };
 
       return (
         <G key={center}>
-          {drawShape(3, 4, true)}
-          {drawShape(0, 0, false)}
+          {drawShape(0, 0)}
         </G>
       );
     });
@@ -296,10 +292,12 @@ export default function HumanDesignScreen() {
       const isUnc = chart.unconscious.some(p => p.gate === gNum);
       const isActive = isCons || isUnc;
       
+      if (!isActive) return null; // İnaktif kapıları çizme, görseldekiler kalsın
+      
       // Çizimin şeklin içine doğru hafif ofsetlenmesi için merkez koordinatını bulalım
       let shiftX = 0;
       let shiftY = 0;
-      // Basitçe merkeze doğru 4 piksel kaydır (Görseldeki gibi şeklin içinde kalsın)
+      // Basitçe merkeze doğru 6 piksel kaydır (Görseldeki gibi şeklin içinde kalsın)
       const centerCoordsObj = CHANNELS.find(ch => ch.gates.includes(gNum));
       if (centerCoordsObj) {
         const c1Name = centerCoordsObj.centers[0];
@@ -325,14 +323,8 @@ export default function HumanDesignScreen() {
 
       return (
         <G key={`glabel-${gateId}`}>
-          {isActive ? (
-            <>
-              <Circle cx={textX} cy={textY} r={7} fill="#6B21A8" />
-              <SvgText x={textX} y={textY + 2.5} fontSize="8.5" fill="#FFF" fontWeight="bold" textAnchor="middle">{gNum}</SvgText>
-            </>
-          ) : (
-            <SvgText x={textX} y={textY + 3} fontSize="9" fill="#222" fontWeight="bold" textAnchor="middle">{gNum}</SvgText>
-          )}
+          <Circle cx={textX} cy={textY} r={7.5} fill={COLORS.primary} />
+          <SvgText x={textX} y={textY + 2.8} fontSize="8" fill="#111" fontWeight="bold" textAnchor="middle">{gNum}</SvgText>
         </G>
       );
     });
@@ -364,13 +356,41 @@ export default function HumanDesignScreen() {
               </Text>
               
               <Text style={styles.label}>İsim Soyisim</Text>
-              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Enis Şahide Kesik" placeholderTextColor="#666" />
+              <TextInput 
+                style={styles.input} 
+                value={name} 
+                onChangeText={setName} 
+                placeholder="Örn: Enis Şahide Kesik" 
+                placeholderTextColor="#666" 
+                returnKeyType="next"
+                onSubmitEditing={() => dateInputRef.current?.focus()}
+              />
 
               <Text style={styles.label}>Doğum Tarihi (YYYY-AA-GG)</Text>
-              <TextInput style={styles.input} value={dateStr} onChangeText={handleDateChange} placeholder="Örn: 1990-05-15" placeholderTextColor="#666" keyboardType="numeric" />
+              <TextInput 
+                ref={dateInputRef}
+                style={styles.input} 
+                value={dateStr} 
+                onChangeText={handleDateChange} 
+                placeholder="Örn: 1990-05-15" 
+                placeholderTextColor="#666" 
+                keyboardType="numeric" 
+                maxLength={10}
+                returnKeyType="next"
+              />
               
               <Text style={styles.label}>Doğum Saati (SS:DD)</Text>
-              <TextInput style={styles.input} value={timeStr} onChangeText={handleTimeChange} placeholder="Örn: 14:30" placeholderTextColor="#666" keyboardType="numeric" />
+              <TextInput 
+                ref={timeInputRef}
+                style={styles.input} 
+                value={timeStr} 
+                onChangeText={handleTimeChange} 
+                placeholder="Örn: 14:30" 
+                placeholderTextColor="#666" 
+                keyboardType="numeric" 
+                maxLength={5}
+                returnKeyType="done"
+              />
               
               <Text style={styles.label}>Doğum Ülkesi</Text>
               <TouchableOpacity style={[styles.input, { justifyContent: 'center' }]} onPress={() => setShowCountryModal(true)}>
@@ -472,7 +492,7 @@ export default function HumanDesignScreen() {
 
                 {/* Orta SVG Bodygraph */}
                 <View style={styles.bodygraphWrapper}>
-                  <Svg height="100%" width="100%" viewBox="40 20 220 370">
+                  <Svg width="100%" height="100%" viewBox="40 20 220 370">
                     {drawSilhouette()}
                     {drawChannels()}
                     {drawCenters()}
@@ -534,25 +554,25 @@ export default function HumanDesignScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(255, 255, 255, 0.85)' },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.85)' },
   scrollContent: { paddingTop: 60, paddingHorizontal: 10, paddingBottom: 40 },
   header: { marginBottom: 20, paddingHorizontal: 5, alignItems: 'center' },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#333', marginBottom: 4 },
-  subtitle: { fontSize: 13, color: '#666', fontStyle: 'italic' },
-  formCard: { padding: 20, borderRadius: 16, borderWidth: 1, borderColor: '#DDD', backgroundColor: '#FFF' },
-  formInfo: { color: '#444', fontSize: 13, lineHeight: 20, marginBottom: 20 },
-  label: { color: '#333', fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 15 },
-  input: { backgroundColor: '#F5F5F5', color: '#000', padding: 15, borderRadius: 8, borderWidth: 1, borderColor: '#E0E0E0', fontSize: 15 },
+  title: { fontSize: 26, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4 },
+  subtitle: { fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' },
+  formCard: { padding: 20, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: COLORS.cardBg },
+  formInfo: { color: COLORS.text, fontSize: 13, lineHeight: 20, marginBottom: 20 },
+  label: { color: COLORS.text, fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 15 },
+  input: { backgroundColor: 'rgba(255,255,255,0.05)', color: COLORS.text, padding: 15, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', fontSize: 15 },
   button: { backgroundColor: COLORS.primary, padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 30 },
-  buttonText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  buttonText: { color: '#2A1635', fontSize: 16, fontWeight: 'bold' },
   resetButton: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  resetButtonText: { color: '#333', fontSize: 15, fontWeight: '600', marginLeft: 8 },
-  chartNameTitle: { fontSize: 28, fontFamily: 'serif', color: '#111', textAlign: 'center', marginBottom: 20 },
+  resetButtonText: { color: COLORS.primary, fontSize: 15, fontWeight: '600', marginLeft: 8 },
+  chartNameTitle: { fontSize: 28, fontFamily: 'serif', color: COLORS.text, textAlign: 'center', marginBottom: 20 },
   
   suggestionsContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.cardBg,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: 'rgba(255,255,255,0.1)',
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     marginTop: -4,
@@ -562,20 +582,20 @@ const styles = StyleSheet.create({
   suggestionItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   suggestionText: {
     fontSize: 15,
-    color: '#333'
+    color: COLORS.text
   },
   
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'flex-end'
   },
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#0F172A',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: '40%',
@@ -589,23 +609,23 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    borderBottomColor: 'rgba(255,255,255,0.1)',
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text,
   },
   modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   modalOptionText: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.text,
     flex: 1,
   },
   
@@ -620,11 +640,10 @@ const styles = StyleSheet.create({
     width: '18%',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    backgroundColor: '#FFF',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   sidebarTitle: {
     fontSize: 12,
@@ -651,32 +670,34 @@ const styles = StyleSheet.create({
     width: '60%',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#0F172A', // Match the background
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   
   textAnalysisCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: 'rgba(42, 22, 53, 0.8)',
     borderRadius: 12,
     padding: 15,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   textRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
   textLabel: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.primary,
     width: '40%',
   },
   textValue: {
     fontSize: 15,
-    color: '#444',
+    color: COLORS.text,
     flex: 1,
   }
 });

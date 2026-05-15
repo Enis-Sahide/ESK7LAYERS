@@ -39,6 +39,10 @@ export default function KadimDerslerTestScreen() {
         // Yoga Kilitleri
         if (id === 'yoga_1') unlockTier('yoga_2');
         if (id === 'yoga_2') unlockTier('yoga_master');
+        
+        // Human Design Kilitleri
+        if (id === 'human_1') unlockTier('human_2');
+        if (id === 'human_2') unlockTier('human_master');
       }
     }
   }, [isFinished]);

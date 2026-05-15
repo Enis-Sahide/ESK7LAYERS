@@ -15,6 +15,7 @@ const LESSON_TITLES: Record<string, string> = {
   'rune': 'Rune Taşları',
   'numeroloji': 'Numeroloji',
   'yoga': 'Yoga Asanaları',
+  'astroloji': 'Ezoterik Astroloji',
   'ruh-beden': 'Ruh & Beden Sağlığı',
 };
 

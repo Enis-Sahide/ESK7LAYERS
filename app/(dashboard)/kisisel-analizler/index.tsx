@@ -42,8 +42,17 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     icon: 'planet-outline', 
     route: '/(dashboard)/kisisel-analizler/astroloji',
     color: '#FF9500',
-    isAvailable: false
+    isAvailable: true
   },
+  { 
+    id: 'anlik-gokyuzu', 
+    title: 'Anlık Gökyüzü (Transit)', 
+    description: 'Şu an bulunduğunuz şehirdeki gezegen dizilimlerini ve gökyüzü haritasını inceleyin.',
+    icon: 'telescope-outline', 
+    route: '/(dashboard)/kisisel-analizler/anlik-gokyuzu',
+    color: '#AF52DE',
+    isAvailable: true
+  }
 ];
 
 export default function AnalysisHubScreen() {

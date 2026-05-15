@@ -1,6 +1,8 @@
 import { runeQuizzes } from './runeQuizzes';
 import { numerolojiQuiz2Advanced, numerolojiQuiz3Advanced } from './numerologyQuizzesAdvanced';
 import { allYogaQuizzes } from './yogaQuizzes';
+import { allHumanDesignQuizzes } from './humanDesignQuizzes';
+import { allAstrologyQuizzes } from './astrologyQuizzes';
 
 export interface QuizQuestion {
   id: string;
@@ -148,6 +150,8 @@ export const numerolojiQuiz1: Quiz = {
 export const allQuizzes: Record<string, Quiz> = {
   ...runeQuizzes,
   ...allYogaQuizzes,
+  ...allHumanDesignQuizzes,
+  ...allAstrologyQuizzes,
   'numeroloji_1': numerolojiQuiz1,
   'numeroloji_2': numerolojiQuiz2Advanced,
   'numeroloji_3': numerolojiQuiz3Advanced,

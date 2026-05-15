@@ -13,7 +13,7 @@ interface TestCategory {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   route?: string;
-  subTests?: { title: string; route: string; isHighlight?: boolean }[];
+  subTests?: { title: string; route: string; isHighlight?: boolean; requiredUnlock?: string }[];
 }
 
 const TEST_CATEGORIES: TestCategory[] = [
@@ -21,7 +21,16 @@ const TEST_CATEGORIES: TestCategory[] = [
   { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah-test' },
   { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test' },
   { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test' },
-  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design-test' },
+  { 
+    id: 'human', 
+    title: 'Human Design Sınavları', 
+    icon: 'finger-print-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/human_3', requiredUnlock: 'human_master', isHighlight: true },
+    ]
+  },
   {
     id: 'rune',
     title: 'Rune Sınavları',
@@ -50,6 +59,16 @@ const TEST_CATEGORIES: TestCategory[] = [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/yoga_3', requiredUnlock: 'yoga_master', isHighlight: true },
+    ]
+  },
+  { 
+    id: 'astroloji', 
+    title: 'Ezoterik Astroloji', 
+    icon: 'planet-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/astroloji_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/astroloji_2', requiredUnlock: 'astroloji_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/astroloji_3', requiredUnlock: 'astroloji_master', isHighlight: true },
     ]
   },
   { id: 'ruhbeden', title: 'Ruh & Beden Sağlığı', icon: 'leaf-outline', route: '/(dashboard)/kadim-dersler/ruh-beden-test' },

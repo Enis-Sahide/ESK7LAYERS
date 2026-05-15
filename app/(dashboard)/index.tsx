@@ -289,6 +289,7 @@ export default function DashboardScreen() {
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/tarot'); }}><Text style={styles.fabSubText}>Tarot ve Arkana</Text></TouchableOpacity>
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/sembolizm'); }}><Text style={styles.fabSubText}>Kadim Sembolizm</Text></TouchableOpacity>
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/human-design'); }}><Text style={styles.fabSubText}>Human Design</Text></TouchableOpacity>
+                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/astroloji'); }}><Text style={styles.fabSubText}>Ezoterik Astroloji</Text></TouchableOpacity>
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/rune'); }}><Text style={styles.fabSubText}>Rune Tılsımları</Text></TouchableOpacity>
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/numeroloji'); }}><Text style={styles.fabSubText}>Numeroloji</Text></TouchableOpacity>
                  <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/yoga'); }}><Text style={styles.fabSubText}>Yoga Asanaları</Text></TouchableOpacity>
