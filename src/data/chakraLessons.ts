@@ -4,7 +4,16 @@ export const LESSONS: Record<string, any> = {
   // ==============================
   '1_nedir': {
     title: 'Muladhara (Kök Çakra) Nedir?',
-    content: 'Kök Çakra (Muladhara) güvenlik çakrasıdır. Vücuttaki güvenliği, istikrarı ve diğer temel hayatta kalma ihtiyaçlarını temsil eder. Konumu; omurganın alt kısmında, kuyruk kemiğinin bulunduğu yerdir.\n\nTıkanıklık Nasıl Anlaşılır?\nKök çakra tıkalı olduğunda, kendinizi tehdit altında, paniklemiş veya endişeli hissedebilirsiniz. Bu endişe, düşüncelerinize kolayca sızabilir ve her şeyi aniden belirsiz hissettirebilir. Fiziksel sorunlar arasında ise; bel ağrısı, düşük enerji seviyeleri ve iskelet sistemi sorunları yer alır.',
+    astrology: {
+      planet: 'Mars',
+      planetSymbol: '♂',
+      signs: [
+        { name: 'Koç', symbol: '♈' },
+        { name: 'Akrep', symbol: '♏' }
+      ],
+      day: 'Salı'
+    },
+    content: 'Kök Çakra (Muladhara) güvenlik çakrasıdır. Vücuttaki güvenliği, istikrarı ve diğer temel hayatta kalma ihtiyaçlarını temsil eder. Konumu; omurganın alt kısmında, kuyruk kemiğinin bulunduğu yerdir.\n\nKök çakranın kozmik sistemdeki karşılığı ve yönetici gezegeni Mars\'tır. \n\nMars, fiziksel enerji, hayatta kalma güdüsü, cesaret ve savaşma ruhunu temsil eder. Astrolojide Koç ve Akrep burçlarıyla yakından ilişkilidir. \n\nSalı günleri Mars günüdür. Bu günlerde Kök çakranızı (Muladhara) güçlendiren egzersizler yapmak, kırmızı giyinmek ve topraklanmak enerjinizi iki katına çıkarır. Güçlü bir kök çakra, Mars\'ın cesaretini yansıtarak kişiye sarsılmaz bir dayanıklılık hissi verir.\n\nTıkanıklık Nasıl Anlaşılır?\nKök çakra tıkalı olduğunda, kendinizi tehdit altında, paniklemiş veya endişeli hissedebilirsiniz. Bu endişe, düşüncelerinize kolayca sızabilir ve her şeyi aniden belirsiz hissettirebilir. Fiziksel sorunlar arasında ise; bel ağrısı, düşük enerji seviyeleri ve iskelet sistemi sorunları yer alır.',
     quiz: {
       question: 'Kök çakrasında tıkanıklık olan bir inisiye hangi duyguyu en yoğun şekilde yaşar?',
       options: [
@@ -60,36 +69,23 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! Egonun ilk katmanını idrak ettin.'
     }
   },
-  '1_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Mars',
-      planetSymbol: '♂',
-      signs: [
-        { name: 'Koç', symbol: '♈' },
-        { name: 'Akrep', symbol: '♏' }
-      ],
-      day: 'Salı'
-    },
-    content: 'Kök çakranın kozmik sistemdeki karşılığı ve yönetici gezegeni Mars\'tır. \n\nMars, fiziksel enerji, hayatta kalma güdüsü, cesaret ve savaşma ruhunu temsil eder. Astrolojide Koç ve Akrep burçlarıyla yakından ilişkilidir. \n\nSalı günleri Mars günüdür. Bu günlerde Kök çakranızı (Muladhara) güçlendiren egzersizler yapmak, kırmızı giyinmek ve topraklanmak enerjinizi iki katına çıkarır. Güçlü bir kök çakra, Mars\'ın cesaretini yansıtarak kişiye sarsılmaz bir dayanıklılık hissi verir.',
-    quiz: {
-      question: 'Kök çakranın astrolojik yönetici gezegeni aşağıdakilerden hangisidir?',
-      options: [
-        { id: 'a', text: 'Venüs' },
-        { id: 'b', text: 'Mars' },
-        { id: 'c', text: 'Ay' }
-      ],
-      correctAnswer: 'b',
-      successMessage: 'Sır Açığa Çıktı! Mars\'ın cesaret ateşi köklerini güçlendirdi.'
-    }
-  },
+  
 
   // ==============================
   // 2. SAKRAL ÇAKRA (SVADHISTHANA)
   // ==============================
   '2_nedir': {
     title: 'Svadhisthana (Sakral Çakra) Nedir?',
-    content: 'Sakral Çakra (Svadhisthana) cinsel merkez ve yaratıcılık çakrasıdır. Karnın ortasında, göbek deliğinin yaklaşık 5 cm altında bulunur.\n\nTıkanıklık Nasıl Anlaşılır?\nSakral Çakra ile ilgili bir sorun olduğunda, sıkılmış ve ilhamınızı kaybetmiş gibi hissedebilirsiniz. Değişimden korkarak direnç gösterebilirsiniz. Fiziksel semptomlar; böbrekler, üreme organları, alışveriş/yemek gibi bağımlılık yapan davranışları içerebilir.',
+    astrology: {
+      planet: 'Venüs',
+      planetSymbol: '♀',
+      signs: [
+        { name: 'Boğa', symbol: '♉' },
+        { name: 'Terazi', symbol: '♎' }
+      ],
+      day: 'Cuma'
+    },
+    content: 'Sakral Çakra (Svadhisthana) cinsel merkez ve yaratıcılık çakrasıdır. Karnın ortasında, göbek deliğinin yaklaşık 5 cm altında bulunur.\n\nSakral çakranın yönetici gezegeni Venüs\'tür.\n\nVenüs; aşk, güzellik, estetik, sanat, cinsellik, yaratıcılık ve hazlarla ilgilidir. Astrolojide Boğa ve Terazi burçlarının yöneticisidir.\n\nCuma günleri Venüs\'ün günüdür. Cuma günleri bu çakranın dişil, alıcı ve yaratıcı enerjisini canlandırmak, sanatsal bir hobiyle uğraşmak ve kendinizi ödüllendirmek (öz sevgi) Sakral çakrayı (Svadhisthana) beslemenin en harika yoludur.\n\nTıkanıklık Nasıl Anlaşılır?\nSakral Çakra ile ilgili bir sorun olduğunda, sıkılmış ve ilhamınızı kaybetmiş gibi hissedebilirsiniz. Değişimden korkarak direnç gösterebilirsiniz. Fiziksel semptomlar; böbrekler, üreme organları, alışveriş/yemek gibi bağımlılık yapan davranışları içerebilir.',
     quiz: {
       question: 'Sakral çakra tıkanıklığı yaşayan bir kişide ruhsal olarak hangi durum gözlemlenir?',
       options: [
@@ -145,36 +141,22 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! Kendini hesaba çekme erdemini gösterdin.'
     }
   },
-  '2_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Venüs',
-      planetSymbol: '♀',
-      signs: [
-        { name: 'Boğa', symbol: '♉' },
-        { name: 'Terazi', symbol: '♎' }
-      ],
-      day: 'Cuma'
-    },
-    content: 'Sakral çakranın yönetici gezegeni Venüs\'tür.\n\nVenüs; aşk, güzellik, estetik, sanat, cinsellik, yaratıcılık ve hazlarla ilgilidir. Astrolojide Boğa ve Terazi burçlarının yöneticisidir.\n\nCuma günleri Venüs\'ün günüdür. Cuma günleri bu çakranın dişil, alıcı ve yaratıcı enerjisini canlandırmak, sanatsal bir hobiyle uğraşmak ve kendinizi ödüllendirmek (öz sevgi) Sakral çakrayı (Svadhisthana) beslemenin en harika yoludur.',
-    quiz: {
-      question: 'Sakral çakrayı onurlandırmak ve yaratıcılığı artırmak için hangi gezegenin günü (Cuma) en uygundur?',
-      options: [
-        { id: 'a', text: 'Venüs' },
-        { id: 'b', text: 'Jüpiter' },
-        { id: 'c', text: 'Merkür' }
-      ],
-      correctAnswer: 'a',
-      successMessage: 'Sır Açığa Çıktı! Venüs\'ün yaratıcı ve estetik enerjisi seninle.'
-    }
-  },
+  
 
   // ==============================
   // 3. SOLAR PLEKSUS (MANIPURA)
   // ==============================
   '3_nedir': {
     title: 'Manipura (Solar Pleksus) Nedir?',
-    content: 'Solar Pleksus (Manipura) benlik saygısı, özerklik ve kararlılık çakrasıdır. "Kişisel güç çakrası" olarak da adlandırılır. Mide bölgesi çevresindedir.\n\nTıkanıklık Nasıl Anlaşılır?\nTıkalı olduğunda kendinize olan güveninizi çok sarsacak bir şey olmuş olabilir. Yeterince iyi olmadığınızı düşünebilirsiniz. Fiziksel belirtiler sindirim rahatsızlığı ve hafıza ile ilgili sorunları içerir.',
+    astrology: {
+      planet: 'Güneş',
+      planetSymbol: '☉',
+      signs: [
+        { name: 'Aslan', symbol: '♌' }
+      ],
+      day: 'Pazar'
+    },
+    content: 'Solar Pleksus (Manipura) benlik saygısı, özerklik ve kararlılık çakrasıdır. "Kişisel güç çakrası" olarak da adlandırılır. Mide bölgesi çevresindedir.\n\nSolar Pleksus çakrası güneş sistemimizin merkezi olan Güneş ile eşleşir.\n\nGüneş; bizim kimliğimiz, egomuz, canlılığımız ve irade gücümüzdür. Astrolojide Aslan burcunun yöneticisidir.\n\nPazar günleri (Sun-day) tam anlamıyla Güneş\'in günüdür. Pazar günlerini sadece dinlenmek yerine, içsel ateşinizi harlamak, özgüveninizi artıracak planlar yapmak ve altın sarısı güneş ışığıyla yıkanmak için ayırmak Manipura\'yı kusursuz bir şekilde aktive eder.\n\nTıkanıklık Nasıl Anlaşılır?\nTıkalı olduğunda kendinize olan güveninizi çok sarsacak bir şey olmuş olabilir. Yeterince iyi olmadığınızı düşünebilirsiniz. Fiziksel belirtiler sindirim rahatsızlığı ve hafıza ile ilgili sorunları içerir.',
     quiz: {
       question: 'Solar Pleksus çakrası tıkalı olan birinde hangi duygusal durum öne çıkar?',
       options: [
@@ -230,35 +212,22 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! İlim ve tevazu kalbini aydınlattı.'
     }
   },
-  '3_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Güneş',
-      planetSymbol: '☉',
-      signs: [
-        { name: 'Aslan', symbol: '♌' }
-      ],
-      day: 'Pazar'
-    },
-    content: 'Solar Pleksus çakrası güneş sistemimizin merkezi olan Güneş ile eşleşir.\n\nGüneş; bizim kimliğimiz, egomuz, canlılığımız ve irade gücümüzdür. Astrolojide Aslan burcunun yöneticisidir.\n\nPazar günleri (Sun-day) tam anlamıyla Güneş\'in günüdür. Pazar günlerini sadece dinlenmek yerine, içsel ateşinizi harlamak, özgüveninizi artıracak planlar yapmak ve altın sarısı güneş ışığıyla yıkanmak için ayırmak Manipura\'yı kusursuz bir şekilde aktive eder.',
-    quiz: {
-      question: 'Solar Pleksus çakrası hangi gök cisminin enerjisiyle doğrudan bağlantılıdır?',
-      options: [
-        { id: 'a', text: 'Plüton' },
-        { id: 'b', text: 'Güneş' },
-        { id: 'c', text: 'Satürn' }
-      ],
-      correctAnswer: 'b',
-      successMessage: 'Sır Açığa Çıktı! Güneşin iradesi parlamaya başladı.'
-    }
-  },
+  
 
   // ==============================
   // 4. KALP ÇAKRASI (ANAHATA)
   // ==============================
   '4_nedir': {
     title: 'Anahata (Kalp Çakrası) Nedir?',
-    content: 'Kalp Çakrası (Anahata), sevgi ve şefkat kapasitenizle yakından ilişkilidir. Ruh, beden ve zihin arasında bir köprüdür. Alt madde çakraları ile üst ruh çakralarını birleştirir. Doğrudan kalbin üzerinde bulunur.\n\nTıkanıklık Nasıl Anlaşılır?\nDiğer insanlarla ilişki kurmakta zorlanırsınız. Daha az şefkatli, sabırsız ve güvensiz hissedersiniz. Yüksek tansiyon ve düşük bağışıklık sistemi gibi sorunlar ortaya çıkabilir.',
+    astrology: {
+      planet: 'Ay',
+      planetSymbol: '☽',
+      signs: [
+        { name: 'Yengeç', symbol: '♋' }
+      ],
+      day: 'Pazartesi'
+    },
+    content: 'Kalp Çakrası (Anahata), sevgi ve şefkat kapasitenizle yakından ilişkilidir. Ruh, beden ve zihin arasında bir köprüdür. Alt madde çakraları ile üst ruh çakralarını birleştirir. Doğrudan kalbin üzerinde bulunur.\n\nKalp Çakrası derin şifa sistemlerinde Ay enerjisiyle rezone olur.\n\nAy, derin duygularımızı, şefkati, koşulsuz sevgiyi, annelik/çocukluk bağlarını ve ruhi yuvamızı temsil eder. Astrolojide Yengeç burcunun yöneticisidir.\n\nPazartesi günleri Ay (Moon-day) günüdür. Haftaya başlarken kalp çakrasını (Anahata) onurlandırmak, kırgınlıkları bağışlamak ve evrensel sevgiye açılmak için en özel frekanslar Pazartesi günlerinde gizlidir.\n\nTıkanıklık Nasıl Anlaşılır?\nDiğer insanlarla ilişki kurmakta zorlanırsınız. Daha az şefkatli, sabırsız ve güvensiz hissedersiniz. Yüksek tansiyon ve düşük bağışıklık sistemi gibi sorunlar ortaya çıkabilir.',
     quiz: {
       question: 'Kalp çakrasının enerji sistemimizdeki en temel rolü nedir?',
       options: [
@@ -314,35 +283,23 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! Kalbin huzura (itminana) erişti.'
     }
   },
-  '4_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Ay',
-      planetSymbol: '☽',
-      signs: [
-        { name: 'Yengeç', symbol: '♋' }
-      ],
-      day: 'Pazartesi'
-    },
-    content: 'Kalp Çakrası derin şifa sistemlerinde Ay enerjisiyle rezone olur.\n\nAy, derin duygularımızı, şefkati, koşulsuz sevgiyi, annelik/çocukluk bağlarını ve ruhi yuvamızı temsil eder. Astrolojide Yengeç burcunun yöneticisidir.\n\nPazartesi günleri Ay (Moon-day) günüdür. Haftaya başlarken kalp çakrasını (Anahata) onurlandırmak, kırgınlıkları bağışlamak ve evrensel sevgiye açılmak için en özel frekanslar Pazartesi günlerinde gizlidir.',
-    quiz: {
-      question: 'Kalp çakrası üzerinde en etkili olan, şefkat ve sevgi temsili gök cismi hangisidir?',
-      options: [
-        { id: 'a', text: 'Uranüs' },
-        { id: 'b', text: 'Mars' },
-        { id: 'c', text: 'Ay' }
-      ],
-      correctAnswer: 'c',
-      successMessage: 'Sır Açığa Çıktı! Ay\'ın şefkatli enerjisi kalbini yıkadı.'
-    }
-  },
+  
 
   // ==============================
   // 5. BOĞAZ ÇAKRASI (VISHUDDHA)
   // ==============================
   '5_nedir': {
     title: 'Vishuddha (Boğaz Çakrası) Nedir?',
-    content: 'Boğaz Çakrası (Vishuddha), en derindeki benliğinizi dünyaya ne kadar gerçekçi bir şekilde ilettiğinizi etkileyerek, kendinizi ifade etmenizi düzenler. Tam olarak boğazın ortasında bulunur.\n\nTıkanıklık Nasıl Anlaşılır?\nGerçekten söylemek istediğinizi söyleyememeniz ile kendini gösterir. İnsanların düşüncelerinizi duymak istemediğine inanabilirsiniz. Boğaz ağrısı, hormon dalgalanmalarına karşı hassasiyet (tiroid) gibi fiziksel sorunlar yaratabilir.',
+    astrology: {
+      planet: 'Merkür',
+      planetSymbol: '☿',
+      signs: [
+        { name: 'İkizler', symbol: '♊' },
+        { name: 'Başak', symbol: '♍' }
+      ],
+      day: 'Çarşamba'
+    },
+    content: 'Boğaz Çakrası (Vishuddha), en derindeki benliğinizi dünyaya ne kadar gerçekçi bir şekilde ilettiğinizi etkileyerek, kendinizi ifade etmenizi düzenler. Tam olarak boğazın ortasında bulunur.\n\nBoğaz çakrası, iletişim ve ilahi zeka gezegeni olan Merkür\'ün hakimiyeti altındadır.\n\nSes, konuşma, dürüstlük, yazı yazma ve kendini dış dünyaya en yalın haliyle ifade etme yetisi Merkür\'den gelir. İkizler ve Başak burçlarıyla bağlantılıdır.\n\nÇarşamba günleri Merkür enerjisini taşır. Bu yüzden boğaz çakrasındaki düğümleri çözmek, söylenemeyen sözleri ifade etmek veya mantra/şarkı söyleyerek enerjiyi dışa vurmak için en mükemmel zamandır.\n\nTıkanıklık Nasıl Anlaşılır?\nGerçekten söylemek istediğinizi söyleyememeniz ile kendini gösterir. İnsanların düşüncelerinizi duymak istemediğine inanabilirsiniz. Boğaz ağrısı, hormon dalgalanmalarına karşı hassasiyet (tiroid) gibi fiziksel sorunlar yaratabilir.',
     quiz: {
       question: 'Boğaz çakrası tıkalı olan bir kişide en sık hangi sorun görülür?',
       options: [
@@ -398,36 +355,23 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! İlahi olana rıza göstermeyi öğrendin.'
     }
   },
-  '5_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Merkür',
-      planetSymbol: '☿',
-      signs: [
-        { name: 'İkizler', symbol: '♊' },
-        { name: 'Başak', symbol: '♍' }
-      ],
-      day: 'Çarşamba'
-    },
-    content: 'Boğaz çakrası, iletişim ve ilahi zeka gezegeni olan Merkür\'ün hakimiyeti altındadır.\n\nSes, konuşma, dürüstlük, yazı yazma ve kendini dış dünyaya en yalın haliyle ifade etme yetisi Merkür\'den gelir. İkizler ve Başak burçlarıyla bağlantılıdır.\n\nÇarşamba günleri Merkür enerjisini taşır. Bu yüzden boğaz çakrasındaki düğümleri çözmek, söylenemeyen sözleri ifade etmek veya mantra/şarkı söyleyerek enerjiyi dışa vurmak için en mükemmel zamandır.',
-    quiz: {
-      question: 'Boğaz çakrası (Vishuddha) hangi gezegenin iletişim özelliklerini yansıtır?',
-      options: [
-        { id: 'a', text: 'Satürn' },
-        { id: 'b', text: 'Merkür' },
-        { id: 'c', text: 'Neptün' }
-      ],
-      correctAnswer: 'b',
-      successMessage: 'Sır Açığa Çıktı! Merkür kelimelerine sihir kattı.'
-    }
-  },
+  
 
   // ==============================
   // 6. ÜÇÜNCÜ GÖZ (AJNA)
   // ==============================
   '6_nedir': {
     title: 'Ajna (Üçüncü Göz Çakrası) Nedir?',
-    content: 'Üçüncü Göz Çakrası (Ajna), sezginizi, evrenle uyumunuzu ve hayattaki büyük resmi görme yeteneğinizi belirler. İki kaşınızın arasında bulunur. Çekim yasası başarıları bu çakranın açıklığıyla ilgilidir.\n\nTıkanıklık Nasıl Anlaşılır?\nBloke olursa, daha geniş amacınıza inanmakta zorlanırsınız. Yaptığınız şeyin bir anlamı olmadığını veya önemsiz olduğunu hissedersiniz. Uyumakta zorluk, kendini beceriksiz hissetme ve yeni şeyleri öğrenmede zorluk yaşanabilir.',
+    astrology: {
+      planet: 'Jüpiter',
+      planetSymbol: '♃',
+      signs: [
+        { name: 'Yay', symbol: '♐' },
+        { name: 'Balık', symbol: '♓' }
+      ],
+      day: 'Perşembe'
+    },
+    content: 'Üçüncü Göz Çakrası (Ajna), sezginizi, evrenle uyumunuzu ve hayattaki büyük resmi görme yeteneğinizi belirler. İki kaşınızın arasında bulunur. Çekim yasası başarıları bu çakranın açıklığıyla ilgilidir.\n\nÜçüncü Göz, astrolojide Jüpiter\'in kadim bilgeliği ve genişleme enerjisiyle uyumlanır.\n\nJüpiter; felsefe, yüksek öğretiler, vizyon, bilgelik, sezgi ve maneviyatı yönetir. Astrolojide Yay ve Balık burçlarının yönetici gezegenidir.\n\nPerşembe günleri Jüpiter günüdür. Sezgilerinize kulak vermek, vizyon panoları hazırlamak, psişik algılarınızı (üçüncü gözünüzü) açmak ve büyük resmi görmek için en uygun kozmik frekanslar Perşembe günlerindedir.\n\nTıkanıklık Nasıl Anlaşılır?\nBloke olursa, daha geniş amacınıza inanmakta zorlanırsınız. Yaptığınız şeyin bir anlamı olmadığını veya önemsiz olduğunu hissedersiniz. Uyumakta zorluk, kendini beceriksiz hissetme ve yeni şeyleri öğrenmede zorluk yaşanabilir.',
     quiz: {
       question: 'Üçüncü göz çakrası tıkalı olan birinde hangi ruh hali baskındır?',
       options: [
@@ -483,36 +427,23 @@ export const LESSONS: Record<string, any> = {
       successMessage: 'Sır Açığa Çıktı! Yüksek bilinçle etrafına ışık saçtın.'
     }
   },
-  '6_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Jüpiter',
-      planetSymbol: '♃',
-      signs: [
-        { name: 'Yay', symbol: '♐' },
-        { name: 'Balık', symbol: '♓' }
-      ],
-      day: 'Perşembe'
-    },
-    content: 'Üçüncü Göz, astrolojide Jüpiter\'in kadim bilgeliği ve genişleme enerjisiyle uyumlanır.\n\nJüpiter; felsefe, yüksek öğretiler, vizyon, bilgelik, sezgi ve maneviyatı yönetir. Astrolojide Yay ve Balık burçlarının yönetici gezegenidir.\n\nPerşembe günleri Jüpiter günüdür. Sezgilerinize kulak vermek, vizyon panoları hazırlamak, psişik algılarınızı (üçüncü gözünüzü) açmak ve büyük resmi görmek için en uygun kozmik frekanslar Perşembe günlerindedir.',
-    quiz: {
-      question: 'Üçüncü Göz çakrasının astrolojik olarak eşleştiği bilgelik gezegeni hangisidir?',
-      options: [
-        { id: 'a', text: 'Jüpiter' },
-        { id: 'b', text: 'Mars' },
-        { id: 'c', text: 'Venüs' }
-      ],
-      correctAnswer: 'a',
-      successMessage: 'Sır Açığa Çıktı! Jüpiter vizyonunu ve üçüncü gözünü genişletti.'
-    }
-  },
+  
 
   // ==============================
   // 7. TAÇ ÇAKRA (SAHASRARA)
   // ==============================
   '7_nedir': {
     title: 'Sahaswara (Taç Çakra) Nedir?',
-    content: 'Taç Çakra (Sahaswara), "Bin taç yaprağı" olarak anılır ve kafanın en tepesinde bulunur. Ruhsal bağlantıların, ilahi olanla anlaşmanın, aydınlanmanın ve yüksek benliğinizle tanışmanızın kaynağıdır.\n\nTıkanıklık Nasıl Anlaşılır?\nRuhsal olarak kopuk hissetme, evrensel bilgiye kapalı olma ve maddiyata aşırı bağlılık şeklinde kendini gösterir.',
+    astrology: {
+      planet: 'Satürn',
+      planetSymbol: '♄',
+      signs: [
+        { name: 'Oğlak', symbol: '♑' },
+        { name: 'Kova', symbol: '♒' }
+      ],
+      day: 'Cumartesi'
+    },
+    content: 'Taç Çakra (Sahaswara), "Bin taç yaprağı" olarak anılır ve kafanın en tepesinde bulunur. Ruhsal bağlantıların, ilahi olanla anlaşmanın, aydınlanmanın ve yüksek benliğinizle tanışmanızın kaynağıdır.\n\nTepe çakrasının yöneticisi, zamanın, sınırların ve karmaların efendisi Satürn\'dür.\n\nSatürn, dünya planındaki sınavlarımızı tamamlayıp ilahi olana (sınırların ötesine) bağlandığımız noktayı temsil eder. Astrolojide Oğlak ve Kova burçlarının yöneticisidir.\n\nCumartesi günleri tam olarak Satürn\'ün (Saturday) günüdür. Bu günlerde derin bir izolasyon, sessizlik veya sadece doğayla baş başa kalarak dünyevi prangalardan kurtulmak, ruhsal sınırların ötesine (Sahasrara\'ya) geçmek için inanılmaz bir kozmik geçit oluşturur.\n\nTıkanıklık Nasıl Anlaşılır?\nRuhsal olarak kopuk hissetme, evrensel bilgiye kapalı olma ve maddiyata aşırı bağlılık şeklinde kendini gösterir.',
     quiz: {
       question: 'Taç çakrasının enerji sistemimizdeki en üstün işlevi nedir?',
       options: [
@@ -566,29 +497,6 @@ export const LESSONS: Record<string, any> = {
       ],
       correctAnswer: 'b',
       successMessage: 'Sır Açığa Çıktı! Vahdet sırrına erdin.'
-    }
-  },
-  '7_sentez': {
-    title: 'Tamamlayıcı ve Astrolojik Bağlantılar',
-    astrology: {
-      planet: 'Satürn',
-      planetSymbol: '♄',
-      signs: [
-        { name: 'Oğlak', symbol: '♑' },
-        { name: 'Kova', symbol: '♒' }
-      ],
-      day: 'Cumartesi'
-    },
-    content: 'Tepe çakrasının yöneticisi, zamanın, sınırların ve karmaların efendisi Satürn\'dür.\n\nSatürn, dünya planındaki sınavlarımızı tamamlayıp ilahi olana (sınırların ötesine) bağlandığımız noktayı temsil eder. Astrolojide Oğlak ve Kova burçlarının yöneticisidir.\n\nCumartesi günleri tam olarak Satürn\'ün (Saturday) günüdür. Bu günlerde derin bir izolasyon, sessizlik veya sadece doğayla baş başa kalarak dünyevi prangalardan kurtulmak, ruhsal sınırların ötesine (Sahasrara\'ya) geçmek için inanılmaz bir kozmik geçit oluşturur.',
-    quiz: {
-      question: 'Tepe çakrasının (Sahasrara) eşleştiği gezegen ve uygun olan gün hangisidir?',
-      options: [
-        { id: 'a', text: 'Satürn / Cumartesi' },
-        { id: 'b', text: 'Mars / Salı' },
-        { id: 'c', text: 'Ay / Pazartesi' }
-      ],
-      correctAnswer: 'a',
-      successMessage: 'Sır Açığa Çıktı! Satürn\'ün sınırlarını aşarak evrensel bilince ulaştın.'
     }
   }
 };

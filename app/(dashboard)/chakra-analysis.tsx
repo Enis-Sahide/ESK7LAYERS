@@ -272,9 +272,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   questionText: {
-    fontSize: 18,
+    fontSize: 15,
     color: COLORS.text,
-    lineHeight: 28,
+    lineHeight: 24,
     fontWeight: 'bold',
     textAlign: 'center',
   },

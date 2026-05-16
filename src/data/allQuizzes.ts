@@ -3,6 +3,8 @@ import { numerolojiQuiz2Advanced, numerolojiQuiz3Advanced } from './numerologyQu
 import { allYogaQuizzes } from './yogaQuizzes';
 import { allHumanDesignQuizzes } from './humanDesignQuizzes';
 import { allAstrologyQuizzes } from './astrologyQuizzes';
+import { akupunkturQuiz1, akupunkturQuiz2, akupunkturQuiz3 } from './akupunkturQuizzes';
+import { duygusalHastaliklarQuiz } from './duygusalHastaliklarQuiz';
 
 export interface QuizQuestion {
   id: string;
@@ -155,4 +157,8 @@ export const allQuizzes: Record<string, Quiz> = {
   'numeroloji_1': numerolojiQuiz1,
   'numeroloji_2': numerolojiQuiz2Advanced,
   'numeroloji_3': numerolojiQuiz3Advanced,
+  'akupunktur_1': akupunkturQuiz1,
+  'akupunktur_2': akupunkturQuiz2,
+  'akupunktur_3': akupunkturQuiz3,
+  'duygusal_hastaliklar_50': duygusalHastaliklarQuiz,
 };

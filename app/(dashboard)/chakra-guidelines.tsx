@@ -1,5 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, LayoutAnimation, Platform, UIManager } from 'react-native';
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -54,6 +60,12 @@ const GUIDELINES = [
 
 export default function ChakraGuidelinesScreen() {
   const router = useRouter();
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  const toggleExpand = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
 
   return (
     <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
@@ -79,17 +91,30 @@ export default function ChakraGuidelinesScreen() {
           </Text>
         </View>
 
-        {GUIDELINES.map((item, index) => (
-          <BlurView intensity={20} tint="dark" style={styles.ruleCard} key={index}>
-            <View style={styles.ruleHeader}>
-              <View style={[styles.iconContainer, { backgroundColor: item.color + '20', borderColor: item.color + '50' }]}>
-                <Ionicons name={item.icon as any} size={24} color={item.color} />
-              </View>
-              <Text style={[styles.ruleTitle, { color: item.color }]}>{item.title}</Text>
-            </View>
-            <Text style={styles.ruleContent}>{item.content}</Text>
-          </BlurView>
-        ))}
+        {GUIDELINES.map((item, index) => {
+          const isExpanded = expandedIndex === index;
+          return (
+            <TouchableOpacity 
+              key={index} 
+              activeOpacity={0.8} 
+              onPress={() => toggleExpand(index)}
+              style={{ marginBottom: 15 }}
+            >
+              <BlurView intensity={20} tint="dark" style={[styles.ruleCard, { marginBottom: 0 }]}>
+                <View style={[styles.ruleHeader, !isExpanded && { marginBottom: 0 }]}>
+                  <View style={[styles.iconContainer, { backgroundColor: item.color + '15', borderColor: item.color + '40' }]}>
+                    <Ionicons name={item.icon as any} size={22} color={item.color} />
+                  </View>
+                  <Text style={[styles.ruleTitle, { color: COLORS.textMuted }]}>{item.title}</Text>
+                  <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.textMuted} />
+                </View>
+                {isExpanded && (
+                  <Text style={styles.ruleContent}>{item.content}</Text>
+                )}
+              </BlurView>
+            </TouchableOpacity>
+          );
+        })}
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -173,7 +198,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   ruleContent: {
-    color: COLORS.textMuted,
+    color: COLORS.text,
     fontSize: 14,
     lineHeight: 22,
   }

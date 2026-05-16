@@ -71,7 +71,22 @@ const TEST_CATEGORIES: TestCategory[] = [
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/astroloji_3', requiredUnlock: 'astroloji_master', isHighlight: true },
     ]
   },
-  { id: 'ruhbeden', title: 'Ruh & Beden Sağlığı', icon: 'leaf-outline', route: '/(dashboard)/kadim-dersler/ruh-beden-test' },
+  { 
+    id: 'akupunktur', 
+    title: 'Akupunktur ve Meridyenler', 
+    icon: 'body-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/akupunktur_3', requiredUnlock: 'akupunktur_master', isHighlight: true },
+    ]
+  },
+  { 
+    id: 'duygusal_hastaliklar', 
+    title: 'Hastalıkların Duygusal Nedenleri (50 Soru)', 
+    icon: 'heart-half-outline', 
+    route: '/(dashboard)/kadim-dersler/test/duygusal_hastaliklar_50'
+  },
 ];
 
 export default function TestsHubScreen() {

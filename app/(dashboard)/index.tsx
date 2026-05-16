@@ -276,26 +276,11 @@ export default function DashboardScreen() {
            {/* Menü İçeriği */}
            <ScrollView style={styles.floatingMenuContainer} onStartShouldSetResponder={() => true} showsVerticalScrollIndicator={false}>
              
-             {/* Kadim Dersler Accordion */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => setIsLessonsExpanded(!isLessonsExpanded)}>
+             {/* Kadim Dersler Linki */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kadim-dersler'); setIsToolsExpanded(false); }}>
                <Ionicons name="book" size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Kadim Dersler</Text>
-               <Ionicons name={isLessonsExpanded ? "chevron-down" : "chevron-forward"} size={16} color={COLORS.primary} style={{ marginLeft: 'auto' }} />
              </TouchableOpacity>
-
-             {isLessonsExpanded && (
-               <View style={styles.fabLessonsSubmenu}>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/kabbalah'); }}><Text style={styles.fabSubText}>Evrensel Kabbalah</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/tarot'); }}><Text style={styles.fabSubText}>Tarot ve Arkana</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/sembolizm'); }}><Text style={styles.fabSubText}>Kadim Sembolizm</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/human-design'); }}><Text style={styles.fabSubText}>Human Design</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/astroloji'); }}><Text style={styles.fabSubText}>Ezoterik Astroloji</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/rune'); }}><Text style={styles.fabSubText}>Rune Tılsımları</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/numeroloji'); }}><Text style={styles.fabSubText}>Numeroloji</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/yoga'); }}><Text style={styles.fabSubText}>Yoga Asanaları</Text></TouchableOpacity>
-                 <TouchableOpacity style={styles.fabSubItem} onPress={() => { router.push('/(dashboard)/kadim-dersler/ruh-beden'); }}><Text style={styles.fabSubText}>Ruh & Beden Sağlığı</Text></TouchableOpacity>
-               </View>
-             )}
 
              <View style={styles.fabMenuDivider} />
 
@@ -325,6 +310,14 @@ export default function DashboardScreen() {
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/tests'); }}>
                <Ionicons name="school" size={20} color="#FFCC00" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Öğrendiklerini Test Et</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
+             {/* Profil ve Ayarlar */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/profile'); setIsToolsExpanded(false); }}>
+               <Ionicons name="settings-outline" size={20} color="#34C759" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Profil ve Ayarlar</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
