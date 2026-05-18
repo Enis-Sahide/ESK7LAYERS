@@ -4,11 +4,13 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
+import { useProgress } from '../../../src/context/ProgressContext';
 
 const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 export default function RuneMainScreen() {
   const router = useRouter();
+  const { hasAccess } = useProgress();
 
   return (
     <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
@@ -41,13 +43,21 @@ export default function RuneMainScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.card}
-          onPress={() => router.push('/(dashboard)/kadim-dersler/rune2')}
+          style={[styles.card, !hasAccess('rune_2') && { opacity: 0.5 }]}
+          onPress={() => {
+            if (hasAccess('rune_2')) {
+              router.push('/(dashboard)/kadim-dersler/rune2');
+            } else {
+              alert("Bu derece kilitli! Önce Rune Sembolleri Sınavını (1. Kademe) %100 başarıyla geçmelisin.");
+            }
+          }}
           activeOpacity={0.8}
         >
           <BlurView intensity={40} tint="dark" style={styles.cardBlur}>
             <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/runes/fear_bindrune.png' }} style={{width: 50, height: 50, marginBottom: 10, resizeMode: 'contain'}} />
-            <Text style={styles.cardTitle}>Rune Bağlamaları</Text>
+            <Text style={styles.cardTitle}>
+              {!hasAccess('rune_2') && <Ionicons name="lock-closed" size={20} color={COLORS.primary} />} Rune Bağlamaları
+            </Text>
             <Text style={styles.cardDesc}>
               Sembollerin birleşimiyle oluşan tılsımlar, ritüeller ve rüya kapanı.
             </Text>

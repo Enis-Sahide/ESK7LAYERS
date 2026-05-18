@@ -43,6 +43,14 @@ export default function KadimDerslerTestScreen() {
         // Human Design Kilitleri
         if (id === 'human_1') unlockTier('human_2');
         if (id === 'human_2') unlockTier('human_master');
+
+        // Astroloji Kilitleri
+        if (id === 'astroloji_1') unlockTier('astroloji_2');
+        if (id === 'astroloji_2') unlockTier('astroloji_master');
+
+        // Akupunktur Kilitleri
+        if (id === 'akupunktur_1') unlockTier('akupunktur_2');
+        if (id === 'akupunktur_2') unlockTier('akupunktur_master');
       }
     }
   }, [isFinished]);

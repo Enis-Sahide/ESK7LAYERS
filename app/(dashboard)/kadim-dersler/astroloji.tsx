@@ -119,16 +119,32 @@ export default function AstrolojiCurriculumScreen() {
             <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>I. Çıraklık</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'adept' && styles.activeTab]}
-            onPress={() => { setActiveTab('adept'); setExpandedLesson(null); }}
+            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !hasAccess('astroloji_2') && { opacity: 0.5 }]}
+            onPress={() => {
+              if (hasAccess('astroloji_2')) {
+                setActiveTab('adept'); setExpandedLesson(null);
+              } else {
+                alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.");
+              }
+            }}
           >
-            <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>II. Kalfalık</Text>
+            <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
+              {!hasAccess('astroloji_2') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'master' && styles.activeTab]}
-            onPress={() => { setActiveTab('master'); setExpandedLesson(null); }}
+            style={[styles.tab, activeTab === 'master' && styles.activeTab, !hasAccess('astroloji_master') && { opacity: 0.5 }]}
+            onPress={() => {
+              if (hasAccess('astroloji_master')) {
+                setActiveTab('master'); setExpandedLesson(null);
+              } else {
+                alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.");
+              }
+            }}
           >
-            <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>III. Üstatlık</Text>
+            <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
+              {!hasAccess('astroloji_master') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
+            </Text>
           </TouchableOpacity>
         </View>
 

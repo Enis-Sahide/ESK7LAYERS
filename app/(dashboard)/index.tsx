@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { supabase } from '@/src/services/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
+import { useProgress } from '@/src/context/ProgressContext';
 
 const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
@@ -79,6 +80,7 @@ const MarqueeText = ({ text }: { text: string }) => {
 
 export default function DashboardScreen() {
   const router = useRouter();
+  const { hasAccess } = useProgress();
   const [userName, setUserName] = useState('');
   const [userTitle, setUserTitle] = useState('Arayışta');
   const [userRace, setUserRace] = useState<string | null>(null);
@@ -209,7 +211,7 @@ export default function DashboardScreen() {
         
         <View style={styles.anatomicalContainer}>
           <Image 
-            source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/human_silhouette.png' }} 
+            source={require('../../assets/images/human_silhouette.png')} 
             style={styles.silhouetteImage} 
             resizeMode="cover" 
           />
@@ -277,8 +279,18 @@ export default function DashboardScreen() {
            <ScrollView style={styles.floatingMenuContainer} onStartShouldSetResponder={() => true} showsVerticalScrollIndicator={false}>
              
              {/* Kadim Dersler Linki */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kadim-dersler'); setIsToolsExpanded(false); }}>
-               <Ionicons name="book" size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
+             <TouchableOpacity 
+                style={[styles.fabMenuItem, !hasAccess('kadim_dersler_access') && { opacity: 0.5 }]} 
+                onPress={() => { 
+                  if (hasAccess('kadim_dersler_access')) {
+                    router.push('/(dashboard)/kadim-dersler'); 
+                    setIsToolsExpanded(false);
+                  } else {
+                    alert("Kadim Derslere erişmek için öncelikle Çakra Sınavını en az %85 başarıyla geçmelisin!");
+                  }
+                }}
+              >
+               <Ionicons name={hasAccess('kadim_dersler_access') ? "book" : "lock-closed"} size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Kadim Dersler</Text>
              </TouchableOpacity>
 
@@ -542,7 +554,7 @@ const styles = StyleSheet.create({
   },
   marqueeContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 40,
     width: '100%',
     backgroundColor: 'rgba(15, 15, 25, 0.95)',
     paddingVertical: 12,

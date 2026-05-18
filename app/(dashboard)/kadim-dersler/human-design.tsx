@@ -117,11 +117,21 @@ export default function HumanDesignCurriculumScreen() {
           <TouchableOpacity style={[styles.tab, activeTab === 'neofit' && styles.activeTab]} onPress={() => handleTabPress('neofit')}>
             <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>I. Çıraklık</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, activeTab === 'adept' && styles.activeTab]} onPress={() => handleTabPress('adept')}>
-            <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>II. Kalfalık</Text>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !hasAccess('human_2') && { opacity: 0.5 }]} 
+            onPress={() => hasAccess('human_2') ? handleTabPress('adept') : alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.")}
+          >
+            <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
+              {!hasAccess('human_2') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, activeTab === 'master' && styles.activeTab]} onPress={() => handleTabPress('master')}>
-            <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>III. Üstatlık</Text>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'master' && styles.activeTab, !hasAccess('human_master') && { opacity: 0.5 }]} 
+            onPress={() => hasAccess('human_master') ? handleTabPress('master') : alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.")}
+          >
+            <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
+              {!hasAccess('human_master') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
+            </Text>
           </TouchableOpacity>
         </View>
 

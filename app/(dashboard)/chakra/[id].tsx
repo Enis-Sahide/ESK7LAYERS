@@ -160,7 +160,6 @@ export default function ChakraDetailScreen() {
                   </View>
                   <View style={styles.topicTextContainer}>
                     <Text style={[styles.topicTitle, isExpanded && { color: chakra.color }]}>{topic.title}</Text>
-                    <Text style={styles.topicDesc}>Seviye {id} Öğretileri</Text>
                   </View>
                   <Ionicons 
                     name={topic.id === 'meditasyon' ? "arrow-forward" : (isExpanded ? "chevron-up" : "chevron-down")} 

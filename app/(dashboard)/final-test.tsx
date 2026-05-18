@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { FINAL_QUIZ_QUESTIONS } from '@/src/data/finalQuiz';
 import { supabase } from '@/src/services/supabase';
+import { useProgress } from '@/src/context/ProgressContext';
 
 const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
@@ -28,6 +29,7 @@ export default function FinalTestScreen() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const { unlockTier } = useProgress();
 
   // Initialize and shuffle questions on mount
   useEffect(() => {
@@ -109,10 +111,13 @@ export default function FinalTestScreen() {
               }
             });
           }
+          if (score >= 85) {
+            await unlockTier('kadim_dersler_access');
+          }
         };
         saveResult();
       }
-    }, [isFinished]);
+    }, [isFinished, score, title]);
 
     return (
       <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
