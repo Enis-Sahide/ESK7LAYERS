@@ -7,19 +7,19 @@ import { COLORS, SIZES } from '@/src/theme';
 const { width } = Dimensions.get('window');
 
 const AVATARS: Record<string, any> = {
-  'pleiades': require('@/assets/images/avatars/pleiades.png'),
-  'sirius': require('@/assets/images/avatars/sirius.png'),
-  'arcturus': require('@/assets/images/avatars/arcturus.png'),
-  'andromeda': require('@/assets/images/avatars/andromeda.png'),
-  'lyra': require('@/assets/images/avatars/lyra.png'),
-  'orion': require('@/assets/images/avatars/orion.png'),
-  'mintaka': require('@/assets/images/avatars/mintaka.png'),
-  'orion_pleiades': require('@/assets/images/avatars/orion_pleiades.png'),
-  'blue_avians': require('@/assets/images/avatars/sirius.png'),
-  'sirius_pleiades': require('@/assets/images/avatars/pleiades.png'),
-  'lyra_arcturus': require('@/assets/images/avatars/arcturus.png'),
-  'atlantis': require('@/assets/images/avatars/mintaka.png'),
-  'indigo': require('@/assets/images/avatars/pleiades.png'),
+  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
+  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
+  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
+  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
+  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
+  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
+  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'orion_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion_pleiades.png' },
+  'blue_avians': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
+  'sirius_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
+  'lyra_arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
+  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
 };
 
 const RACES = [

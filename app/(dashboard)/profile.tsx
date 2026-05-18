@@ -6,18 +6,18 @@ import { BlurView } from 'expo-blur';
 import { supabase } from '@/src/services/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 const AVATARS: Record<string, any> = {
-  'pleiades': require('@/assets/images/avatars/pleiades.png'),
-  'sirius': require('@/assets/images/avatars/sirius.png'),
-  'arcturus': require('@/assets/images/avatars/arcturus.png'),
-  'andromeda': require('@/assets/images/avatars/andromeda.png'),
-  'lyra': require('@/assets/images/avatars/lyra.png'),
-  'orion': require('@/assets/images/avatars/orion.png'),
-  'mintaka': require('@/assets/images/avatars/mintaka.png'),
-  'atlantis': require('@/assets/images/avatars/mintaka.png'),
-  'indigo': require('@/assets/images/avatars/pleiades.png'),
+  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
+  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
+  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
+  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
+  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
+  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
+  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
 };
 
 const RACES = [

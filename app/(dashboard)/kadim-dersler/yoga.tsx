@@ -73,7 +73,7 @@ export default function YogaCurriculumScreen() {
               </Text>
             </BlurView>
 
-            <Image source={require('../../../assets/images/yoga/neophyte_lotus.png')} style={styles.heroImage} resizeMode="cover" />
+            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/neophyte_lotus.png' }} style={styles.heroImage} resizeMode="cover" />
 
             <Text style={styles.sectionTitle}>1. Ashtanga: 8 Basamaklı Yol</Text>
             <View style={styles.methodCard}>
@@ -130,7 +130,7 @@ export default function YogaCurriculumScreen() {
               </Text>
             </BlurView>
 
-            <Image source={require('../../../assets/images/yoga/surya_namaskar.png')} style={styles.heroImage} resizeMode="contain" />
+            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/surya_namaskar.png' }} style={styles.heroImage} resizeMode="contain" />
 
             <Text style={styles.sectionTitle}>1. Surya Namaskar & Akış Dinamikleri</Text>
             <View style={styles.methodCard}>
@@ -148,7 +148,7 @@ export default function YogaCurriculumScreen() {
               </View>
             </View>
 
-            <Image source={require('../../../assets/images/yoga/nadis_anatomy.png')} style={styles.heroImage} resizeMode="contain" />
+            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/nadis_anatomy.png' }} style={styles.heroImage} resizeMode="contain" />
 
             <Text style={styles.sectionTitle}>2. Enerji Anatomisi (Nadi ve Vayu)</Text>
             <View style={styles.methodCard}>
@@ -190,7 +190,7 @@ export default function YogaCurriculumScreen() {
               </Text>
             </BlurView>
 
-            <Image source={require('../../../assets/images/yoga/master_kundalini.png')} style={styles.heroImage} resizeMode="contain" />
+            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/master_kundalini.png' }} style={styles.heroImage} resizeMode="contain" />
 
             <Text style={styles.sectionTitle}>1. Kundalini ve İleri Pratikler</Text>
             <View style={styles.methodCard}>

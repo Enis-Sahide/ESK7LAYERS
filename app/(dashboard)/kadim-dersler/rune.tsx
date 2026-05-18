@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 export default function RuneMainScreen() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export default function RuneMainScreen() {
           activeOpacity={0.8}
         >
           <BlurView intensity={40} tint="dark" style={styles.cardBlur}>
-            <Image source={require('@/assets/images/runes/fear_bindrune.png')} style={{width: 50, height: 50, marginBottom: 10, resizeMode: 'contain'}} />
+            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/runes/fear_bindrune.png' }} style={{width: 50, height: 50, marginBottom: 10, resizeMode: 'contain'}} />
             <Text style={styles.cardTitle}>Rune Bağlamaları</Text>
             <Text style={styles.cardDesc}>
               Sembollerin birleşimiyle oluşan tılsımlar, ritüeller ve rüya kapanı.

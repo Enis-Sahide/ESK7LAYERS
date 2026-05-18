@@ -8,35 +8,35 @@ import { supabase } from '@/src/services/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 const { width } = Dimensions.get('window');
 
 const AVATARS: Record<string, any> = {
-  'pleiades': require('@/assets/images/avatars/pleiades.png'),
-  'sirius': require('@/assets/images/avatars/sirius.png'),
-  'arcturus': require('@/assets/images/avatars/arcturus.png'),
-  'andromeda': require('@/assets/images/avatars/andromeda.png'),
-  'lyra': require('@/assets/images/avatars/lyra.png'),
-  'orion': require('@/assets/images/avatars/orion.png'),
-  'mintaka': require('@/assets/images/avatars/mintaka.png'),
-  'orion_pleiades': require('@/assets/images/avatars/orion_pleiades.png'),
-  'blue_avians': require('@/assets/images/avatars/sirius.png'),
-  'sirius_pleiades': require('@/assets/images/avatars/pleiades.png'),
-  'lyra_arcturus': require('@/assets/images/avatars/arcturus.png'),
-  'atlantis': require('@/assets/images/avatars/mintaka.png'),
-  'indigo': require('@/assets/images/avatars/pleiades.png'),
+  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
+  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
+  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
+  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
+  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
+  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
+  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'orion_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion_pleiades.png' },
+  'blue_avians': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
+  'sirius_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
+  'lyra_arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
+  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
+  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
 };
 
 // İçerik Kategorileri (7 Çakra - 7 Katman)
 const MODULES = [
-  { id: 1, title: 'Kök Çakra', subtitle: 'Temel Bilgiler', reqLevel: 1, imageIcon: require('@/assets/images/chakras/root.png'), color: '#FF3B30', top: '82%' },
-  { id: 2, title: 'Sakral Çakra', subtitle: 'Bağlar ve Yaratım', reqLevel: 2, imageIcon: require('@/assets/images/chakras/sacral.png'), color: '#FF9500', top: '72%' },
-  { id: 3, title: 'Solar Pleksus', subtitle: 'İrade ve Güç', reqLevel: 3, imageIcon: require('@/assets/images/chakras/solar.png'), color: '#FFCC00', top: '62%' },
-  { id: 4, title: 'Kalp Çakrası', subtitle: 'Sevgi ve Denge', reqLevel: 4, imageIcon: require('@/assets/images/chakras/heart.png'), color: '#34C759', top: '52%' },
-  { id: 5, title: 'Boğaz Çakrası', subtitle: 'İfade ve Gerçek', reqLevel: 5, imageIcon: require('@/assets/images/chakras/throat.png'), color: '#00C7BE', top: '37%' },
-  { id: 6, title: 'Üçüncü Göz', subtitle: 'Sezgi ve İdrak', reqLevel: 6, imageIcon: require('@/assets/images/chakras/thirdeye.png'), color: '#32ADE6', top: '25%' },
-  { id: 7, title: 'Tepe Çakra', subtitle: 'Kozmik Bağlantı', reqLevel: 7, imageIcon: require('@/assets/images/chakras/crown.png'), color: '#AF52DE', top: '15%' },
+  { id: 1, title: 'Kök Çakra', subtitle: 'Temel Bilgiler', reqLevel: 1, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/root.png' }, color: '#FF3B30', top: '82%' },
+  { id: 2, title: 'Sakral Çakra', subtitle: 'Bağlar ve Yaratım', reqLevel: 2, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/sacral.png' }, color: '#FF9500', top: '72%' },
+  { id: 3, title: 'Solar Pleksus', subtitle: 'İrade ve Güç', reqLevel: 3, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/solar.png' }, color: '#FFCC00', top: '62%' },
+  { id: 4, title: 'Kalp Çakrası', subtitle: 'Sevgi ve Denge', reqLevel: 4, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/heart.png' }, color: '#34C759', top: '52%' },
+  { id: 5, title: 'Boğaz Çakrası', subtitle: 'İfade ve Gerçek', reqLevel: 5, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/throat.png' }, color: '#00C7BE', top: '37%' },
+  { id: 6, title: 'Üçüncü Göz', subtitle: 'Sezgi ve İdrak', reqLevel: 6, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/thirdeye.png' }, color: '#32ADE6', top: '25%' },
+  { id: 7, title: 'Tepe Çakra', subtitle: 'Kozmik Bağlantı', reqLevel: 7, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/crown.png' }, color: '#AF52DE', top: '15%' },
 ];
 
 const DAY_CHAKRA_MAP: Record<number, { name: string, planet: string, chakraId: number, symbol: string }> = {
@@ -209,7 +209,7 @@ export default function DashboardScreen() {
         
         <View style={styles.anatomicalContainer}>
           <Image 
-            source={require('@/assets/images/human_silhouette.png')} 
+            source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/human_silhouette.png' }} 
             style={styles.silhouetteImage} 
             resizeMode="cover" 
           />

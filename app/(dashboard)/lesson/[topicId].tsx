@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { LESSONS } from '@/src/data/chakraLessons';
 import { Audio } from 'expo-av';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 // Çakra Renkleri (Görsel Uyum İçin)
 const CHAKRA_COLORS: Record<string, string> = {

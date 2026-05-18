@@ -202,7 +202,7 @@ export default function HumanDesignScreen() {
         width="220"
         height="370"
         preserveAspectRatio="none"
-        href={require('../../../assets/images/human_design_bg.png')}
+        href={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/human_design_bg.png' }}
       />
     );
   };

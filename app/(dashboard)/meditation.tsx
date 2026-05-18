@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { Audio } from 'expo-av';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 // NOT: Bu URL'ler geçicidir. Müşteriniz gerçek frekans seslerini (mp3) verdiğinde assets içine alıp require() ile buraya koyabilirsiniz.
 const FREQUENCIES = [

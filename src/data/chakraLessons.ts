@@ -27,8 +27,8 @@ export const LESSONS: Record<string, any> = {
   },
   '1_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/root_mudra_female_symbol.png'),
-    audio: require('@/assets/audio/mantra_1.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/root_mudra_female_symbol.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_1.wav' },
     content: 'Rengi: Kırmızı\nFrekansı: 396 Hz\nİlahi Sesi: LAM\nElementi: Toprak\n\nMeditasyon Pratiği:\nBaş parmaklarınızın uçlarına ve işaret parmaklarınıza dokunun. Kollarınızı dizlerinizin üzerinde düz tutun. Sesi Kırmızı rengi düşünün ve şunu söyleyin:\n\nL-A-A-A-A-A-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Kök çakrayı aktive ederken hangi mantrayı kullanmalıyız?',
@@ -99,8 +99,8 @@ export const LESSONS: Record<string, any> = {
   },
   '2_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/sacral_mudra.png'),
-    audio: require('@/assets/audio/mantra_2.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/sacral_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_2.wav' },
     content: 'Rengi: Turuncu\nFrekansı: 417 Hz\nİlahi Sesi: VAM\nElementi: Su\n\nMeditasyon Pratiği:\nEllerinizi kucağınıza koyun ve iki elinizin baş parmaklarının uçlarını birbirine dokundurun. Turuncu rengi düşünün ve şunu söyleyin:\n\nV-A-A-A-A-A-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Sakral çakrayı aktive ederken hangi mantrayı kullanmalıyız?',
@@ -170,8 +170,8 @@ export const LESSONS: Record<string, any> = {
   },
   '3_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/solar_mudra.png'),
-    audio: require('@/assets/audio/mantra_3.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/solar_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_3.wav' },
     content: 'Rengi: Sarı\nFrekansı: 528 Hz\nİlahi Sesi: RAM\nElementi: Ateş\n\nMeditasyon Pratiği:\nEllerinizi kalbiniz ve karnınız arasında tutun. Ellerinizi bir araya koyun, parmaklar düz, uzağınızı gösterecek şekilde, baş parmaklarınızı çaprazlayın. Sarı rengi düşünürken şunu söyleyin:\n\nR-A-A-A-A-A-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Solar Pleksus çakranın elementi ve mantrası eşleşmesi hangisidir?',
@@ -241,8 +241,8 @@ export const LESSONS: Record<string, any> = {
   },
   '4_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/heart_mudra.png'),
-    audio: require('@/assets/audio/mantra_4.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/heart_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_4.wav' },
     content: 'Rengi: Yeşil\nFrekansı: 639 Hz\nİlahi Sesi: YAM\nElementi: Hava\n\nMeditasyon Pratiği:\nBaş parmağınızla işaret parmağınızın uçlarına dokunun, sol elinizi sol dizinizin üzerine koyun, avuç aşağıda, sağ elinizi Anahata\'nın merkezine koyun. Yeşil rengi düşünürken şunu söyleyin:\n\nY-A-A-A-A-A-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Kalp çakrasını aktive etmek için kullanılan ilahi ses (mantra) nedir?',
@@ -313,8 +313,8 @@ export const LESSONS: Record<string, any> = {
   },
   '5_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/throat_mudra.png'),
-    audio: require('@/assets/audio/mantra_5.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/throat_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_5.wav' },
     content: 'Rengi: Mavi (Cam Göbeği)\nFrekansı: 741 Hz\nİlahi Sesi: HAM\nElementi: Eter\n\nMeditasyon Pratiği:\nParmaklarınızı birbirine geçirirken ellerinizi karnınızın önüne koyun. Baş parmaklarınızın uçlarına dokunun. Mavi rengi düşünürken şunu söyleyin:\n\nH-A-A-A-A-A-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Boğaz çakrasının frekansı ve ilahi sesi hangisidir?',
@@ -385,8 +385,8 @@ export const LESSONS: Record<string, any> = {
   },
   '6_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/thirdeye_mudra.png'),
-    audio: require('@/assets/audio/mantra_6.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/thirdeye_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_6.wav' },
     content: 'Rengi: İndigo Mavi (Gece Mavisi)\nFrekansı: 852 Hz\nİlahi Sesi: AUM\nElementi: Akaşa\n\nMeditasyon Pratiği:\nEllerinizi alt göğsünüzün önüne koyun. Orta parmaklarınız ve baş parmaklarınız birbirine değiyor. Diğer parmaklarınızın her biri bükülmüş ve birbirine değiyor. İndigo mavi rengi düşünürken şunu söyleyin:\n\nA-A-A-A-A-U-U-U-U-M-M-M-M-M (Dil damağa değecek.)',
     quiz: {
       question: 'Üçüncü göz çakrasının rengi nedir?',
@@ -457,8 +457,8 @@ export const LESSONS: Record<string, any> = {
   },
   '7_meditasyon': {
     title: 'Aktivasyon ve Meditasyon',
-    image: require('@/assets/images/mudras/crown_mudra.png'),
-    audio: require('@/assets/audio/mantra_7.wav'),
+    image: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/mudras/crown_mudra.png' },
+    audio: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/audio/mantra_7.wav' },
     content: 'Rengi: Beyaz\nFrekansı: 963 Hz\nİlahi Sesi: NG\nGezegeni: Satürn\n\nMeditasyon Pratiği:\nEllerinizi karnınızın önüne koyun ve parmaklarınızı çaprazlayın. Küçük parmaklarınız (serçe parmak) birleştirilmiş olup yukarıya doğru işaret etmeli. Bembeyaz ışığı düşünüp şunu söyleyin:\n\nN-G-G-G-G-G-G-G-G-G-G-G (Dil damağa değecek.)',
     quiz: {
       question: 'Taç çakra meditasyonuna başlamadan önce dikkat edilmesi gereken en önemli kural nedir?',

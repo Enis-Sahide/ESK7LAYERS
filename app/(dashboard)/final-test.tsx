@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { FINAL_QUIZ_QUESTIONS } from '@/src/data/finalQuiz';
 import { supabase } from '@/src/services/supabase';
 
-const ESOTERIC_BG = require('@/assets/images/backgrounds/esoteric_bg.png');
+const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = (array: any[]) => {

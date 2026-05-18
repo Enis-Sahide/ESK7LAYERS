@@ -167,7 +167,7 @@ export default function AnlikGokyuzuScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <ImageBackground source={require('@/assets/images/backgrounds/esoteric_bg.png')} style={styles.container} resizeMode="cover">
+      <ImageBackground source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' }} style={styles.container} resizeMode="cover">
         <View style={StyleSheet.absoluteFill} />
         <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
 
