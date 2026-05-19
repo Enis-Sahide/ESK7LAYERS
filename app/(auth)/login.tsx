@@ -43,7 +43,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
-        <Text style={styles.title}>ESK 7 Layers</Text>
+        <Text style={styles.title}>7LAYERS</Text>
         <Text style={styles.subtitle}>Gizemli yolculuğa hoş geldin.</Text>
 
         {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}

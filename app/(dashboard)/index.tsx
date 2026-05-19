@@ -211,7 +211,7 @@ export default function DashboardScreen() {
         
         <View style={styles.anatomicalContainer}>
           <Image 
-            source={require('../../assets/images/human_silhouette.png')} 
+            source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/human_silhouette.png' }} 
             style={styles.silhouetteImage} 
             resizeMode="cover" 
           />

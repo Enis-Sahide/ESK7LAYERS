@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
+import { getFullPlanetInterpretation, getAspectInterpretation } from '../../../src/utils/AstrologyInterpretations';
 
 const AVAILABLE_COUNTRIES = [
   'Türkiye', 'Almanya', 'Amerika Birleşik Devletleri', 'İngiltere', 'Fransa', 
@@ -51,6 +52,7 @@ export default function AnlikGokyuzuScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [chart, setChart] = useState<NatalChartData | null>(null);
+  const [selectedInterp, setSelectedInterp] = useState<{title: string, content: string} | null>(null);
 
   const filteredCities = ASTRO_CITIES.filter(c => 
     c.country === country &&
@@ -269,23 +271,31 @@ export default function AnlikGokyuzuScreen() {
                 <Text style={styles.reportTitle}>Gezegen Yerleşimleri</Text>
                 <View style={styles.planetsList}>
                   {chart.planets.map((p, i) => (
-                    <View key={i} style={styles.planetRow}>
+                    <TouchableOpacity 
+                      key={i} 
+                      style={styles.planetRow}
+                      onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                    >
                       <Text style={styles.planetSymbol}>{PLANET_SYMBOLS[p.name]}</Text>
                       <Text style={styles.planetName}>{p.name}</Text>
                       <Text style={[styles.planetSign, { color: ZODIAC_COLORS[p.sign] }]}>{p.sign}</Text>
                       <Text style={styles.planetHouse}>{p.house}. Ev</Text>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </View>
 
                 <Text style={styles.reportTitle}>Önemli Açılar (Karmik Dinamikler)</Text>
                 <View style={styles.aspectsList}>
                   {chart.aspects.filter(a => a.orb <= 5).map((a, i) => (
-                    <View key={i} style={styles.aspectRow}>
+                    <TouchableOpacity 
+                      key={i} 
+                      style={styles.aspectRow}
+                      onPress={() => setSelectedInterp(getAspectInterpretation(a.planet1, a.planet2, a.type))}
+                    >
                       <Text style={styles.aspectPlanets}>{a.planet1} - {a.planet2}</Text>
                       <Text style={styles.aspectType}>{a.type}</Text>
                       {a.isExact && <Text style={styles.aspectExact}>Tam Açı!</Text>}
-                    </View>
+                    </TouchableOpacity>
                   ))}
                   {chart.aspects.filter(a => a.orb <= 5).length === 0 && (
                     <Text style={{color: COLORS.textMuted}}>Şu an gökyüzünde dar orblu kesin bir majör açı bulunmuyor.</Text>
@@ -320,6 +330,23 @@ export default function AnlikGokyuzuScreen() {
                     {country === c && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
                   </TouchableOpacity>
                 ))}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Interpretation Modal */}
+        <Modal visible={!!selectedInterp} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.interpModalContent}>
+              <View style={styles.interpModalHeader}>
+                <Text style={styles.interpModalTitle}>{selectedInterp?.title}</Text>
+                <TouchableOpacity onPress={() => setSelectedInterp(null)}>
+                  <Ionicons name="close-circle" size={28} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
+                <Text style={styles.interpModalText}>{selectedInterp?.content}</Text>
               </ScrollView>
             </View>
           </View>
@@ -379,5 +406,10 @@ const styles = StyleSheet.create({
   aspectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
   aspectPlanets: { flex: 2, color: COLORS.text, fontSize: 15 },
   aspectType: { flex: 1, color: COLORS.primary, fontSize: 15, textAlign: 'right' },
-  aspectExact: { color: '#FF453A', fontSize: 12, fontWeight: 'bold', marginLeft: 10 }
+  aspectExact: { color: '#FF453A', fontSize: 12, fontWeight: 'bold', marginLeft: 10 },
+
+  interpModalContent: { backgroundColor: COLORS.cardBg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '65%', padding: 25, borderWidth: 1, borderColor: COLORS.primary },
+  interpModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(212,175,55,0.2)', paddingBottom: 15 },
+  interpModalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 10 },
+  interpModalText: { fontSize: 16, color: COLORS.text, lineHeight: 26 }
 });

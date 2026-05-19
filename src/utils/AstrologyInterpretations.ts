@@ -85,3 +85,29 @@ export function getHouseCuspInterpretation(houseNum: number, signName: ZodiacSig
 
   return { title, content };
 }
+
+const DICT_ASPECTS: Record<string, { nature: string, meaning: string, esoteric: string }> = {
+  'Kavuşum': { nature: 'güç birliği ve birleşim', meaning: 'iki enerjinin tek bir odak noktasında eriyip kaynaştığını ve birbirini ayrılmaz bir şekilde desteklediğini (veya zorladığını)', esoteric: 'Ruhun bu iki temayı tekammül planında tek bir mühürde birleştirdiği kördüğüm; iç içe geçmiş karmik kader.' },
+  'Karşıt': { nature: 'aynalama ve gerilim', meaning: 'bu iki enerjinin sürekli bir tahterevalli gibi denge aradığını ve dış olaylar üzerinden birbirini aynaladığını', esoteric: 'Ruhun dualite (ikilik) sınavı; "Öteki" üzerinden kendi içsel çelişkisiyle yüzleşme ve uyanış çağrısı.' },
+  'Üçgen': { nature: 'doğal akış ve ilahi yetenek', meaning: 'bu iki gezegenin birbirini en uyumlu ve zahmetsiz şekilde beslediğini, adeta doğuştan gelen bir şans kapısı açtığını', esoteric: 'Geçmiş hayatlarda hak edilmiş lütuf ve ödül (Dharma); evrensel yasalarla tam bir uyum içinde akan neşe kanalı.' },
+  'Kare': { nature: 'sürtünme, zorlanma ve kriz', meaning: 'bu enerjiler arasında sürekli bir içsel çatışma olduğunu ve sizi harekete geçmeye, krizleri çözerek büyümeye zorladığını', esoteric: 'Ruhun demirci örsündeki dövülme süreci; büyük bir sıçrama yaşamak için geçilmesi zorunlu olan acılı karmik sınav.' },
+  'Sekstil': { nature: 'fırsat ve teşvik', meaning: 'bu gezegenlerin birbirine destekleyici fırsatlar sunduğunu ancak bu potansiyelin açığa çıkması için sizin bilinçli bir çaba göstermeniz gerektiğini', esoteric: 'Kozmik tohum; doğru toprakla ve eylemle buluştuğunda ruhun uyanışını hızlandıracak gizli potansiyel.' },
+  'Görmeyen': { nature: 'anlaşmazlık ve kör nokta', meaning: 'bu iki enerjinin birbirini hiç anlamadığını, tuhaf ve beklenmedik krizlerle sürekli ince ayar yapmanız gerektiğini', esoteric: 'Ruhsal kör nokta; bilinçaltında bastırılmış, kabul edilmesi ve farklı bir bakış açısıyla (simyasal) sentezlenmesi gereken gölge yan.' }
+};
+
+export function getAspectInterpretation(planet1Name: string, planet2Name: string, aspectType: string): { title: string, content: string } {
+  const p1 = DICT_PLANETS[planet1Name] || DICT_PLANETS[planet1Name.replace(' ', '')];
+  const p2 = DICT_PLANETS[planet2Name] || DICT_PLANETS[planet2Name.replace(' ', '')];
+  const aspect = DICT_ASPECTS[aspectType];
+
+  if (!p1 || !p2 || !aspect) return { title: 'Bilinmeyen Açı', content: 'Bu gezegensel etkileşim için detaylı bir metin üretilemedi.' };
+
+  const title = `${planet1Name} ve ${planet2Name} ${aspectType} Açısı`;
+
+  const content = `Astrolojide ${aspectType} açısı, ${aspect.nature} enerjisi taşır.\n\n` +
+    `GEZEGEN DİNAMİĞİ:\n${planet1Name} (${p1.essence}), ${planet2Name} (${p2.essence}) ile bir "${aspectType}" açısı yapmaktadır.\n\n` +
+    `ETKİSİ:\nBu açı, ${aspect.meaning} gösterir. Harita sahibi, bir tarafta ${planet1Name} enerjisiyle ${p1.action}ken, diğer tarafta eşzamanlı olarak ${planet2Name} enerjisinin etkisi altına girerek ${p2.action}. Bu iki güç arasındaki "${aspectType}" etkileşimi, sizin karakterinizdeki en belirgin psikolojik motiflerden biridir.\n\n` +
+    `EZOTERİK ANLAM (KARMİK DİNAMİK):\n${aspect.esoteric} Bu özel etkileşim, bu enkarnasyondaki büyük senaryonuzun en güçlü düğümlerinden biridir.`;
+
+  return { title, content };
+}
