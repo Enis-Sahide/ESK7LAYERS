@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground }
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
+import { useProgress } from '@/src/context/ProgressContext';
 
 const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
@@ -11,22 +12,33 @@ interface LessonCategory {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   route: string;
+  requiredUnlock?: string;
 }
 
 const LESSON_CATEGORIES: LessonCategory[] = [
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah' },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot' },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm' },
-  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design' },
-  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji' },
-  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune' },
-  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji' },
-  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga' },
   { id: 'ruh-beden', title: 'Ruh & Beden Sağlığı', icon: 'leaf-outline', route: '/(dashboard)/kadim-dersler/ruh-beden' },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga', requiredUnlock: 'kadim_dersler_access' },
 ];
 
 export default function LessonsHubScreen() {
   const router = useRouter();
+  const { hasAccess } = useProgress();
+  const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
+
+  const handlePress = (cat: LessonCategory) => {
+    if (cat.requiredUnlock && !hasFullAccess) {
+      alert("Bu derse erişmek için Çakra Final Sınavı ve Hastalıkların Duygusal Nedenleri Sınavından en az %85 almalısın!");
+      return;
+    }
+    router.push(cat.route as any);
+  };
 
   return (
     <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
@@ -47,20 +59,23 @@ export default function LessonsHubScreen() {
         {LESSON_CATEGORIES.map((cat) => (
           <View key={cat.id} style={styles.cardContainer}>
             <TouchableOpacity 
-              style={styles.categoryCard} 
-              onPress={() => router.push(cat.route as any)}
+              style={[styles.categoryCard, (cat.requiredUnlock && !hasFullAccess) && { opacity: 0.6 }]} 
+              onPress={() => handlePress(cat)}
               activeOpacity={0.8}
             >
               <View style={styles.cardLeft}>
                 <View style={styles.iconContainer}>
                   <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                 </View>
-                <Text style={styles.cardTitle}>{cat.title}</Text>
+                <Text style={styles.cardTitle}>
+                  {(cat.requiredUnlock && !hasFullAccess) && <Ionicons name="lock-closed" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                  {cat.title}
+                </Text>
               </View>
               <Ionicons 
-                name="chevron-forward" 
+                name={(cat.requiredUnlock && !hasFullAccess) ? "lock-closed-outline" : "chevron-forward"} 
                 size={20} 
-                color={COLORS.primary} 
+                color={(cat.requiredUnlock && !hasFullAccess) ? COLORS.textMuted : COLORS.primary} 
               />
             </TouchableOpacity>
           </View>

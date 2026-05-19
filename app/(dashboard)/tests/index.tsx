@@ -13,18 +13,26 @@ interface TestCategory {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   route?: string;
+  requiredUnlock?: string;
   subTests?: { title: string; route: string; isHighlight?: boolean; requiredUnlock?: string }[];
 }
 
 const TEST_CATEGORIES: TestCategory[] = [
   { id: 'aura', title: 'Aura & Çakra Bilgisi', icon: 'body-outline', route: '/(dashboard)/final-test' },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah-test' },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test' },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test' },
+  { 
+    id: 'duygusal_hastaliklar', 
+    title: 'Hastalıkların Duygusal Nedenleri (50 Soru)', 
+    icon: 'heart-half-outline', 
+    route: '/(dashboard)/kadim-dersler/test/duygusal_hastaliklar_50'
+  },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah-test', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', requiredUnlock: 'kadim_dersler_access' },
   { 
     id: 'human', 
     title: 'Human Design Sınavları', 
     icon: 'finger-print-outline', 
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
@@ -35,6 +43,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'rune',
     title: 'Rune Sınavları',
     icon: 'diamond-outline',
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Kademe: Semboller', route: '/(dashboard)/kadim-dersler/test/rune1' },
       { title: '2. Kademe: Bağlamalar', route: '/(dashboard)/kadim-dersler/test/rune2', requiredUnlock: 'rune_2' },
@@ -45,6 +54,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'numeroloji', 
     title: 'Numeroloji Sınavları', 
     icon: 'calculator-outline', 
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/numeroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/numeroloji_2', requiredUnlock: 'numeroloji_2' },
@@ -55,6 +65,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'yoga', 
     title: 'Yoga Asanaları', 
     icon: 'fitness-outline', 
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
@@ -65,6 +76,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'astroloji', 
     title: 'Ezoterik Astroloji', 
     icon: 'planet-outline', 
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/astroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/astroloji_2', requiredUnlock: 'astroloji_2' },
@@ -75,17 +87,12 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'akupunktur', 
     title: 'Akupunktur ve Meridyenler', 
     icon: 'body-outline', 
+    requiredUnlock: 'kadim_dersler_access',
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/akupunktur_3', requiredUnlock: 'akupunktur_master', isHighlight: true },
     ]
-  },
-  { 
-    id: 'duygusal_hastaliklar', 
-    title: 'Hastalıkların Duygusal Nedenleri (50 Soru)', 
-    icon: 'heart-half-outline', 
-    route: '/(dashboard)/kadim-dersler/test/duygusal_hastaliklar_50'
   },
 ];
 
@@ -93,6 +100,8 @@ export default function TestsHubScreen() {
   const router = useRouter();
   const { hasAccess, resetProgress } = useProgress();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  
+  const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
 
   const handleReset = () => {
     Alert.alert(
@@ -113,6 +122,11 @@ export default function TestsHubScreen() {
   };
 
   const handlePress = (category: TestCategory) => {
+    if (category.requiredUnlock && !hasFullAccess) {
+      alert("Bu sınavlara erişmek için Çakra Final Sınavı ve Hastalıkların Duygusal Nedenleri Sınavından en az %85 almalısın!");
+      return;
+    }
+
     if (category.subTests) {
       setExpandedId(expandedId === category.id ? null : category.id);
     } else if (category.route) {
@@ -142,7 +156,7 @@ export default function TestsHubScreen() {
           return (
             <View key={cat.id} style={styles.cardContainer}>
               <TouchableOpacity 
-                style={styles.categoryCard} 
+                style={[styles.categoryCard, (cat.requiredUnlock && !hasFullAccess) && { opacity: 0.6 }]} 
                 onPress={() => handlePress(cat)}
                 activeOpacity={0.8}
               >
@@ -150,12 +164,18 @@ export default function TestsHubScreen() {
                   <View style={styles.iconContainer}>
                     <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                   </View>
-                  <Text style={styles.cardTitle}>{cat.title}</Text>
+                  <Text style={styles.cardTitle}>
+                    {(cat.requiredUnlock && !hasFullAccess) && <Ionicons name="lock-closed" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                    {cat.title}
+                  </Text>
                 </View>
                 <Ionicons 
-                  name={cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : "play-circle-outline"} 
+                  name={
+                    (cat.requiredUnlock && !hasFullAccess) ? "lock-closed-outline" :
+                    cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : "play-circle-outline"
+                  } 
                   size={24} 
-                  color={cat.subTests ? COLORS.textMuted : COLORS.primary} 
+                  color={(cat.subTests || (cat.requiredUnlock && !hasFullAccess)) ? COLORS.textMuted : COLORS.primary} 
                 />
               </TouchableOpacity>
 

@@ -280,17 +280,13 @@ export default function DashboardScreen() {
              
              {/* Kadim Dersler Linki */}
              <TouchableOpacity 
-                style={[styles.fabMenuItem, !hasAccess('kadim_dersler_access') && { opacity: 0.5 }]} 
+                style={styles.fabMenuItem} 
                 onPress={() => { 
-                  if (hasAccess('kadim_dersler_access')) {
-                    router.push('/(dashboard)/kadim-dersler'); 
-                    setIsToolsExpanded(false);
-                  } else {
-                    alert("Kadim Derslere erişmek için öncelikle Çakra Sınavını en az %85 başarıyla geçmelisin!");
-                  }
+                  router.push('/(dashboard)/kadim-dersler'); 
+                  setIsToolsExpanded(false);
                 }}
               >
-               <Ionicons name={hasAccess('kadim_dersler_access') ? "book" : "lock-closed"} size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
+               <Ionicons name="book" size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Kadim Dersler</Text>
              </TouchableOpacity>
 

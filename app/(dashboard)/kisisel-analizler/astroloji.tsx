@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
-import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
+import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
+import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '../../../src/utils/AstrologyInterpretations';
 
 const AVAILABLE_COUNTRIES = [
   'Türkiye', 'Almanya', 'Amerika Birleşik Devletleri', 'İngiltere', 'Fransa', 
@@ -11,9 +12,9 @@ const AVAILABLE_COUNTRIES = [
 ];
 
 const { width } = Dimensions.get('window');
-const CHART_SIZE = width - 40;
+const CHART_SIZE = width - 20;
 const CENTER = CHART_SIZE / 2;
-const RADIUS = CENTER - 40;
+const RADIUS = CENTER - 50; // Inner working radius
 
 const COLORS = {
   background: '#0F172A',
@@ -25,10 +26,10 @@ const COLORS = {
 };
 
 const ZODIAC_COLORS: Record<ZodiacSign, string> = {
-  'Koç': '#FF453A', 'Aslan': '#FF453A', 'Yay': '#FF453A', // Fire
-  'Boğa': '#32D74B', 'Başak': '#32D74B', 'Oğlak': '#32D74B', // Earth
-  'İkizler': '#FFD60A', 'Terazi': '#FFD60A', 'Kova': '#FFD60A', // Air
-  'Yengeç': '#0A84FF', 'Akrep': '#0A84FF', 'Balık': '#0A84FF', // Water
+  'Koç': '#FF453A', 'Aslan': '#FF453A', 'Yay': '#FF453A',
+  'Boğa': '#32D74B', 'Başak': '#32D74B', 'Oğlak': '#32D74B',
+  'İkizler': '#FFD60A', 'Terazi': '#FFD60A', 'Kova': '#FFD60A',
+  'Yengeç': '#0A84FF', 'Akrep': '#0A84FF', 'Balık': '#0A84FF',
 };
 
 const ZODIAC_SYMBOLS: Record<ZodiacSign, string> = {
@@ -40,7 +41,16 @@ const ZODIAC_SYMBOLS: Record<ZodiacSign, string> = {
 const PLANET_SYMBOLS: Record<string, string> = {
   'Güneş': '☉', 'Ay': '☽', 'Merkür': '☿', 'Venüs': '♀', 'Mars': '♂', 
   'Jüpiter': '♃', 'Satürn': '♄', 'Uranüs': '♅', 'Neptün': '♆', 'Plüton': '♇',
-  'Yükselen (ASC)': 'ASC', 'Tepe Noktası (MC)': 'MC'
+  'Yükselen (ASC)': 'ASC', 'Tepe Noktası (MC)': 'MC', 'Kuzey Ay Düğümü': '☊',
+  'Vertex (Vx)': 'Vx', 'Şans Noktası (POF)': '⊗'
+};
+
+const ASPECT_SYMBOLS: Record<string, string> = {
+  'Kavuşum': '☌', 'Sekstil': '⚹', 'Kare': '□', 'Üçgen': '△', 'Karşıt': '☍', 'Görmeyen': '⚻'
+};
+
+const ASPECT_COLORS: Record<string, string> = {
+  'Kavuşum': '#D4AF37', 'Sekstil': '#0A84FF', 'Kare': '#FF453A', 'Üçgen': '#32D74B', 'Karşıt': '#FF453A', 'Görmeyen': '#0A84FF'
 };
 
 export default function AstrolojiAnalysisScreen() {
@@ -50,6 +60,7 @@ export default function AstrolojiAnalysisScreen() {
   const [country, setCountry] = useState('Türkiye');
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [cityKey, setCityKey] = useState('İstanbul');
+  const [selectedInterp, setSelectedInterp] = useState<{ title: string, content: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('İstanbul');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,42 +76,20 @@ export default function AstrolojiAnalysisScreen() {
   const timeInputRef = useRef<TextInput>(null);
 
   const handleDateChange = (text: string) => {
-    // Remove non-numeric characters
     let cleaned = text.replace(/\D/g, '');
     let formatted = '';
-    
-    // Auto-format as YYYY-MM-DD
-    if (cleaned.length > 0) {
-      formatted = cleaned.substring(0, 4);
-    }
-    if (cleaned.length > 4) {
-      formatted += '-' + cleaned.substring(4, 6);
-    }
-    if (cleaned.length > 6) {
-      formatted += '-' + cleaned.substring(6, 8);
-    }
-    
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 4);
+    if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+    if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 8);
     setDateStr(formatted);
-
-    // Auto-advance if fully typed
-    if (cleaned.length === 8) {
-      timeInputRef.current?.focus();
-    }
+    if (cleaned.length === 8) timeInputRef.current?.focus();
   };
 
   const handleTimeChange = (text: string) => {
-    // Remove non-numeric characters
     let cleaned = text.replace(/\D/g, '');
     let formatted = '';
-    
-    // Auto-format as HH:MM
-    if (cleaned.length > 0) {
-      formatted = cleaned.substring(0, 2);
-    }
-    if (cleaned.length > 2) {
-      formatted += ':' + cleaned.substring(2, 4);
-    }
-    
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 2);
+    if (cleaned.length > 2) formatted += ':' + cleaned.substring(2, 4);
     setTimeStr(formatted);
   };
 
@@ -109,7 +98,6 @@ export default function AstrolojiAnalysisScreen() {
       Alert.alert("Eksik Bilgi", "Lütfen tüm alanları doldurun.");
       return;
     }
-
     const [year, month, day] = dateStr.split('-').map(Number);
     const [hour, minute] = timeStr.split(':').map(Number);
 
@@ -121,7 +109,7 @@ export default function AstrolojiAnalysisScreen() {
     setIsLoading(true);
     setTimeout(() => {
       try {
-        const birthDate = new Date(Date.UTC(year, month - 1, day, hour - 3, minute)); // Approximate Turkey Time UTC+3
+        const birthDate = new Date(year, month - 1, day, hour, minute);
         const isDraconic = type === 'Drakonik';
         const result = generateAstrologyChart(birthDate, cityKey, isDraconic);
         setChart(result);
@@ -138,92 +126,209 @@ export default function AstrolojiAnalysisScreen() {
   const renderSvgWheel = () => {
     if (!chart) return null;
 
-    // Ascendant defines the start (left side, 180 degrees in SVG math, usually represented as 9 o'clock)
-    // To make ASC at 9 o'clock and go counter-clockwise in SVG (where Y goes down), 
-    // we use the formula: angle = 180 + ascLon - lon
     const ascLon = chart.ascendant.longitude;
-
     const getX = (lon: number, r: number) => CENTER + r * Math.cos((180 + ascLon - lon) * Math.PI / 180);
     const getY = (lon: number, r: number) => CENTER + r * Math.sin((180 + ascLon - lon) * Math.PI / 180);
 
+    const R_TICKS_OUTER = RADIUS + 40;
+    const R_TICKS_INNER = RADIUS + 35;
+    const R_ZODIAC_OUTER = RADIUS + 35;
+    const R_ZODIAC_INNER = RADIUS + 10;
+    const R_CUSP_NUM = RADIUS + 45;
+    const R_PLANETS = RADIUS - 15;
+    const R_ASPECTS = RADIUS - 40;
+
     return (
       <Svg width={CHART_SIZE} height={CHART_SIZE}>
-        {/* Outer Wheel (Zodiac Signs) */}
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS + 30} stroke={COLORS.border} strokeWidth="1" fill="none" />
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS} stroke={COLORS.border} strokeWidth="2" fill="rgba(0,0,0,0.3)" />
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS - 40} stroke={COLORS.border} strokeWidth="1" fill="none" />
-
-        {/* 12 House/Sign Divisions */}
-        {chart.houses.map((h, i) => {
-          const x1 = getX(h.longitude, RADIUS + 30);
-          const y1 = getY(h.longitude, RADIUS + 30);
-          const x2 = getX(h.longitude, RADIUS - 40);
-          const y2 = getY(h.longitude, RADIUS - 40);
+        {/* Aspect Lines */}
+        <Circle cx={CENTER} cy={CENTER} r={R_ASPECTS} stroke={COLORS.border} strokeWidth="1" fill="rgba(0,0,0,0.4)" />
+        {chart.aspects.filter(a => a.type !== 'Kavuşum').map((a, i) => {
+          const p1 = chart.planets.find(p => p.name === a.planet1) || (a.planet1.includes('ASC') ? chart.ascendant : chart.midheaven);
+          const p2 = chart.planets.find(p => p.name === a.planet2) || (a.planet2.includes('ASC') ? chart.ascendant : chart.midheaven);
+          if (!p1 || !p2) return null;
           
-          // Sign Symbol Position (middle of the house)
-          const midLon = h.longitude + 15;
-          const sx = getX(midLon, RADIUS + 15);
-          const sy = getY(midLon, RADIUS + 15);
+          return (
+            <Line 
+              key={`asp-${i}`} 
+              x1={getX(p1.longitude, R_ASPECTS)} 
+              y1={getY(p1.longitude, R_ASPECTS)} 
+              x2={getX(p2.longitude, R_ASPECTS)} 
+              y2={getY(p2.longitude, R_ASPECTS)} 
+              stroke={ASPECT_COLORS[a.type] || COLORS.border} 
+              strokeWidth={a.isExact ? "1.5" : "0.5"} 
+              opacity={0.7}
+            />
+          );
+        })}
+
+        {/* Inner Rings */}
+        <Circle cx={CENTER} cy={CENTER} r={R_ZODIAC_INNER} stroke={COLORS.border} strokeWidth="1.5" fill="none" />
+        <Circle cx={CENTER} cy={CENTER} r={R_ZODIAC_OUTER} stroke={COLORS.border} strokeWidth="1.5" fill="none" />
+        <Circle cx={CENTER} cy={CENTER} r={R_TICKS_OUTER} stroke={COLORS.border} strokeWidth="1" fill="none" />
+
+        {/* 360 Degree Ticks */}
+        {Array.from({ length: 360 }).map((_, i) => {
+          const isTen = i % 10 === 0;
+          const isFive = i % 5 === 0;
+          
+          let length = 2; // 1 degree tick
+          if (isTen) length = 6;
+          else if (isFive) length = 4;
+          
+          const x1 = getX(i, R_TICKS_OUTER);
+          const y1 = getY(i, R_TICKS_OUTER);
+          const x2 = getX(i, R_TICKS_OUTER - length);
+          const y2 = getY(i, R_TICKS_OUTER - length);
 
           return (
-            <G key={`house-${i}`}>
-              <Line x1={CENTER} y1={CENTER} x2={x1} y2={y1} stroke={COLORS.border} strokeWidth="1" />
-              <SvgText x={sx} y={sy + 6} fontSize="18" fill={ZODIAC_COLORS[h.sign]} textAnchor="middle" fontWeight="bold">
-                {ZODIAC_SYMBOLS[h.sign]}
-              </SvgText>
-              {/* House Number */}
-              <SvgText x={getX(midLon, RADIUS - 30)} y={getY(midLon, RADIUS - 30) + 4} fontSize="12" fill={COLORS.textMuted} textAnchor="middle">
-                {h.house}
+            <Line 
+              key={`tick-${i}`} 
+              x1={x1} 
+              y1={y1} 
+              x2={x2} 
+              y2={y2} 
+              stroke={isTen ? COLORS.primary : COLORS.border} 
+              strokeWidth={isTen ? "1" : "0.5"} 
+            />
+          );
+        })}
+
+        {/* Zodiac Signs */}
+        {Array.from({ length: 12 }).map((_, i) => {
+          const signLon = i * 30; 
+          const x1 = getX(signLon, R_ZODIAC_OUTER);
+          const y1 = getY(signLon, R_ZODIAC_OUTER);
+          const x2 = getX(signLon, R_ZODIAC_INNER);
+          const y2 = getY(signLon, R_ZODIAC_INNER);
+          
+          const midLon = signLon + 15;
+          const sx = getX(midLon, RADIUS + 22);
+          const sy = getY(midLon, RADIUS + 22);
+          
+          const signName = Object.keys(ZODIAC_COLORS)[i] as ZodiacSign;
+
+          return (
+            <G key={`zodiac-${i}`}>
+              <Line x1={x1} y1={y1} x2={x2} y2={y2} stroke={COLORS.border} strokeWidth="1" />
+              <SvgText x={sx} y={sy + 6} fontSize="16" fill={ZODIAC_COLORS[signName]} textAnchor="middle" fontWeight="bold">
+                {ZODIAC_SYMBOLS[signName]}
               </SvgText>
             </G>
           );
         })}
 
-        {/* Aspects Lines */}
-        {chart.aspects.filter(a => a.orb <= 5).map((a, i) => {
-          const p1 = chart.planets.find(p => p.name === a.planet1);
-          const p2 = chart.planets.find(p => p.name === a.planet2);
-          if (!p1 || !p2) return null;
-          
-          let color = 'rgba(255,255,255,0.1)';
-          if (a.type === 'Üçgen') color = '#32D74B';
-          if (a.type === 'Kare' || a.type === 'Karşıt') color = '#FF453A';
-          if (a.type === 'Sekstil') color = '#0A84FF';
+        {/* House Lines */}
+        {chart.houses.map((h, i) => {
+          const x1 = getX(h.longitude, R_ZODIAC_INNER);
+          const y1 = getY(h.longitude, R_ZODIAC_INNER);
+          const xOut = getX(h.longitude, R_TICKS_OUTER + 5);
+          const yOut = getY(h.longitude, R_TICKS_OUTER + 5);
+          const isAngle = h.house === 1 || h.house === 4 || h.house === 7 || h.house === 10;
 
           return (
-            <Line 
-              key={`asp-${i}`} 
-              x1={getX(p1.longitude, RADIUS - 40)} 
-              y1={getY(p1.longitude, RADIUS - 40)} 
-              x2={getX(p2.longitude, RADIUS - 40)} 
-              y2={getY(p2.longitude, RADIUS - 40)} 
-              stroke={color} 
-              strokeWidth={a.isExact ? "2" : "1"} 
-              opacity={0.6}
-            />
+            <G key={`house-${i}`}>
+              <Line 
+                x1={getX(h.longitude, R_ASPECTS)} 
+                y1={getY(h.longitude, R_ASPECTS)} 
+                x2={x1} 
+                y2={y1} 
+                stroke={isAngle ? COLORS.primary : COLORS.border} 
+                strokeWidth={isAngle ? "2" : "1"} 
+                strokeDasharray={isAngle ? "" : "4, 4"} 
+              />
+              <Line x1={getX(h.longitude, R_TICKS_OUTER)} y1={getY(h.longitude, R_TICKS_OUTER)} x2={xOut} y2={yOut} stroke={isAngle ? COLORS.primary : COLORS.border} strokeWidth={isAngle ? "2" : "1"} />
+              <SvgText 
+                x={getX(h.longitude, R_CUSP_NUM + (isAngle ? 5 : 0))} 
+                y={getY(h.longitude, R_CUSP_NUM + (isAngle ? 5 : 0)) + 4} 
+                fontSize={isAngle ? "12" : "10"} 
+                fill={isAngle ? COLORS.primary : COLORS.textMuted} 
+                textAnchor="middle"
+                fontWeight={isAngle ? "bold" : "normal"}
+              >
+                {`${String(h.degreeInSign).padStart(2, '0')}° ${h.house}. ${String(h.minutes).padStart(2, '0')}'`}
+              </SvgText>
+            </G>
           );
         })}
 
         {/* Planets */}
         {chart.planets.map((p, i) => {
-          // Spread planets out slightly if they are conjunct to avoid text overlap
-          // Simplified here, using exactly their degree
-          const px = getX(p.longitude, RADIUS - 55);
-          const py = getY(p.longitude, RADIUS - 55);
+          // Stagger overlap
+          let rOffset = 0;
+          for(let j=0; j<i; j++) {
+             if (Math.abs(p.longitude - chart.planets[j].longitude) < 5) rOffset += 18;
+          }
+          const px = getX(p.longitude, R_PLANETS - rOffset);
+          const py = getY(p.longitude, R_PLANETS - rOffset);
+          
           return (
             <G key={`planet-${i}`}>
-              <Circle cx={px} cy={py} r="10" fill="#000" stroke={COLORS.primary} strokeWidth="1" />
-              <SvgText x={px} y={py + 5} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
+              <Line x1={getX(p.longitude, R_ZODIAC_INNER)} y1={getY(p.longitude, R_ZODIAC_INNER)} x2={px} y2={py} stroke={COLORS.border} strokeWidth="0.5" strokeDasharray="1, 2" />
+              <Circle cx={px} cy={py} r="10" fill={COLORS.background} stroke={COLORS.border} strokeWidth="1" />
+              <SvgText x={px} y={py + 4} fontSize="12" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
                 {PLANET_SYMBOLS[p.name]}
               </SvgText>
+              <SvgText x={px + 15} y={py - 5} fontSize="9" fill={COLORS.textMuted} textAnchor="start">
+                {`${p.degreeInSign}°${String(p.minutes).padStart(2,'0')}'`}
+              </SvgText>
+              {p.isRetrograde && (
+                <SvgText x={px + 15} y={py + 5} fontSize="9" fill="#FF453A" textAnchor="start" fontWeight="bold">Rx</SvgText>
+              )}
             </G>
           );
         })}
-
-        {/* ASC / MC Markers */}
-        <SvgText x={getX(chart.ascendant.longitude, RADIUS + 40)} y={getY(chart.ascendant.longitude, RADIUS + 40)} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">ASC</SvgText>
-        <SvgText x={getX(chart.midheaven.longitude, RADIUS + 40)} y={getY(chart.midheaven.longitude, RADIUS + 40)} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">MC</SvgText>
       </Svg>
+    );
+  };
+
+  const renderAspectGrid = () => {
+    if (!chart) return null;
+    const bodies = [
+      chart.planets.find(p => p.name === 'Güneş'),
+      chart.planets.find(p => p.name === 'Ay'),
+      chart.planets.find(p => p.name === 'Merkür'),
+      chart.planets.find(p => p.name === 'Venüs'),
+      chart.planets.find(p => p.name === 'Mars'),
+      chart.planets.find(p => p.name === 'Jüpiter'),
+      chart.planets.find(p => p.name === 'Satürn'),
+      chart.planets.find(p => p.name === 'Uranüs'),
+      chart.planets.find(p => p.name === 'Neptün'),
+      chart.planets.find(p => p.name === 'Plüton'),
+      chart.ascendant,
+      chart.midheaven
+    ].filter(Boolean) as (NatalChartData['planets'][0])[];
+
+    return (
+      <View style={styles.gridContainer}>
+        {bodies.map((body, row) => (
+          <View key={`row-${row}`} style={styles.gridRow}>
+            <View style={styles.gridLabelCellRight}><Text style={styles.gridSymbol}>{PLANET_SYMBOLS[body.name] || body.name}</Text></View>
+            {bodies.slice(0, row).map((colBody, col) => {
+              const aspect = chart.aspects.find(a => 
+                (a.planet1 === body.name && a.planet2 === colBody.name) || 
+                (a.planet2 === body.name && a.planet1 === colBody.name)
+              );
+              return (
+                <View key={`cell-${row}-${col}`} style={styles.gridCell}>
+                  {aspect ? (
+                    <Text style={[styles.gridAspectSymbol, { color: ASPECT_COLORS[aspect.type] }]}>
+                      {ASPECT_SYMBOLS[aspect.type]}
+                    </Text>
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        ))}
+        <View style={styles.gridRow}>
+          <View style={styles.gridLabelCellRight}></View>
+          {bodies.slice(0, bodies.length - 1).map((colBody, col) => (
+             <View key={`col-label-${col}`} style={styles.gridLabelCellBottom}>
+               <Text style={styles.gridSymbol}>{PLANET_SYMBOLS[colBody.name] || colBody.name}</Text>
+             </View>
+          ))}
+        </View>
+      </View>
     );
   };
 
@@ -241,104 +346,36 @@ export default function AstrolojiAnalysisScreen() {
 
           {!chart ? (
             <BlurView intensity={20} tint="light" style={styles.formCard}>
+              {/* FORM FIELDS REMAIN SAME */}
               <Text style={styles.label}>İsim Soyisim</Text>
-              <TextInput 
-                style={styles.input} 
-                value={name} 
-                onChangeText={setName} 
-                placeholder="Örn: Enis Şahide Kesik" 
-                placeholderTextColor="#666"
-                returnKeyType="next"
-                onSubmitEditing={() => dateInputRef.current?.focus()}
-              />
-
+              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Enis Şahide Kesik" placeholderTextColor="#666" returnKeyType="next" onSubmitEditing={() => dateInputRef.current?.focus()} />
               <Text style={styles.label}>Doğum Tarihi (YYYY-AA-GG)</Text>
-              <TextInput 
-                ref={dateInputRef}
-                style={styles.input} 
-                value={dateStr} 
-                onChangeText={handleDateChange} 
-                placeholder="Örn: 1990-05-15" 
-                placeholderTextColor="#666" 
-                keyboardType="numeric"
-                maxLength={10}
-                returnKeyType="next"
-              />
-              
+              <TextInput ref={dateInputRef} style={styles.input} value={dateStr} onChangeText={handleDateChange} placeholder="Örn: 1990-05-15" placeholderTextColor="#666" keyboardType="numeric" maxLength={10} returnKeyType="next" />
               <Text style={styles.label}>Doğum Saati (SS:DD)</Text>
-              <TextInput 
-                ref={timeInputRef}
-                style={styles.input} 
-                value={timeStr} 
-                onChangeText={handleTimeChange} 
-                placeholder="Örn: 14:30" 
-                placeholderTextColor="#666" 
-                keyboardType="numeric"
-                maxLength={5}
-                returnKeyType="done"
-              />
-
+              <TextInput ref={timeInputRef} style={styles.input} value={timeStr} onChangeText={handleTimeChange} placeholder="Örn: 14:30" placeholderTextColor="#666" keyboardType="numeric" maxLength={5} returnKeyType="done" />
               <Text style={styles.label}>Doğum Ülkesi</Text>
               <TouchableOpacity style={[styles.input, { justifyContent: 'center' }]} onPress={() => setShowCountryModal(true)}>
                 <Text style={{ color: '#000', fontSize: 15 }}>{country}</Text>
               </TouchableOpacity>
-
               <Text style={styles.label}>Doğum Şehri (Ara)</Text>
               <View style={{ zIndex: 99 }}>
-                <TextInput
-                  style={styles.input}
-                  value={searchQuery}
-                  onChangeText={(t) => {
-                    setSearchQuery(t);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => {
-                    if (searchQuery === 'İstanbul') setSearchQuery('');
-                    setShowSuggestions(true);
-                  }}
-                  placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`}
-                  placeholderTextColor="#666"
-                />
+                <TextInput style={styles.input} value={searchQuery} onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} onFocus={() => { if (searchQuery === 'İstanbul') setSearchQuery(''); setShowSuggestions(true); }} placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} placeholderTextColor="#666" />
                 {showSuggestions && searchQuery.length > 0 && (
                   <View style={styles.suggestionsContainer}>
                     {filteredCities.length > 0 ? filteredCities.map((c, i) => (
-                      <TouchableOpacity 
-                        key={i} 
-                        style={styles.suggestionItem}
-                        onPress={() => {
-                          setCityKey(c);
-                          setSearchQuery(c);
-                          setShowSuggestions(false);
-                        }}
-                      >
+                      <TouchableOpacity key={i} style={styles.suggestionItem} onPress={() => { setCityKey(c); setSearchQuery(c); setShowSuggestions(false); }}>
                         <Text style={styles.suggestionText}>{c}</Text>
                       </TouchableOpacity>
                     )) : (
-                      <View style={styles.suggestionItem}>
-                        <Text style={styles.suggestionText}>
-                          {country !== 'Türkiye' ? 'Yurtdışı lokasyonları için merkez seçilir' : 'Sonuç bulunamadı'}
-                        </Text>
-                      </View>
+                      <View style={styles.suggestionItem}><Text style={styles.suggestionText}>{country !== 'Türkiye' ? 'Yurtdışı lokasyonları için merkez seçilir' : 'Sonuç bulunamadı'}</Text></View>
                     )}
                   </View>
                 )}
               </View>
-
               <View style={styles.typeToggleContainer}>
-                <TouchableOpacity 
-                  style={[styles.typeToggleBtn, chartType === 'Tropikal' && styles.typeToggleActive]} 
-                  onPress={() => setChartType('Tropikal')}
-                >
-                  <Text style={[styles.typeToggleText, chartType === 'Tropikal' && styles.typeToggleTextActive]}>Tropikal Harita</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.typeToggleBtn, chartType === 'Drakonik' && styles.typeToggleActive]} 
-                  onPress={() => setChartType('Drakonik')}
-                >
-                  <Text style={[styles.typeToggleText, chartType === 'Drakonik' && styles.typeToggleTextActive]}>Drakonik Harita</Text>
-                </TouchableOpacity>
+                <TouchableOpacity style={[styles.typeToggleBtn, chartType === 'Tropikal' && styles.typeToggleActive]} onPress={() => setChartType('Tropikal')}><Text style={[styles.typeToggleText, chartType === 'Tropikal' && styles.typeToggleTextActive]}>Tropikal Harita</Text></TouchableOpacity>
+                <TouchableOpacity style={[styles.typeToggleBtn, chartType === 'Drakonik' && styles.typeToggleActive]} onPress={() => setChartType('Drakonik')}><Text style={[styles.typeToggleText, chartType === 'Drakonik' && styles.typeToggleTextActive]}>Drakonik Harita</Text></TouchableOpacity>
               </View>
-
               <TouchableOpacity style={styles.button} onPress={() => handleCalculate(chartType)} disabled={isLoading}>
                 <Text style={styles.buttonText}>{isLoading ? 'Yıldızlar Okunuyor...' : 'Haritayı Hesapla'}</Text>
               </TouchableOpacity>
@@ -350,101 +387,78 @@ export default function AstrolojiAnalysisScreen() {
                   <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
                   <Text style={styles.resetBtnText}>Geri</Text>
                 </TouchableOpacity>
-                
                 <View style={styles.smallToggleContainer}>
-                  <TouchableOpacity 
-                    style={[styles.smallToggleBtn, chartType === 'Tropikal' && styles.smallToggleActive]} 
-                    onPress={() => handleCalculate('Tropikal')}
-                  >
-                    <Text style={[styles.smallToggleText, chartType === 'Tropikal' && styles.smallToggleTextActive]}>Tropikal</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.smallToggleBtn, chartType === 'Drakonik' && styles.smallToggleActive]} 
-                    onPress={() => handleCalculate('Drakonik')}
-                  >
-                    <Text style={[styles.smallToggleText, chartType === 'Drakonik' && styles.smallToggleTextActive]}>Drakonik</Text>
-                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.smallToggleBtn, chartType === 'Tropikal' && styles.smallToggleActive]} onPress={() => handleCalculate('Tropikal')}><Text style={[styles.smallToggleText, chartType === 'Tropikal' && styles.smallToggleTextActive]}>Tropikal</Text></TouchableOpacity>
+                  <TouchableOpacity style={[styles.smallToggleBtn, chartType === 'Drakonik' && styles.smallToggleActive]} onPress={() => handleCalculate('Drakonik')}><Text style={[styles.smallToggleText, chartType === 'Drakonik' && styles.smallToggleTextActive]}>Drakonik</Text></TouchableOpacity>
                 </View>
               </View>
 
-              <View style={styles.chartContainer}>
+              <View style={styles.chartOuterContainer}>
                 {renderSvgWheel()}
               </View>
 
-              <View style={styles.reportContainer}>
-                <Text style={styles.reportTitle}>Kozmik Kimliğiniz (Big 3)</Text>
-                
-                <View style={styles.bigThreeCard}>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Güneş (Ego)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.planets.find(p => p.name === 'Güneş')?.sign || 'Koç'] }]}>
-                      {chart.planets.find(p => p.name === 'Güneş')?.sign}
-                    </Text>
-                  </View>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Ay (Ruh)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.planets.find(p => p.name === 'Ay')?.sign || 'Koç'] }]}>
-                      {chart.planets.find(p => p.name === 'Ay')?.sign}
-                    </Text>
-                  </View>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Yükselen (Beden)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.ascendant.sign] }]}>
-                      {chart.ascendant.sign}
-                    </Text>
-                  </View>
-                </View>
+              <View style={styles.dataContainer}>
+                <Text style={styles.sectionHeader}>Açı Tablosu</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10 }}>
+                  {renderAspectGrid()}
+                </ScrollView>
 
-                <Text style={styles.reportTitle}>Gezegen Yerleşimleri</Text>
-                <View style={styles.planetsList}>
-                  {chart.planets.map((p, i) => (
-                    <View key={i} style={styles.planetRow}>
-                      <Text style={styles.planetSymbol}>{PLANET_SYMBOLS[p.name]}</Text>
-                      <Text style={styles.planetName}>{p.name}</Text>
-                      <Text style={[styles.planetSign, { color: ZODIAC_COLORS[p.sign] }]}>{p.sign}</Text>
-                      <Text style={styles.planetHouse}>{p.house}. Ev</Text>
-                    </View>
+                <Text style={styles.sectionHeader}>Gezegen Yerleşimleri</Text>
+                <View style={styles.dataTable}>
+                  <View style={styles.tableHeaderRow}>
+                    <Text style={styles.tableHeader}>Gezegen</Text>
+                    <Text style={styles.tableHeader}>Burç</Text>
+                    <Text style={styles.tableHeader}>Derece</Text>
+                    <Text style={styles.tableHeader}>Ev</Text>
+                  </View>
+                  {[...chart.planets, chart.ascendant, chart.midheaven].map((p, i) => (
+                    <TouchableOpacity 
+                      key={i} 
+                      style={styles.tableRow}
+                      onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                    >
+                      <Text style={styles.tableCell}><Text style={{color: COLORS.primary}}>{PLANET_SYMBOLS[p.name] || ''}</Text> {p.name}</Text>
+                      <Text style={[styles.tableCell, {color: ZODIAC_COLORS[p.sign]}]}>{p.sign}</Text>
+                      <Text style={styles.tableCell}>
+                        {`${String(p.degreeInSign).padStart(2,'0')}° ${String(p.minutes).padStart(2,'0')}'`}
+                        {p.isRetrograde && <Text style={{color: '#FF453A', fontSize: 10}}> Rx</Text>}
+                      </Text>
+                      <Text style={styles.tableCell}>{p.house}.</Text>
+                    </TouchableOpacity>
                   ))}
                 </View>
 
-                <Text style={styles.reportTitle}>Önemli Açılar (Karmik Dinamikler)</Text>
-                <View style={styles.aspectsList}>
-                  {chart.aspects.filter(a => a.orb <= 5).map((a, i) => (
-                    <View key={i} style={styles.aspectRow}>
-                      <Text style={styles.aspectPlanets}>{a.planet1} - {a.planet2}</Text>
-                      <Text style={styles.aspectType}>{a.type}</Text>
-                      {a.isExact && <Text style={styles.aspectExact}>Tam Açı!</Text>}
-                    </View>
+                <Text style={styles.sectionHeader}>Ev Girişleri (Cusps)</Text>
+                <View style={styles.dataTable}>
+                  <View style={styles.tableHeaderRow}>
+                    <Text style={styles.tableHeader}>Ev</Text>
+                    <Text style={styles.tableHeader}>Burç</Text>
+                    <Text style={styles.tableHeader}>Derece</Text>
+                  </View>
+                  {chart.houses.map((h, i) => (
+                    <TouchableOpacity 
+                      key={i} 
+                      style={styles.tableRow}
+                      onPress={() => setSelectedInterp(getHouseCuspInterpretation(h.house, h.sign))}
+                    >
+                      <Text style={styles.tableCell}>{h.house}. Ev {h.house===1?'(ASC)':h.house===10?'(MC)':h.house===4?'(IC)':h.house===7?'(DSC)':''}</Text>
+                      <Text style={[styles.tableCell, {color: ZODIAC_COLORS[h.sign]}]}>{h.sign}</Text>
+                      <Text style={styles.tableCell}>{`${String(h.degreeInSign).padStart(2,'0')}° ${String(h.minutes).padStart(2,'0')}'`}</Text>
+                    </TouchableOpacity>
                   ))}
-                  {chart.aspects.filter(a => a.orb <= 5).length === 0 && (
-                    <Text style={{color: COLORS.textMuted}}>Şu an gökyüzünde dar orblu kesin bir majör açı bulunmuyor.</Text>
-                  )}
                 </View>
-
               </View>
             </View>
           )}
-
           <View style={{ height: 100 }} />
         </ScrollView>
-
         <Modal visible={showCountryModal} animationType="fade" transparent={true}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Ülke Seçin</Text>
-                <TouchableOpacity onPress={() => setShowCountryModal(false)}>
-                  <Ionicons name="close" size={24} color="#333" />
-                </TouchableOpacity>
-              </View>
+              <View style={styles.modalHeader}><Text style={styles.modalTitle}>Ülke Seçin</Text><TouchableOpacity onPress={() => setShowCountryModal(false)}><Ionicons name="close" size={24} color="#333" /></TouchableOpacity></View>
               <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
                 {AVAILABLE_COUNTRIES.map((c, i) => (
-                  <TouchableOpacity key={i} style={styles.modalOption} onPress={() => {
-                    setCountry(c);
-                    setSearchQuery('');
-                    setShowCountryModal(false);
-                    setShowSuggestions(false);
-                  }}>
+                  <TouchableOpacity key={i} style={styles.modalOption} onPress={() => { setCountry(c); setSearchQuery(''); setShowCountryModal(false); setShowSuggestions(false); }}>
                     <Text style={styles.modalOptionText}>{c}</Text>
                     {country === c && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
                   </TouchableOpacity>
@@ -454,6 +468,22 @@ export default function AstrolojiAnalysisScreen() {
           </View>
         </Modal>
 
+        {/* Interpretation Modal */}
+        <Modal visible={!!selectedInterp} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.interpModalContent}>
+              <View style={styles.interpModalHeader}>
+                <Text style={styles.interpModalTitle}>{selectedInterp?.title}</Text>
+                <TouchableOpacity onPress={() => setSelectedInterp(null)}>
+                  <Ionicons name="close-circle" size={28} color={COLORS.textMuted} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
+                <Text style={styles.interpModalText}>{selectedInterp?.content}</Text>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
       </ImageBackground>
     </KeyboardAvoidingView>
   );
@@ -499,26 +529,27 @@ const styles = StyleSheet.create({
   resetBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   resetBtnText: { color: COLORS.primary, fontSize: 16, marginLeft: 5 },
 
-  chartContainer: { alignItems: 'center', marginVertical: 20, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 200, padding: 10 },
+  chartOuterContainer: { alignItems: 'center', marginVertical: 20 },
   
-  reportContainer: { marginTop: 20 },
-  reportTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, marginBottom: 15, marginTop: 20, borderBottomWidth: 1, borderBottomColor: COLORS.border, paddingBottom: 5 },
-  
-  bigThreeCard: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  bigThreeItem: { alignItems: 'center', flex: 1 },
-  bigThreeLabel: { fontSize: 12, color: COLORS.textMuted, marginBottom: 5 },
-  bigThreeValue: { fontSize: 16, fontWeight: 'bold' },
+  dataContainer: { marginTop: 10 },
+  sectionHeader: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, marginBottom: 15, marginTop: 20, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: COLORS.border },
 
-  planetsList: { backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  planetRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  planetSymbol: { fontSize: 18, color: COLORS.primary, width: 30, textAlign: 'center' },
-  planetName: { flex: 1, color: COLORS.text, fontSize: 16 },
-  planetSign: { flex: 1, fontSize: 16, fontWeight: '600', textAlign: 'right' },
-  planetHouse: { flex: 1, color: COLORS.textMuted, textAlign: 'right' },
+  gridContainer: { flexDirection: 'column', alignItems: 'flex-start' },
+  gridRow: { flexDirection: 'row', alignItems: 'center' },
+  gridCell: { width: 30, height: 30, borderWidth: 1, borderColor: COLORS.border, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)' },
+  gridLabelCellRight: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center', marginRight: 5 },
+  gridLabelCellBottom: { width: 30, height: 30, justifyContent: 'center', alignItems: 'center', marginTop: 5 },
+  gridSymbol: { color: COLORS.primary, fontSize: 16, fontWeight: 'bold' },
+  gridAspectSymbol: { fontSize: 18, fontWeight: 'bold' },
 
-  aspectsList: { backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  aspectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  aspectPlanets: { flex: 2, color: COLORS.text, fontSize: 15 },
-  aspectType: { flex: 1, color: COLORS.primary, fontSize: 15, textAlign: 'right' },
-  aspectExact: { color: '#FF453A', fontSize: 12, fontWeight: 'bold', marginLeft: 10 }
+  dataTable: { backgroundColor: COLORS.cardBg, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
+  tableHeaderRow: { flexDirection: 'row', backgroundColor: 'rgba(212, 175, 55, 0.1)', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  tableHeader: { flex: 1, color: COLORS.primary, fontWeight: 'bold', textAlign: 'center', fontSize: 14 },
+  tableRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  tableCell: { flex: 1, color: COLORS.text, textAlign: 'center', fontSize: 13 },
+
+  interpModalContent: { backgroundColor: COLORS.cardBg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '65%', padding: 25, borderWidth: 1, borderColor: COLORS.primary },
+  interpModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(212,175,55,0.2)', paddingBottom: 15 },
+  interpModalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 10 },
+  interpModalText: { fontSize: 16, color: COLORS.text, lineHeight: 26 }
 });

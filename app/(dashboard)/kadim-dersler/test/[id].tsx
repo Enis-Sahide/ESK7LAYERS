@@ -52,6 +52,10 @@ export default function KadimDerslerTestScreen() {
         if (id === 'akupunktur_1') unlockTier('akupunktur_2');
         if (id === 'akupunktur_2') unlockTier('akupunktur_master');
       }
+
+      if (score >= 85) {
+        if (id === 'duygusal_hastaliklar_50') unlockTier('duygusal_hastaliklar_access');
+      }
     }
   }, [isFinished]);
 

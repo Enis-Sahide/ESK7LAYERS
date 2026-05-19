@@ -1,4 +1,4 @@
-import { GeoVector, Ecliptic, MakeTime, Body } from 'astronomy-engine';
+import { GeoVector, Ecliptic, MakeTime, Body, Rotation_EQJ_EQD, Rotation_EQD_ECL, RotateVector, SphereFromVector } from 'astronomy-engine';
 
 export type ZodiacSign = 'Koç' | 'Boğa' | 'İkizler' | 'Yengeç' | 'Aslan' | 'Başak' | 'Terazi' | 'Akrep' | 'Yay' | 'Oğlak' | 'Kova' | 'Balık';
 export type Planet = 'Güneş' | 'Ay' | 'Merkür' | 'Venüs' | 'Mars' | 'Jüpiter' | 'Satürn' | 'Uranüs' | 'Neptün' | 'Plüton';
@@ -8,6 +8,7 @@ export interface AstroPoint {
   longitude: number;
   sign: ZodiacSign;
   degreeInSign: number;
+  minutes: number;
   house: number;
   isRetrograde?: boolean;
 }
@@ -15,7 +16,7 @@ export interface AstroPoint {
 export interface AstroAspect {
   planet1: string;
   planet2: string;
-  type: 'Kavuşum' | 'Sekstil' | 'Kare' | 'Üçgen' | 'Karşıt';
+  type: 'Kavuşum' | 'Sekstil' | 'Kare' | 'Üçgen' | 'Karşıt' | 'Görmeyen';
   orb: number;
   isExact: boolean;
 }
@@ -139,17 +140,22 @@ export const ASTRO_CITIES: AstroCity[] = [
   { name: 'Bilinmeyen Şehir', lat: 41.0082, lon: 28.9784, country: 'Türkiye', tz: 'Europe/Istanbul' }
 ];
 
+function mod360(x: number) {
+  return ((x % 360) + 360) % 360;
+}
+
 // Gets the sign and exact degree within the sign (0-30) from an absolute 0-360 longitude
-export function getSignAndDegree(longitude: number): { sign: ZodiacSign, degreeInSign: number, signIndex: number } {
-  let lon = longitude % 360;
-  if (lon < 0) lon += 360;
-  
+export function getSignAndDegree(longitude: number): { sign: ZodiacSign, degreeInSign: number, minutes: number, signIndex: number } {
+  const lon = mod360(longitude);
   const signIndex = Math.floor(lon / 30);
-  const degreeInSign = lon % 30;
+  const decimalDegree = lon % 30;
+  const degreeInSign = Math.floor(decimalDegree);
+  const minutes = Math.floor((decimalDegree - degreeInSign) * 60);
   
   return {
     sign: ZODIAC_SIGNS[signIndex],
     degreeInSign,
+    minutes,
     signIndex
   };
 }
@@ -163,20 +169,16 @@ function getJulianDate(date: Date): number {
 function getGMST(jd: number): number {
   const t = (jd - 2451545.0) / 36525.0;
   let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * t * t - (t * t * t) / 38710000.0;
-  gmst = gmst % 360;
-  if (gmst < 0) gmst += 360;
-  return gmst;
+  return mod360(gmst);
 }
 
-// Calculate the Ascendant based on precise latitude, longitude, and exact time
-export function calculateAscendant(date: Date, lat: number, lon: number): number {
+// Calculate Exact ASC, MC, and LST
+export function calculateAngles(date: Date, lat: number, lon: number) {
   const jd = getJulianDate(date);
   const gmst = getGMST(jd);
   
   // Local Sidereal Time
-  let lst = gmst + lon;
-  lst = lst % 360;
-  if (lst < 0) lst += 360;
+  const lst = mod360(gmst + lon);
 
   // Ecliptic Obliquity (approximate for modern era)
   const T = (jd - 2451545.0) / 36525.0;
@@ -186,26 +188,117 @@ export function calculateAscendant(date: Date, lat: number, lon: number): number
   const latRad = lat * Math.PI / 180;
   const lstRad = lst * Math.PI / 180;
 
-  // Spherical trigonometry formula for Ascendant
-  const y = -Math.cos(lstRad);
-  const x = Math.sin(lstRad) * Math.cos(epsRad) + Math.tan(latRad) * Math.sin(epsRad);
+  // Exact Midheaven (MC) Calculation
+  // tan(MC) = sin(LST) / (cos(LST) * cos(eps))
+  const mcY = Math.sin(lstRad);
+  const mcX = Math.cos(lstRad) * Math.cos(epsRad);
+  const mcDeg = mod360(Math.atan2(mcY, mcX) * 180 / Math.PI);
   
-  let ascRad = Math.atan2(y, x);
-  let ascDeg = ascRad * 180 / Math.PI;
+  // Exact Ascendant (ASC) Calculation
+  // tan(ASC) = cos(LST) / (-sin(LST) * cos(eps) - tan(lat) * sin(eps))
+  const ascY = Math.cos(lstRad);
+  const ascX = -(Math.sin(lstRad) * Math.cos(epsRad) + Math.tan(latRad) * Math.sin(epsRad));
+  const ascDeg = mod360(Math.atan2(ascY, ascX) * 180 / Math.PI);
   
-  if (ascDeg < 0) ascDeg += 360;
-  return ascDeg;
+  return { mcDeg, ascDeg, lst, eps };
+}
+
+// Placidus House System Iteration (Meeus Algorithm)
+function placidusIterate(ramcDeg: number, latDeg: number, epsRad: number, cuspOffset: number, A_factor: number): number {
+  const deg2rad = Math.PI / 180;
+  const rad2deg = 180 / Math.PI;
+  const L = latDeg * deg2rad;
+  let R = mod360(ramcDeg + cuspOffset);
+  let alpha = R * deg2rad;
+  
+  for(let i=0; i<100; i++) {
+    let delta = Math.asin(Math.sin(epsRad) * Math.sin(alpha));
+    let tanLtanD = Math.tan(L) * Math.tan(delta);
+    
+    // Polar limit fallback (if iteration fails at high latitudes, fallback to Porphyry for this cusp)
+    if (Math.abs(tanLtanD) > 1) return -1;
+    
+    let A = Math.asin(tanLtanD);
+    let nextAlpha = (R * deg2rad) + A * A_factor;
+    
+    if (Math.abs(nextAlpha - alpha) < 0.000001) {
+      alpha = nextAlpha;
+      break;
+    }
+    alpha = nextAlpha;
+  }
+  
+  // Convert Right Ascension (alpha) to Ecliptic Longitude (lambda)
+  let y = Math.sin(alpha) * Math.cos(epsRad);
+  let x = Math.cos(alpha);
+  let lambda = Math.atan2(y, x) * rad2deg;
+  return mod360(lambda);
+}
+
+// Calculate House Cusps using Placidus System
+function calculatePlacidusCusps(mcDeg: number, ascDeg: number, lst: number, lat: number, eps: number): number[] {
+  const cusps = new Array(13).fill(0);
+  const epsRad = eps * Math.PI / 180;
+
+  cusps[1] = ascDeg;
+  cusps[10] = mcDeg;
+  cusps[4] = mod360(mcDeg + 180);
+  cusps[7] = mod360(ascDeg + 180);
+
+  // Cusp 11, 12, 2, 3 calculations
+  const c11 = placidusIterate(lst, lat, epsRad, 30, 1/3);
+  const c12 = placidusIterate(lst, lat, epsRad, 60, 2/3);
+  const c2 = placidusIterate(lst, lat, epsRad, 120, 2/3);
+  const c3 = placidusIterate(lst, lat, epsRad, 150, 1/3);
+
+  // If Placidus iteration fails (beyond polar circles), fallback to Porphyry division
+  if (c11 === -1 || c12 === -1 || c2 === -1 || c3 === -1) {
+    const q1 = mod360(ascDeg - mcDeg);
+    const q2 = mod360(cusps[4] - ascDeg);
+    cusps[11] = mod360(mcDeg + q1 / 3);
+    cusps[12] = mod360(mcDeg + 2 * q1 / 3);
+    cusps[2] = mod360(ascDeg + q2 / 3);
+    cusps[3] = mod360(ascDeg + 2 * q2 / 3);
+  } else {
+    cusps[11] = c11;
+    cusps[12] = c12;
+    cusps[2] = c2;
+    cusps[3] = c3;
+  }
+
+  cusps[5] = mod360(cusps[11] + 180);
+  cusps[6] = mod360(cusps[12] + 180);
+  cusps[8] = mod360(cusps[2] + 180);
+  cusps[9] = mod360(cusps[3] + 180);
+
+  return cusps;
+}
+
+function getHouseForLon(lon: number, cusps: number[]): number {
+  for (let i = 1; i <= 12; i++) {
+    const cusp = cusps[i];
+    const nextCusp = i === 12 ? cusps[1] : cusps[i + 1];
+    
+    const distance = mod360(nextCusp - cusp);
+    const pos = mod360(lon - cusp);
+    
+    if (pos < distance) {
+      return i;
+    }
+  }
+  return 1;
 }
 
 // Aspect engine
 export function calculateAspects(planets: AstroPoint[]): AstroAspect[] {
   const aspects: AstroAspect[] = [];
   const orbs = {
-    'Kavuşum': 8, // 0 deg
-    'Karşıt': 8,  // 180 deg
-    'Üçgen': 6,   // 120 deg
-    'Kare': 6,    // 90 deg
-    'Sekstil': 4  // 60 deg
+    'Kavuşum': 10,
+    'Karşıt': 10,
+    'Üçgen': 8,
+    'Kare': 8,
+    'Sekstil': 6,
+    'Görmeyen': 4
   };
 
   for (let i = 0; i < planets.length; i++) {
@@ -221,6 +314,7 @@ export function calculateAspects(planets: AstroPoint[]): AstroAspect[] {
 
       if (diff <= orbs['Kavuşum']) { type = 'Kavuşum'; exactOrb = diff; }
       else if (Math.abs(diff - 180) <= orbs['Karşıt']) { type = 'Karşıt'; exactOrb = Math.abs(diff - 180); }
+      else if (Math.abs(diff - 150) <= orbs['Görmeyen']) { type = 'Görmeyen'; exactOrb = Math.abs(diff - 150); }
       else if (Math.abs(diff - 120) <= orbs['Üçgen']) { type = 'Üçgen'; exactOrb = Math.abs(diff - 120); }
       else if (Math.abs(diff - 90) <= orbs['Kare']) { type = 'Kare'; exactOrb = Math.abs(diff - 90); }
       else if (Math.abs(diff - 60) <= orbs['Sekstil']) { type = 'Sekstil'; exactOrb = Math.abs(diff - 60); }
@@ -236,7 +330,6 @@ export function calculateAspects(planets: AstroPoint[]): AstroAspect[] {
       }
     }
   }
-
   return aspects;
 }
 
@@ -244,28 +337,41 @@ export function generateAstrologyChart(birthDate: Date, cityKey: string, isDraco
   const city = ASTRO_CITIES.find(c => c.name === cityKey) || { name: 'İstanbul', lat: 41.0082, lon: 28.9784, country: 'Türkiye', tz: 'Europe/Istanbul' };
   const astroTime = MakeTime(birthDate);
 
-  // 1. Calculate Ascendant
-  const ascLon = calculateAscendant(birthDate, city.lat, city.lon);
-  const ascData = getSignAndDegree(ascLon);
+  // 1. Calculate Exact Angles
+  const { mcDeg, ascDeg, lst, eps } = calculateAngles(birthDate, city.lat, city.lon);
+  
+  const ascData = getSignAndDegree(ascDeg);
   const ascendant: AstroPoint = {
     name: 'Yükselen (ASC)',
-    longitude: ascLon,
+    longitude: ascDeg,
     sign: ascData.sign,
     degreeInSign: ascData.degreeInSign,
+    minutes: ascData.minutes,
     house: 1
   };
 
-  // 2. Whole Sign Houses
+  const mcData = getSignAndDegree(mcDeg);
+  const midheaven: AstroPoint = {
+    name: 'Tepe Noktası (MC)',
+    longitude: mcDeg,
+    sign: mcData.sign,
+    degreeInSign: mcData.degreeInSign,
+    minutes: mcData.minutes,
+    house: 10
+  };
+
+  // 2. Astrokora Placidus House Cusps
+  const cuspDegrees = calculatePlacidusCusps(mcDeg, ascDeg, lst, city.lat, eps);
   const houses: AstroPoint[] = [];
-  for (let i = 0; i < 12; i++) {
-    const houseSignIndex = (ascData.signIndex + i) % 12;
-    const houseLon = houseSignIndex * 30; // 0 degrees of that sign
+  for (let i = 1; i <= 12; i++) {
+    const data = getSignAndDegree(cuspDegrees[i]);
     houses.push({
-      name: `${i + 1}. Ev`,
-      longitude: houseLon,
-      sign: ZODIAC_SIGNS[houseSignIndex],
-      degreeInSign: 0,
-      house: i + 1
+      name: `${i}. Ev`,
+      longitude: cuspDegrees[i],
+      sign: data.sign,
+      degreeInSign: data.degreeInSign,
+      minutes: data.minutes,
+      house: i
     });
   }
 
@@ -284,9 +390,39 @@ export function generateAstrologyChart(birthDate: Date, cityKey: string, isDraco
   ];
 
   const planets: AstroPoint[] = [];
+  
+  const rot1 = Rotation_EQJ_EQD(astroTime);
+  const rot2 = Rotation_EQD_ECL(astroTime);
+
+  // For retrograde calculation, time slightly in the future
+  const futureDate = new Date(birthDate.getTime() + 86400000); // +1 day
+  const futureTime = MakeTime(futureDate);
+  const futureRot1 = Rotation_EQJ_EQD(futureTime);
+  const futureRot2 = Rotation_EQD_ECL(futureTime);
+
   for (const p of bodyMap) {
-    const vec = GeoVector(p.body, astroTime, true);
-    const lon = Ecliptic(vec).elon;
+    const vec = GeoVector(p.body, astroTime, true); 
+    const eqd = RotateVector(rot1, vec);
+    const ecl = RotateVector(rot2, eqd);
+    const sph = SphereFromVector(ecl);
+    const lon = mod360(sph.lon);
+    
+    // Retrograde check (Skip for Sun and Moon)
+    let isRetrograde = false;
+    if (p.body !== Body.Sun && p.body !== Body.Moon) {
+      const futureVec = GeoVector(p.body, futureTime, true);
+      const futureEqd = RotateVector(futureRot1, futureVec);
+      const futureEcl = RotateVector(futureRot2, futureEqd);
+      const futureSph = SphereFromVector(futureEcl);
+      const futureLon = mod360(futureSph.lon);
+      
+      let diff = futureLon - lon;
+      if (diff > 180) diff -= 360;
+      if (diff < -180) diff += 360;
+      
+      if (diff < 0) isRetrograde = true;
+    }
+
     const data = getSignAndDegree(lon);
     
     planets.push({
@@ -294,81 +430,132 @@ export function generateAstrologyChart(birthDate: Date, cityKey: string, isDraco
       longitude: lon,
       sign: data.sign,
       degreeInSign: data.degreeInSign,
-      house: 1 // Placeholder, will calculate below
+      minutes: data.minutes,
+      house: getHouseForLon(lon, cuspDegrees),
+      isRetrograde
     });
   }
 
-  // 5. Midheaven (MC)
-  const mcLon = (ascLon - 90 + 360) % 360; 
-  const mcData = getSignAndDegree(mcLon);
-  const midheaven: AstroPoint = {
-    name: 'Tepe Noktası (MC)',
-    longitude: mcLon,
-    sign: mcData.sign,
-    degreeInSign: mcData.degreeInSign,
-    house: 1 // Placeholder
-  };
+  // 4. Derived & Esoteric Points
+  // a) Kuzey Ay Düğümü (Mean Node Approximation)
+  const jd = getJulianDate(birthDate);
+  const daysSinceJ2000 = jd - 2451545.0;
+  const northNodeLon = mod360(125.04452 - 0.0529539 * daysSinceJ2000);
+  const nnData = getSignAndDegree(northNodeLon);
+  planets.push({
+    name: 'Kuzey Ay Düğümü',
+    longitude: northNodeLon,
+    sign: nnData.sign,
+    degreeInSign: nnData.degreeInSign,
+    minutes: nnData.minutes,
+    house: getHouseForLon(northNodeLon, cuspDegrees),
+    isRetrograde: true // Nodes are almost always retrograde
+  });
+
+  // b) Vertex (Intersection of Prime Vertical and Ecliptic in the West)
+  const vertexLst = mod360(lst + 180);
+  const vertexLat = 90 - city.lat; // Co-latitude for Northern Hemisphere
+  const vertexLstRad = vertexLst * Math.PI / 180;
+  const vertexLatRad = vertexLat * Math.PI / 180;
+  const epsRadLocal = eps * Math.PI / 180;
+  const vY = Math.cos(vertexLstRad);
+  const vX = -(Math.sin(vertexLstRad) * Math.cos(epsRadLocal) + Math.tan(vertexLatRad) * Math.sin(epsRadLocal));
+  const vertexDeg = mod360(Math.atan2(vY, vX) * 180 / Math.PI);
+  const vxData = getSignAndDegree(vertexDeg);
+  planets.push({
+    name: 'Vertex (Vx)',
+    longitude: vertexDeg,
+    sign: vxData.sign,
+    degreeInSign: vxData.degreeInSign,
+    minutes: vxData.minutes,
+    house: getHouseForLon(vertexDeg, cuspDegrees)
+  });
+
+  // c) Pars Fortuna (Şans Noktası)
+  // Day Chart: ASC + Moon - Sun. Night Chart: ASC + Sun - Moon.
+  const sunPoint = planets.find(p => p.name === 'Güneş');
+  const moonPoint = planets.find(p => p.name === 'Ay');
+  if (sunPoint && moonPoint) {
+    const isDayChart = sunPoint.house >= 7 && sunPoint.house <= 12;
+    let pofDeg = 0;
+    if (isDayChart) {
+      pofDeg = mod360(ascDeg + moonPoint.longitude - sunPoint.longitude);
+    } else {
+      pofDeg = mod360(ascDeg + sunPoint.longitude - moonPoint.longitude);
+    }
+    const pofData = getSignAndDegree(pofDeg);
+    planets.push({
+      name: 'Şans Noktası (POF)',
+      longitude: pofDeg,
+      sign: pofData.sign,
+      degreeInSign: pofData.degreeInSign,
+      minutes: pofData.minutes,
+      house: getHouseForLon(pofDeg, cuspDegrees)
+    });
+  }
 
   // === DRACONIC CHART TRANSFORMATION ===
   if (isDraconic) {
-    const jd = getJulianDate(birthDate);
-    const daysSinceJ2000 = jd - 2451545.0;
-    // Mean North Node Calculation
-    let northNodeLon = (125.04452 - 0.0529539 * daysSinceJ2000) % 360;
-    if (northNodeLon < 0) northNodeLon += 360;
-
-    // Transform a point
-    const transform = (lon: number) => {
-      let dLon = (lon - northNodeLon) % 360;
-      if (dLon < 0) dLon += 360;
-      return dLon;
-    };
+    const transform = (lon: number) => mod360(lon - northNodeLon);
 
     ascendant.longitude = transform(ascendant.longitude);
     const dAscData = getSignAndDegree(ascendant.longitude);
     ascendant.sign = dAscData.sign;
     ascendant.degreeInSign = dAscData.degreeInSign;
+    ascendant.minutes = dAscData.minutes;
 
     midheaven.longitude = transform(midheaven.longitude);
     const dMcData = getSignAndDegree(midheaven.longitude);
     midheaven.sign = dMcData.sign;
     midheaven.degreeInSign = dMcData.degreeInSign;
+    midheaven.minutes = dMcData.minutes;
 
     planets.forEach(p => {
       p.longitude = transform(p.longitude);
       const dData = getSignAndDegree(p.longitude);
       p.sign = dData.sign;
       p.degreeInSign = dData.degreeInSign;
+      p.minutes = dData.minutes;
     });
 
-    // Re-calculate Houses for Draconic Ascendant
+    // Re-calculate Houses for Draconic Ascendant and MC (Fallback to Porphyry for Draconic to avoid complex lst conversions)
+    const dCuspDegrees = new Array(13).fill(0);
+    dCuspDegrees[1] = ascendant.longitude;
+    dCuspDegrees[10] = midheaven.longitude;
+    dCuspDegrees[4] = mod360(midheaven.longitude + 180);
+    dCuspDegrees[7] = mod360(ascendant.longitude + 180);
+    const q1 = mod360(ascendant.longitude - midheaven.longitude);
+    const q2 = mod360(dCuspDegrees[4] - ascendant.longitude);
+    dCuspDegrees[11] = mod360(midheaven.longitude + q1 / 3);
+    dCuspDegrees[12] = mod360(midheaven.longitude + 2 * q1 / 3);
+    dCuspDegrees[2] = mod360(ascendant.longitude + q2 / 3);
+    dCuspDegrees[3] = mod360(ascendant.longitude + 2 * q2 / 3);
+    dCuspDegrees[5] = mod360(dCuspDegrees[11] + 180);
+    dCuspDegrees[6] = mod360(dCuspDegrees[12] + 180);
+    dCuspDegrees[8] = mod360(dCuspDegrees[2] + 180);
+    dCuspDegrees[9] = mod360(dCuspDegrees[3] + 180);
+
     houses.length = 0;
-    for (let i = 0; i < 12; i++) {
-      const houseSignIndex = (dAscData.signIndex + i) % 12;
-      const houseLon = houseSignIndex * 30; 
+    for (let i = 1; i <= 12; i++) {
+      const dData = getSignAndDegree(dCuspDegrees[i]);
       houses.push({
-        name: `${i + 1}. Ev`,
-        longitude: houseLon,
-        sign: ZODIAC_SIGNS[houseSignIndex],
-        degreeInSign: 0,
-        house: i + 1
+        name: `${i}. Ev`,
+        longitude: dCuspDegrees[i],
+        sign: dData.sign,
+        degreeInSign: dData.degreeInSign,
+        minutes: dData.minutes,
+        house: i
       });
     }
+
+    // Re-assign planet houses based on Draconic Cusps
+    planets.forEach(p => p.house = getHouseForLon(p.longitude, dCuspDegrees));
+  } else {
+    // Standard Chart Assignments
+    planets.forEach(p => p.house = getHouseForLon(p.longitude, cuspDegrees));
+    midheaven.house = getHouseForLon(midheaven.longitude, cuspDegrees);
   }
 
-  // Calculate Houses for Planets and MC
-  const ascSignIndex = getSignAndDegree(ascendant.longitude).signIndex;
-  const getHouseForLon = (lon: number) => {
-    const pSignIndex = getSignAndDegree(lon).signIndex;
-    let houseNum = pSignIndex - ascSignIndex + 1;
-    if (houseNum <= 0) houseNum += 12;
-    return houseNum;
-  };
-
-  planets.forEach(p => p.house = getHouseForLon(p.longitude));
-  midheaven.house = getHouseForLon(midheaven.longitude);
-
-  // Calculate Aspects
   const aspects = calculateAspects(planets);
 
   return {
