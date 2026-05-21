@@ -1,0 +1,1 @@
+const sweph = require('sweph-wasm'); async function test() { const swe = await sweph(); console.log(swe); } test();

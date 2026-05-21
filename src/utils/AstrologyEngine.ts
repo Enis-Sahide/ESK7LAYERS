@@ -333,7 +333,7 @@ export function calculateAspects(planets: AstroPoint[]): AstroAspect[] {
   return aspects;
 }
 
-export function generateAstrologyChart(birthDate: Date, cityKey: string, isDraconic: boolean = false): NatalChartData {
+export function generateAstrologyChart(birthDate: Date, cityKey: string = 'İstanbul'): NatalChartData {
   const city = ASTRO_CITIES.find(c => c.name === cityKey) || { name: 'İstanbul', lat: 41.0082, lon: 28.9784, country: 'Türkiye', tz: 'Europe/Istanbul' };
   const astroTime = MakeTime(birthDate);
 
@@ -494,67 +494,9 @@ export function generateAstrologyChart(birthDate: Date, cityKey: string, isDraco
     });
   }
 
-  // === DRACONIC CHART TRANSFORMATION ===
-  if (isDraconic) {
-    const transform = (lon: number) => mod360(lon - northNodeLon);
-
-    ascendant.longitude = transform(ascendant.longitude);
-    const dAscData = getSignAndDegree(ascendant.longitude);
-    ascendant.sign = dAscData.sign;
-    ascendant.degreeInSign = dAscData.degreeInSign;
-    ascendant.minutes = dAscData.minutes;
-
-    midheaven.longitude = transform(midheaven.longitude);
-    const dMcData = getSignAndDegree(midheaven.longitude);
-    midheaven.sign = dMcData.sign;
-    midheaven.degreeInSign = dMcData.degreeInSign;
-    midheaven.minutes = dMcData.minutes;
-
-    planets.forEach(p => {
-      p.longitude = transform(p.longitude);
-      const dData = getSignAndDegree(p.longitude);
-      p.sign = dData.sign;
-      p.degreeInSign = dData.degreeInSign;
-      p.minutes = dData.minutes;
-    });
-
-    // Re-calculate Houses for Draconic Ascendant and MC (Fallback to Porphyry for Draconic to avoid complex lst conversions)
-    const dCuspDegrees = new Array(13).fill(0);
-    dCuspDegrees[1] = ascendant.longitude;
-    dCuspDegrees[10] = midheaven.longitude;
-    dCuspDegrees[4] = mod360(midheaven.longitude + 180);
-    dCuspDegrees[7] = mod360(ascendant.longitude + 180);
-    const q1 = mod360(ascendant.longitude - midheaven.longitude);
-    const q2 = mod360(dCuspDegrees[4] - ascendant.longitude);
-    dCuspDegrees[11] = mod360(midheaven.longitude + q1 / 3);
-    dCuspDegrees[12] = mod360(midheaven.longitude + 2 * q1 / 3);
-    dCuspDegrees[2] = mod360(ascendant.longitude + q2 / 3);
-    dCuspDegrees[3] = mod360(ascendant.longitude + 2 * q2 / 3);
-    dCuspDegrees[5] = mod360(dCuspDegrees[11] + 180);
-    dCuspDegrees[6] = mod360(dCuspDegrees[12] + 180);
-    dCuspDegrees[8] = mod360(dCuspDegrees[2] + 180);
-    dCuspDegrees[9] = mod360(dCuspDegrees[3] + 180);
-
-    houses.length = 0;
-    for (let i = 1; i <= 12; i++) {
-      const dData = getSignAndDegree(dCuspDegrees[i]);
-      houses.push({
-        name: `${i}. Ev`,
-        longitude: dCuspDegrees[i],
-        sign: dData.sign,
-        degreeInSign: dData.degreeInSign,
-        minutes: dData.minutes,
-        house: i
-      });
-    }
-
-    // Re-assign planet houses based on Draconic Cusps
-    planets.forEach(p => p.house = getHouseForLon(p.longitude, dCuspDegrees));
-  } else {
-    // Standard Chart Assignments
-    planets.forEach(p => p.house = getHouseForLon(p.longitude, cuspDegrees));
-    midheaven.house = getHouseForLon(midheaven.longitude, cuspDegrees);
-  }
+  // Standard Chart Assignments
+  planets.forEach(p => p.house = getHouseForLon(p.longitude, cuspDegrees));
+  midheaven.house = getHouseForLon(midheaven.longitude, cuspDegrees);
 
   const aspects = calculateAspects(planets);
 

@@ -1,0 +1,20 @@
+{
+  "name": "scratch_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@astrologer/astro-core": "^1.0.1",
+    "@fusionstrings/swisseph-wasm": "^0.1.5",
+    "@swisseph/browser": "^1.1.1",
+    "circular-natal-horoscope-js": "^1.1.0",
+    "sweph-wasm": "^2.6.9"
+  }
+}

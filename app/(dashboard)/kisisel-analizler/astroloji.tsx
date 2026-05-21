@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert,
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
+import * as moment from 'moment-timezone';
 import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
 import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '../../../src/utils/AstrologyInterpretations';
 
@@ -93,9 +94,9 @@ export default function AstrolojiAnalysisScreen() {
     setTimeStr(formatted);
   };
 
-  const handleCalculate = (type: 'Tropikal' | 'Drakonik' = chartType) => {
-    if (!name || !dateStr || !timeStr) {
-      Alert.alert("Eksik Bilgi", "Lütfen tüm alanları doldurun.");
+  const handleCalculate = () => {
+    if (!dateStr || !timeStr) {
+      Alert.alert("Hata", "Lütfen doğum tarihi ve saatini girin.");
       return;
     }
     const [year, month, day] = dateStr.split('-').map(Number);
@@ -109,11 +110,29 @@ export default function AstrolojiAnalysisScreen() {
     setIsLoading(true);
     setTimeout(() => {
       try {
-        const birthDate = new Date(year, month - 1, day, hour, minute);
-        const isDraconic = type === 'Drakonik';
-        const result = generateAstrologyChart(birthDate, cityKey, isDraconic);
+        let birthDate;
+        let finalCity = cityKey;
+        
+        try {
+          const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+          
+          const matchedCity = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === searchQuery.trim().toLocaleLowerCase('tr-TR'));
+          if (matchedCity) {
+            finalCity = matchedCity.name;
+          }
+
+          if (moment && typeof moment.tz === 'function') {
+            const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", "Europe/Istanbul");
+            birthDate = m.toDate();
+          } else {
+            birthDate = new Date(year, month - 1, day, hour, minute);
+          }
+        } catch (err) {
+          birthDate = new Date(year, month - 1, day, hour, minute);
+        }
+        
+        const result = generateAstrologyChart(birthDate, finalCity);
         setChart(result);
-        setChartType(type);
       } catch (error) {
         Alert.alert("Hesaplama Hatası", "Harita oluşturulurken bir sorun oluştu.");
         console.error(error);
@@ -372,25 +391,17 @@ export default function AstrolojiAnalysisScreen() {
                   </View>
                 )}
               </View>
-              <View style={styles.typeToggleContainer}>
-                <TouchableOpacity style={[styles.typeToggleBtn, chartType === 'Tropikal' && styles.typeToggleActive]} onPress={() => setChartType('Tropikal')}><Text style={[styles.typeToggleText, chartType === 'Tropikal' && styles.typeToggleTextActive]}>Tropikal Harita</Text></TouchableOpacity>
-                <TouchableOpacity style={[styles.typeToggleBtn, chartType === 'Drakonik' && styles.typeToggleActive]} onPress={() => setChartType('Drakonik')}><Text style={[styles.typeToggleText, chartType === 'Drakonik' && styles.typeToggleTextActive]}>Drakonik Harita</Text></TouchableOpacity>
-              </View>
-              <TouchableOpacity style={styles.button} onPress={() => handleCalculate(chartType)} disabled={isLoading}>
+              <TouchableOpacity style={styles.button} onPress={() => handleCalculate()} disabled={isLoading}>
                 <Text style={styles.buttonText}>{isLoading ? 'Yıldızlar Okunuyor...' : 'Haritayı Hesapla'}</Text>
               </TouchableOpacity>
             </BlurView>
           ) : (
             <View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20}}>
+              <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 20}}>
                 <TouchableOpacity style={styles.resetBtn} onPress={() => setChart(null)}>
                   <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
                   <Text style={styles.resetBtnText}>Geri</Text>
                 </TouchableOpacity>
-                <View style={styles.smallToggleContainer}>
-                  <TouchableOpacity style={[styles.smallToggleBtn, chartType === 'Tropikal' && styles.smallToggleActive]} onPress={() => handleCalculate('Tropikal')}><Text style={[styles.smallToggleText, chartType === 'Tropikal' && styles.smallToggleTextActive]}>Tropikal</Text></TouchableOpacity>
-                  <TouchableOpacity style={[styles.smallToggleBtn, chartType === 'Drakonik' && styles.smallToggleActive]} onPress={() => handleCalculate('Drakonik')}><Text style={[styles.smallToggleText, chartType === 'Drakonik' && styles.smallToggleTextActive]}>Drakonik</Text></TouchableOpacity>
-                </View>
               </View>
 
               <View style={styles.chartOuterContainer}>

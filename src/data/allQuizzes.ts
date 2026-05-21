@@ -5,6 +5,8 @@ import { allHumanDesignQuizzes } from './humanDesignQuizzes';
 import { allAstrologyQuizzes } from './astrologyQuizzes';
 import { akupunkturQuiz1, akupunkturQuiz2, akupunkturQuiz3 } from './akupunkturQuizzes';
 import { duygusalHastaliklarQuiz } from './duygusalHastaliklarQuiz';
+import { kabbalahQuizCiraklik } from './kabbalahQuizCiraklik';
+import { kabbalahQuizKalfalik } from './kabbalahQuizKalfalik';
 
 export interface QuizQuestion {
   id: string;
@@ -161,4 +163,6 @@ export const allQuizzes: Record<string, Quiz> = {
   'akupunktur_2': akupunkturQuiz2,
   'akupunktur_3': akupunkturQuiz3,
   'duygusal_hastaliklar_50': duygusalHastaliklarQuiz,
+  'kabbalah_1': kabbalahQuizCiraklik,
+  'kabbalah_2': kabbalahQuizKalfalik,
 };

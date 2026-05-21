@@ -1,0 +1,1 @@
+import * as core from '@astrologer/astro-core'; console.log(Object.keys(core));

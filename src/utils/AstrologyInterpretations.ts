@@ -26,9 +26,11 @@ const DICT_PLANETS: Record<string, { essence: string, action: string, esoteric: 
   'Uranüs': { essence: 'kurtuluş arayışınız, dehanız ve uyanışınız', action: 'özgürleşir, isyan eder ve aydınlatır', esoteric: 'Kozmik Yıldırım; matrisin (Matrix) dışına çıkış, ani aydınlanma ve zincirlerin kırılması.' },
   'Neptün': { essence: 'idealleriniz, ilhamınız ve ilahi bağlantınız', action: 'hayal kurar, fedakarlık yapar ve sınırları çözer', esoteric: 'İlahi Aşk ve Mistik Çözülme; egonun sınırlarının eriyip birliğe (Vahdet) karışması.' },
   'Plüton': { essence: 'dönüşüm gücünüz, yıkıcı/yapıcı potansiyeliniz ve gölge yanınız', action: 'dönüştürür, yok eder ve küllerinden yeniden doğurur', esoteric: 'Yeraltı Tanrısı; ruhun en karanlık dehlizlerine inip gölgeyi ışığa dönüştürme simyası.' },
+  'Chiron': { essence: 'kapanmayan yaranız ve en büyük şifa gücünüz', action: 'yaralar, öğretir ve şifalandırır', esoteric: 'Yaralı Şifacı; en derin acının içinden doğan ve başkalarına merhem olan bilgelik.' },
+  'Lilith': { essence: 'bastırılmış karanlık, vahşi doğanız ve isyankar gücünüz', action: 'başkaldırır, reddeder ve özgürleşir', esoteric: 'Karanlık Ay; ruhun boyun eğmeyen dişil gücü, tabuları yıkan ve özgürleştiren ilksel enerji.' },
+  'Kuzey Ay Düğümü': { essence: 'bu hayattaki kadersel öğrenme yönünüz ve ruhunuzun tekamül pusulası', action: 'evrimleşir ve cesaretle ilerler', esoteric: 'Ejderhanın Başı; ruhun karmik döngüyü kırıp evrimleşmek için yürümesi gereken bilinmeyen yol.' },
   'Yükselen (ASC)': { essence: 'dış dünyaya yansıttığınız maske, fiziksel bedeniniz ve başlangıç enerjiniz', action: 'deneyimler ve yansıtır', esoteric: 'Ruhun bu enkarnasyondaki aracı (Avatarı); yaşam yolculuğunun başlangıç kapısı.' },
   'Tepe Noktası (MC)': { essence: 'kaderdeki nihai hedefiniz, toplumsal statünüz ve varılacak noktanız', action: 'zirveye ulaşır ve görünür olur', esoteric: 'Ruhun bu hayattaki magnum opus\'u (Büyük İş); kozmik misyonun dünyevi tezahürü.' },
-  'Kuzey Ay Düğümü': { essence: 'bu hayattaki kadersel öğrenme yönünüz ve ruhunuzun tekamül pusulası', action: 'evrimleşir ve cesaretle ilerler', esoteric: 'Ejderhanın Başı; ruhun karmik döngüyü kırıp evrimleşmek için yürümesi gereken bilinmeyen yol.' },
   'Vertex (Vx)': { essence: 'kadersel karşılaşmalarınız, dönüm noktalarınız ve kaçınılmaz olaylar', action: 'tetikler ve kadersel olarak çeker', esoteric: 'Ruhun diğer varlıklarla yaptığı kutsal kontrat; kişinin kontrolü dışında gelişen, hayatı değiştiren kadersel uyanış kapısı.' },
   'Şans Noktası (POF)': { essence: 'maddi ve manevi kısmetiniz, neşe kaynağınız ve doğal yetenekleriniz', action: 'zenginleştirir ve akışa sokar', esoteric: 'Ruhun, bedenin ve zihnin (Güneş, Ay ve Yükselen) mükemmel uyumlandığı altın oran noktası; ilahi lütfun dünyevi tezahürü.' }
 };
@@ -48,15 +50,23 @@ const DICT_HOUSES: Record<number, { domain: string, focus: string }> = {
   12: { domain: 'bilinçaltı korkularınız, gizli meseleleriniz, ruhsal inzivanız ve kadersel çözülmeleriniz', focus: 'bütüne teslimiyet ve ruhsal arınma' },
 };
 
-export function getFullPlanetInterpretation(planetName: string, signName: ZodiacSign, houseNum: number): { title: string, content: string } {
+export function getFullPlanetInterpretation(planetName: string, signName: ZodiacSign, houseNum: number, isDraconic: boolean = false): { title: string, content: string } {
   const planet = DICT_PLANETS[planetName] || DICT_PLANETS[planetName.replace(' ', '')];
   const sign = DICT_SIGNS[signName];
   const house = DICT_HOUSES[houseNum];
 
   if (!planet || !sign || !house) return { title: 'Bilinmeyen Yerleşim', content: 'Bu astrolojik yerleşim için detaylı bir metin üretilemedi.' };
 
-  const title = `${planetName} - ${signName} Burcunda ve ${houseNum}. Evde`;
+  const title = `${planetName} - ${signName} Burcunda ve ${houseNum}. Evde${isDraconic ? ' (Drakonik)' : ''}`;
   
+  if (isDraconic) {
+    const content = `Drakonik haritada (ruhsal sözleşmenizde) ${planetName}, ${signName} formuna bürünür.\n\n` +
+      `RUHSAL KÖKEN:\nGeçmiş yaşamlarınızdan ve çok derinlerden gelen bu enerji, özünüzde ${planet.essence} kavramını nasıl kadersel bir derse dönüştürdüğünüzü anlatır. ${sign.element} elementinin ${sign.quality} frekansıyla uyumlanan bu yerleşim, ruhunuzun asıl amacının "${sign.esoteric}" olduğunu gösterir.\n\n` +
+      `KADERSEL ARENA (EV ETKİSİ):\nRuhsal planınızda, bu gücün çözülmesi ve tezahür etmesi için seçtiğiniz yeryüzü sahnesi ${houseNum}. evdir. Bu nedenle ${house.domain} alanında sürekli olarak kadersel testlerden veya uyanışlardan geçersiniz.\n\n` +
+      `TEKAMÜL YOLCULUĞU:\nEgonuzu bir kenara bıraktığınızda, "${planet.action}" eyleminiz tamamen ${sign.trait} bir bilgeliğe evrilir. Bu da sizi nihai olarak ${planet.esoteric} seviyesine taşıyacaktır.`;
+    return { title, content };
+  }
+
   const content = `Astrolojide ${planetName}, ${planet.essence}ı temsil eder.\n\n` +
     `BURÇ ETKİSİ:\nBu enerjinin ${signName} burcunda olması, içsel dinamiklerinizin ${sign.trait} bir doğayla ortaya çıkacağını gösterir. Harita sahibi olarak bu gezegenin temsil ettiği konularda ${sign.quality} bir tavır sergiler ve ${sign.element} elementinin motivasyonuyla ${planet.action}.\n\n` +
     `EV (YAŞAM ALANI) ETKİSİ:\nBu gezegenin ${houseNum}. Evde bulunması oldukça önemlidir. ${houseNum}. Ev astrolojide ${house.domain} alanını yönetir. Dolayısıyla, ${signName} burcunun özellikleriyle boyanmış olan bu gezegensel enerji, kadersel olarak en çok '${house.focus}' konularında kendini gösterecektir.\n\n` +

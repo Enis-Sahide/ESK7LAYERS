@@ -25,7 +25,15 @@ const TEST_CATEGORIES: TestCategory[] = [
     icon: 'heart-half-outline', 
     route: '/(dashboard)/kadim-dersler/test/duygusal_hastaliklar_50'
   },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah-test', requiredUnlock: 'kadim_dersler_access' },
+  { 
+    id: 'kabbalah', 
+    title: 'Evrensel Kabbalah Sınavları', 
+    icon: 'git-network-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık (50 Soru)', route: '/(dashboard)/kadim-dersler/test/kabbalah_1' },
+      { title: '2. Derece: Kalfalık (50 Soru)', route: '/(dashboard)/kadim-dersler/test/kabbalah_2' },
+    ]
+  },
   { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', requiredUnlock: 'kadim_dersler_access' },
   { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', requiredUnlock: 'kadim_dersler_access' },
   { 

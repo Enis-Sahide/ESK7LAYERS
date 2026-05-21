@@ -8,7 +8,6 @@ import { COLORS, SIZES } from '@/src/theme';
 const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
 
 const LESSON_TITLES: Record<string, string> = {
-  'kabbalah': 'Evrensel Kabbalah',
   'tarot': 'Tarot ve Arkana',
   'sembolizm': 'Kadim Sembolizm',
   'human-design': 'Human Design',

@@ -1,0 +1,1 @@
+import swisseph from '@swisseph/browser'; import { setSwissEphemeris, calculateChart } from '@astrologer/astro-core'; setSwissEphemeris(swisseph); console.log(calculateChart({date: new Date('1995-03-17T18:05:00+03:00'), latitude: 40.9128, longitude: 38.3895 }));

@@ -17,7 +17,7 @@ interface LessonCategory {
 
 const LESSON_CATEGORIES: LessonCategory[] = [
   { id: 'ruh-beden', title: 'Ruh & Beden Sağlığı', icon: 'leaf-outline', route: '/(dashboard)/kadim-dersler/ruh-beden' },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah' },
   { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', requiredUnlock: 'kadim_dersler_access' },
   { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', requiredUnlock: 'kadim_dersler_access' },
   { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', requiredUnlock: 'kadim_dersler_access' },
