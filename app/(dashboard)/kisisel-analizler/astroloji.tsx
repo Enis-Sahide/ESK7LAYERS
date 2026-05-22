@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert,
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
 import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
 import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '../../../src/utils/AstrologyInterpretations';
@@ -55,6 +56,7 @@ const ASPECT_COLORS: Record<string, string> = {
 };
 
 export default function AstrolojiAnalysisScreen() {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
@@ -359,6 +361,12 @@ export default function AstrolojiAnalysisScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
+            <TouchableOpacity 
+              style={{ position: 'absolute', left: 0, top: 2, padding: 5 }} 
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+            </TouchableOpacity>
             <Text style={styles.title}>Ezoterik Doğum Haritası</Text>
             <Text style={styles.subtitle}>Kozmik Şifrenizi Çözün</Text>
           </View>

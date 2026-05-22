@@ -322,12 +322,12 @@ export const duygusalHastaliklarQuiz: Quiz = {
     "question": "Ezoterik öğretilere göre aşağıdaki rahatsızlıklardan hangisinin zihinsel nedeni şudur: \"Akıl ve endişeyi simgeliyor.\"?",
     "options": [
       "Göğüsler",
-      "– Baş parmak",
+      "Baş parmak",
       "Diş sorunları",
       "Zatürree"
     ],
     "correctAnswerIndex": 1,
-    "explanation": "Doğru cevap – Baş parmak. Olumlama Cümlesi: \"Zihnim dingin.\""
+    "explanation": "Doğru cevap Baş parmak. Olumlama Cümlesi: \"Zihnim dingin.\""
   },
   {
     "id": "dh_50_28",
@@ -432,7 +432,7 @@ export const duygusalHastaliklarQuiz: Quiz = {
       "El bileği",
       "Karın ağrısı",
       "Eritem –deri veremi",
-      "– Küçük parmak"
+      "Küçük parmak"
     ],
     "correctAnswerIndex": 0,
     "explanation": "Doğru cevap El bileği. Olumlama Cümlesi: \"Tüm deneyimlerime bilgelikle, sevgiyle, kolaylıkla yaklaşıyorum ve üstesinden geliyorum.\""

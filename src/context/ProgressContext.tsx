@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { supabase } from '@/src/services/supabase';
+
 interface ProgressContextType {
   unlockedTiers: string[];
   unlockTier: (tierId: string) => Promise<void>;
@@ -15,15 +17,47 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadProgress();
+    
+    // Subscribe to auth state changes to reload progress when user logs in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        loadProgress();
+      } else if (event === 'SIGNED_OUT') {
+        setUnlockedTiers([]);
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadProgress = async () => {
     try {
-      const data = await AsyncStorage.getItem('@mystery_school_progress');
-      if (data) {
-        setUnlockedTiers(JSON.parse(data));
+      // 1. Try to load from Supabase User Metadata first (source of truth)
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user?.user_metadata?.unlockedTiers) {
+        const metadataTiers = session.user.user_metadata.unlockedTiers;
+        setUnlockedTiers(metadataTiers);
+        // Backup to local storage for offline fast load
+        await AsyncStorage.setItem('@mystery_school_progress', JSON.stringify(metadataTiers));
+        return;
+      }
+      
+      // 2. Fallback to AsyncStorage if no network/session metadata yet
+      const localData = await AsyncStorage.getItem('@mystery_school_progress');
+      if (localData) {
+        const parsedData = JSON.parse(localData);
+        setUnlockedTiers(parsedData);
+        
+        // If we have a session but no metadata, sync local data UP to Supabase
+        if (session && session.user && !session.user.user_metadata?.unlockedTiers) {
+            await supabase.auth.updateUser({
+              data: { unlockedTiers: parsedData }
+            });
+        }
       } else {
-        // İlk açılışta 1. seviyeler zaten açık kabul ediliyor, burası ekstra kilitleri tutar
         setUnlockedTiers([]);
       }
     } catch (error) {
@@ -36,7 +70,17 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       if (!unlockedTiers.includes(tierId)) {
         const newTiers = [...unlockedTiers, tierId];
         setUnlockedTiers(newTiers);
+        
+        // 1. Save to local storage
         await AsyncStorage.setItem('@mystery_school_progress', JSON.stringify(newTiers));
+        
+        // 2. Sync to Supabase Database (user_metadata)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          await supabase.auth.updateUser({
+            data: { unlockedTiers: newTiers }
+          });
+        }
       }
     } catch (error) {
       console.error('Progress kaydedilemedi:', error);
@@ -44,7 +88,6 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   };
 
   const hasAccess = (tierId: string) => {
-    // 1. seviyeler (örn: numeroloji_1) varsayılan olarak her zaman açıktır
     if (tierId.endsWith('_1')) return true;
     return unlockedTiers.includes(tierId);
   };
@@ -53,6 +96,13 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     try {
       await AsyncStorage.removeItem('@mystery_school_progress');
       setUnlockedTiers([]);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase.auth.updateUser({
+          data: { unlockedTiers: [] }
+        });
+      }
     } catch (error) {
       console.error('Progress silinemedi:', error);
     }

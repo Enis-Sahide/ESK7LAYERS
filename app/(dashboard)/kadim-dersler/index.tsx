@@ -16,14 +16,15 @@ interface LessonCategory {
 }
 
 const LESSON_CATEGORIES: LessonCategory[] = [
-  { id: 'ruh-beden', title: 'Ruh & Beden Sağlığı', icon: 'leaf-outline', route: '/(dashboard)/kadim-dersler/ruh-beden' },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah' },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'duygusal-hastaliklar', title: 'Hastalıkların Duygusal Nedenleri', icon: 'heart-half-outline', route: '/(dashboard)/kadim-dersler/duygusal-hastaliklar' },
+  { id: 'akupunktur', title: 'Akupunktur ve Meridyenler', icon: 'body-outline', route: '/(dashboard)/kadim-dersler/akupunktur', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', requiredUnlock: 'kadim_dersler_access' },
   { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', requiredUnlock: 'kadim_dersler_access' },
   { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', requiredUnlock: 'kadim_dersler_access' },
   { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga', requiredUnlock: 'kadim_dersler_access' },
 ];
 

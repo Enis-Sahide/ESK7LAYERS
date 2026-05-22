@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert,
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
 import { getFullPlanetInterpretation, getAspectInterpretation } from '../../../src/utils/AstrologyInterpretations';
 
@@ -45,6 +46,7 @@ const PLANET_SYMBOLS: Record<string, string> = {
 };
 
 export default function AnlikGokyuzuScreen() {
+  const router = useRouter();
   const [country, setCountry] = useState('Türkiye');
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [cityKey, setCityKey] = useState('İstanbul');
@@ -175,6 +177,12 @@ export default function AnlikGokyuzuScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
+            <TouchableOpacity 
+              style={{ position: 'absolute', left: 0, top: 2, padding: 5 }} 
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+            </TouchableOpacity>
             <Text style={styles.title}>Anlık Gökyüzü</Text>
             <Text style={styles.subtitle}>Şu an yıldızlar bize ne fısıldıyor?</Text>
           </View>

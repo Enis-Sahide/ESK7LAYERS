@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
 import { KABBALAH_LESSONS } from '@/src/data/kabbalahLessons';
+import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -133,6 +134,7 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle, onImagePress }: { less
 };
 
 export default function KabbalahCurriculumScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'ciraklik' | 'kalfalik'>('ciraklik');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
   
@@ -206,8 +208,17 @@ export default function KabbalahCurriculumScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>Evrensel Kabbalah</Text>
-          <Text style={styles.subtitle}>Hayat Ağacı ve Kozmik Şifreler</Text>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.title}>Evrensel Kabbalah</Text>
+            <Text style={styles.subtitle}>Hayat Ağacı ve Kozmik Şifreler</Text>
+          </View>
         </View>
 
         {/* Sekmeler (Tabs) */}
@@ -288,16 +299,27 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 30,
   },
+  backButton: {
+    marginRight: 15,
+    padding: 8,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderRadius: 12,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.primary,
-    marginBottom: 8,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.textMuted,
     fontStyle: 'italic',
   },

@@ -6,27 +6,27 @@ export interface EmotionalDisease {
 
 export const EMOTIONAL_DISEASES: EmotionalDisease[] = [
   {
-    "name": "– Baş parmak",
+    "name": "Baş parmak",
     "cause": "Akıl ve endişeyi simgeliyor.",
     "affirmation": "Zihnim dingin."
   },
   {
-    "name": "– İşaret parmağı",
+    "name": "İşaret parmağı",
     "cause": "Ego ve korkuyu simgeliyor.",
     "affirmation": "Güvendeyim."
   },
   {
-    "name": "– Küçük parmak",
+    "name": "Küçük parmak",
     "cause": "Aile ve sahte bir görünüm verme çabasını simgeliyor.",
     "affirmation": "Hayat ailesinde olduğum gibi görünüyorum."
   },
   {
-    "name": "– Orta parmak",
+    "name": "Orta parmak",
     "cause": "Kızgınlık ve cinselliği simgeliyor.",
     "affirmation": "Cinselliğimle barış içindeyim."
   },
   {
-    "name": "– Yüzük parmağı",
+    "name": "Yüzük parmağı",
     "cause": "Birlikte olma ve üzüntüyü simgeliyor.",
     "affirmation": "Sevecen ve huzurluyum."
   },
@@ -936,9 +936,14 @@ export const EMOTIONAL_DISEASES: EmotionalDisease[] = [
     "affirmation": "Sevecen mutlu düşünceleri seçerek sevecen, mutlu bir dünya yaratıyorum. Güvenli ve özgürüm."
   },
   {
-    "name": "Kalp- Krizi",
+    "name": "Kalp Krizi",
     "cause": "Haz duygusunu para, pozisyon vb için feda etmek.",
-    "affirmation": "Önce sevgi geliyor. Hayattan haz almayı seçiyorum. Kalp trombozu – kalbi besleyen atardamarlardan birinin bir kan pıhtısıyla tıkanması : (Kendini yalnız ve panikte hissetme. ‘’ Ben yeterince iyi değilim. Yaptığım yeterli değil.asla başaramayacağım.’’ yaklaşımı.) Tüm hayatla birim. Evren beni bütünüyle destekliyor. Her şey yolunda."
+    "affirmation": "Önce sevgi geliyor. Hayattan haz almayı seçiyorum."
+  },
+  {
+    "name": "Kalp Trombozu",
+    "cause": "Kalbi besleyen atardamarlardan birinin bir kan pıhtısıyla tıkanması (Kendini yalnız ve panikte hissetme. 'Ben yeterince iyi değilim. Yaptığım yeterli değil, asla başaramayacağım.' yaklaşımı.)",
+    "affirmation": "Tüm hayatla birim. Evren beni bütünüyle destekliyor. Her şey yolunda."
   },
   {
     "name": "Kalp-sorunları",
@@ -1488,7 +1493,12 @@ export const EMOTIONAL_DISEASES: EmotionalDisease[] = [
   {
     "name": "Sinüs sorunları",
     "cause": "Çok yakın bir insandan tedirgin olmak.",
-    "affirmation": "İçimde ve çevremde huzurlu ve uyumlu bir ortam var. Sinüzit – yüzdeki kemik boşluklarının iç yüzünü kaplayan mukoza iltihabı : (Yakın bir kişiye sinirlenme – sinirlendirici bir yakının varlığı) Huzur ve uyumun her zaman içimi kapladığını ve beni kuşattığını ilan ediyorum. Her şey yolunda."
+    "affirmation": "İçimde ve çevremde huzurlu ve uyumlu bir ortam var."
+  },
+  {
+    "name": "Sinüzit",
+    "cause": "Yüzdeki kemik boşluklarının iç yüzünü kaplayan mukoza iltihabı (Yakın bir kişiye sinirlenme – sinirlendirici bir yakının varlığı)",
+    "affirmation": "Huzur ve uyumun her zaman içimi kapladığını ve beni kuşattığını ilan ediyorum. Her şey yolunda."
   },
   {
     "name": "Sirpençe –Çıbanlar",
@@ -1503,7 +1513,12 @@ export const EMOTIONAL_DISEASES: EmotionalDisease[] = [
   {
     "name": "Sivilce",
     "cause": "Kendini kabul etmemek. Kendinden hoşnut olmamak.",
-    "affirmation": "Hayatın kutsal bir ifadesiyim. Kendimi şu anda olduğum gibi seviyorum ve kabul ediyorum. Siyatik – Üst bacağın arka kısmı, arka bacağın dış tarafı ve siyatik siniri boyunca yayılan ağrı : (İkiyüzlü olma. Para ve gelecek için endişelenme.) Benim için daha hayırlı olana doğru ilerliyorum.her yerde benim için hayırlı şeyler var. Güvenlik içindeyim.korunuyorum."
+    "affirmation": "Hayatın kutsal bir ifadesiyim. Kendimi şu anda olduğum gibi seviyorum ve kabul ediyorum."
+  },
+  {
+    "name": "Siyatik",
+    "cause": "Üst bacağın arka kısmı, arka bacağın dış tarafı ve siyatik siniri boyunca yayılan ağrı (İkiyüzlü olma. Para ve gelecek için endişelenme.)",
+    "affirmation": "Benim için daha hayırlı olana doğru ilerliyorum. Her yerde benim için hayırlı şeyler var. Güvenlik içindeyim, korunuyorum."
   },
   {
     "name": "Siyah noktalar",
@@ -1727,8 +1742,8 @@ export const EMOTIONAL_DISEASES: EmotionalDisease[] = [
   },
   {
     "name": "Yumrular",
-    "cause": "Ego’nun, mesleki konuda (kariyerle ilgili olarak",
-    "affirmation": "içerlemesi, düş kırıklığına uğraması, yaralanması.) Zihnimden, bu ertelemeye neden olan düşünce kalıbını atıyor ve artık başarının benim olmasına izin veriyorum."
+    "cause": "Ego’nun, mesleki konuda (kariyerle ilgili olarak) içerlemesi, düş kırıklığına uğraması, yaralanması.",
+    "affirmation": "Zihnimden, bu ertelemeye neden olan düşünce kalıbını atıyor ve artık başarının benim olmasına izin veriyorum."
   },
   {
     "name": "Yumurtalıklar",

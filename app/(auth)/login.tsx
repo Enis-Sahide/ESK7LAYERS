@@ -71,6 +71,9 @@ export default function LoginScreen() {
             onChangeText={setPassword}
             secureTextEntry
           />
+          <TouchableOpacity onPress={() => router.push('/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 8 }}>
+            <Text style={{ color: COLORS.primary, fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum?</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity 

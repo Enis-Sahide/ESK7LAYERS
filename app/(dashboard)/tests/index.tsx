@@ -18,66 +18,32 @@ interface TestCategory {
 }
 
 const TEST_CATEGORIES: TestCategory[] = [
-  { id: 'aura', title: 'Aura & Çakra Bilgisi', icon: 'body-outline', route: '/(dashboard)/final-test' },
+  { id: 'aura', title: 'Aura & Çakra (50 S.)', icon: 'body-outline', route: '/(dashboard)/final-test' },
   { 
     id: 'duygusal_hastaliklar', 
-    title: 'Hastalıkların Duygusal Nedenleri (50 Soru)', 
+    title: 'Hastalıkların Duygusal Nedenleri (50 S.)', 
     icon: 'heart-half-outline', 
     route: '/(dashboard)/kadim-dersler/test/duygusal_hastaliklar_50'
   },
   { 
+    id: 'akupunktur', 
+    title: 'Akupunktur ve Meridyenler', 
+    icon: 'body-outline', 
+    requiredUnlock: 'kadim_dersler_access',
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/akupunktur_3', requiredUnlock: 'akupunktur_master', isHighlight: true },
+    ]
+  },
+  { 
     id: 'kabbalah', 
-    title: 'Evrensel Kabbalah Sınavları', 
+    title: 'Evrensel Kabbalah', 
     icon: 'git-network-outline', 
-    subTests: [
-      { title: '1. Derece: Çıraklık (50 Soru)', route: '/(dashboard)/kadim-dersler/test/kabbalah_1' },
-      { title: '2. Derece: Kalfalık (50 Soru)', route: '/(dashboard)/kadim-dersler/test/kabbalah_2' },
-    ]
-  },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', requiredUnlock: 'kadim_dersler_access' },
-  { 
-    id: 'human', 
-    title: 'Human Design Sınavları', 
-    icon: 'finger-print-outline', 
     requiredUnlock: 'kadim_dersler_access',
     subTests: [
-      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
-      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
-      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/human_3', requiredUnlock: 'human_master', isHighlight: true },
-    ]
-  },
-  {
-    id: 'rune',
-    title: 'Rune Sınavları',
-    icon: 'diamond-outline',
-    requiredUnlock: 'kadim_dersler_access',
-    subTests: [
-      { title: '1. Kademe: Semboller', route: '/(dashboard)/kadim-dersler/test/rune1' },
-      { title: '2. Kademe: Bağlamalar', route: '/(dashboard)/kadim-dersler/test/rune2', requiredUnlock: 'rune_2' },
-      { title: 'Büyük Final Sınavı', route: '/(dashboard)/kadim-dersler/test/runeFinal', requiredUnlock: 'rune_master', isHighlight: true },
-    ]
-  },
-  { 
-    id: 'numeroloji', 
-    title: 'Numeroloji Sınavları', 
-    icon: 'calculator-outline', 
-    requiredUnlock: 'kadim_dersler_access',
-    subTests: [
-      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/numeroloji_1' },
-      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/numeroloji_2', requiredUnlock: 'numeroloji_2' },
-      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/numeroloji_3', requiredUnlock: 'numeroloji_3', isHighlight: true },
-    ]
-  },
-  { 
-    id: 'yoga', 
-    title: 'Yoga Asanaları', 
-    icon: 'fitness-outline', 
-    requiredUnlock: 'kadim_dersler_access',
-    subTests: [
-      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
-      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
-      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/yoga_3', requiredUnlock: 'yoga_master', isHighlight: true },
+      { title: '1. Derece: Çıraklık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_1' },
+      { title: '2. Derece: Kalfalık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_2' },
     ]
   },
   { 
@@ -92,14 +58,49 @@ const TEST_CATEGORIES: TestCategory[] = [
     ]
   },
   { 
-    id: 'akupunktur', 
-    title: 'Akupunktur ve Meridyenler', 
-    icon: 'body-outline', 
+    id: 'human', 
+    title: 'Human Design', 
+    icon: 'finger-print-outline', 
     requiredUnlock: 'kadim_dersler_access',
     subTests: [
-      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
-      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
-      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/akupunktur_3', requiredUnlock: 'akupunktur_master', isHighlight: true },
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/human_3', requiredUnlock: 'human_master', isHighlight: true },
+    ]
+  },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', requiredUnlock: 'kadim_dersler_access' },
+  { 
+    id: 'numeroloji', 
+    title: 'Numeroloji', 
+    icon: 'calculator-outline', 
+    requiredUnlock: 'kadim_dersler_access',
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/numeroloji_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/numeroloji_2', requiredUnlock: 'numeroloji_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/numeroloji_3', requiredUnlock: 'numeroloji_3', isHighlight: true },
+    ]
+  },
+  {
+    id: 'rune',
+    title: 'Rune',
+    icon: 'diamond-outline',
+    requiredUnlock: 'kadim_dersler_access',
+    subTests: [
+      { title: '1. Kademe: Semboller', route: '/(dashboard)/kadim-dersler/test/rune1' },
+      { title: '2. Kademe: Bağlamalar', route: '/(dashboard)/kadim-dersler/test/rune2', requiredUnlock: 'rune_2' },
+      { title: 'Büyük Final Sınavı', route: '/(dashboard)/kadim-dersler/test/runeFinal', requiredUnlock: 'rune_master', isHighlight: true },
+    ]
+  },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', requiredUnlock: 'kadim_dersler_access' },
+  { 
+    id: 'yoga', 
+    title: 'Yoga Asanaları', 
+    icon: 'fitness-outline', 
+    requiredUnlock: 'kadim_dersler_access',
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/yoga_3', requiredUnlock: 'yoga_master', isHighlight: true },
     ]
   },
 ];
@@ -255,6 +256,7 @@ const styles = StyleSheet.create({
   cardLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   iconContainer: {
     width: 40,
@@ -269,6 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text,
     fontWeight: '600',
+    flexShrink: 1,
   },
   subTestsContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',

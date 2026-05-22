@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import Svg, { Polygon, Rect, Line, Circle, Polyline, Text as SvgText, G, Path, Image as SvgImage } from 'react-native-svg';
 import { generateChart, HumanDesignChart, CenterCode, PLANET_SYMBOLS, CHANNELS } from '../../../src/utils/HumanDesignEngine';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import moment from 'moment-timezone';
 
 const COLORS = {
@@ -118,6 +119,7 @@ const ALL_CITIES = [
 const AVAILABLE_COUNTRIES = ['Türkiye', 'Almanya', 'İngiltere', 'ABD', 'Azerbaycan'];
 
 export default function HumanDesignScreen() {
+  const router = useRouter();
   const [name, setName] = useState('Enis Şahide Kesik');
   const [dateStr, setDateStr] = useState('1995-03-17');
   const [timeStr, setTimeStr] = useState('18:05');
@@ -345,6 +347,12 @@ export default function HumanDesignScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
+            <TouchableOpacity 
+              style={{ position: 'absolute', left: 0, top: 2, padding: 5, zIndex: 10 }} 
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+            </TouchableOpacity>
             <Text style={styles.title}>İnsan Tasarımı Haritası</Text>
             <Text style={styles.subtitle}>Gerçek Astronomik Ephemeris Motoru</Text>
           </View>
