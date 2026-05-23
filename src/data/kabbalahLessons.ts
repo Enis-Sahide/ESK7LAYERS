@@ -25,12 +25,12 @@ export const KABBALAH_LESSONS: Record<string, any> = {
       },
       {
         "title": "Yaratılışın Evreleri: Hiçlikten İlk Noktaya",
-        "image": require('../../assets/images/kabbalah/ai_generated/ayn_sof_aur_diagram.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/ayn_sof_aur_diagram.webp'),
         "content": "Mutlak olanın evreni var etmeden önceki süreci şu aşamalardan geçer:\r\n1. **Ayn (Hiçlik):** Mutlak ve sınırsız boşluktur.\r\n2. **Ayn-Sof (Sonsuzluk):** Uçsuz bucaksız, sınırsız bir potansiyeldir. Siyah renktedir.\r\n3. **Ayn-Sof Aur (Sınırsız Işık):** Sonsuzluğun içinde ışığın form bulmaya başladığı inersiyel evredir.\r\n4. **Negatif Varoluş:** Yukarıdaki üç evrenin üst üste binmiş halidir. Tüm yaratılıştan önce var olan, tezahür etmeyen ve sonlu olan her şeyin asıl kaynağıdır."
       },
       {
         "title": "İlk Düşünce: \"Nokta\" ve Ehyeh (Olacağım)",
-        "image": require('../../assets/images/kabbalah/ai_generated/eheieh_evolution_diagram.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/eheieh_evolution_diagram.webp'),
         "content": "Yaratılış, bu boşlukta beliren tek bir boyutsuz **Nokta** ile başlar. Bu nokta, Mutlak Yaratıcı'nın kendi benliğidir. O noktada Yaratıcı'nın ilk düşüncesi belirir: **\"Ehyeh\" (Olacağım).** Noktadan her yöne çıkan oklar, Yaratıcı'nın sonsuz potansiyelini temsil eder. Artık eyleme geçen bu durum, oluşun özü olan **YHVH (Yahve / Yahuv)** sırrını barındırır.\r\n\r\n> [!IMPORTANT]\r\n> **Hz. Ali**'nin *\"Ben Bismillah'taki 'Be' harfinin altındaki noktayım\"* demesi veya İncil'de geçen *\"Deve iğne deliğinden geçmedikçe Cennet'e giremezsiniz\"* benzetmeleri tesadüf değildir. Bütün büyük inisiyeler, yaratılışın sırrının o \"Tek Nokta\" olmakta gizli olduğunu ifade etmişlerdir. \r\n\r\n---"
       }
     ]
@@ -41,12 +41,12 @@ export const KABBALAH_LESSONS: Record<string, any> = {
     "items": [
       {
         "title": "1. Yaratılışın Geometrik Evreleri (Enerjinin Katılaşması)",
-        "image": require('../../assets/images/kabbalah/ai_generated/geometric_evolution.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/geometric_evolution.webp'),
         "content": "Dersin ilk bölümünde değinilen \"Hiçlikten Noktaya\" geçiş serüveni, kutsal geometri üzerinden 4 temel evreye ayrılarak enerjinin nasıl maddeye (katı cisme) dönüştüğünü gösterir:\r\n\r\n1. **Birinci Evre (Boyutsuzluk - Ehyeh):** Bu evre, tek bir noktanın içinde aslında sonsuz sayıda noktalar (tüm potansiyel evren) barındırdığını anlatır. Görseldeki o nokta, Mutlak Yaratıcı'nın \"Ehyeh\" (Olacağım) halindeki karar ve benlik aşamasını temsil eder.\r\n2. **İkinci Evre (Teklik Boyutu - Çizgi):** Noktanın tek bir yöne doğru hareket ederek bir çizgi oluşturmasıdır. \"YHVH\" (Yehova/Yahuv) yani \"Yapma/Eyleme Geçme\" halidir. \r\n3. **Üçüncü Evre (İkilik/Dualite Boyutu - Düzlem/Üçgen):** Noktanın iki yöne hareket ederek bir üçgen oluşturmasıdır. Bu evre kutuplaşmayı (Alıcı-Yaratıcı, Eril-Dişil) meydana getirir. Yaratıcı kendi varlığını kutuplaştırarak denge noktasını kurar.\r\n4. **Dördüncü Evre (Üç Boyutluluk - Katı Cisim/Piramit):** Noktanın üç veya daha hareketiyle bir piramit yaratmasıdır. Enerji artık yoğuşmuş ve katılaşmıştır. Piramidin tepe noktası Yaratıcı'yı, tabanı ise Eril-Dişil ve Ruh-Madde kutuplarını dengeler. Bu 4 noktalı yapı, yaratılan Evrenin ta kendisidir.\r\n\r\n> [!TIP]\r\n> Bu 4 aşamalı kozmik gelişim (Nokta -> Çizgi -> Düzlem -> Katı Cisim), mikrokosmos olan insanın embriyolojik gelişimindeki 3 temel hücre tabakasıyla (Ektoderm, Mezoderm, Endoderm) kusursuz bir biyolojik benzerlik içindedir.\r\n\r\n![İnsanın Embriyolojik 3 Katmanı](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_21.jpg)"
       },
       {
         "title": "2. Yaşam Ağacı (Sefirot) ve 10 Küre",
-        "image": require('../../assets/images/kabbalah/ai_generated/tree_of_life_hd_1779359960089.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/tree_of_life_hd_1779359960089.webp'),
         "content": "Mutlak Yaratıcı'nın bedeni, Yuvarlak İçindeki Nokta ile temsil edilir. Bu yapı, Kabala'nın temel sembolü olan **Yaşam Ağacı'nı (Hayat Ağacı / Etz Chaim)** oluşturur. Ağaç üzerindeki 10 kürenin her birine **\"Sefira\"**, çoğuluna ise **\"Sefirot\"** denir.  \r\n\r\n**10 Sefira ve Yaratılış Sırası:**\r\n1. **Keter (Taç):** Mutlak Kaynak, Yaratıcı düşüncenin çıkış noktası.\r\n2. **Hokmah (Bilgelik):** Yaratıcı aktif güç.\r\n3. **Binah (Anlayış):** Pasif, biçimlendirici güç.\r\n4. **Hesed (Merhamet):** Genişleyici, sevgi dolu güç.\r\n5. **Geburah (Güç/Sertlik):** Kısıtlayıcı, disipline edici güç.\r\n6. **Tifaret (Güzellik/Denge):** Merkezdeki uyum ve denge noktası.\r\n7. **Netsah (Zafer):** Duygular ve içgüdüler.\r\n8. **Hod (İhtişam):** Zeka ve analitik düşünce.\r\n9. **Yesod (Temel):** Astral formlar ve hayal gücü.\r\n10. **Malkut (Krallık):** Fiziksel dünya ve madde boyutu."
       },
       {
@@ -65,7 +65,7 @@ export const KABBALAH_LESSONS: Record<string, any> = {
   },
   "ciraklik_ders3": {
         "title": "DERS 3: Tetragrammaton, 4 Kozmik Alem ve Mesih Bilinci Küpü",
-        "image": require('../../assets/images/kabbalah/ai_generated/photo_23.jpg'),
+        "image": require('../../assets/images/kabbalah/ai_generated/photo_23.webp'),
         "content": "",
     "items": [
       {
@@ -78,7 +78,7 @@ export const KABBALAH_LESSONS: Record<string, any> = {
       },
       {
         "title": "3. Mesih Bilinci Küpü Ritüeli (Pratik Uygulama)",
-        "image": require('../../assets/images/kabbalah/ai_generated/messiah_cube.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/messiah_cube.webp'),
         "content": "Dersin en önemli ezoterik uygulamalarından biri, kişinin kendi morfo-genetik alanını düzenlemesi için fiziksel bir \"Küp\" yapmasıdır. \r\n\r\n![Mesih Bilinci Küpü Orijinal Şablonu](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_19.jpg)\r\n\r\n**Küpün Sembolizmi:**\r\n- **Beyaz (İç) Yüzey:** Tanrı'nın gizli isimlerini, 10 Sefirot'u ve ilahiliğin bilincini temsil eder (Keter).\r\n- **Siyah (Dış) Yüzey:** Katılaşmış maddi dünyayı ve bizim dış kabuğumuzu temsil eder (Malkut).\r\n\r\nBir yüzü siyah, diğer yüzü beyaz olan bir kartondan küp yapılır. Beyaz (iç) yüzeyine belirli titreşim isimleri *(FR, DO, Güneş sembolü, SA, MI, DI)* yazılır. Katlama esnasında beyaz yüzeyin tamamen **içeride**, siyah yüzeyin ise **dışarıda** kalmasına dikkat edilir. \r\n\r\nOrtaya çıkan bu siyah küp, aynı Kabe'nin mimari ve ezoterik mantığı gibi; dışı siyah ve dünyevi, içi ise tamamen ilahi sırlarla dolu olan **insanın kendisidir.** Bu küpü mum ışığında iki elinizle tutarak: *\"Mesih bilincine sahip olarak dünyayı insani yaklaşımlara karışmadan izliyorum. Her şeyi sevgi olarak kapsadığımı ve hepimizin Bir olduğunu anlıyorum\"* telkini verilir. Bu ritüel, Mesih Bilinci (Metatron ağı) ile kişinin aurası arasında kalıcı bir titreşim köprüsü kurar."
       },
       {
@@ -89,22 +89,22 @@ export const KABBALAH_LESSONS: Record<string, any> = {
   },
   "ciraklik_ders4": {
         "title": "DERS 4: İç İçe Geçmiş Alemler, Zihin ve Kuantum İlizyonu",
-        "image": require('../../assets/images/kabbalah/ai_generated/ai_photo_1_1779361744956.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/ai_photo_1_1779361744956.webp'),
         "content": "",
     "items": [
       {
         "title": "1. İç İçe Geçmiş \"Matruşka\" Alemler",
-        "image": require('../../assets/images/kabbalah/ai_generated/ai_photo_1_1779361744956.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/ai_photo_1_1779361744956.webp'),
         "content": "Önceki derste bahsedilen 4 Kozmik Alem (Atziluth, Briah, Yetzirah, Assiah) aslında üst üste binen katmanlar değil, merkezleri aynı olan ve gittikçe genişleyen **iç içe geçmiş dairelerdir** (Matruşka bebekleri gibi). Bu ortak merkez noktası, içinde bulunduğumuz fiziksel dünya yani **Malkut'tur**.\r\n- En dıştaki ve en geniş daire olan Atziluth, diğer tüm alemleri kendi içinde barındırır.\r\n- Bu yapı, \"Paralel Evrenler\" dediğimiz olgunun da ezoterik şemasıdır."
       },
       {
         "title": "2. Dört Alem ve İnsanın Yapısı (Büyük Sır)",
-        "image": require('../../assets/images/kabbalah/ai_generated/photo_25.jpg'),
+        "image": require('../../assets/images/kabbalah/ai_generated/photo_25.webp'),
         "content": "Dört alem, Tetragrammaton şifresi üzerinden insanın evrensel işleyişini açıklar. Bu aşamada dinde bize sembolik olarak anlatılan kavramların asıl manaları ortaya çıkar:\r\n\r\n1. **Atziluth (Kudret Alemi / Yod):** Mutlak Yaratıcı'nın ve içinizdeki o Tanrısal özün potansiyel gücüdür.\r\n2. **Briah (Zihin Alemi / İlk He):** Dinlerde **\"Başmelekler Alemi\"** (Cebrail, Mikail vb.) olarak anlatılan bu boyut aslında sizin, evrenin ve Tanrı'nın **Zihnidir (Mind)**. Başmelek isimleri, zihnin ya da evrensel karakterin farklı işleyiş biçimlerini sembolize eder.\r\n3. **Yetzirah (Beden ve Duygu Alemi / Vav):** Dinlerde **\"Melekler Alemi\"** olarak bilinen yerdir. Başmelekler (Zihin) idaresindeki işçilere Melekler denir. Bunun ezoterik açılımı; Meleklerin aslında **insanın duyuları, hisleri ve duyguları** olduğudur. Yani Melekler, Zihnin (Başmeleklerin) emir ve komutasında çalışan enerjilerdir.\r\n4. **Assiah (Madde Alemi / İkinci He):** Dört elementin, astrolojinin ve somut fiziğin yaşandığı bu üç boyutlu illüzyon alanıdır.\r\n\r\n![Yetzirah (Melekler) ve Assiah (Gezegenler/Madde) Alemi Sefirotları](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_25.jpg)\r\n*(Üstte: Yetzirah (Melekler) alemi eşleşmeleri)*\r\n\r\n![Assiah (Gezegenler/Madde) Alemi Sefirotları](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_24.jpg)\r\n*(Üstte: Assiah (Madde/Zodyak/Gezegenler) alemi eşleşmeleri)*"
       },
       {
         "title": "3. Kuantum Fiziği, Moleküller ve Evrensel İllüzyon",
-        "image": require('../../assets/images/kabbalah/ai_generated/photo_5.jpg'),
+        "image": require('../../assets/images/kabbalah/ai_generated/photo_5.webp'),
         "content": "Madde alemini ve fiziksel gerçekliği (Malkut'u) anlayabilmek için kuantum fiziği ve atomik yapıların Kabalistik dizilimini bilmek şarttır:\r\n\r\n**Yaşam Ağacı ve Atomların Dizilimi:**\r\n\r\n![Sefirot Üzerinde Kuantum ve Atom Dizilimi](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_5.jpg)\r\n\r\n- **10. Sefira (Malkut):** Moleküllerdir. 5 duyu ile tecrübe ettiğimiz fiziksel gerçeklik moleküler yapıların birbirine çarpması ile algılanır.\r\n- **7. 8. ve 9. Sefirotlar (Netsah, Hod, Yesod):** Atom boyutudur. Bu üçlü Sefirot evrendeki **Proton, Nötron ve Elektronu** sembolize eder.\r\n- **4. 5. ve 6. Sefirotlar:** Atom altı parçacıklar boyutudur (Kuarklar vb). Kabala, bilimin daha yeni yeni fark etmeye başladığı gibi Kuarkların (maddenin asıl temelinin) üç boyutlu değil, iki boyutlu bir düzlem (Dualite) olduğunu anlatır.\r\n\r\n> [!WARNING]\r\n> **Stadyum Analojisi ve Boşluk İllüzyonu:** Bir atomun %99.5'i tamamen BOŞLUKTUR. Eğer bir atomu koca bir \"Futbol Stadyumu\" olarak hayal ederseniz; çekirdekteki proton ve nötronlar stadyumun tam ortasında duran iki misket kadardır. Elektronlar ise stadyumun en üst katında uçan minik kuşlardır. Geriye kalan devasa stadyum sadece havadır! Eğer dünyadaki (insanlar, ağaçlar, dağlar dâhil) tüm atomların içindeki bu \"boşluğu\" çıkarıp atsaydık, koca Dünya bir \"Küp Şeker\" boyutuna inerdi. Gördüğümüz her şey, aslında bu muazzam ilahi simülasyonun (Hologramın) algısal bir oyunudur.\r\n\r\n---"
       }
     ]
@@ -119,12 +119,12 @@ export const KABBALAH_LESSONS: Record<string, any> = {
       },
       {
         "title": "2. Yaşam Ağacındaki \"Derin Boşluk\" (The Abyss)",
-        "image": require('../../assets/images/kabbalah/ai_generated/photo_11.jpg'),
+        "image": require('../../assets/images/kabbalah/ai_generated/photo_11.webp'),
         "content": "Yaşam ağacının en üstündeki ilk üç ilahi küre (Keter, Hokmah, Binah - *Gökseller*) ile alttaki 7 küre (*Astlar*) arasında aşılmaz bir çizgi vardır. Kabala'da buna **Derin Boşluk** (Da'at / Abyss) denir.\r\n\r\n![Derin Boşluk (Abyss) Çizgisi](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_11.jpg)\r\n\r\n- Bu derin boşluk, Zihin ile Madde arasındaki, veya ontoloji ile fizik (din ile bilim) arasındaki sınır çizgisidir.\r\n- Rüyalar ve Astral seyahatler tam da bu Derin Boşlukta gerçekleşir; çünkü burası düşünce ile maddenin birbirinden ayırt edilemez olduğu sıfır noktasıdır.\r\n- Maddenin kökenini ve yaratılışın ardındaki sırrı anlamak için sadece mikroskoplara değil, bu Derin Boşluğun üzerindeki *Göksel Sefirotlara* (Kudret alemine) bakmak gerekir."
       },
       {
         "title": "3. Tanrı'nın Çoğul İsimlerinin Sırrı (Elohim ve Yehova)",
-        "image": require('../../assets/images/kabbalah/ai_generated/divine_names.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/divine_names.webp'),
         "content": "Kutsal metinlerde (Eski Ahit veya Kur'an) Yaratıcı kendisinden sık sık \"Biz\" veya \"Onlar\" diye çoğul olarak bahseder. Bu durum binlerce yıldır teologların kafasını karıştırmıştır.\r\n\r\n![Elohim ve Yehova Tablosu](C:/Users/baha/.gemini/antigravity/brain/8def928c-8c15-41aa-869e-0300dc7079ba/photo_6.jpg)\r\n\r\n- **Yehova:** Bireysel bir \"Yapan\" (Eyleyen) fikrini belirtir.\r\n- **Elohim:** Kabalistik literatürde \"Tanrılar arasındaki Tanrı\" veya yaratıcı idari mekanizmaların bütünü anlamına gelir. \r\nTanrı, evrenin bizzat \"Benliği\"dir. Evreni yoktan var edip dışarıdan izleyen uzak bir figür değil; evreni kendi varlığından yayan, her atomun içinde olan, her potansiyel yaşam formunda filizlenen mutlak ve çoğul bir mekanizmadır."
       },
       {
@@ -189,7 +189,7 @@ export const KABBALAH_LESSONS: Record<string, any> = {
       },
       {
         "title": "4. Kesişim Kümesi (Vesica Piscis) ve Kutsal Metinlerdeki \"Biz\"",
-        "image": require('../../assets/images/kabbalah/ai_generated/vesica_piscis_1779364567396.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/vesica_piscis_1779364567396.webp'),
         "content": "- A Tanrısı'nın kendi bir dairesi (yaşam alanı), B Tanrısı'nın da kendi dairesi vardır.\n- İki daire birbiriyle iletişime geçtiğinde iç içe girer ve ortada bir **Kesişim Kümesi (Ortak Alan)** oluşur.\n- Bizim şu an içinde yaşadığımız, hem iyiliğin hem kötülüğün bir arada olduğu bu dünya, aslında farklı Kozmos Tanrılarının iradelerinin birleştiği o *kesişim alanıdır*.\n- Kutsal kitaplarda Yaratıcının bazen **\"O\"**, bazen **\"Biz\"** diye hitap etmesinin asıl sırrı budur. \"Biz\", tanrısal mekanizmaların ortak kesişim alanında eylem yaparken kullandıkları dildir. \"O\" veya \"Ben\" ise bireysel Kozmos Tanrılarının kendi bağımsız alanlarını ifade eder."
       },
       {
@@ -220,7 +220,7 @@ export const KABBALAH_LESSONS: Record<string, any> = {
       },
       {
         "title": "5. Yaşam Ağacında Gökseller ve Ontolojik Zihin Üçlüsü",
-        "image": require('../../assets/images/kabbalah/ai_generated/ontolojik_zihin_1779364600502.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/ontolojik_zihin_1779364600502.webp'),
         "content": "Kabala'nın Yaşam Ağacındaki (Sefirot) küreler, Kozmos Tanrılarının kudretlerinin ve Thoth üretim aşamalarının şifreleridir.\n\n**Göksel Üçlü (1, 2, 3. Sefirotlar): Zaman Dışı Safha**\n- **1. Keter (Taç):** \"Olma\" kudreti.\n- **2. Hokmah (Bilgelik):** \"Yapma / Yönelmişlik\" kudreti.\n- **3. Binah (Anlayış):** \"İlişki Kurma\" kudreti.\nBu üçlü *dış zamanda* değildir; burada niyet (Thoth) herhangi bir sebebe bağlı olmaksızın aniden oluşur. Gökselleri diğer sefirotlardan ayıran şey **\"Derin Boşluk\" (Da'at)** tır.\n\n**Ontolojik Zihin Üçlüsü (4, 5, 6. Sefirotlar): Zaman ve Algı Safhası**\nİşte bu üçlü, dünyada kullandığımız Thoth'ların (niyetlerin) nasıl yapılandırıldığının anahtarıdır.\n- **4. Hesed (Merhamet):** \"Bir görüşe sahip olma kudreti.\" Göksel boyutta üretilen anlık bir niyetin (Thoth'un), zaman içinde *var olmaya devam etmesini* sağlayan \"ek\" niyettir. Eğer bu 4. Sefira (devamlılık) olmasa, her düşünce veya varlık doğduğu saniye yok olurdu.\n- **5. Gevurah (Sertlik/Güç - Elohim Gibor):** \"Karşılık verme kudreti.\" Kozmos Tanrılarının (veya insanların) diğerleriyle ilişkiye girerken, kendi sonsuz gücünü belli bir alana **\"sınırlandırmasıdır.\"**\n- **Ontolojik Düşünce (Sabit Tutumlar):** 5. Sefiranın getirdiği bu sınırlandırma, bizim olaylara ve insanlara karşı edindiğimiz **sabit tutumları ve bakış açılarını** (ontolojik düşünceleri) oluşturur. Bir konu hakkında \"Bunu düşünmek dahi istemiyorum!\" dediğinizde, o alandaki varoluşu kendinize kapatmış (farkındalığınızı sınırlamış) olursunuz.\n- İnsan, karakterinde ne kadar çok \"sabit tutuma\" (kutuplaşmış fikre) sahipse, varlığı ve diğerlerini doğrudan deneyimlemekten o kadar uzaklaşır.\n\n---"
       }
     ]
@@ -231,7 +231,7 @@ export const KABBALAH_LESSONS: Record<string, any> = {
     "items": [
       {
         "title": "1. 6. Sefira (Tiferet) - Özdeşleşme Kudreti ve Majikal Kontrol",
-        "image": require('../../assets/images/kabbalah/ai_generated/tiferet_merkez_1779364777299.png'),
+        "image": require('../../assets/images/kabbalah/ai_generated/tiferet_merkez_1779364777299.webp'),
         "content": "- **Eloah Vada'at:** 6. Sefiranın ismidir. \"Eloah\" (dişil Kozmos Tanrısı) ve \"Vada'at\" (bilgiye ve deneyime ulaşmak) anlamlarına gelir.\n- Orta sütunda (Olma Sütunu) yer alır ve **Kontrol Etme** kudretini temsil eder. (Duyguları, tepkileri, düşünceleri kontrol edebilme).\n- **En Büyük Sırrı (Ters Üçgen):** 6. Sefira, yukarıdaki 1., 2. ve 3. Göksel Sefirot'un tam bir aynası ve yansımasıdır. Göksellerin gücünü kendi bünyesinde (ters bir üçgen şeklinde) toplar. Bu sayede, Gökselleri diğerlerinden ayıran o \"Derin Boşluk\"u (Da'at) direkt aşıp bağlantı kurabilir. \n- Bir majisyenin veya inisiyenin kendi gücünü (mikro kozmos), Makro Kozmos Tanrılarının gücüyle eşitleyip çekebilmesinin anahtarı 6. Sefirayı kullanmaktır. Bedenlenen her ruhun \"enkarnasyon merkezi\" burasıdır."
       },
       {
