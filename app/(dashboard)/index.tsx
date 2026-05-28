@@ -288,9 +288,23 @@ export default function DashboardScreen() {
              <View style={styles.fabMenuDivider} />
 
              {/* Kişisel Analizler Merkezi Linki */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler'); }}>
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler'); setIsToolsExpanded(false); }}>
                <Ionicons name="analytics" size={20} color="#FF9500" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Analizler</Text>
+               <Text style={styles.fabMenuText}>Kişisel Analizler</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/anlik-gokyuzu'); setIsToolsExpanded(false); }}>
+               <Ionicons name="telescope-outline" size={20} color="#AF52DE" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Anlık Gökyüzü (Transit)</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/gezegen-saatleri'); setIsToolsExpanded(false); }}>
+               <Ionicons name="time-outline" size={20} color="#34C759" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Gezegen Saatleri</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
@@ -456,6 +470,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     textAlign: 'right',
+  },
+  mainToolCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    borderRadius: SIZES.radius,
+    padding: 20,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  mainToolIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  mainToolTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  mainToolDesc: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    lineHeight: 18,
   },
   sectionTitle: {
     fontSize: 20,

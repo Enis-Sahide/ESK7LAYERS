@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ImageBackground,
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import tzlookup from 'tz-lookup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/utils/PlanetaryHours';
 import { COLORS, SIZES } from '@/src/theme';
 
@@ -25,6 +26,20 @@ export default function GezegenSaatleriScreen() {
   const [timezone, setTimezone] = useState<string | null>(null);
 
   useEffect(() => {
+    const loadSavedLocation = async () => {
+      try {
+        const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
+        if (savedLocation) {
+          const { lat, lon, name, tz } = JSON.parse(savedLocation);
+          setCityInput(name);
+          // Set loading to true initially while fetching
+          setLoading(true);
+          loadHoursFromCoords(lat, lon, name, tz);
+        }
+      } catch (e) {}
+    };
+    loadSavedLocation();
+
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
@@ -76,7 +91,15 @@ export default function GezegenSaatleriScreen() {
 
       if (latitude !== undefined && longitude !== undefined) {
         const tz = tzlookup(latitude, longitude);
-        loadHoursFromCoords(latitude, longitude, cityInput.trim().toUpperCase(), tz);
+        const name = cityInput.trim().toUpperCase();
+        loadHoursFromCoords(latitude, longitude, name, tz);
+        
+        AsyncStorage.setItem('last_planet_hours_location', JSON.stringify({
+          lat: latitude,
+          lon: longitude,
+          name: name,
+          tz: tz
+        })).catch(() => {});
       } else {
         setErrorMsg('Şehir bulunamadı. Lütfen geçerli bir şehir adı girin (örn: Istanbul).');
         setLoading(false);

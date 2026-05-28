@@ -19,8 +19,8 @@ interface AnalysisTool {
 const ANALYSIS_TOOLS: AnalysisTool[] = [
   { 
     id: 'numeroloji', 
-    title: 'Numeroloji Frekans Hesaplayıcı', 
-    description: 'Doğum tarihiniz ve adınızdan yola çıkarak Yaşam Yolu, Kader ve Ruh Güdüsü sayılarınızı hesaplayın.',
+    title: 'Numeroloji Analizi', 
+    description: 'İsminiz ve doğum tarihinizle Yaşam Yolu, Çakra dökümü ve Karmik Sınavlarınızı içeren detaylı profilinizi çıkarın.',
     icon: 'infinite-outline', 
     route: '/(dashboard)/kisisel-analizler/numeroloji',
     color: '#FFCC00',
@@ -43,24 +43,6 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     route: '/(dashboard)/kisisel-analizler/astroloji',
     color: '#FF9500',
     isAvailable: true
-  },
-  { 
-    id: 'anlik-gokyuzu', 
-    title: 'Anlık Gökyüzü (Transit)', 
-    description: 'Şu an bulunduğunuz şehirdeki gezegen dizilimlerini ve gökyüzü haritasını inceleyin.',
-    icon: 'telescope-outline', 
-    route: '/(dashboard)/kisisel-analizler/anlik-gokyuzu',
-    color: '#AF52DE',
-    isAvailable: true
-  },
-  { 
-    id: 'gezegen-saatleri', 
-    title: 'Gezegen Saatleri', 
-    description: 'Bulunduğunuz konuma göre Keldani dizilimindeki anlık gezegen saatini ve günün yöneticilerini takip edin.',
-    icon: 'time-outline', 
-    route: '/(dashboard)/kisisel-analizler/gezegen-saatleri',
-    color: '#34C759',
-    isAvailable: true
   }
 ];
 
@@ -76,7 +58,7 @@ export default function AnalysisHubScreen() {
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{alignItems: 'center'}}>
-          <Text style={styles.headerTitle}>Analizler</Text>
+          <Text style={styles.headerTitle}>Kişisel Analizler</Text>
           <Text style={styles.headerSubtitle}>Kendini Bilme Yolculuğu</Text>
         </View>
         <View style={{ width: 28 }} />
