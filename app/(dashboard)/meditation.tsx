@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { WebView } from 'react-native-webview';
 import Slider from '@react-native-community/slider';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 const FREQUENCIES = [
   { id: '1', hz: 396, name: 'Korku ve Suçluluk', desc: 'Kök çakrayı temizler, engelleri kaldırır.', intent: 'Tüm eski korkularımı ve suçluluk duygularımı sevgiyle serbest bırakıyorum. Evrende tamamen güvendeyim.', color: '#FF3B30' },

@@ -9,25 +9,10 @@ import { COLORS, SIZES } from '@/src/theme';
 import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
 import { useProgress } from '@/src/context/ProgressContext';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 const { width } = Dimensions.get('window');
 
-const AVATARS: Record<string, any> = {
-  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
-  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
-  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
-  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
-  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
-  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'orion_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion_pleiades.png' },
-  'blue_avians': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
-  'sirius_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-  'lyra_arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
-  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-};
 
 // İçerik Kategorileri (7 Çakra - 7 Katman)
 const MODULES = [
@@ -83,7 +68,6 @@ export default function DashboardScreen() {
   const { hasAccess } = useProgress();
   const [userName, setUserName] = useState('');
   const [userTitle, setUserTitle] = useState('Arayışta');
-  const [userRace, setUserRace] = useState<string | null>(null);
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isLessonsExpanded, setIsLessonsExpanded] = useState(false);
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
@@ -99,7 +83,6 @@ export default function DashboardScreen() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserName(user.user_metadata?.full_name?.split(' ')[0] || 'Yolcu');
-        setUserRace(user.user_metadata?.race || null);
         if (user.user_metadata?.spiritual_title) {
           setUserTitle(user.user_metadata.spiritual_title);
         }
@@ -124,9 +107,7 @@ export default function DashboardScreen() {
         {/* Üst Bilgi Başlığı */}
         <View style={styles.header}>
         <View style={styles.headerProfile}>
-          {userRace && AVATARS[userRace] && (
-            <Image source={AVATARS[userRace]} style={styles.headerAvatar} />
-          )}
+          <Image source={require('@/assets/images/indir.png')} style={styles.headerAvatar} />
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
               <Text style={styles.welcomeText}>Hoş Geldin, </Text>
@@ -309,7 +290,7 @@ export default function DashboardScreen() {
              {/* Kişisel Analizler Merkezi Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler'); }}>
                <Ionicons name="analytics" size={20} color="#FF9500" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Kişisel Analizler</Text>
+               <Text style={styles.fabMenuText}>Analizler</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />

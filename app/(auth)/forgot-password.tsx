@@ -5,7 +5,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { supabase } from '@/src/services/supabase';
 import { Ionicons } from '@expo/vector-icons';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();

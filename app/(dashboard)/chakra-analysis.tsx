@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { CHAKRA_ANALYSIS_QUESTIONS } from '@/src/data/chakraAnalysisQuestions';
 import { MODULES } from '@/app/(dashboard)/index'; // Re-using modules data if needed or just defining them locally
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 // Çakra Renkleri
 const CHAKRA_COLORS: Record<number, string> = {

@@ -9,7 +9,7 @@ import { FINAL_QUIZ_QUESTIONS } from '@/src/data/finalQuiz';
 import { supabase } from '@/src/services/supabase';
 import { useProgress } from '@/src/context/ProgressContext';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 // Fisher-Yates shuffle algorithm
 const shuffleArray = (array: any[]) => {

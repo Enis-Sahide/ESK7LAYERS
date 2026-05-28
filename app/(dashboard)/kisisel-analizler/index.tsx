@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 interface AnalysisTool {
   id: string;
@@ -52,6 +52,15 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     route: '/(dashboard)/kisisel-analizler/anlik-gokyuzu',
     color: '#AF52DE',
     isAvailable: true
+  },
+  { 
+    id: 'gezegen-saatleri', 
+    title: 'Gezegen Saatleri', 
+    description: 'Bulunduğunuz konuma göre Keldani dizilimindeki anlık gezegen saatini ve günün yöneticilerini takip edin.',
+    icon: 'time-outline', 
+    route: '/(dashboard)/kisisel-analizler/gezegen-saatleri',
+    color: '#34C759',
+    isAvailable: true
   }
 ];
 
@@ -67,7 +76,7 @@ export default function AnalysisHubScreen() {
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{alignItems: 'center'}}>
-          <Text style={styles.headerTitle}>Kişisel Analizler</Text>
+          <Text style={styles.headerTitle}>Analizler</Text>
           <Text style={styles.headerSubtitle}>Kendini Bilme Yolculuğu</Text>
         </View>
         <View style={{ width: 28 }} />

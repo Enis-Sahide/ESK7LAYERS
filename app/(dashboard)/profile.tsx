@@ -6,31 +6,8 @@ import { BlurView } from 'expo-blur';
 import { supabase } from '@/src/services/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
-const AVATARS: Record<string, any> = {
-  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
-  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
-  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
-  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
-  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
-  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-};
-
-const RACES = [
-  { id: 'pleiades', name: 'Pleiades' },
-  { id: 'sirius', name: 'Sirius' },
-  { id: 'arcturus', name: 'Arcturus' },
-  { id: 'andromeda', name: 'Andromeda' },
-  { id: 'lyra', name: 'Lyra' },
-  { id: 'orion', name: 'Orion' },
-  { id: 'mintaka', name: 'Mintaka' },
-  { id: 'atlantis', name: 'Atlantis' },
-  { id: 'indigo', name: 'İndigo' },
-];
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -40,7 +17,6 @@ export default function ProfileScreen() {
   const [fullName, setFullName] = useState('');
   const [birthDate, setBirthDate] = useState('');
   const [password, setPassword] = useState('');
-  const [race, setRace] = useState<string>('pleiades');
 
   const [editMode, setEditMode] = useState({
     name: false,
@@ -60,7 +36,6 @@ export default function ProfileScreen() {
       if (user) {
         setFullName(user.user_metadata?.full_name || '');
         setBirthDate(user.user_metadata?.birth_date || '');
-        setRace(user.user_metadata?.race || 'pleiades');
       }
     } catch (error: any) {
       Alert.alert('Hata', 'Profil bilgileri alınamadı.');
@@ -80,8 +55,7 @@ export default function ProfileScreen() {
       const updateData: any = {
         data: {
           full_name: fullName.trim(),
-          birth_date: birthDate.trim(),
-          race: race,
+          birth_date: birthDate.trim()
         }
       };
 
@@ -187,32 +161,11 @@ export default function ProfileScreen() {
           {renderField('Şifreniz', password, 'password', setPassword, 'Yeni şifrenizi girin', true)}
         </BlurView>
 
-        <Text style={styles.sectionTitle}>Ruhsal Kökeniniz (Yıldız Tohumu)</Text>
-        
-        <View style={styles.racesGrid}>
-          {RACES.map((r) => {
-            const isSelected = race === r.id;
-            return (
-              <TouchableOpacity 
-                key={r.id} 
-                style={[styles.raceCard, isSelected && styles.raceCardSelected]}
-                onPress={() => setRace(r.id)}
-                activeOpacity={0.8}
-              >
-                <Image 
-                  source={AVATARS[r.id]} 
-                  style={[styles.avatarImg, isSelected && styles.avatarImgSelected]} 
-                />
-                <Text style={[styles.raceName, isSelected && styles.raceNameSelected]}>{r.name}</Text>
-                
-                {isSelected && (
-                  <View style={styles.checkBadge}>
-                    <Ionicons name="checkmark" size={12} color="#000" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
+        <View style={{ alignItems: 'center', marginBottom: 30 }}>
+          <Image 
+            source={require('@/assets/images/indir.png')} 
+            style={{ width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: COLORS.primary }} 
+          />
         </View>
 
         <TouchableOpacity 

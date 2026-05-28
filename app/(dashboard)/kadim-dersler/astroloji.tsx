@@ -95,7 +95,7 @@ export default function AstrolojiCurriculumScreen() {
 
   return (
     <ImageBackground 
-      source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' }} 
+      source={require('@/assets/images/esoteric_bg_indigo.png')} 
       style={styles.container}
       resizeMode="cover"
     >

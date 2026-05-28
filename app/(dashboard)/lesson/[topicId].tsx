@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -6,9 +6,93 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { LESSONS } from '@/src/data/chakraLessons';
-import { Audio } from 'expo-av';
+import { WebView } from 'react-native-webview';
 
-const ESOTERIC_BG = { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/backgrounds/esoteric_bg.png' };
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+
+const WEBVIEW_HTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+        let audioCtx = null;
+        let masterGain = null;
+        let currentOscillator = null;
+
+        function startAudio(freq) {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            stopAudio();
+
+            currentOscillator = audioCtx.createOscillator();
+            currentOscillator.type = 'sine';
+            currentOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+
+            let lfo = audioCtx.createOscillator();
+            lfo.type = 'sine';
+            lfo.frequency.value = 0.5;
+            let lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 0.2;
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(masterGain.gain);
+
+            currentOscillator.connect(masterGain);
+            masterGain.connect(audioCtx.destination);
+
+            currentOscillator.start();
+            lfo.start();
+        }
+
+        function stopAudio() {
+            if (currentOscillator) {
+                currentOscillator.stop();
+                currentOscillator.disconnect();
+                currentOscillator = null;
+            }
+            if (masterGain) {
+                masterGain.disconnect();
+                masterGain = null;
+            }
+        }
+
+        document.addEventListener('message', function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'PLAY') {
+                    startAudio(data.freq);
+                } else if (data.type === 'STOP') {
+                    stopAudio();
+                }
+            } catch (e) {}
+        });
+        
+        window.addEventListener('message', function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === 'PLAY') {
+                    startAudio(data.freq);
+                } else if (data.type === 'STOP') {
+                    stopAudio();
+                }
+            } catch (e) {}
+        });
+    </script>
+</head>
+<body style="background:transparent;"></body>
+</html>
+`;
 
 // Çakra Renkleri (Görsel Uyum İçin)
 const CHAKRA_COLORS: Record<string, string> = {
@@ -24,6 +108,7 @@ const CHAKRA_COLORS: Record<string, string> = {
 export default function LessonScreen() {
   const router = useRouter();
   const { topicId, chakraId } = useLocalSearchParams();
+  const webviewRef = useRef<WebView>(null);
   
   const chakraColor = CHAKRA_COLORS[chakraId as string] || COLORS.primary;
   const lessonKey = `${chakraId}_${topicId}`;
@@ -41,45 +126,20 @@ export default function LessonScreen() {
   }
 
   useEffect(() => {
-    let currentSound: Audio.Sound | null = null;
-    let isMounted = true;
-
-    async function playSound() {
-      if (lessonData?.audio) {
-        try {
-          // Ses ayarlarını yapalım
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: false,
-          });
-
-          const audioSource = typeof lessonData.audio === 'string' 
-            ? { uri: lessonData.audio } 
-            : lessonData.audio;
-
-          const { sound: newSound } = await Audio.Sound.createAsync(
-            audioSource,
-            { shouldPlay: true, isLooping: true, volume: 0.5 } // %50 ses ile arka planda çalar
-          );
-          
-          if (isMounted) {
-            currentSound = newSound;
-          } else {
-            // Eğer yükleme bitmeden sayfadan çıkılmışsa müziği anında durdur/sil
-            newSound.unloadAsync();
-          }
-        } catch (error) {
-          console.log('Error playing sound', error);
+    let timeout: any;
+    if (lessonData?.frequency) {
+      // WebView'in yüklenmesini biraz bekle ve frekansı gönder
+      timeout = setTimeout(() => {
+        if (webviewRef.current) {
+          webviewRef.current.postMessage(JSON.stringify({ type: 'PLAY', freq: lessonData.frequency }));
         }
-      }
+      }, 1000);
     }
 
-    playSound();
-
     return () => {
-      isMounted = false;
-      if (currentSound) {
-        currentSound.unloadAsync();
+      clearTimeout(timeout);
+      if (webviewRef.current) {
+        webviewRef.current.postMessage(JSON.stringify({ type: 'STOP' }));
       }
     };
   }, [lessonData]);
@@ -107,6 +167,16 @@ export default function LessonScreen() {
       {/* Kenarları karanlık, merkezi aydınlık tutan yarı saydam koruyucu filtre ve Cam Efekti */}
       <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.5)' }]} />
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+
+      <WebView 
+        ref={webviewRef}
+        source={{ html: WEBVIEW_HTML }}
+        style={{ width: 0, height: 0, opacity: 0 }}
+        originWhitelist={['*']}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        javaScriptEnabled={true}
+      />
 
       {/* Header */}
       <View style={styles.header}>
