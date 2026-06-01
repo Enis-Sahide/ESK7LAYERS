@@ -32,7 +32,13 @@ export default function LoginScreen() {
       setLoading(false);
     } else {
       // Başarılı giriş
-      router.replace('/'); // Ana ekrana yönlendir
+      const { data: { session } } = await supabase.auth.getSession();
+      const race = session?.user?.user_metadata?.race;
+      if (!race) {
+        router.replace('/(onboarding)/race-reveal');
+      } else {
+        router.replace('/(dashboard)');
+      }
     }
   };
 

@@ -16,55 +16,53 @@ const COLORS = {
   textMuted: '#9CA3AF',
   cardBg: 'rgba(15, 23, 42, 0.8)',
 };
-
 const CENTER_COORDS: Record<CenterCode, { x: number, y: number, shape: string, color: string, s: number }> = {
-  Head: { x: 150, y: 35, shape: 'triangle', color: '#F4D03F', s: 22 },
-  Ajna: { x: 150, y: 70, shape: 'triangle-down', color: '#A8D5BA', s: 22 },
-  Throat: { x: 150, y: 115, shape: 'square', color: '#D2B48C', s: 20 },
-  G: { x: 150, y: 175, shape: 'diamond', color: '#F4D03F', s: 24 },
-  Heart: { x: 185, y: 160, shape: 'triangle', color: '#E63946', s: 18 },
-  Sacral: { x: 150, y: 265, shape: 'square', color: '#E63946', s: 22 },
-  Root: { x: 150, y: 335, shape: 'square', color: '#D2B48C', s: 22 },
-  Spleen: { x: 60, y: 305, shape: 'triangle-left', color: '#D2B48C', s: 24 },
-  SolarPlexus: { x: 240, y: 305, shape: 'triangle-right', color: '#D2B48C', s: 24 },
+  Head: { x: 200, y: 50, shape: 'triangle', color: '#F4D03F', s: 25 },
+  Ajna: { x: 200, y: 110, shape: 'triangle-down', color: '#A8D5BA', s: 25 },
+  Throat: { x: 200, y: 190, shape: 'square', color: '#D2B48C', s: 22 },
+  G: { x: 200, y: 300, shape: 'diamond', color: '#F4D03F', s: 35 },
+  Heart: { x: 255, y: 340, shape: 'triangle-down', color: '#E63946', s: 24 },
+  Sacral: { x: 200, y: 400, shape: 'square', color: '#E63946', s: 25 },
+  Root: { x: 200, y: 510, shape: 'square', color: '#D2B48C', s: 25 },
+  Spleen: { x: 90, y: 400, shape: 'triangle-right', color: '#D2B48C', s: 30 },
+  SolarPlexus: { x: 310, y: 400, shape: 'triangle-left', color: '#D2B48C', s: 30 },
 };
 
 const GATE_COORDS: Record<number, { x: number, y: number }> = {
   // Head
-  64: { x: 142, y: 40 }, 61: { x: 150, y: 40 }, 63: { x: 158, y: 40 },
+  64: { x: 185, y: 75 }, 61: { x: 200, y: 75 }, 63: { x: 215, y: 75 },
   // Ajna
-  47: { x: 142, y: 52 }, 24: { x: 150, y: 52 }, 4: { x: 158, y: 52 },
-  17: { x: 146, y: 68 }, 11: { x: 154, y: 68 },
-  43: { x: 150, y: 84 },
+  47: { x: 185, y: 85 }, 24: { x: 200, y: 85 }, 4: { x: 215, y: 85 },
+  17: { x: 188, y: 110 }, 43: { x: 200, y: 135 }, 11: { x: 212, y: 110 },
   // Throat
-  62: { x: 140, y: 100 }, 23: { x: 150, y: 100 }, 56: { x: 160, y: 100 },
-  16: { x: 135, y: 108 }, 35: { x: 165, y: 108 },
-  20: { x: 135, y: 118 }, 12: { x: 165, y: 118 },
-  31: { x: 135, y: 128 }, 45: { x: 165, y: 128 },
-  8: { x: 145, y: 135 }, 33: { x: 155, y: 135 },
+  62: { x: 185, y: 168 }, 23: { x: 200, y: 168 }, 56: { x: 215, y: 168 },
+  16: { x: 178, y: 180 }, 35: { x: 222, y: 180 },
+  20: { x: 178, y: 190 }, 12: { x: 222, y: 190 },
+  31: { x: 178, y: 200 }, 45: { x: 222, y: 200 },
+  8: { x: 190, y: 212 }, 33: { x: 210, y: 212 },
   // G
-  7: { x: 145, y: 140 }, 1: { x: 150, y: 135 }, 13: { x: 155, y: 140 },
-  10: { x: 132, y: 155 }, 25: { x: 168, y: 155 },
-  15: { x: 145, y: 170 }, 46: { x: 155, y: 170 },
-  2: { x: 150, y: 177 },
+  7: { x: 182, y: 282 }, 1: { x: 200, y: 265 }, 13: { x: 218, y: 282 },
+  10: { x: 165, y: 300 }, 25: { x: 235, y: 300 },
+  15: { x: 182, y: 318 }, 2: { x: 200, y: 335 }, 46: { x: 218, y: 318 },
   // Heart
-  21: { x: 185, y: 145 }, 51: { x: 175, y: 165 },
-  26: { x: 175, y: 175 }, 40: { x: 195, y: 175 },
+  21: { x: 250, y: 316 }, 51: { x: 243, y: 340 },
+  26: { x: 255, y: 364 }, 40: { x: 267, y: 340 },
   // Sacral
-  5: { x: 140, y: 230 }, 14: { x: 150, y: 230 }, 29: { x: 160, y: 230 },
-  34: { x: 135, y: 240 }, 59: { x: 165, y: 240 },
-  27: { x: 140, y: 260 }, 3: { x: 150, y: 260 }, 9: { x: 160, y: 260 },
+  5: { x: 185, y: 375 }, 14: { x: 200, y: 375 }, 29: { x: 215, y: 375 },
+  34: { x: 175, y: 390 }, 59: { x: 225, y: 390 },
+  27: { x: 175, y: 425 }, 
+  42: { x: 190, y: 425 }, 3: { x: 205, y: 425 }, 9: { x: 220, y: 425 },
   // Root
-  53: { x: 140, y: 300 }, 60: { x: 150, y: 300 }, 52: { x: 160, y: 300 },
-  54: { x: 135, y: 310 }, 19: { x: 165, y: 310 },
-  38: { x: 135, y: 320 }, 39: { x: 165, y: 320 },
-  58: { x: 135, y: 330 }, 41: { x: 165, y: 330 },
+  53: { x: 190, y: 485 }, 60: { x: 205, y: 485 }, 52: { x: 220, y: 485 },
+  54: { x: 175, y: 495 }, 19: { x: 225, y: 495 },
+  38: { x: 175, y: 505 }, 39: { x: 225, y: 505 },
+  58: { x: 175, y: 515 }, 41: { x: 225, y: 515 },
   // Spleen
-  48: { x: 55, y: 275 }, 57: { x: 65, y: 280 }, 44: { x: 75, y: 285 }, 50: { x: 85, y: 290 },
-  32: { x: 80, y: 305 }, 28: { x: 70, y: 305 }, 18: { x: 60, y: 305 },
+  48: { x: 60, y: 370 }, 57: { x: 95, y: 387 }, 44: { x: 75, y: 377 }, 50: { x: 120, y: 400 },
+  32: { x: 100, y: 410 }, 28: { x: 80, y: 420 }, 18: { x: 60, y: 430 },
   // Solar Plexus
-  36: { x: 215, y: 285 }, 22: { x: 225, y: 280 }, 37: { x: 235, y: 275 },
-  6: { x: 215, y: 290 }, 49: { x: 225, y: 300 }, 55: { x: 235, y: 310 }, 30: { x: 245, y: 320 },
+  36: { x: 340, y: 370 }, 22: { x: 325, y: 377 }, 37: { x: 305, y: 387 }, 6: { x: 280, y: 400 },
+  49: { x: 300, y: 410 }, 55: { x: 320, y: 420 }, 30: { x: 340, y: 430 },
 };
 
 const ALL_CITIES = [
@@ -197,16 +195,7 @@ export default function HumanDesignScreen() {
   };
 
   const drawSilhouette = () => {
-    return (
-      <SvgImage
-        x="40"
-        y="20"
-        width="220"
-        height="370"
-        preserveAspectRatio="none"
-        href={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/human_design_bg.png' }}
-      />
-    );
+    return null; // Arka plan resmi tamamen kaldırıldı. Saf vektör kullanıyoruz.
   };
 
   const drawChannels = () => {
@@ -216,7 +205,15 @@ export default function HumanDesignScreen() {
     CHANNELS.forEach(ch => {
        const g1 = ch.gates[0];
        const g2 = ch.gates[1];
-       
+       const c1 = GATE_COORDS[g1];
+       const c2 = GATE_COORDS[g2];
+       if (!c1 || !c2) return;
+       elements.push(<Path d={`M ${c1.x} ${c1.y} L ${c2.x} ${c2.y}`} stroke="#E2E8F0" strokeWidth="6" strokeLinecap="round" key={`bg-${ch.id}`} />);
+    });
+    // 2. Aktif kanallar (yarım/tam)
+    CHANNELS.forEach(ch => {
+       const g1 = ch.gates[0];
+       const g2 = ch.gates[1];
        const c1 = GATE_COORDS[g1];
        const c2 = GATE_COORDS[g2];
        if (!c1 || !c2) return;
@@ -233,12 +230,12 @@ export default function HumanDesignScreen() {
 
        const drawHalf = (pathD: string, isConscious: boolean, isUnconscious: boolean, keyPrefix: string) => {
           if (isConscious && isUnconscious) {
-            elements.push(<Path d={pathD} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-b`} />);
-            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" strokeDasharray="4 4" fill="none" key={`${keyPrefix}-r`} />);
+            elements.push(<Path d={pathD} stroke="#111" strokeWidth="6" strokeLinecap="butt" fill="none" key={`${keyPrefix}-b`} />);
+            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="6" strokeLinecap="butt" strokeDasharray="6 6" fill="none" key={`${keyPrefix}-r`} />);
           } else if (isConscious) {
-            elements.push(<Path d={pathD} stroke="#111" strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-con`} />);
+            elements.push(<Path d={pathD} stroke="#111" strokeWidth="6" strokeLinecap="butt" fill="none" key={`${keyPrefix}-con`} />);
           } else if (isUnconscious) {
-            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="5.5" strokeLinecap="butt" fill="none" key={`${keyPrefix}-unc`} />);
+            elements.push(<Path d={pathD} stroke={COLORS.accent} strokeWidth="6" strokeLinecap="butt" fill="none" key={`${keyPrefix}-unc`} />);
           }
        }
 
@@ -253,14 +250,13 @@ export default function HumanDesignScreen() {
     if (!chart) return null;
     return Object.entries(CENTER_COORDS).map(([center, def]) => {
       const isDefined = chart.definedCenters.includes(center as CenterCode);
-      if (!isDefined) return null; // İnaktifleri boyama, şablonda beyaz kalacak
       
-      const fill = def.color;
-      const stroke = 'none'; // Şablonda kenar çizgileri var
-      const s = def.s; // Her merkezin kendi boyutunu kullan
+      const fill = isDefined ? def.color : '#FFFFFF';
+      const stroke = isDefined ? 'none' : '#94A3B8'; // İnaktif merkezlere hafif gri kenarlık
+      const s = def.s;
       
       const drawShape = (dx: number, dy: number) => {
-        const sw = "0";
+        const sw = isDefined ? "0" : "1";
         if (def.shape === 'square') {
           return <Rect x={def.x - s + dx} y={def.y - s + dy} width={s*2} height={s*2} fill={fill} stroke={stroke} strokeWidth={sw} key="mg" />;
         } else if (def.shape === 'diamond') {
@@ -285,7 +281,6 @@ export default function HumanDesignScreen() {
     });
   }
 
-  // Gates render (numbers on the perimeter)
   const drawGates = () => {
     if (!chart) return null;
     return Object.entries(GATE_COORDS).map(([gateId, coords]) => {
@@ -294,29 +289,27 @@ export default function HumanDesignScreen() {
       const isUnc = chart.unconscious.some(p => p.gate === gNum);
       const isActive = isCons || isUnc;
       
-      if (!isActive) return null; // İnaktif kapıları çizme, görseldekiler kalsın
-      
-      // Çizimin şeklin içine doğru hafif ofsetlenmesi için merkez koordinatını bulalım
       let shiftX = 0;
       let shiftY = 0;
-      // Basitçe merkeze doğru 6 piksel kaydır (Görseldeki gibi şeklin içinde kalsın)
+      let centerSize = 10;
+      
       const centerCoordsObj = CHANNELS.find(ch => ch.gates.includes(gNum));
       if (centerCoordsObj) {
         const c1Name = centerCoordsObj.centers[0];
         const c2Name = centerCoordsObj.centers[1];
         const c1 = CENTER_COORDS[c1Name as CenterCode];
         const c2 = CENTER_COORDS[c2Name as CenterCode];
-        // Hangi merkeze daha yakınsa o merkezin koordinatını al
         const dist1 = Math.hypot(c1.x - coords.x, c1.y - coords.y);
         const dist2 = Math.hypot(c2.x - coords.x, c2.y - coords.y);
         const myCenter = dist1 < dist2 ? c1 : c2;
+        centerSize = myCenter.s;
         
         const dx = myCenter.x - coords.x;
         const dy = myCenter.y - coords.y;
         const len = Math.hypot(dx, dy);
         if (len > 0) {
-           shiftX = (dx / len) * 6; // 6 piksel merkeze doğru çek
-           shiftY = (dy / len) * 6;
+           shiftX = (dx / len) * (centerSize * 0.30);
+           shiftY = (dy / len) * (centerSize * 0.30);
         }
       }
 
@@ -325,8 +318,8 @@ export default function HumanDesignScreen() {
 
       return (
         <G key={`glabel-${gateId}`}>
-          <Circle cx={textX} cy={textY} r={7.5} fill={COLORS.primary} />
-          <SvgText x={textX} y={textY + 2.8} fontSize="8" fill="#111" fontWeight="bold" textAnchor="middle">{gNum}</SvgText>
+          {isActive && <Circle cx={textX} cy={textY - 2} r={8} fill="rgba(255,255,255,0.95)" />}
+          <SvgText x={textX} y={textY + 2.5} fontSize="12" fill={isActive ? "#0F172A" : "#64748B"} fontWeight={isActive ? "900" : "bold"} textAnchor="middle">{gNum}</SvgText>
         </G>
       );
     });
@@ -335,9 +328,7 @@ export default function HumanDesignScreen() {
   // Yücelim (Exaltation) ve Düşüş (Detriment) okları için simülatör
   // Gerçek I'Ching veritabanı 384 satır gerektirdiği için görsel tasarımı tamamlamak adına deterministik simüle ediyoruz.
   const getFixationArrow = (gate: number, line: number) => {
-    const v = (gate * 13 + line * 7) % 10;
-    if (v === 1 || v === 2) return <Text style={{ color: '#E63946', fontSize: 10 }}>▲</Text>;
-    if (v === 8 || v === 9) return <Text style={{ color: '#1D3557', fontSize: 10 }}>▼</Text>;
+    // Şimdilik pasif hale getirildi. Gerçek Rave I'Ching veritabanı entegre edildiğinde açılacak.
     return null;
   };
 
@@ -500,7 +491,7 @@ export default function HumanDesignScreen() {
 
                 {/* Orta SVG Bodygraph */}
                 <View style={styles.bodygraphWrapper}>
-                  <Svg width="100%" height="100%" viewBox="40 20 220 370">
+                  <Svg width="100%" height="100%" viewBox="40 10 320 540">
                     {drawSilhouette()}
                     {drawChannels()}
                     {drawCenters()}
@@ -678,7 +669,7 @@ const styles = StyleSheet.create({
     width: '60%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0F172A', // Match the background
+    backgroundColor: COLORS.primary, // Sayfa başlığındaki mavi
     borderRadius: 8,
     overflow: 'hidden',
   },

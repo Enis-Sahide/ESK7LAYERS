@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Redirect, useRouter } from 'expo-router';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, LogBox } from 'react-native';
 import { supabase } from '@/src/services/supabase';
 import { COLORS } from '@/src/theme';
+
+LogBox.ignoreLogs(['AuthApiError: Invalid Refresh Token']);
 
 export default function Index() {
   const [loading, setLoading] = useState(true);

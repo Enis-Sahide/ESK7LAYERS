@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,8 @@ import { supabase } from '@/src/services/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
 import { useProgress } from '@/src/context/ProgressContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/utils/PlanetaryHours';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
@@ -15,7 +17,7 @@ const { width } = Dimensions.get('window');
 
 
 // İçerik Kategorileri (7 Çakra - 7 Katman)
-const MODULES = [
+export const MODULES = [
   { id: 1, title: 'Kök Çakra', subtitle: 'Temel Bilgiler', reqLevel: 1, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/root.png' }, color: '#FF3B30', top: '82%' },
   { id: 2, title: 'Sakral Çakra', subtitle: 'Bağlar ve Yaratım', reqLevel: 2, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/sacral.png' }, color: '#FF9500', top: '72%' },
   { id: 3, title: 'Solar Pleksus', subtitle: 'İrade ve Güç', reqLevel: 3, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/solar.png' }, color: '#FFCC00', top: '62%' },
@@ -60,6 +62,84 @@ const MarqueeText = ({ text }: { text: string }) => {
         {text}
       </Animated.Text>
     </View>
+  );
+};
+
+const PlanetaryHourWidget = () => {
+  const router = useRouter();
+  const [data, setData] = useState<{ hour: PlanetaryHour, info: any, minsLeft: number } | null>(null);
+  
+  useFocusEffect(
+    useCallback(() => {
+      let interval: any;
+      let isActive = true;
+      
+      const fetchHour = async () => {
+        try {
+          const savedWidget = await AsyncStorage.getItem('@show_planetary_widget');
+          if (savedWidget !== 'true' && isActive) {
+            setData(null);
+            return;
+          }
+
+          const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
+          if (!savedLocation || !isActive) return;
+          const { lat, lon } = JSON.parse(savedLocation);
+          
+          const updateCurrent = () => {
+            if (!isActive) return;
+            const now = new Date();
+            const { hours } = getPlanetaryHours(now, lat, lon);
+            const current = hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
+            
+            if (current) {
+              const info = getPlanetInfo(current.planet);
+              const minsLeft = Math.max(0, Math.floor((current.endTime.getTime() - now.getTime()) / 60000));
+              setData({ hour: current, info, minsLeft });
+            } else {
+              setData(null);
+            }
+          };
+          
+          updateCurrent();
+          interval = setInterval(updateCurrent, 30000); // Check every 30 seconds
+        } catch (e) {
+          // Handle silently
+        }
+      };
+      
+      fetchHour();
+      
+      return () => {
+        isActive = false;
+        clearInterval(interval);
+      };
+    }, [])
+  );
+
+  if (!data) return null; // Don't show if location not set
+
+  return (
+    <TouchableOpacity 
+      style={[styles.planetaryWidget, { borderColor: data.info.color }]} 
+      onPress={() => router.push('/(dashboard)/kisisel-analizler/gezegen-saatleri')}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.planetIconWrapper, { backgroundColor: data.info.color + '20', borderColor: data.info.color }]}>
+        <Text style={[styles.planetWidgetIcon, { color: data.info.color }]}>{data.info.symbol}</Text>
+      </View>
+      <View style={{ flex: 1, marginLeft: 15 }}>
+        <Text style={styles.planetWidgetTitle}>Şu Anki Gezegen Saati</Text>
+        <Text style={[styles.planetWidgetName, { color: data.info.color }]}>{data.info.name}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
+        <Text style={styles.planetWidgetTime}>{data.minsLeft} dk kaldı</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+          <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Tüm Saatler</Text>
+          <Ionicons name="chevron-forward" size={12} color={COLORS.textMuted} />
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -185,7 +265,7 @@ export default function DashboardScreen() {
           )}
         </BlurView>
 
-
+        <PlanetaryHourWidget />
 
         {/* Modüller: Anatomik Çakra Haritası */}
         <Text style={styles.sectionTitle}>7 İnisiyasyon Katmanı</Text>
@@ -668,5 +748,44 @@ const styles = StyleSheet.create({
   fabSubText: {
     color: COLORS.textMuted,
     fontSize: 14,
+  },
+  planetaryWidget: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    borderRadius: SIZES.radius,
+    padding: 15,
+    marginBottom: 25,
+    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.2)',
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)',
+    borderRightColor: 'rgba(212, 175, 55, 0.2)',
+    alignItems: 'center',
+  },
+  planetIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  planetWidgetIcon: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  planetWidgetTitle: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginBottom: 2,
+  },
+  planetWidgetName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  planetWidgetTime: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.text,
   }
 });

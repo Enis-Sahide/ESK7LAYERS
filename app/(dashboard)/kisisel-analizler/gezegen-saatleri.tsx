@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ImageBackground, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ImageBackground, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import tzlookup from 'tz-lookup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/utils/PlanetaryHours';
 import { COLORS, SIZES } from '@/src/theme';
+import { refreshAllAlarms, addSingleAlarm, removeSingleAlarm, subscribePlanet, unsubscribePlanet } from '@/src/utils/AlarmManager';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
@@ -17,6 +18,15 @@ export default function GezegenSaatleriScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [expandedHour, setExpandedHour] = useState<string | null>(null);
   
+  // Notification State
+  const [notifyMinutes, setNotifyMinutes] = useState<number>(0);
+  const [quietHours, setQuietHours] = useState<boolean>(true);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [activeAlarms, setActiveAlarms] = useState<string[]>([]);
+  const [alarmModalVisible, setAlarmModalVisible] = useState(false);
+  const [selectedAlarmHour, setSelectedAlarmHour] = useState<PlanetaryHour | null>(null);
+  const [currentCoords, setCurrentCoords] = useState<{lat: number, lon: number} | null>(null);
+
   if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
@@ -24,17 +34,46 @@ export default function GezegenSaatleriScreen() {
   const [cityInput, setCityInput] = useState('');
   const [currentLocationName, setCurrentLocationName] = useState<string | null>(null);
   const [timezone, setTimezone] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showWidget, setShowWidget] = useState(false);
+
+  const getNext7Days = () => {
+    const days = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  };
+
+  const datesList = getNext7Days();
 
   useEffect(() => {
     const loadSavedLocation = async () => {
       try {
+        const savedWidget = await AsyncStorage.getItem('@show_planetary_widget');
+        if (savedWidget === 'true') setShowWidget(true);
+        const sMins = await AsyncStorage.getItem('@notify_minutes');
+        if (sMins) setNotifyMinutes(parseInt(sMins));
+        const sQuiet = await AsyncStorage.getItem('@quiet_hours');
+        if (sQuiet) setQuietHours(sQuiet === 'true');
+        const sAlarms = await AsyncStorage.getItem('@active_alarms');
+        if (sAlarms) setActiveAlarms(JSON.parse(sAlarms));
+
         const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
         if (savedLocation) {
           const { lat, lon, name, tz } = JSON.parse(savedLocation);
+          setCurrentCoords({lat, lon});
           setCityInput(name);
-          // Set loading to true initially while fetching
           setLoading(true);
-          loadHoursFromCoords(lat, lon, name, tz);
+          loadHoursFromCoords(lat, lon, name, tz, selectedDate);
+
+          // Top up alarms
+          refreshAllAlarms(lat, lon, tz).then(actives => {
+            setActiveAlarms(actives);
+          });
         }
       } catch (e) {}
     };
@@ -42,11 +81,11 @@ export default function GezegenSaatleriScreen() {
 
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [selectedDate]);
 
-  const loadHoursFromCoords = (lat: number, lon: number, locationName: string, tz: string) => {
+  const loadHoursFromCoords = (lat: number, lon: number, locationName: string, tz: string, date: Date) => {
     try {
-      const data = getPlanetaryHours(new Date(), lat, lon);
+      const data = getPlanetaryHours(date, lat, lon);
       setHoursData({
         dayHours: data.hours.filter(h => h.isDay),
         nightHours: data.hours.filter(h => !h.isDay),
@@ -92,7 +131,7 @@ export default function GezegenSaatleriScreen() {
       if (latitude !== undefined && longitude !== undefined) {
         const tz = tzlookup(latitude, longitude);
         const name = cityInput.trim().toUpperCase();
-        loadHoursFromCoords(latitude, longitude, name, tz);
+        loadHoursFromCoords(latitude, longitude, name, tz, selectedDate);
         
         AsyncStorage.setItem('last_planet_hours_location', JSON.stringify({
           lat: latitude,
@@ -131,6 +170,38 @@ export default function GezegenSaatleriScreen() {
     setExpandedHour(expandedHour === id ? null : id);
   };
 
+  const handleSetAlarm = async (type: 'single' | 'all') => {
+    if (!selectedAlarmHour || !currentCoords) return;
+    
+    if (type === 'single') {
+      await addSingleAlarm(selectedAlarmHour.startTime.toISOString(), selectedAlarmHour.planet);
+    } else {
+      await subscribePlanet(selectedAlarmHour.planet);
+    }
+    
+    const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+    setActiveAlarms(actives);
+    
+    setAlarmModalVisible(false);
+    setSelectedAlarmHour(null);
+  };
+
+  const handleCancelAlarm = async (type: 'single' | 'all') => {
+    if (!selectedAlarmHour || !currentCoords) return;
+    
+    if (type === 'single') {
+      await removeSingleAlarm(selectedAlarmHour.startTime.toISOString());
+    } else {
+      await unsubscribePlanet(selectedAlarmHour.planet);
+    }
+    
+    const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+    setActiveAlarms(actives);
+    
+    setAlarmModalVisible(false);
+    setSelectedAlarmHour(null);
+  };
+
   const renderHourList = (hours: PlanetaryHour[], title: string, isDayMode: boolean) => (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>{title}</Text>
@@ -163,11 +234,20 @@ export default function GezegenSaatleriScreen() {
                   {hour.index}. Saat: {info.name}
                 </Text>
               </View>
-              {isActive && (
-                <View style={styles.activeBadge}>
-                  <Text style={styles.activeBadgeText}>ŞU AN</Text>
-                </View>
-              )}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                {isActive && (
+                  <View style={styles.activeBadge}>
+                    <Text style={styles.activeBadgeText}>ŞU AN</Text>
+                  </View>
+                )}
+                <TouchableOpacity onPress={(e) => { e.stopPropagation(); setSelectedAlarmHour(hour); setAlarmModalVisible(true); }}>
+                  <Ionicons 
+                    name={activeAlarms.includes(hour.startTime.toISOString()) ? "notifications" : "notifications-outline"} 
+                    size={24} 
+                    color={activeAlarms.includes(hour.startTime.toISOString()) ? COLORS.primary : COLORS.textMuted} 
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
             
             {isExpanded && (
@@ -222,12 +302,55 @@ export default function GezegenSaatleriScreen() {
       ) : hoursData ? (
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateSelector}>
+            {datesList.map((d, index) => {
+              const isSelected = d.getDate() === selectedDate.getDate() && d.getMonth() === selectedDate.getMonth();
+              const isToday = index === 0;
+              const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+              const dayStr = d.toLocaleDateString('tr-TR', { weekday: 'short' });
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.dateTab, isSelected && styles.dateTabActive]}
+                  onPress={() => setSelectedDate(d)}
+                >
+                  <Text style={[styles.dateTabText, isSelected && styles.dateTabTextActive]}>{isToday ? 'Bugün' : dateStr}</Text>
+                  <Text style={[styles.dateTabSubText, isSelected && styles.dateTabTextActive]}>{dayStr}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
           <View style={styles.infoBox}>
             <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
             <Text style={styles.infoText}>
-              <Text style={{fontWeight: 'bold', color: COLORS.primary}}>{currentLocationName}</Text> için Gündüz saati Güneş'in doğuşuyla ({formatTime(hoursData.sunrise, timezone)}), gece saati ise Güneş'in batışıyla ({formatTime(hoursData.sunset, timezone)}) başlar.
+              <Text style={{fontWeight: 'bold', color: COLORS.primary}}>{currentLocationName}</Text> için <Text style={{fontWeight: 'bold'}}>{selectedDate.toLocaleDateString('tr-TR', {day: 'numeric', month: 'long', weekday: 'long'})}</Text> Gündüz saati Güneş'in doğuşuyla ({formatTime(hoursData.sunrise, timezone)}), gece saati ise Güneş'in batışıyla ({formatTime(hoursData.sunset, timezone)}) başlar.
             </Text>
           </View>
+
+          <View style={styles.widgetToggleContainer}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.widgetToggleTitle}>Ana Sayfada Göster</Text>
+              <Text style={styles.widgetToggleDesc}>O anki gezegen saatini ana ekranda widget olarak gösterir.</Text>
+            </View>
+            <Switch
+              value={showWidget}
+              onValueChange={async (val) => {
+                setShowWidget(val);
+                await AsyncStorage.setItem('@show_planetary_widget', val ? 'true' : 'false');
+              }}
+              trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
+              thumbColor={showWidget ? '#fff' : '#ccc'}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.widgetToggleContainer} onPress={() => setShowSettingsModal(true)}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.widgetToggleTitle}>Bildirim Ayarları</Text>
+              <Text style={styles.widgetToggleDesc}>{notifyMinutes > 0 ? `${notifyMinutes} dk önce` : 'Tam vaktinde'} haber ver | Gece Sessizliği: {quietHours ? 'Açık' : 'Kapalı'}</Text>
+            </View>
+            <Ionicons name="settings-outline" size={24} color={COLORS.primary} />
+          </TouchableOpacity>
 
           {renderHourList(hoursData.dayHours, 'Gündüz Saatleri', true)}
           {renderHourList(hoursData.nightHours, 'Gece Saatleri', false)}
@@ -235,6 +358,98 @@ export default function GezegenSaatleriScreen() {
           <View style={{height: 50}} />
         </ScrollView>
       ) : null}
+
+      {/* Alarm Type Modal */}
+      <Modal visible={alarmModalVisible} transparent animationType="slide" onRequestClose={() => setAlarmModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setAlarmModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Alarm Kur</Text>
+            {selectedAlarmHour && (
+              <Text style={styles.modalSubtitle}>{getPlanetInfo(selectedAlarmHour.planet).name} Saati ({formatTime(selectedAlarmHour.startTime, timezone)})</Text>
+            )}
+            
+            {selectedAlarmHour && activeAlarms.includes(selectedAlarmHour.startTime.toISOString()) ? (
+              <>
+                <TouchableOpacity style={[styles.modalOptionBtn, {backgroundColor: 'rgba(255,59,48,0.1)'}]} onPress={() => handleCancelAlarm('single')}>
+                  <Ionicons name="trash-outline" size={24} color={COLORS.error} style={{ marginRight: 10 }} />
+                  <Text style={[styles.modalOptionText, {color: COLORS.error}]}>Bu Saatin Alarmını İptal Et</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.modalOptionBtn, {backgroundColor: 'rgba(255,59,48,0.1)'}]} onPress={() => handleCancelAlarm('all')}>
+                  <Ionicons name="close-circle-outline" size={24} color={COLORS.error} style={{ marginRight: 10 }} />
+                  <Text style={[styles.modalOptionText, {color: COLORS.error}]}>Bu Gezegenin Tüm Alarmlarını İptal Et</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity style={styles.modalOptionBtn} onPress={() => handleSetAlarm('single')}>
+                  <Ionicons name="time-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
+                  <Text style={styles.modalOptionText}>Sadece Bu Saate Kur</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity style={styles.modalOptionBtn} onPress={() => handleSetAlarm('all')}>
+                  <Ionicons name="calendar-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
+                  <View>
+                    <Text style={styles.modalOptionText}>Tüm Saatlere Kur (7 Gün)</Text>
+                    <Text style={{fontSize: 10, color: COLORS.textMuted}}>Bu gezegenin önümüzdeki tüm saatlerine alarm kurar.</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            )}
+
+            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setAlarmModalVisible(false)}>
+              <Text style={styles.modalCancelText}>Kapat</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Settings Modal */}
+      <Modal visible={showSettingsModal} transparent animationType="fade" onRequestClose={() => setShowSettingsModal(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowSettingsModal(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <Text style={styles.modalTitle}>Bildirim Ayarları</Text>
+            
+            <View style={{ marginVertical: 15 }}>
+              <Text style={{color: '#fff', marginBottom: 10, fontWeight: 'bold'}}>Bildirim Zamanı</Text>
+              <View style={{flexDirection: 'row', gap: 10}}>
+                {[0, 5, 10, 15].map(min => (
+                  <TouchableOpacity 
+                    key={min} 
+                    style={[styles.timeOptionBtn, notifyMinutes === min && { backgroundColor: COLORS.primary }]}
+                    onPress={async () => {
+                      setNotifyMinutes(min);
+                      await AsyncStorage.setItem('@notify_minutes', min.toString());
+                    }}
+                  >
+                    <Text style={{color: '#fff'}}>{min === 0 ? 'Tam' : `${min} dk`}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 15, justifyContent: 'space-between' }}>
+              <View style={{flex: 1, paddingRight: 15}}>
+                <Text style={{color: '#fff', fontWeight: 'bold'}}>Gece Rahatsız Etme</Text>
+                <Text style={{color: COLORS.textMuted, fontSize: 11, marginTop: 4}}>Açıksa, 00:00 ile 07:00 arasındaki saatlere alarm kurulmaz.</Text>
+              </View>
+              <Switch
+                value={quietHours}
+                onValueChange={async (val) => {
+                  setQuietHours(val);
+                  await AsyncStorage.setItem('@quiet_hours', val ? 'true' : 'false');
+                }}
+                trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
+                thumbColor={quietHours ? '#fff' : '#ccc'}
+              />
+            </View>
+
+            <TouchableOpacity style={[styles.modalCancelBtn, { backgroundColor: COLORS.primary, borderWidth: 0 }]} onPress={() => setShowSettingsModal(false)}>
+              <Text style={[styles.modalCancelText, {color: '#1a1f33'}]}>Kapat</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </ImageBackground>
   );
 }
@@ -397,5 +612,113 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     fontStyle: 'italic',
+  },
+  dateSelector: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    paddingBottom: 5,
+  },
+  dateTab: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: SIZES.radius,
+    marginRight: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  dateTabActive: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: COLORS.primary,
+  },
+  dateTabText: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  dateTabSubText: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+  },
+  dateTabTextActive: {
+    color: COLORS.primary,
+  },
+  widgetToggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    padding: 15,
+    borderRadius: SIZES.radius,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  widgetToggleTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  widgetToggleDesc: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#1a1f33',
+    padding: 25,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 5,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: COLORS.text,
+    marginBottom: 20,
+  },
+  modalOptionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: SIZES.radius,
+    marginBottom: 10,
+  },
+  modalOptionText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  modalCancelBtn: {
+    marginTop: 15,
+    padding: 15,
+    borderRadius: SIZES.radius,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  modalCancelText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  timeOptionBtn: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: SIZES.radius,
   }
 });
