@@ -397,6 +397,14 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
+             {/* Mağaza Linki */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/store'); setIsToolsExpanded(false); }}>
+               <Ionicons name="cart" size={20} color="#D4AF37" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Mistika Mağaza</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
              {/* Profil ve Ayarlar */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/profile'); setIsToolsExpanded(false); }}>
                <Ionicons name="settings-outline" size={20} color="#34C759" style={{ marginRight: 10 }} />
