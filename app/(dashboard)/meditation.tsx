@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Animated, TextInput } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -285,8 +286,8 @@ export default function MeditationScreen() {
   };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       <WebView 
@@ -532,7 +533,7 @@ export default function MeditationScreen() {
           </>
         )}
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

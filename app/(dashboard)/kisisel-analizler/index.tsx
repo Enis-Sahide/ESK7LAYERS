@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -20,7 +21,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   { 
     id: 'numeroloji', 
     title: 'Numeroloji Analizi', 
-    description: 'İsminiz ve doğum tarihinizle Yaşam Yolu, Çakra dökümü ve Karmik Sınavlarınızı içeren detaylı profilinizi çıkarın.',
+    description: 'İsim ve doğum tarihinizle detaylı analiz veya sadece doğum tarihinizle Pisagor Sayısal Titreşimlerinizi analiz edin.',
     icon: 'infinite-outline', 
     route: '/(dashboard)/kisisel-analizler/numeroloji',
     color: '#FFCC00',
@@ -43,6 +44,24 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     route: '/(dashboard)/kisisel-analizler/astroloji',
     color: '#FF9500',
     isAvailable: true
+  },
+  { 
+    id: 'anlikgokyuzu', 
+    title: 'Anlık Gökyüzü (Transit)', 
+    description: 'Şu anki gökyüzü konumlarını ve doğum haritanızla olan transit etkileşimlerini analiz edin.',
+    icon: 'telescope-outline', 
+    route: '/(dashboard)/kisisel-analizler/anlik-gokyuzu',
+    color: '#AF52DE',
+    isAvailable: true
+  },
+  { 
+    id: 'chakraanalysis', 
+    title: 'Çakra Analizi', 
+    description: 'Doğum haritanız ve çakra enerjileriniz arasındaki ilişkiyi analiz edin ve blokajları keşfedin.',
+    icon: 'scan-circle-outline', 
+    route: '/(dashboard)/chakra-analysis',
+    color: '#FF3B30',
+    isAvailable: true
   }
 ];
 
@@ -50,15 +69,15 @@ export default function AnalysisHubScreen() {
   const router = useRouter();
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{alignItems: 'center'}}>
-          <Text style={styles.headerTitle}>Kişisel Analizler</Text>
+          <Text style={styles.headerTitle}>Analizler</Text>
           <Text style={styles.headerSubtitle}>Kendini Bilme Yolculuğu</Text>
         </View>
         <View style={{ width: 28 }} />
@@ -95,7 +114,7 @@ export default function AnalysisHubScreen() {
         ))}
         <View style={{height: 100}} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

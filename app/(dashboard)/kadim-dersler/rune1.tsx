@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -12,8 +13,8 @@ export default function Rune1Screen() {
   const router = useRouter();
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
@@ -84,7 +85,7 @@ export default function Rune1Screen() {
         ))}
         <View style={{height: 50}}/>
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -13,8 +14,8 @@ export default function RuneMainScreen() {
   const { hasAccess } = useProgress();
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.7)' }]} />
+    <SacredBackground>
+
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       <View style={styles.header}>
@@ -65,7 +66,7 @@ export default function RuneMainScreen() {
         </TouchableOpacity>
 
       </View>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

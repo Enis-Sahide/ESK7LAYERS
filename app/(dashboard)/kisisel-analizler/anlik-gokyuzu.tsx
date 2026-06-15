@@ -1,39 +1,48 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal } from 'react-native';
+import SacredBackground from '@/components/SacredBackground';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, Keyboard, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
-import { getFullPlanetInterpretation, getAspectInterpretation } from '../../../src/utils/AstrologyInterpretations';
+import moment from 'moment-timezone';
+// @ts-ignore
+import tzlookup from 'tz-lookup';
+import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@/src/features/astrology/engine/TransitInterpretations';
 
-const AVAILABLE_COUNTRIES = [
-  'Türkiye', 'Almanya', 'Amerika Birleşik Devletleri', 'İngiltere', 'Fransa', 
-  'Hollanda', 'Avusturya', 'Belçika', 'İsviçre', 'Azerbaycan', 'Kıbrıs'
-];
+const API_BASE_URL = 'http://192.168.1.9:3000/api';
 
 const { width } = Dimensions.get('window');
-const CHART_SIZE = width - 40;
+const CHART_SIZE = width - 20;
 const CENTER = CHART_SIZE / 2;
-const RADIUS = CENTER - 40;
+const RADIUS = CENTER - 50;
+
+const R_ZODIAC_OUTER = RADIUS;
+const R_ZODIAC_INNER = RADIUS - 25;
+const R_NATAL_PLANETS = RADIUS - 45;
+const R_TRANSIT_PLANETS = RADIUS + 20;
+const R_CUSP_NUM = RADIUS - 60;
 
 const COLORS = {
   background: '#0F172A',
   primary: '#D4AF37', // Gold
+  secondary: '#0EA5E9', // Cyan/Blue
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
   cardBg: 'rgba(20, 25, 40, 0.85)',
   border: 'rgba(212, 175, 55, 0.3)',
 };
 
-const ZODIAC_COLORS: Record<ZodiacSign, string> = {
+const ZODIAC_ORDER = ['Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'];
+
+const ZODIAC_COLORS: Record<string, string> = {
   'Koç': '#FF453A', 'Aslan': '#FF453A', 'Yay': '#FF453A', // Fire
   'Boğa': '#32D74B', 'Başak': '#32D74B', 'Oğlak': '#32D74B', // Earth
   'İkizler': '#FFD60A', 'Terazi': '#FFD60A', 'Kova': '#FFD60A', // Air
   'Yengeç': '#0A84FF', 'Akrep': '#0A84FF', 'Balık': '#0A84FF', // Water
 };
 
-const ZODIAC_SYMBOLS: Record<ZodiacSign, string> = {
+const ZODIAC_SYMBOLS: Record<string, string> = {
   'Koç': '♈', 'Boğa': '♉', 'İkizler': '♊', 'Yengeç': '♋', 
   'Aslan': '♌', 'Başak': '♍', 'Terazi': '♎', 'Akrep': '♏', 
   'Yay': '♐', 'Oğlak': '♑', 'Kova': '♒', 'Balık': '♓'
@@ -42,138 +51,484 @@ const ZODIAC_SYMBOLS: Record<ZodiacSign, string> = {
 const PLANET_SYMBOLS: Record<string, string> = {
   'Güneş': '☉', 'Ay': '☽', 'Merkür': '☿', 'Venüs': '♀', 'Mars': '♂', 
   'Jüpiter': '♃', 'Satürn': '♄', 'Uranüs': '♅', 'Neptün': '♆', 'Plüton': '♇',
-  'Yükselen (ASC)': 'ASC', 'Tepe Noktası (MC)': 'MC'
+  'Yükselen (ASC)': 'ASC', 'Tepe Noktası (MC)': 'MC', 'Kuzey Ay Düğümü': '☊',
+  'Kiron': '⚷', 'Vertex (Vx)': 'Vx', 'Şans Noktası (POF)': '⊗', 'Lilith': '⚸'
 };
+
+const ASPECT_COLORS: Record<string, string> = {
+  'Kavuşum': '#D4AF37', 'Sekstil': '#0A84FF', 'Kare': '#FF453A', 'Üçgen': '#32D74B', 'Karşıt': '#FF453A', 'Görmeyen': '#0A84FF'
+};
+
+interface AstroPoint {
+  name: string;
+  longitude: number;
+  sign: string;
+  degreeInSign: number;
+  minutes: number;
+  house: number;
+  isRetrograde?: boolean;
+}
+
+interface TransitAspect {
+  transitPlanet: string;
+  natalPlanet: string;
+  type: string;
+  orb: number;
+  isExact: boolean;
+}
+
+interface TransitChartData {
+  natalChart: {
+    planets: AstroPoint[];
+    ascendant: AstroPoint;
+    midheaven: AstroPoint;
+    houses: AstroPoint[];
+    aspects: { planet1: string; planet2: string; type: string; orb: number; isExact: boolean }[];
+  };
+  transitPlanets: AstroPoint[];
+  transitAspects: TransitAspect[];
+}
 
 export default function AnlikGokyuzuScreen() {
   const router = useRouter();
-  const [country, setCountry] = useState('Türkiye');
-  const [showCountryModal, setShowCountryModal] = useState(false);
-  const [cityKey, setCityKey] = useState('İstanbul');
+  
+  // Natal (Birth) Inputs
+  const [natalDateStr, setNatalDateStr] = useState('1995-03-17');
+  const [natalTimeStr, setNatalTimeStr] = useState('18:05');
   const [searchQuery, setSearchQuery] = useState('İstanbul');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [selectedCityData, setSelectedCityData] = useState<any>({
+    name: 'İstanbul',
+    lat: 41.0082,
+    lon: 28.9784,
+    tz: 'Europe/Istanbul',
+    country: 'Türkiye'
+  });
+
+  // Transit Inputs
+  const today = new Date();
+  const defaultTDate = today.toISOString().split('T')[0];
+  const defaultTTime = today.toTimeString().slice(0, 5);
+  const [transitDateStr, setTransitDateStr] = useState(defaultTDate);
+  const [transitTimeStr, setTransitTimeStr] = useState(defaultTTime);
+
+  // States
   const [isLoading, setIsLoading] = useState(false);
-  const [chart, setChart] = useState<NatalChartData | null>(null);
-  const [selectedInterp, setSelectedInterp] = useState<{title: string, content: string} | null>(null);
+  const [transitData, setTransitData] = useState<TransitChartData | null>(null);
+  const [selectedInterp, setSelectedInterp] = useState<{ title: string, content: string } | null>(null);
+  const [isHousesExpanded, setIsHousesExpanded] = useState(true);
+  const [isAspectsExpanded, setIsAspectsExpanded] = useState(true);
 
-  const filteredCities = ASTRO_CITIES.filter(c => 
-    c.country === country &&
-    c.name.toLocaleLowerCase('tr-TR').startsWith(searchQuery.toLocaleLowerCase('tr-TR'))
-  ).map(c => c.name).slice(0, 4);
+  const dateInputRef = useRef<TextInput>(null);
+  const timeInputRef = useRef<TextInput>(null);
+  const tDateInputRef = useRef<TextInput>(null);
+  const tTimeInputRef = useRef<TextInput>(null);
 
-  const handleCalculate = () => {
-    setIsLoading(true);
-    setTimeout(() => {
+  // Geocoding city search
+  useEffect(() => {
+    if (searchQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchCities = async () => {
       try {
-        const targetDate = new Date(); // Current system time
-        const result = generateAstrologyChart(targetDate, cityKey, false);
-        setChart(result);
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(searchQuery)}`, {
+          headers: {
+            'User-Agent': '7LayersApp/1.0 (Contact: admin@7layers.com)',
+            'Accept-Language': 'tr-TR'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data)) {
+            const mapped = data.map((item: any) => {
+              const parts = item.display_name.split(',').map((s: string) => s.trim());
+              const name = item.name || parts[0];
+              const country = parts[parts.length - 1] || '';
+              const admin1 = parts.length > 2 ? parts[1] : '';
+              const latNum = parseFloat(item.lat);
+              const lonNum = parseFloat(item.lon);
+              let tz = 'Europe/Istanbul';
+              try {
+                tz = tzlookup(latNum, lonNum);
+              } catch (e) {
+                console.error("tzlookup error:", e);
+              }
+              return {
+                name,
+                latitude: latNum,
+                longitude: lonNum,
+                timezone: tz,
+                country,
+                admin1
+              };
+            });
+            setSuggestions(mapped);
+          }
+        }
       } catch (error) {
-        Alert.alert("Hesaplama Hatası", "Gökyüzü haritası oluşturulurken bir sorun oluştu.");
-        console.error(error);
-      } finally {
-        setIsLoading(false);
+        console.error("Geocoding Error:", error);
       }
-    }, 500);
+    };
+
+    const debounceTimer = setTimeout(fetchCities, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  const handleNatalDateChange = (text: string) => {
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 4);
+    if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+    if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 8);
+    setNatalDateStr(formatted);
+    if (cleaned.length === 8) {
+      timeInputRef.current?.focus();
+    }
   };
 
-  const renderSvgWheel = () => {
-    if (!chart) return null;
+  const handleNatalTimeChange = (text: string) => {
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 2);
+    if (cleaned.length > 2) formatted += ':' + cleaned.substring(2, 4);
+    setNatalTimeStr(formatted);
+    if (cleaned.length === 4) {
+      tDateInputRef.current?.focus();
+    }
+  };
 
-    // Ascendant defines the start (left side, 180 degrees in SVG math, usually represented as 9 o'clock)
-    // To make ASC at 9 o'clock and go counter-clockwise in SVG (where Y goes down), 
-    // we use the formula: angle = 180 + ascLon - lon
-    const ascLon = chart.ascendant.longitude;
+  const handleTransitDateChange = (text: string) => {
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 4);
+    if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+    if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 8);
+    setTransitDateStr(formatted);
+    if (cleaned.length === 8) {
+      tTimeInputRef.current?.focus();
+    }
+  };
 
-    const getX = (lon: number, r: number) => CENTER + r * Math.cos((180 + ascLon - lon) * Math.PI / 180);
-    const getY = (lon: number, r: number) => CENTER + r * Math.sin((180 + ascLon - lon) * Math.PI / 180);
+  const handleTransitTimeChange = (text: string) => {
+    let cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 2);
+    if (cleaned.length > 2) formatted += ':' + cleaned.substring(2, 4);
+    setTransitTimeStr(formatted);
+  };
+
+  const handleCalculate = async () => {
+    if (natalDateStr.length !== 10 || natalTimeStr.length !== 5) {
+      Alert.alert("Eksik Bilgi", "Lütfen doğum tarihini ve saatini tam olarak giriniz.");
+      return;
+    }
+    if (transitDateStr.length !== 10 || transitTimeStr.length !== 5) {
+      Alert.alert("Eksik Bilgi", "Lütfen transit tarihini ve saatini tam olarak giriniz.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/astrology/calculate-transit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          natalDate: natalDateStr,
+          natalTime: natalTimeStr,
+          transitDate: transitDateStr,
+          transitTime: transitTimeStr,
+          cityData: selectedCityData
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Transit hesaplaması başarısız oldu.');
+      }
+
+      setTransitData(result.data);
+    } catch (error: any) {
+      console.error(error);
+      Alert.alert("Hata", error.message || "Transitler hesaplanırken bir hata oluştu.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderBiWheel = () => {
+    if (!transitData) return null;
+    const chartData = transitData.natalChart;
+    const ascDegree = chartData.ascendant.longitude;
+
+    const getX = (lon: number, r: number) => CENTER + r * Math.cos((lon - ascDegree + 180) * Math.PI / 180);
+    const getY = (lon: number, r: number) => CENTER + r * Math.sin((lon - ascDegree + 180) * Math.PI / 180);
 
     return (
-      <Svg width={CHART_SIZE} height={CHART_SIZE}>
-        {/* Outer Wheel (Zodiac Signs) */}
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS + 30} stroke={COLORS.border} strokeWidth="1" fill="none" />
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS} stroke={COLORS.border} strokeWidth="2" fill="rgba(0,0,0,0.3)" />
-        <Circle cx={CENTER} cy={CENTER} r={RADIUS - 40} stroke={COLORS.border} strokeWidth="1" fill="none" />
+      <View style={styles.chartWrapper}>
+        <Svg width={CHART_SIZE} height={CHART_SIZE} viewBox={`0 0 ${CHART_SIZE} ${CHART_SIZE}`}>
+          {/* Inner / Outer Circles */}
+          <Circle cx={CENTER} cy={CENTER} r={R_ZODIAC_INNER} stroke="rgba(212,175,55,0.3)" strokeWidth="1.5" fill="none" />
+          <Circle cx={CENTER} cy={CENTER} r={R_ZODIAC_OUTER} stroke="rgba(212,175,55,0.3)" strokeWidth="1.5" fill="none" />
+          <Circle cx={CENTER} cy={CENTER} r={R_TRANSIT_PLANETS + 15} stroke="rgba(50,215,75,0.3)" strokeWidth="1" fill="none" strokeDasharray={[4, 4]} />
 
-        {/* 12 House/Sign Divisions */}
-        {chart.houses.map((h, i) => {
-          const x1 = getX(h.longitude, RADIUS + 30);
-          const y1 = getY(h.longitude, RADIUS + 30);
-          const x2 = getX(h.longitude, RADIUS - 40);
-          const y2 = getY(h.longitude, RADIUS - 40);
-          
-          // Sign Symbol Position (middle of the house)
-          const midLon = h.longitude + 15;
-          const sx = getX(midLon, RADIUS + 15);
-          const sy = getY(midLon, RADIUS + 15);
+          {/* 12 Zodiac Sign Areas */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const signLon = i * 30;
+            const midLon = signLon + 15;
+            const signName = ZODIAC_ORDER[i];
+            return (
+              <G key={`zod-${i}`}>
+                <Line 
+                  x1={getX(signLon, R_ZODIAC_OUTER)} 
+                  y1={getY(signLon, R_ZODIAC_OUTER)} 
+                  x2={getX(signLon, R_ZODIAC_INNER)} 
+                  y2={getY(signLon, R_ZODIAC_INNER)} 
+                  stroke="rgba(212,175,55,0.3)" 
+                  strokeWidth="1" 
+                />
+                <SvgText 
+                  x={getX(midLon, RADIUS - 12)} 
+                  y={getY(midLon, RADIUS - 12) + 4} 
+                  fontSize="12" 
+                  fill={ZODIAC_COLORS[signName]} 
+                  textAnchor="middle" 
+                  fontWeight="bold"
+                >
+                  {ZODIAC_SYMBOLS[signName]}
+                </SvgText>
+              </G>
+            );
+          })}
 
+          {/* House Cusps Lines & Cusp Degrees */}
+          {chartData.houses.map((h, i) => {
+            const isAngle = h.house === 1 || h.house === 4 || h.house === 7 || h.house === 10;
+            return (
+              <G key={`house-line-${i}`}>
+                <Line 
+                  x1={getX(h.longitude, 20)} 
+                  y1={getY(h.longitude, 20)} 
+                  x2={getX(h.longitude, R_ZODIAC_INNER)} 
+                  y2={getY(h.longitude, R_ZODIAC_INNER)} 
+                  stroke={isAngle ? "#D4AF37" : "rgba(212,175,55,0.2)"} 
+                  strokeWidth={isAngle ? "2" : "1"} 
+                  strokeDasharray={isAngle ? undefined : [4, 4]} 
+                />
+                <SvgText 
+                  x={getX(h.longitude, R_CUSP_NUM)} 
+                  y={getY(h.longitude, R_CUSP_NUM) + 3} 
+                  fontSize={isAngle ? "9" : "8"} 
+                  fill={isAngle ? "#D4AF37" : COLORS.textMuted} 
+                  textAnchor="middle" 
+                  fontWeight={isAngle ? "bold" : "normal"}
+                >
+                  {`${h.house}`}
+                </SvgText>
+              </G>
+            );
+          })}
+
+          {/* Aspect Lines between Natal Planets */}
+          {chartData.aspects.filter(a => a.orb <= 5).map((a, i) => {
+            const p1 = chartData.planets.find(p => p.name === a.planet1);
+            const p2 = chartData.planets.find(p => p.name === a.planet2);
+            if (!p1 || !p2) return null;
+
+            let color = 'rgba(255,255,255,0.08)';
+            if (a.type === 'Üçgen') color = 'rgba(50,215,75,0.4)';
+            if (a.type === 'Kare' || a.type === 'Karşıt') color = 'rgba(255,69,58,0.4)';
+            if (a.type === 'Sekstil') color = 'rgba(10,132,255,0.4)';
+
+            return (
+              <Line 
+                key={`asp-${i}`} 
+                x1={getX(p1.longitude, R_NATAL_PLANETS)} 
+                y1={getY(p1.longitude, R_NATAL_PLANETS)} 
+                x2={getX(p2.longitude, R_NATAL_PLANETS)} 
+                y2={getY(p2.longitude, R_NATAL_PLANETS)} 
+                stroke={color} 
+                strokeWidth={a.isExact ? "1.5" : "0.8"} 
+              />
+            );
+          })}
+
+          {/* Natal Planets (Inner Circle, Gold) */}
+          {chartData.planets.map((p, i) => {
+            let rOffset = 0;
+            for (let j = 0; j < i; j++) {
+              if (Math.abs(p.longitude - chartData.planets[j].longitude) < 6) rOffset += 12;
+            }
+            const px = getX(p.longitude, R_NATAL_PLANETS - rOffset);
+            const py = getY(p.longitude, R_NATAL_PLANETS - rOffset);
+            return (
+              <G key={`natal-pl-${i}`}>
+                <Circle cx={px} cy={py} r="8" fill="#0F172A" stroke="#D4AF37" strokeWidth="0.8" />
+                <SvgText x={px} y={py + 3} fontSize="9" fill="#D4AF37" textAnchor="middle" fontWeight="bold">
+                  {PLANET_SYMBOLS[p.name] || p.name.substring(0, 2)}
+                </SvgText>
+              </G>
+            );
+          })}
+
+          {/* Transit Planets (Outer Circle, Cyan/Blue) */}
+          {transitData.transitPlanets.map((p, i) => {
+            let rOffset = 0;
+            for (let j = 0; j < i; j++) {
+              if (Math.abs(p.longitude - transitData.transitPlanets[j].longitude) < 6) rOffset += 12;
+            }
+            const px = getX(p.longitude, R_TRANSIT_PLANETS + rOffset);
+            const py = getY(p.longitude, R_TRANSIT_PLANETS + rOffset);
+            return (
+              <G key={`transit-pl-${i}`}>
+                <Circle cx={px} cy={py} r="8" fill="#0F172A" stroke="#0EA5E9" strokeWidth="0.8" />
+                <SvgText x={px} y={py + 3} fontSize="9" fill="#0EA5E9" textAnchor="middle" fontWeight="bold">
+                  {PLANET_SYMBOLS[p.name] || p.name.substring(0, 2)}
+                </SvgText>
+              </G>
+            );
+          })}
+        </Svg>
+      </View>
+    );
+  };
+
+  const renderAIRecommendation = () => {
+    if (!transitData) return null;
+    const tMoon = transitData.transitPlanets.find(p => p.name === 'Ay');
+    const tSun = transitData.transitPlanets.find(p => p.name === 'Güneş');
+    const exactAspects = [...transitData.transitAspects].filter(a => a.orb <= 3).sort((a, b) => a.orb - b.orb);
+
+    const getHouseFocus = (house: number) => {
+      const foci: Record<number, string> = {
+        1: "kişisel imajınız ve yeni başlangıçlarınız",
+        2: "maddi kaynaklarınız ve öz değeriniz",
+        3: "iletişim trafiğiniz ve yakın çevreniz",
+        4: "eviniz, aileniz ve iç dünyanız",
+        5: "aşk hayatınız ve yaratıcılığınız",
+        6: "günlük rutinleriniz ve sağlığınız",
+        7: "ikili ilişkileriniz ve ortaklıklarınız",
+        8: "kriz yönetimi ve ortak finansal kaynaklarınız",
+        9: "inançlarınız ve hayata bakış açınız",
+        10: "kariyeriniz ve toplumsal statünüz",
+        11: "sosyal çevreniz ve geleceğe dair umutlarınız",
+        12: "bilinçaltınız ve ruhsal şifalanma süreciniz"
+      };
+      return foci[house] || "yaşamınızın bu alanı";
+    };
+
+    const getPlanetTheme = (planetName: string) => {
+      const themes: Record<string, string> = {
+        'Güneş': 'kimlik ve özgüven',
+        'Ay': 'duygusal dünya ve aile',
+        'Merkür': 'iletişim ve zihinsel kararlar',
+        'Venüs': 'ikili ilişkiler ve maddi değerler',
+        'Mars': 'cesaret ve eylemler',
+        'Jüpiter': 'inançlar ve vizyon',
+        'Satürn': 'sorumluluklar ve sınırlar',
+        'Uranüs': 'özgürlük ve ani değişimler',
+        'Neptün': 'hayaller ve sezgiler',
+        'Plüton': 'krizler ve köklü dönüşümler',
+        'Kiron': 'geçmiş yaralar ve şifalanma',
+        'Kuzey Ay Düğümü': 'kadersel yönelimler',
+        'Yükselen (ASC)': 'dış imaj ve başlangıçlar',
+        'Tepe Noktası (MC)': 'kariyer ve toplumsal statü',
+        'Vertex (Vx)': 'kadersel karşılaşmalar',
+        'Şans Noktası (POF)': 'kısmet akışı',
+        'Lilith': 'bastırılmış arzular'
+      };
+      return themes[planetName] || planetName;
+    };
+
+    const getTransitAction = (planetName: string) => {
+      const actions: Record<string, string> = {
+        'Güneş': 'bilinçli farkındalığınızı',
+        'Ay': 'duygusal dalgalanmalarınızı',
+        'Merkür': 'zihinsel trafiğinizi ve düşüncelerinizi',
+        'Venüs': 'sevgi dilinizi ve uyum arayışınızı',
+        'Mars': 'mücadele gücünüzü ve eylem enerjinizi',
+        'Jüpiter': 'büyüme isteğinizi ve iyimserliğinizi',
+        'Satürn': 'sorumluluk duygunuzu ve ciddiyetinizi',
+        'Uranüs': 'uyanışlarınızı ve özgürlük ihtiyacınızı',
+        'Neptün': 'ilhamınızı ve ruhsal derinliğinizi',
+        'Plüton': 'köklü dönüşüm ve güç arzunuzu',
+        'Kiron': 'şifalandırıcı enerjinizi',
+        'Kuzey Ay Düğümü': 'kadersel ilerleyişinizi'
+      };
+      return actions[planetName] || `${planetName} enerjinizi`;
+    };
+
+    const getAspectSummary = (tPlanet: string, nPlanet: string, type: string) => {
+      const tAction = getTransitAction(tPlanet);
+      const nTheme = getPlanetTheme(nPlanet);
+      
+      if (type === 'Kavuşum') return `gökyüzündeki ${tPlanet} transiti, haritanızdaki "${nTheme}" alanına doğrudan nüfuz ediyor. Bu durum, ${tAction} tam olarak bu konular üzerinde yoğunlaştırarak hayatınızda yepyeni bir döngü başlatıyor.`;
+      if (type === 'Üçgen' || type === 'Sekstil') return `gökyüzündeki ${tPlanet} transiti, "${nTheme}" konularına çok destekleyici bir akış gönderiyor. ${tAction} bu alanlarda çok rahat kullanabilir, önünüze çıkan sürpriz fırsatları kolayca değerlendirebilirsiniz.`;
+      if (type === 'Kare' || type === 'Karşıt') return `gökyüzündeki ${tPlanet} transiti ile "${nTheme}" alanınız arasında sert bir sürtüşme var. ${tAction} bu konularda bir kriz veya eşik atlama zorunluluğu yaratarak sizi kabuk kırmaya itecektir.`;
+      
+      return `gökyüzündeki ${tPlanet} transiti, "${nTheme}" üzerinde yeni bir farkındalık yaratıyor.`;
+    };
+
+    let paragraphs = [];
+    
+    // Paragraph 1: Sun & Moon
+    let p1 = "";
+    if (tSun) p1 += `Bugün Güneş, haritanızda ${tSun.house}. evinizi aydınlatıyor. Bu dönemde odak noktanız ${getHouseFocus(tSun.house)} üzerine yoğunlaşacaktır. `;
+    if (tMoon) p1 += `Duygusal pusulanız olan Ay ise an itibarıyla ${tMoon.house}. evinizden geçiş yapıyor; bu durum bugünkü ruh halinizi ve anlık reaksiyonlarınızı doğrudan "${getHouseFocus(tMoon.house)}" konularına yönlendirecek.`;
+    paragraphs.push(p1);
+
+    // Paragraph 2: Exact Aspects
+    if (exactAspects.length > 0) {
+      const mainAspect = exactAspects[0];
+      let p2 = `Günün en belirgin kadersel tetiklenmesi ise Transit ${mainAspect.transitPlanet} ile Natal ${mainAspect.natalPlanet} arasındaki ${mainAspect.orb.toFixed(1)}° toleranslı ${mainAspect.type} açısıdır. `;
+      p2 += `Astrolojik olarak bu enerji; ${getAspectSummary(mainAspect.transitPlanet, mainAspect.natalPlanet, mainAspect.type)}`;
+      paragraphs.push(p2);
+
+      const hardAspects = exactAspects.filter(a => a.type === 'Kare' || a.type === 'Karşıt');
+      if (hardAspects.length > 0) {
+        const topHardAspects = hardAspects.slice(0, 3);
+        const affectedThemes = Array.from(new Set(topHardAspects.map(a => getPlanetTheme(a.natalPlanet)).filter(Boolean)));
+        
+        if (affectedThemes.length > 0) {
+           const themesText = affectedThemes.join(', ').replace(/, ([^,]*)$/, ' ve $1');
+           paragraphs.push(`⚠️ Gökyüzünde ayrıca gerilimli etkileşimler devrede. Özellikle "${themesText}" konularında dışarıdan gelen baskılara karşı bugün ani tepkiler vermekten veya fevri kararlar almaktan kaçınmalısınız. Olaylara daha geniş bir perspektiften bakmak ve sabırlı kalmak size çok şey kazandıracaktır.`);
+        } else {
+           paragraphs.push(`⚠️ Gökyüzünde ayrıca bazı sert etkileşimler devrede olduğu için, bugün genel olarak ani tepkiler vermekten veya fevri kararlar almaktan kaçınmanız çok önemli. Sabırlı olmak size kazandıracaktır.`);
+        }
+      } else {
+        paragraphs.push(`✨ Gökyüzündeki bu uyumlu akış, size yenilikler ve fırsatlar sunmak için destekleyici bir enerji veriyor. Harekete geçmek için harika bir gün!`);
+      }
+    } else {
+      paragraphs.push(`Bugün gökyüzü natal gezegenlerinizle çok sert veya kadersel bir çarpışma yapmıyor. Evrensel enerjiler sizi zorlamadan, daha sakin, stabil ve içe dönük bir gün geçirmenize olanak tanıyor.`);
+    }
+
+    return (
+      <View style={styles.guidanceCard}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Ionicons name="sparkles" size={24} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Text style={styles.guidanceTitle}>Günlük Gökyüzü Rehberi</Text>
+        </View>
+        {paragraphs.map((par, idx) => {
+          let customColor = COLORS.text;
+          if (idx === paragraphs.length - 1 && par.includes('⚠️')) customColor = '#FCA5A5';
+          if (idx === paragraphs.length - 1 && par.includes('✨')) customColor = '#38BDF8';
           return (
-            <G key={`house-${i}`}>
-              <Line x1={CENTER} y1={CENTER} x2={x1} y2={y1} stroke={COLORS.border} strokeWidth="1" />
-              <SvgText x={sx} y={sy + 6} fontSize="18" fill={ZODIAC_COLORS[h.sign]} textAnchor="middle" fontWeight="bold">
-                {ZODIAC_SYMBOLS[h.sign]}
-              </SvgText>
-              {/* House Number */}
-              <SvgText x={getX(midLon, RADIUS - 30)} y={getY(midLon, RADIUS - 30) + 4} fontSize="12" fill={COLORS.textMuted} textAnchor="middle">
-                {h.house}
-              </SvgText>
-            </G>
+            <Text key={idx} style={[styles.guidanceText, { color: customColor, marginTop: idx > 0 ? 10 : 0 }]}>
+              {par}
+            </Text>
           );
         })}
-
-        {/* Aspects Lines */}
-        {chart.aspects.filter(a => a.orb <= 5).map((a, i) => {
-          const p1 = chart.planets.find(p => p.name === a.planet1);
-          const p2 = chart.planets.find(p => p.name === a.planet2);
-          if (!p1 || !p2) return null;
-          
-          let color = 'rgba(255,255,255,0.1)';
-          if (a.type === 'Üçgen') color = '#32D74B';
-          if (a.type === 'Kare' || a.type === 'Karşıt') color = '#FF453A';
-          if (a.type === 'Sekstil') color = '#0A84FF';
-
-          return (
-            <Line 
-              key={`asp-${i}`} 
-              x1={getX(p1.longitude, RADIUS - 40)} 
-              y1={getY(p1.longitude, RADIUS - 40)} 
-              x2={getX(p2.longitude, RADIUS - 40)} 
-              y2={getY(p2.longitude, RADIUS - 40)} 
-              stroke={color} 
-              strokeWidth={a.isExact ? "2" : "1"} 
-              opacity={0.6}
-            />
-          );
-        })}
-
-        {/* Planets */}
-        {chart.planets.map((p, i) => {
-          // Spread planets out slightly if they are conjunct to avoid text overlap
-          // Simplified here, using exactly their degree
-          const px = getX(p.longitude, RADIUS - 55);
-          const py = getY(p.longitude, RADIUS - 55);
-          return (
-            <G key={`planet-${i}`}>
-              <Circle cx={px} cy={py} r="10" fill="#000" stroke={COLORS.primary} strokeWidth="1" />
-              <SvgText x={px} y={py + 5} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
-                {PLANET_SYMBOLS[p.name]}
-              </SvgText>
-            </G>
-          );
-        })}
-
-        {/* ASC / MC Markers */}
-        <SvgText x={getX(chart.ascendant.longitude, RADIUS + 40)} y={getY(chart.ascendant.longitude, RADIUS + 40)} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">ASC</SvgText>
-        <SvgText x={getX(chart.midheaven.longitude, RADIUS + 40)} y={getY(chart.midheaven.longitude, RADIUS + 40)} fontSize="14" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">MC</SvgText>
-      </Svg>
+      </View>
     );
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <ImageBackground source={require('@/assets/images/esoteric_bg_indigo.png')} style={styles.container} resizeMode="cover">
-        <View style={StyleSheet.absoluteFill} />
-        <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <SacredBackground>
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
@@ -184,18 +539,40 @@ export default function AnlikGokyuzuScreen() {
               <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
             </TouchableOpacity>
             <Text style={styles.title}>Anlık Gökyüzü</Text>
-            <Text style={styles.subtitle}>Şu an yıldızlar bize ne fısıldıyor?</Text>
+            <Text style={styles.subtitle}>Gezegenlerin Anlık Etkileri (Transit)</Text>
           </View>
 
-          {!chart ? (
-            <BlurView intensity={20} tint="light" style={styles.formCard}>
-              <Text style={styles.label}>Bulunduğunuz Ülke</Text>
-              <TouchableOpacity style={[styles.input, { justifyContent: 'center' }]} onPress={() => setShowCountryModal(true)}>
-                <Text style={{ color: '#000', fontSize: 15 }}>{country}</Text>
-              </TouchableOpacity>
+          {!transitData ? (
+            <BlurView intensity={25} tint="dark" style={styles.formCard}>
+              
+              <Text style={styles.sectionHeader}>1. Doğum Bilgileriniz (Natal)</Text>
+              
+              <Text style={styles.label}>Doğum Tarihi (YYYY-AA-GG)</Text>
+              <TextInput
+                ref={dateInputRef}
+                style={styles.input}
+                value={natalDateStr}
+                onChangeText={handleNatalDateChange}
+                placeholder="Örn: 1995-03-17"
+                placeholderTextColor="#666"
+                keyboardType="numeric"
+                maxLength={10}
+              />
 
-              <Text style={styles.label}>Şu Anki Şehir (Ara)</Text>
-              <View style={{ zIndex: 99 }}>
+              <Text style={styles.label}>Doğum Saati (SS:DD)</Text>
+              <TextInput
+                ref={timeInputRef}
+                style={styles.input}
+                value={natalTimeStr}
+                onChangeText={handleNatalTimeChange}
+                placeholder="Örn: 18:05"
+                placeholderTextColor="#666"
+                keyboardType="numeric"
+                maxLength={5}
+              />
+
+              <Text style={styles.label}>Doğum Şehri (Ara)</Text>
+              <View style={{ zIndex: 1000, position: 'relative' }}>
                 <TextInput
                   style={styles.input}
                   value={searchQuery}
@@ -207,217 +584,243 @@ export default function AnlikGokyuzuScreen() {
                     if (searchQuery === 'İstanbul') setSearchQuery('');
                     setShowSuggestions(true);
                   }}
-                  placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`}
+                  placeholder="Şehir adı yazın..."
                   placeholderTextColor="#666"
                 />
-                {showSuggestions && searchQuery.length > 0 && (
+                {showSuggestions && searchQuery.length >= 3 && suggestions.length > 0 && (
                   <View style={styles.suggestionsContainer}>
-                    {filteredCities.length > 0 ? filteredCities.map((c, i) => (
-                      <TouchableOpacity 
-                        key={i} 
-                        style={styles.suggestionItem}
-                        onPress={() => {
-                          setCityKey(c);
-                          setSearchQuery(c);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <Text style={styles.suggestionText}>{c}</Text>
-                      </TouchableOpacity>
-                    )) : (
-                      <View style={styles.suggestionItem}>
-                        <Text style={styles.suggestionText}>
-                          {country !== 'Türkiye' ? 'Yurtdışı lokasyonları için merkez seçilir' : 'Sonuç bulunamadı'}
-                        </Text>
-                      </View>
-                    )}
+                    <ScrollView keyboardShouldPersistTaps="always" style={{ maxHeight: 150 }}>
+                      {suggestions.map((item, index) => (
+                        <TouchableOpacity 
+                          key={index} 
+                          style={styles.suggestionItem}
+                          onPress={() => {
+                            setSelectedCityData({
+                              name: item.name,
+                              lat: item.latitude,
+                              lon: item.longitude,
+                              tz: item.timezone || 'Europe/Istanbul',
+                              country: item.country
+                            });
+                            setSearchQuery(`${item.name}, ${item.admin1 || ''} ${item.country}`.replace(/, \s*/g, ', ').trim());
+                            setShowSuggestions(false);
+                            Keyboard.dismiss();
+                          }}
+                        >
+                          <Text style={styles.suggestionText}>{item.name}, {item.admin1 ? `${item.admin1}, ` : ''}{item.country}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
                   </View>
                 )}
               </View>
 
-              <TouchableOpacity style={styles.button} onPress={() => handleCalculate()} disabled={isLoading}>
-                <Text style={styles.buttonText}>{isLoading ? 'Gökyüzü Okunuyor...' : 'Anlık Haritayı Çıkar'}</Text>
+              <Text style={[styles.sectionHeader, { marginTop: 15, color: COLORS.secondary }]}>2. Transit (Hesaplama) Tarihi</Text>
+
+              <Text style={styles.label}>Transit Tarihi (YYYY-AA-GG)</Text>
+              <TextInput
+                ref={tDateInputRef}
+                style={styles.input}
+                value={transitDateStr}
+                onChangeText={handleTransitDateChange}
+                placeholder="Örn: 2026-06-15"
+                placeholderTextColor="#666"
+                keyboardType="numeric"
+                maxLength={10}
+              />
+
+              <Text style={styles.label}>Transit Saati (SS:DD)</Text>
+              <TextInput
+                ref={tTimeInputRef}
+                style={styles.input}
+                value={transitTimeStr}
+                onChangeText={handleTransitTimeChange}
+                placeholder="Örn: 17:05"
+                placeholderTextColor="#666"
+                keyboardType="numeric"
+                maxLength={5}
+              />
+
+              <TouchableOpacity style={styles.button} onPress={handleCalculate} disabled={isLoading}>
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="#0F172A" />
+                ) : (
+                  <Text style={styles.buttonText}>Transit Haritamı Hesapla</Text>
+                )}
               </TouchableOpacity>
             </BlurView>
           ) : (
             <View>
-              <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20}}>
-                <TouchableOpacity style={styles.resetBtn} onPress={() => setChart(null)}>
-                  <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
-                  <Text style={styles.resetBtnText}>Geri</Text>
-                </TouchableOpacity>
-              </View>
+              {/* Reset/Back Button */}
+              <TouchableOpacity style={styles.resetBtn} onPress={() => setTransitData(null)}>
+                <Ionicons name="arrow-back" size={18} color={COLORS.primary} style={{ marginRight: 6 }} />
+                <Text style={styles.resetBtnText}>Yeni Sorgulama</Text>
+              </TouchableOpacity>
 
-              <View style={styles.chartContainer}>
-                {renderSvgWheel()}
-              </View>
-
-              <View style={styles.reportContainer}>
-                <Text style={styles.reportTitle}>Gökyüzünün Big 3'ü</Text>
-                
-                <View style={styles.bigThreeCard}>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Güneş (Ego)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.planets.find(p => p.name === 'Güneş')?.sign || 'Koç'] }]}>
-                      {chart.planets.find(p => p.name === 'Güneş')?.sign}
-                    </Text>
-                  </View>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Ay (Ruh)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.planets.find(p => p.name === 'Ay')?.sign || 'Koç'] }]}>
-                      {chart.planets.find(p => p.name === 'Ay')?.sign}
-                    </Text>
-                  </View>
-                  <View style={styles.bigThreeItem}>
-                    <Text style={styles.bigThreeLabel}>Yükselen (Beden)</Text>
-                    <Text style={[styles.bigThreeValue, { color: ZODIAC_COLORS[chart.ascendant.sign] }]}>
-                      {chart.ascendant.sign}
-                    </Text>
-                  </View>
+              {/* Natal and Transit Info Header */}
+              <View style={styles.infoCard}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                  <View style={[styles.colorDot, { backgroundColor: COLORS.primary }]} />
+                  <Text style={styles.infoText}>Doğum: {selectedCityData.name} • {natalDateStr.split('-').reverse().join('.')} {natalTimeStr}</Text>
                 </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={[styles.colorDot, { backgroundColor: COLORS.secondary }]} />
+                  <Text style={styles.infoText}>Transit: {transitDateStr.split('-').reverse().join('.')} {transitTimeStr}</Text>
+                </View>
+              </View>
 
-                <Text style={styles.reportTitle}>Gezegen Yerleşimleri</Text>
-                <View style={styles.planetsList}>
-                  {chart.planets.map((p, i) => (
+              {/* Dual Wheel Chart */}
+              {renderBiWheel()}
+
+              {/* AI Guidance Text */}
+              {renderAIRecommendation()}
+
+              {/* Lists of Transit House placements */}
+              <TouchableOpacity 
+                style={styles.listSectionHeader}
+                activeOpacity={0.7}
+                onPress={() => setIsHousesExpanded(!isHousesExpanded)}
+              >
+                <Text style={styles.listSectionTitle}>Transit Gezegenler & Natal Evler</Text>
+                <Ionicons name={isHousesExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+              </TouchableOpacity>
+
+              {isHousesExpanded && (
+                <View style={styles.listCard}>
+                  {transitData.transitPlanets.map((p, i) => (
                     <TouchableOpacity 
-                      key={i} 
-                      style={styles.planetRow}
-                      onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                      key={`th-${i}`} 
+                      style={styles.listRow}
+                      activeOpacity={0.7}
+                      onPress={() => setSelectedInterp(getTransitHouseInterpretation(p.name, p.house))}
                     >
-                      <Text style={styles.planetSymbol}>{PLANET_SYMBOLS[p.name]}</Text>
-                      <Text style={styles.planetName}>{p.name}</Text>
-                      <Text style={[styles.planetSign, { color: ZODIAC_COLORS[p.sign] }]}>{p.sign}</Text>
-                      <Text style={styles.planetHouse}>{p.house}. Ev</Text>
+                      <View style={styles.listRowLeft}>
+                        <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
+                        <Text style={styles.listRowMain}>Transit {p.name}</Text>
+                      </View>
+                      <Text style={styles.listRowMiddle}>{p.house}. Evinizde</Text>
+                      <Text style={[styles.listRowRight, { color: ZODIAC_COLORS[p.sign] || COLORS.textMuted }]}>{p.sign}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
+              )}
 
-                <Text style={styles.reportTitle}>Önemli Açılar (Karmik Dinamikler)</Text>
-                <View style={styles.aspectsList}>
-                  {chart.aspects.filter(a => a.orb <= 5).map((a, i) => (
-                    <TouchableOpacity 
-                      key={i} 
-                      style={styles.aspectRow}
-                      onPress={() => setSelectedInterp(getAspectInterpretation(a.planet1, a.planet2, a.type))}
-                    >
-                      <Text style={styles.aspectPlanets}>{a.planet1} - {a.planet2}</Text>
-                      <Text style={styles.aspectType}>{a.type}</Text>
-                      {a.isExact && <Text style={styles.aspectExact}>Tam Açı!</Text>}
-                    </TouchableOpacity>
-                  ))}
-                  {chart.aspects.filter(a => a.orb <= 5).length === 0 && (
-                    <Text style={{color: COLORS.textMuted}}>Şu an gökyüzünde dar orblu kesin bir majör açı bulunmuyor.</Text>
+              {/* Lists of Transit aspects */}
+              <TouchableOpacity 
+                style={styles.listSectionHeader}
+                activeOpacity={0.7}
+                onPress={() => setIsAspectsExpanded(!isAspectsExpanded)}
+              >
+                <Text style={styles.listSectionTitle}>Transit - Natal Açıları</Text>
+                <Ionicons name={isAspectsExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+              </TouchableOpacity>
+
+              {isAspectsExpanded && (
+                <View style={styles.listCard}>
+                  {transitData.transitAspects.length === 0 ? (
+                    <Text style={styles.emptyText}>Gezegen geçişlerinin şu an doğum gezegenlerinizle majör bir açısı bulunmuyor.</Text>
+                  ) : (
+                    transitData.transitAspects.sort((a, b) => a.orb - b.orb).map((aspect, i) => (
+                      <TouchableOpacity 
+                        key={`ta-${i}`} 
+                        style={styles.listRow}
+                        activeOpacity={0.7}
+                        onPress={() => setSelectedInterp(getTransitAspectInterpretation(aspect.transitPlanet, aspect.natalPlanet, aspect.type))}
+                      >
+                        <View style={styles.listRowLeft}>
+                          <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[aspect.transitPlanet] || '★'}</Text>
+                          <Text style={styles.listRowMain}>T.{aspect.transitPlanet}</Text>
+                        </View>
+                        
+                        <View style={{ alignItems: 'center', flex: 1.2 }}>
+                          <Text style={[styles.aspectBadge, { color: ASPECT_COLORS[aspect.type] || '#FFF' }]}>{aspect.type}</Text>
+                          <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Orb: {aspect.orb.toFixed(1)}° {aspect.isExact ? '(Tam)' : ''}</Text>
+                        </View>
+
+                        <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1 }]}>
+                          <Text style={[styles.listRowMain, { marginRight: 6 }]}>N.{aspect.natalPlanet}</Text>
+                          <Text style={[styles.planetSymbolIcon, { color: COLORS.primary }]}>{PLANET_SYMBOLS[aspect.natalPlanet] || '★'}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))
                   )}
                 </View>
-
-              </View>
+              )}
             </View>
           )}
 
           <View style={{ height: 100 }} />
         </ScrollView>
 
-        <Modal visible={showCountryModal} animationType="fade" transparent={true}>
+        {/* Modal for detail explanations */}
+        <Modal visible={!!selectedInterp} animationType="slide" transparent={true} onRequestClose={() => setSelectedInterp(null)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Ülke Seçin</Text>
-                <TouchableOpacity onPress={() => setShowCountryModal(false)}>
-                  <Ionicons name="close" size={24} color="#333" />
-                </TouchableOpacity>
-              </View>
-              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
-                {AVAILABLE_COUNTRIES.map((c, i) => (
-                  <TouchableOpacity key={i} style={styles.modalOption} onPress={() => {
-                    setCountry(c);
-                    setSearchQuery('');
-                    setShowCountryModal(false);
-                    setShowSuggestions(false);
-                  }}>
-                    <Text style={styles.modalOptionText}>{c}</Text>
-                    {country === c && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Interpretation Modal */}
-        <Modal visible={!!selectedInterp} animationType="slide" transparent={true}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.interpModalContent}>
-              <View style={styles.interpModalHeader}>
-                <Text style={styles.interpModalTitle}>{selectedInterp?.title}</Text>
+                <Text style={styles.modalTitle}>{selectedInterp?.title}</Text>
                 <TouchableOpacity onPress={() => setSelectedInterp(null)}>
                   <Ionicons name="close-circle" size={28} color={COLORS.textMuted} />
                 </TouchableOpacity>
               </View>
-              <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
-                <Text style={styles.interpModalText}>{selectedInterp?.content}</Text>
+              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
+                <Text style={styles.modalText}>{selectedInterp?.content}</Text>
               </ScrollView>
             </View>
           </View>
         </Modal>
 
-      </ImageBackground>
+      </SacredBackground>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { padding: 20, paddingTop: 60 },
-  header: { marginBottom: 30, alignItems: 'center' },
-  title: { fontSize: 28, fontWeight: 'bold', color: COLORS.primary, marginBottom: 5 },
-  subtitle: { fontSize: 16, color: COLORS.textMuted, fontStyle: 'italic' },
+  scrollContent: { padding: 15, paddingTop: 60 },
+  header: { marginBottom: 20, alignItems: 'center' },
+  title: { fontSize: 26, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4 },
+  subtitle: { fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' },
   
   formCard: { padding: 20, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, overflow: 'visible' },
-  label: { fontSize: 14, color: COLORS.text, marginBottom: 8, fontWeight: '600' },
-  input: { backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 8, padding: 12, marginBottom: 20, fontSize: 16, color: '#000' },
+  sectionHeader: { fontSize: 15, fontWeight: 'bold', color: COLORS.primary, marginBottom: 15 },
+  label: { fontSize: 13, color: COLORS.text, marginBottom: 6, fontWeight: '600', marginTop: 10 },
+  input: { backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 15, color: '#FFF', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   
-  suggestionsContainer: { position: 'absolute', top: 50, left: 0, right: 0, backgroundColor: '#1A1A2E', borderRadius: 8, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', elevation: 5, zIndex: 100 },
-  suggestionItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
-  suggestionText: { color: COLORS.text, fontSize: 16 },
-
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, height: '50%', padding: 20 },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  modalOption: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#EEE' },
-  modalOptionText: { fontSize: 16, color: '#333' },
+  suggestionsContainer: { position: 'absolute', top: 52, left: 0, right: 0, backgroundColor: '#1E293B', borderRadius: 8, borderWidth: 1, borderColor: COLORS.secondary, overflow: 'hidden', elevation: 5, zIndex: 1000 },
+  suggestionItem: { padding: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)' },
+  suggestionText: { color: COLORS.text, fontSize: 14 },
   
-  button: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
-  buttonText: { color: COLORS.background, fontSize: 18, fontWeight: 'bold' },
+  button: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 20 },
+  buttonText: { color: '#0F172A', fontSize: 16, fontWeight: 'bold' },
 
-  resetBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  resetBtnText: { color: COLORS.primary, fontSize: 16, marginLeft: 5 },
+  resetBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: 15, alignSelf: 'flex-start' },
+  resetBtnText: { color: COLORS.primary, fontSize: 15, fontWeight: '600' },
 
-  chartContainer: { alignItems: 'center', marginVertical: 20, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 200, padding: 10 },
-  
-  reportContainer: { marginTop: 20 },
-  reportTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, marginBottom: 15, marginTop: 20, borderBottomWidth: 1, borderBottomColor: COLORS.border, paddingBottom: 5 },
-  
-  bigThreeCard: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  bigThreeItem: { alignItems: 'center', flex: 1 },
-  bigThreeLabel: { fontSize: 12, color: COLORS.textMuted, marginBottom: 5 },
-  bigThreeValue: { fontSize: 16, fontWeight: 'bold' },
+  infoCard: { backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: COLORS.border, marginBottom: 15 },
+  colorDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+  infoText: { color: COLORS.text, fontSize: 13, fontWeight: '600' },
 
-  planetsList: { backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  planetRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  planetSymbol: { fontSize: 18, color: COLORS.primary, width: 30, textAlign: 'center' },
-  planetName: { flex: 1, color: COLORS.text, fontSize: 16 },
-  planetSign: { flex: 1, fontSize: 16, fontWeight: '600', textAlign: 'right' },
-  planetHouse: { flex: 1, color: COLORS.textMuted, textAlign: 'right' },
+  chartWrapper: { alignItems: 'center', justifyContent: 'center', marginVertical: 10, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 20, padding: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' },
 
-  aspectsList: { backgroundColor: COLORS.cardBg, borderRadius: 12, padding: 15, borderWidth: 1, borderColor: COLORS.border },
-  aspectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
-  aspectPlanets: { flex: 2, color: COLORS.text, fontSize: 15 },
-  aspectType: { flex: 1, color: COLORS.primary, fontSize: 15, textAlign: 'right' },
-  aspectExact: { color: '#FF453A', fontSize: 12, fontWeight: 'bold', marginLeft: 10 },
+  guidanceCard: { backgroundColor: 'rgba(212, 175, 55, 0.05)', borderRadius: 16, padding: 18, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)', marginVertical: 15 },
+  guidanceTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.primary },
+  guidanceText: { fontSize: 14, color: COLORS.text, lineHeight: 22 },
 
-  interpModalContent: { backgroundColor: COLORS.cardBg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '65%', padding: 25, borderWidth: 1, borderColor: COLORS.primary },
-  interpModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(212,175,55,0.2)', paddingBottom: 15 },
-  interpModalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 10 },
-  interpModalText: { fontSize: 16, color: COLORS.text, lineHeight: 26 }
+  listSectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 8, paddingHorizontal: 4 },
+  listSectionTitle: { fontSize: 16, fontWeight: 'bold', color: COLORS.primary, paddingLeft: 4 },
+  listCard: { backgroundColor: COLORS.cardBg, borderRadius: 16, padding: 12, borderWidth: 1, borderColor: COLORS.border, marginBottom: 15 },
+  listRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.05)' },
+  listRowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1.2 },
+  planetSymbolIcon: { fontSize: 18, width: 24, textAlign: 'center', fontWeight: 'bold' },
+  listRowMain: { fontSize: 14, color: COLORS.text, fontWeight: '600' },
+  listRowMiddle: { fontSize: 14, color: COLORS.text, fontWeight: 'bold', flex: 1, textAlign: 'center' },
+  listRowRight: { fontSize: 14, fontWeight: 'bold', flex: 1, textAlign: 'right' },
+  emptyText: { color: COLORS.textMuted, fontSize: 13, textAlign: 'center', paddingVertical: 10 },
+  aspectBadge: { fontSize: 12, fontWeight: 'bold', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.05)' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#0F172A', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '60%', padding: 22, borderWidth: 1, borderColor: COLORS.primary },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)', paddingBottom: 10 },
+  modalTitle: { fontSize: 17, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 8 },
+  modalText: { fontSize: 15, color: COLORS.text, lineHeight: 24 }
 });

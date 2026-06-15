@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -6,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { FINAL_QUIZ_QUESTIONS } from '@/src/data/finalQuiz';
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 import { useProgress } from '@/src/context/ProgressContext';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
@@ -120,8 +121,8 @@ export default function FinalTestScreen() {
     }, [isFinished, score, title]);
 
     return (
-      <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.8)' }]} />
+      <SacredBackground>
+
         <View style={styles.resultContainer}>
           <Ionicons name={icon as any} size={80} color={color} style={{ marginBottom: 20 }} />
           <Text style={[styles.resultTitle, { color }]}>{title}</Text>
@@ -142,7 +143,7 @@ export default function FinalTestScreen() {
             <Text style={styles.returnBtnText}>Akademiye Dön</Text>
           </TouchableOpacity>
         </View>
-      </ImageBackground>
+      </SacredBackground>
     );
   }
 
@@ -151,8 +152,8 @@ export default function FinalTestScreen() {
   const progressPercent = ((currentIndex) / questions.length) * 100;
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.7)' }]} />
+    <SacredBackground>
+
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       {/* Header & Progress */}
@@ -215,7 +216,7 @@ export default function FinalTestScreen() {
         </View>
         
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: SIZES.padding,
     paddingBottom: 20,
-    backgroundColor: 'rgba(10, 15, 30, 0.8)',
+    backgroundColor: 'rgba(10, 15, 30, 0.50)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
   },

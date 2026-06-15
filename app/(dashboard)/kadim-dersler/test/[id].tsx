@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -136,8 +137,8 @@ export default function KadimDerslerTestScreen() {
     }
 
     return (
-      <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+      <SacredBackground>
+
         <View style={styles.resultContainer}>
           <Ionicons name="sparkles" size={80} color={color} style={{ marginBottom: 20 }} />
           <Text style={[styles.resultTitle, { color }]}>{title}</Text>
@@ -149,13 +150,13 @@ export default function KadimDerslerTestScreen() {
             <Text style={styles.btnPrimaryText}>Mabede Dön</Text>
           </TouchableOpacity>
         </View>
-      </ImageBackground>
+      </SacredBackground>
     );
   }
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackPress} style={styles.backBtn}>
@@ -228,7 +229,7 @@ export default function KadimDerslerTestScreen() {
           </View>
         )}
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

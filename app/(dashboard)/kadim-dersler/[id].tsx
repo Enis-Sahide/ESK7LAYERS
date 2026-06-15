@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -24,8 +25,8 @@ export default function KadimDerslerScreen() {
   const title = LESSON_TITLES[id as string] || 'Kadim Öğreti';
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.7)' }]} />
+    <SacredBackground>
+
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       <View style={styles.header}>
@@ -43,7 +44,7 @@ export default function KadimDerslerScreen() {
           {title} öğretisi yakında inisiyasyon sürecinize eklenecektir. Sırların açığa çıkacağı zamanı bekleyin.
         </Text>
       </View>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

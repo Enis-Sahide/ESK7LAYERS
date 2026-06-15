@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing, ImageBackground, Dimensions, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -116,8 +117,8 @@ export default function BreathworkScreen() {
   }, []);
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -186,7 +187,7 @@ export default function BreathworkScreen() {
           <Text style={styles.actionBtnText}>{isActive ? "DURDUR" : "BAŞLA"}</Text>
         </TouchableOpacity>
       </View>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

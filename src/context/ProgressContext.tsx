@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 
 interface ProgressContextType {
   unlockedTiers: string[];

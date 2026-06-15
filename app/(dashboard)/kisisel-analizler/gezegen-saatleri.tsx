@@ -1,10 +1,11 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ImageBackground, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import tzlookup from 'tz-lookup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/utils/PlanetaryHours';
+import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
 import { COLORS, SIZES } from '@/src/theme';
 import { refreshAllAlarms, addSingleAlarm, removeSingleAlarm, subscribePlanet, unsubscribePlanet } from '@/src/utils/AlarmManager';
 
@@ -36,6 +37,8 @@ export default function GezegenSaatleriScreen() {
   const [timezone, setTimezone] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showWidget, setShowWidget] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const getNext7Days = () => {
     const days = [];
@@ -83,6 +86,43 @@ export default function GezegenSaatleriScreen() {
     return () => clearInterval(timer);
   }, [selectedDate]);
 
+  useEffect(() => {
+    if (!cityInput.trim() || cityInput.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(cityInput)}`, {
+          headers: {
+            'User-Agent': '7LayersApp/1.0 (Contact: admin@7layers.com)',
+            'Accept-Language': 'tr-TR'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data)) {
+            setSuggestions(data.map((item: any) => ({
+              displayName: item.display_name,
+              lat: parseFloat(item.lat),
+              lon: parseFloat(item.lon),
+              shortName: item.name || item.display_name.split(',')[0]
+            })));
+          }
+        }
+      } catch (err) {
+        // Fail silently for background suggestions
+      }
+    };
+
+    const delayDebounceFn = setTimeout(() => {
+      fetchSuggestions();
+    }, 600);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [cityInput]);
+
   const loadHoursFromCoords = (lat: number, lon: number, locationName: string, tz: string, date: Date) => {
     try {
       const data = getPlanetaryHours(date, lat, lon);
@@ -100,6 +140,26 @@ export default function GezegenSaatleriScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectSuggestion = (suggestion: any) => {
+    const tz = tzlookup(suggestion.lat, suggestion.lon);
+    const name = suggestion.shortName.toUpperCase();
+    
+    setCityInput(suggestion.shortName);
+    setCurrentCoords({ lat: suggestion.lat, lon: suggestion.lon });
+    loadHoursFromCoords(suggestion.lat, suggestion.lon, name, tz, selectedDate);
+    
+    AsyncStorage.setItem('last_planet_hours_location', JSON.stringify({
+      lat: suggestion.lat,
+      lon: suggestion.lon,
+      name: name,
+      tz: tz
+    })).catch(() => {});
+    
+    setSuggestions([]);
+    setShowSuggestions(false);
+    Keyboard.dismiss();
   };
 
   const searchCity = async () => {
@@ -262,8 +322,8 @@ export default function GezegenSaatleriScreen() {
   );
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -276,15 +336,36 @@ export default function GezegenSaatleriScreen() {
       </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Şehir Ara (örn: İstanbul)"
-          placeholderTextColor={COLORS.textMuted}
-          value={cityInput}
-          onChangeText={setCityInput}
-          onSubmitEditing={searchCity}
-        />
-        <TouchableOpacity style={styles.searchBtn} onPress={searchCity}>
+        <View style={{ flex: 1, position: 'relative', zIndex: 100 }}>
+          <TextInput
+            style={[styles.searchInput, { marginRight: 0 }]}
+            placeholder="Şehir Ara (örn: İstanbul)"
+            placeholderTextColor={COLORS.textMuted}
+            value={cityInput}
+            onChangeText={(text) => {
+              setCityInput(text);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onSubmitEditing={searchCity}
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <View style={styles.suggestionsContainer}>
+              <ScrollView keyboardShouldPersistTaps="always" style={{ maxHeight: 200 }}>
+                {suggestions.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.suggestionItem}
+                    onPress={() => handleSelectSuggestion(item)}
+                  >
+                    <Text style={styles.suggestionText}>{item.displayName}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+        <TouchableOpacity style={[styles.searchBtn, { marginLeft: 10 }]} onPress={searchCity}>
           <Ionicons name="search" size={20} color="#000" />
         </TouchableOpacity>
       </View>
@@ -450,7 +531,7 @@ export default function GezegenSaatleriScreen() {
         </TouchableOpacity>
       </Modal>
 
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 
@@ -720,5 +801,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: SIZES.radius,
+  },
+  suggestionsContainer: {
+    position: 'absolute',
+    top: 45,
+    left: 0,
+    right: 0,
+    backgroundColor: '#1A1D30',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    zIndex: 1000,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+  },
+  suggestionItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  suggestionText: {
+    color: '#fff',
+    fontSize: 14,
   }
 });

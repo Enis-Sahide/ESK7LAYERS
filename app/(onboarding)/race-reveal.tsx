@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 
 const { width } = Dimensions.get('window');

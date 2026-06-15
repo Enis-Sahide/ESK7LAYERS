@@ -1,10 +1,12 @@
 import { GeoVector, Ecliptic, MakeTime, Body, SearchRelativeLongitude } from 'astronomy-engine';
 
-export type PlanetCode = 'Sun' | 'Earth' | 'Moon' | 'Mercury' | 'Venus' | 'Mars' | 'Jupiter' | 'Saturn' | 'Uranus' | 'Neptune' | 'Pluto';
+export type PlanetCode = 'Sun' | 'Earth' | 'NorthNode' | 'SouthNode' | 'Moon' | 'Mercury' | 'Venus' | 'Mars' | 'Jupiter' | 'Saturn' | 'Uranus' | 'Neptune' | 'Pluto';
 
 export const PLANET_SYMBOLS: Record<PlanetCode, string> = {
   Sun: '☉',
   Earth: '⊕',
+  NorthNode: '☊',
+  SouthNode: '☋',
   Moon: '☽',
   Mercury: '☿',
   Venus: '♀',

@@ -1,10 +1,12 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, TextInput, Alert, KeyboardAvoidingView, Platform, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, TextInput, Alert, KeyboardAvoidingView, Platform, Keyboard, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { numerologyData } from '@/src/data/numerologyData';
+import { lifePathData, birthdayData, arrowsData, emptyArrowsData, personalYearData } from '@/src/data/numerologyDataWeb';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
@@ -21,6 +23,7 @@ const LETTER_VALUES: Record<string, number> = {
 };
 
 const VOWELS = ['A', 'E', 'I', 'İ', 'O', 'Ö', 'U', 'Ü'];
+const API_BASE_URL = 'http://192.168.1.9:3000/api';
 
 // Master numbers
 const isMaster = (num: number) => num === 11 || num === 22 || num === 33;
@@ -58,8 +61,16 @@ export default function NumerolojiKisiselAnalizScreen() {
   const [year, setYear] = useState('');
   
   const [results, setResults] = useState<NumerologyResults | null>(null);
+  const [activeTab, setActiveTab] = useState<'name' | 'date'>('name');
+  const [loading, setLoading] = useState(false);
+  const [dateResults, setDateResults] = useState<{
+    lifePath: { number: number; calculationString: string };
+    birthday: number;
+    arrows: { arrowKeys: string[]; emptyArrowKeys: string[]; visualString: string };
+    personalYear: { number: number; calculationString: string };
+  } | null>(null);
 
-  const calculateNumerology = () => {
+  const calculateNumerology = async () => {
     if (!name || !day || !month || !year) {
       Alert.alert("Eksik Bilgi", "Lütfen tüm alanları doldurun.");
       return;
@@ -74,63 +85,52 @@ export default function NumerolojiKisiselAnalizScreen() {
       return;
     }
 
-    // Life Path (Hayat Kulvarı)
-    const dRed = reduceNumber(d);
-    const mRed = reduceNumber(m);
-    const yRed = reduceNumber(y);
-    const lifePathSum = dRed + mRed + yRed;
-    const lifePath = reduceNumber(lifePathSum);
-    const lifePathRaw = `${lifePathSum}/${lifePath}`;
+    setLoading(true);
+    try {
+      const formattedMonth = String(m).padStart(2, '0');
+      const formattedDay = String(d).padStart(2, '0');
+      const birthDateStr = `${y}-${formattedMonth}-${formattedDay}`;
 
-    // Name Analysis
-    const upperName = name.toLocaleUpperCase('tr-TR').replace(/[^A-ZÇĞİÖŞÜ]/g, '');
-    let destinySum = 0;
-    let soulUrgeSum = 0;
-    let personalitySum = 0;
-    
-    // Chakra Matrix (1-9 counts)
-    const matrix = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      const response = await fetch(`${API_BASE_URL}/numerology`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ birthDate: birthDateStr, name }),
+      });
 
-    for (let char of upperName) {
-      const val = LETTER_VALUES[char];
-      if (val) {
-        destinySum += val;
-        matrix[val - 1]++;
-        
-        if (VOWELS.includes(char)) {
-          soulUrgeSum += val;
-        } else {
-          personalitySum += val;
-        }
+      if (!response.ok) {
+        throw new Error('API hatası');
       }
+
+      const data = await response.json();
+      
+      const dRed = reduceNumber(d);
+      const mRed = reduceNumber(m);
+      const yRed = reduceNumber(y);
+      const lifePathSum = dRed + mRed + yRed;
+      const lifePathRaw = `${lifePathSum}/${data.lifePath.number}`;
+
+      setResults({
+        lifePathRaw,
+        lifePath: data.lifePath.number,
+        destiny: data.nameAnalysis.destiny,
+        soulUrge: data.nameAnalysis.soulUrge,
+        personality: data.nameAnalysis.personality,
+        purpose: data.nameAnalysis.purpose,
+        challenges: data.nameAnalysis.challenges,
+        chakraMatrix: data.nameAnalysis.chakraMatrix
+      });
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 300);
+    } catch (error) {
+      console.error('API Error:', error);
+      Alert.alert("Hata", "Hesaplama yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
     }
-
-    const destiny = reduceNumber(destinySum);
-    const soulUrge = reduceNumber(soulUrgeSum);
-    const personality = reduceNumber(personalitySum);
-    const purpose = reduceNumber(destiny + soulUrge); // Varoluş Amacı
-
-    // Missing numbers (Karmik Sınavlar)
-    const missing: number[] = [];
-    matrix.forEach((count, idx) => {
-      if (count === 0) missing.push(idx + 1);
-    });
-    const challenges = missing.length > 0 ? missing.join('-') : 'Yok';
-
-    setResults({
-      lifePathRaw,
-      lifePath,
-      destiny,
-      soulUrge,
-      personality,
-      purpose,
-      challenges,
-      chakraMatrix: matrix
-    });
-    
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 300);
   };
 
   const getMatrixText = (count: number) => {
@@ -184,10 +184,83 @@ export default function NumerolojiKisiselAnalizScreen() {
       </View>
     );
   };
+  const calculateDateNumerology = async () => {
+    if (!day || !month || !year) {
+      Alert.alert("Eksik Bilgi", "Lütfen doğum tarihini doldurun.");
+      return;
+    }
+    const d = parseInt(day);
+    const m = parseInt(month);
+    const y = parseInt(year);
+
+    if (isNaN(d) || isNaN(m) || isNaN(y) || d < 1 || d > 31 || m < 1 || m > 12 || y < 1900 || y > 2100) {
+      Alert.alert("Geçersiz Tarih", "Lütfen geçerli bir doğum tarihi girin.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formattedMonth = String(m).padStart(2, '0');
+      const formattedDay = String(d).padStart(2, '0');
+      const birthDateStr = `${y}-${formattedMonth}-${formattedDay}`;
+
+      const response = await fetch(`${API_BASE_URL}/numerology`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ birthDate: birthDateStr }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API hatası');
+      }
+
+      const data = await response.json();
+      setDateResults(data);
+      
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 300);
+    } catch (error) {
+      console.error('API Error:', error);
+      Alert.alert("Hata", "Hesaplama yapılırken bir sorun oluştu. Lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const CollapsibleCard = ({ title, badgeNumber, subtitle, children }: { title: string, badgeNumber?: number | string, subtitle?: string, children: React.ReactNode }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <View style={styles.collapsibleCard}>
+        <TouchableOpacity 
+          style={styles.collapsibleHeader} 
+          onPress={() => setIsOpen(!isOpen)} 
+          activeOpacity={0.7}
+        >
+          {badgeNumber !== undefined && (
+            <View style={styles.collapsibleBadge}>
+              <Text style={styles.collapsibleBadgeText}>{badgeNumber}</Text>
+            </View>
+          )}
+          <View style={{ flex: 1, marginLeft: badgeNumber !== undefined ? 12 : 0 }}>
+            <Text style={styles.collapsibleTitle}>{title}</Text>
+            {subtitle && <Text style={styles.collapsibleSubtitle}>{subtitle}</Text>}
+          </View>
+          <Ionicons name={isOpen ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+        </TouchableOpacity>
+        {isOpen && (
+          <View style={styles.collapsibleContent}>
+            {children}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -204,30 +277,63 @@ export default function NumerolojiKisiselAnalizScreen() {
       >
         <ScrollView ref={scrollViewRef} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         
-        {!results && (
+        {!results && !dateResults && (
           <BlurView intensity={30} tint="dark" style={styles.introCard}>
             <Ionicons name="infinite" size={40} color={COLORS.primary} style={{ marginBottom: 10 }} />
             <Text style={styles.introTitle}>Pisagor'un Kadim İlimi</Text>
-            <Text style={styles.introText}>
-              İsminizin ve doğum tarihinizin evrensel barkodunu çözerek ruhunuzun amacını, doğuştan gelen yeteneklerinizi, kişilik rakamınızı ve çakra analizlerinizi ortaya çıkarın.
-            </Text>
+            {activeTab === 'name' ? (
+              <Text style={styles.introText}>
+                İsminizin ve doğum tarihinizin evrensel barkodunu çözerek ruhunuzun amacını, doğuştan gelen yeteneklerinizi, kişilik rakamınızı ve çakra analizlerinizi ortaya çıkarın.
+              </Text>
+            ) : (
+              <Text style={styles.introText}>
+                Doğum tarihinizdeki sayısal titreşimleri çözümleyerek Yaşam Yolu, Doğum Günü yeteneği, Pisagor Okları ve Kişisel Yıl raporunuzu ortaya çıkarın.
+              </Text>
+            )}
           </BlurView>
         )}
 
         <View style={styles.calculatorSection}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Örn: Meryem Yılmaz"
-              placeholderTextColor="rgba(255,255,255,0.3)"
-              value={name}
-              onChangeText={setName}
-              returnKeyType="next"
-              onSubmitEditing={() => dayRef.current?.focus()}
-              blurOnSubmit={false}
-            />
+          <View style={styles.tabContainer}>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'name' && styles.activeTabButton]} 
+              onPress={() => {
+                setActiveTab('name');
+                setResults(null);
+                setDateResults(null);
+              }}
+            >
+              <Ionicons name="person-outline" size={16} color={activeTab === 'name' ? COLORS.background : COLORS.primary} style={{ marginRight: 6 }} />
+              <Text style={[styles.tabButtonText, activeTab === 'name' && styles.activeTabButtonText]}>İsim & Tarih</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.tabButton, activeTab === 'date' && styles.activeTabButton]} 
+              onPress={() => {
+                setActiveTab('date');
+                setResults(null);
+                setDateResults(null);
+              }}
+            >
+              <Ionicons name="calendar-outline" size={16} color={activeTab === 'date' ? COLORS.background : COLORS.primary} style={{ marginRight: 6 }} />
+              <Text style={[styles.tabButtonText, activeTab === 'date' && styles.activeTabButtonText]}>Sadece Tarih</Text>
+            </TouchableOpacity>
           </View>
+
+          {activeTab === 'name' && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Örn: Meryem Yılmaz"
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                value={name}
+                onChangeText={setName}
+                returnKeyType="next"
+                onSubmitEditing={() => dayRef.current?.focus()}
+                blurOnSubmit={false}
+              />
+            </View>
+          )}
 
           <Text style={styles.inputLabel}>Doğum Tarihiniz</Text>
           <View style={styles.dateInputRow}>
@@ -272,13 +378,24 @@ export default function NumerolojiKisiselAnalizScreen() {
                 if (text.length === 4) Keyboard.dismiss();
               }}
               returnKeyType="done"
-              onSubmitEditing={calculateNumerology}
+              onSubmitEditing={activeTab === 'name' ? calculateNumerology : calculateDateNumerology}
             />
           </View>
 
-          <TouchableOpacity style={styles.calcBtn} onPress={calculateNumerology} activeOpacity={0.8}>
-            <Ionicons name="calculator" size={20} color={COLORS.background} style={{ marginRight: 8 }} />
-            <Text style={styles.calcBtnText}>{results ? "Yeniden Hesapla" : "Analizi Çıkar"}</Text>
+          <TouchableOpacity 
+            style={styles.calcBtn} 
+            onPress={activeTab === 'name' ? calculateNumerology : calculateDateNumerology} 
+            activeOpacity={0.8}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={COLORS.background} style={{ marginRight: 8 }} />
+            ) : (
+              <Ionicons name="calculator" size={20} color={COLORS.background} style={{ marginRight: 8 }} />
+            )}
+            <Text style={styles.calcBtnText}>
+              {loading ? "Hesaplanıyor..." : (results || dateResults ? "Yeniden Hesapla" : "Analizi Çıkar")}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -376,10 +493,112 @@ export default function NumerolojiKisiselAnalizScreen() {
           </View>
         )}
 
+        {dateResults && (
+          <View style={styles.resultsContainer}>
+            <Text style={styles.mainHeading}>DOĞUM TARİHİ SAYISAL ANALİZİ</Text>
+            
+            {/* Yaşam Yolu Numarası */}
+            <CollapsibleCard 
+              title={`Yaşam Yolu Numarası - ${dateResults.lifePath.number}`}
+              badgeNumber={dateResults.lifePath.number}
+              subtitle={dateResults.lifePath.calculationString}
+            >
+              <View style={styles.webDetailSection}>
+                <Text style={styles.webDetailHeading}>Karakter ve Potansiyeller:</Text>
+                <Text style={styles.webDetailText}>
+                  {lifePathData[dateResults.lifePath.number]?.character}
+                </Text>
+                
+                <Text style={[styles.webDetailHeading, { marginTop: 12 }]}>Zayıf Yönler ve Öğrenilmesi Gerekenler:</Text>
+                <Text style={styles.webDetailText}>
+                  {lifePathData[dateResults.lifePath.number]?.weakness}
+                </Text>
+              </View>
+            </CollapsibleCard>
+
+            {/* Doğum Günü Numarası */}
+            <CollapsibleCard 
+              title={`Doğum Günü Numarası - ${dateResults.birthday} (Yetenek)`}
+              badgeNumber={dateResults.birthday}
+              subtitle={`${day}.${month}.${year}`}
+            >
+              <View style={styles.webDetailSection}>
+                <Text style={styles.webDetailHeading}>Karakter ve Potansiyeller:</Text>
+                <Text style={styles.webDetailText}>
+                  {birthdayData[dateResults.birthday]?.character}
+                </Text>
+                
+                <Text style={[styles.webDetailHeading, { marginTop: 12 }]}>Zayıf Yönler ve Öğrenilmesi Gerekenler:</Text>
+                <Text style={styles.webDetailText}>
+                  {birthdayData[dateResults.birthday]?.weakness}
+                </Text>
+              </View>
+            </CollapsibleCard>
+
+            {/* Pisagor Okları */}
+            <CollapsibleCard 
+              title="Pisagor Okları"
+              subtitle={dateResults.arrows.visualString}
+            >
+              <View style={styles.webDetailSection}>
+                {dateResults.arrows.arrowKeys.map(arrowKey => {
+                  const arrow = arrowsData[arrowKey];
+                  if (!arrow) return null;
+                  return (
+                    <View key={arrowKey} style={styles.arrowBlock}>
+                      <View style={styles.arrowHeader}>
+                        <Ionicons name="arrow-forward-circle" size={18} color="#FFCC00" />
+                        <Text style={styles.arrowTitle}>{arrow.name} (Tam Ok {arrowKey})</Text>
+                      </View>
+                      <Text style={styles.arrowDesc}>{arrow.description}</Text>
+                    </View>
+                  );
+                })}
+                
+                {dateResults.arrows.emptyArrowKeys.map(arrowKey => {
+                  const arrow = emptyArrowsData[arrowKey];
+                  if (!arrow) return null;
+                  return (
+                    <View key={`empty-${arrowKey}`} style={styles.arrowBlock}>
+                      <View style={styles.arrowHeader}>
+                        <Ionicons name="alert-circle-outline" size={18} color={COLORS.textMuted} />
+                        <Text style={[styles.arrowTitle, { color: COLORS.textMuted }]}>{arrow.name} (Boş Ok {arrowKey})</Text>
+                      </View>
+                      <Text style={styles.arrowDesc}>{arrow.description}</Text>
+                    </View>
+                  );
+                })}
+
+                {dateResults.arrows.arrowKeys.length === 0 && dateResults.arrows.emptyArrowKeys.length === 0 && (
+                  <Text style={styles.webDetailText}>
+                    Haritanızda tam oluşmuş veya tamamen boş bir Pisagor Oku bulunmamaktadır. Bu durum esnekliğinizi ve farklı enerjilere açık olduğunuzu gösterir.
+                  </Text>
+                )}
+              </View>
+            </CollapsibleCard>
+
+            {/* Kişisel Yıl Raporu */}
+            <CollapsibleCard 
+              title={`Kişisel Yıl Raporu - ${dateResults.personalYear.number}`}
+              badgeNumber={dateResults.personalYear.number}
+              subtitle={dateResults.personalYear.calculationString}
+            >
+              <View style={styles.webDetailSection}>
+                <Text style={styles.webDetailHeading}>
+                  {personalYearData[dateResults.personalYear.number]?.title}
+                </Text>
+                <Text style={styles.webDetailText}>
+                  {personalYearData[dateResults.personalYear.number]?.description}
+                </Text>
+              </View>
+            </CollapsibleCard>
+          </View>
+        )}
+
         <View style={{ height: 50 }} />
         </ScrollView>
       </KeyboardAvoidingView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 
@@ -643,5 +862,121 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(212, 175, 55, 0.2)',
   },
-  planetText: { fontSize: 12, color: COLORS.primary, marginLeft: 8, fontWeight: 'bold' }
+  planetText: { fontSize: 12, color: COLORS.primary, marginLeft: 8, fontWeight: 'bold' },
+
+  // New styles
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 8,
+    padding: 4,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 6,
+  },
+  activeTabButton: {
+    backgroundColor: COLORS.primary,
+  },
+  tabButtonText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  activeTabButtonText: {
+    color: COLORS.background,
+  },
+  collapsibleCard: {
+    backgroundColor: 'rgba(20, 25, 40, 0.8)',
+    borderRadius: SIZES.radius,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    overflow: 'hidden',
+  },
+  collapsibleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  collapsibleBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  collapsibleBadgeText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  collapsibleTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  collapsibleSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  collapsibleContent: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  webDetailSection: {
+    paddingVertical: 4,
+  },
+  webDetailHeading: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 6,
+  },
+  webDetailText: {
+    fontSize: 13.5,
+    color: COLORS.text,
+    lineHeight: 20,
+    opacity: 0.9,
+  },
+  arrowBlock: {
+    marginBottom: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  arrowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  arrowTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFCC00',
+    marginLeft: 6,
+  },
+  arrowDesc: {
+    fontSize: 13,
+    color: COLORS.text,
+    lineHeight: 18,
+    opacity: 0.8,
+  }
 });

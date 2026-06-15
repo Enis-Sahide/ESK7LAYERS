@@ -1,9 +1,10 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageBackground, Image, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
@@ -15,12 +16,10 @@ export default function ProfileScreen() {
   const [saving, setSaving] = useState(false);
   
   const [fullName, setFullName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
   const [password, setPassword] = useState('');
 
   const [editMode, setEditMode] = useState({
     name: false,
-    birthDate: false,
     password: false
   });
 
@@ -35,7 +34,6 @@ export default function ProfileScreen() {
       
       if (user) {
         setFullName(user.user_metadata?.full_name || '');
-        setBirthDate(user.user_metadata?.birth_date || '');
       }
     } catch (error: any) {
       Alert.alert('Hata', 'Profil bilgileri alınamadı.');
@@ -54,8 +52,7 @@ export default function ProfileScreen() {
     try {
       const updateData: any = {
         data: {
-          full_name: fullName.trim(),
-          birth_date: birthDate.trim()
+          full_name: fullName.trim()
         }
       };
 
@@ -87,7 +84,7 @@ export default function ProfileScreen() {
   const renderField = (
     label: string, 
     value: string, 
-    fieldKey: 'name' | 'birthDate' | 'password', 
+    fieldKey: 'name' | 'password', 
     setValue: (val: string) => void, 
     placeholder: string, 
     secureTextEntry: boolean = false
@@ -139,8 +136,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -157,7 +154,6 @@ export default function ProfileScreen() {
         
         <BlurView intensity={30} tint="dark" style={styles.card}>
           {renderField('İsminiz', fullName, 'name', setFullName, 'Adınız Soyadınız')}
-          {renderField('Doğum Tarihiniz', birthDate, 'birthDate', setBirthDate, 'Örn: 15/08/1990')}
           {renderField('Şifreniz', password, 'password', setPassword, 'Yeni şifrenizi girin', true)}
         </BlurView>
 
@@ -186,7 +182,7 @@ export default function ProfileScreen() {
 
         <View style={{height: 100}} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

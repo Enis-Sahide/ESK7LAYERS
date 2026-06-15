@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestNotificationPermissions, cancelAllNotifications, scheduleLocalNotification } from '@/src/services/Notifications';
-import { getPlanetaryHours, getPlanetInfo } from '@/src/utils/PlanetaryHours';
+import { getPlanetaryHours, getPlanetInfo } from '@/src/features/astrology/engine/PlanetaryHours';
 
 export const refreshAllAlarms = async (lat: number, lon: number, tz: string) => {
   const hasPerm = await requestNotificationPermissions();

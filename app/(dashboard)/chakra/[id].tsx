@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, ImageBackground, LayoutAnimation, Platform, UIManager, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -109,11 +110,7 @@ export default function ChakraDetailScreen() {
   };
 
   return (
-    <ImageBackground 
-      source={ESOTERIC_BG}
-      style={styles.container}
-      resizeMode="cover"
-    >
+    <SacredBackground>
       <LinearGradient 
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
         colors={['transparent', chakra.color + '60', 'transparent']}
@@ -178,7 +175,7 @@ export default function ChakraDetailScreen() {
           <Ionicons name="rose-outline" size={24} color={COLORS.primaryDark} />
         </View>
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

@@ -1,86 +1,129 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ImageBackground } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ImageBackground, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
-import { CHAKRA_ANALYSIS_QUESTIONS } from '@/src/data/chakraAnalysisQuestions';
-import { MODULES } from '@/app/(dashboard)/index'; // Re-using modules data if needed or just defining them locally
+
+import SacredBackground from '@/components/SacredBackground';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const API_BASE_URL = 'http://192.168.1.9:3000/api';
 
-// Çakra Renkleri
-const CHAKRA_COLORS: Record<number, string> = {
-  1: '#FF3B30',
-  2: '#FF9500',
-  3: '#FFCC00',
-  4: '#34C759',
-  5: '#00C7BE',
-  6: '#32ADE6',
-  7: '#AF52DE',
-};
-
-const CHAKRA_NAMES: Record<number, string> = {
-  1: 'Kök Çakra',
-  2: 'Sakral Çakra',
-  3: 'Solar Pleksus',
-  4: 'Kalp Çakrası',
-  5: 'Boğaz Çakrası',
-  6: 'Üçüncü Göz',
-  7: 'Tepe Çakra',
-};
+interface ChakraQuestion {
+  id: number;
+  chakraId: string;
+  text: string;
+}
 
 export default function ChakraAnalysisScreen() {
   const router = useRouter();
   
+  const [questions, setQuestions] = useState<ChakraQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<{ chakraId: number, score: number }[]>([]);
+  const [answers, setAnswers] = useState<{ questionId: number, score: number }[]>([]);
+  const [results, setResults] = useState<any[]>([]);
+  
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isFinished, setIsFinished] = useState(false);
 
-  const handleAnswer = (score: number) => {
-    const currentQ = CHAKRA_ANALYSIS_QUESTIONS[currentIndex];
-    
-    setAnswers(prev => [...prev, { chakraId: currentQ.chakraId, score }]);
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
 
-    if (currentIndex < CHAKRA_ANALYSIS_QUESTIONS.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setIsFinished(true);
+  const fetchQuestions = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/chakra-analysis`);
+      if (!response.ok) {
+        throw new Error('Analiz soruları sunucudan alınamadı.');
+      }
+      const data = await response.json();
+      if (data.success && data.questions) {
+        setQuestions(data.questions);
+      } else {
+        throw new Error(data.error || 'Sorular yüklenemedi.');
+      }
+    } catch (err: any) {
+      console.error('Fetch questions error:', err);
+      setError(err.message || 'Bir bağlantı hatası oluştu.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleAnswer = async (score: number) => {
+    const currentQ = questions[currentIndex];
+    const newAnswers = [...answers, { questionId: currentQ.id, score }];
+    setAnswers(newAnswers);
+
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      setSubmitting(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/chakra-analysis`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ answers: newAnswers }),
+        });
+        if (!response.ok) {
+          throw new Error('Analiz hesaplaması başarısız oldu.');
+        }
+        const data = await response.json();
+        if (data.success && data.results) {
+          setResults(data.results);
+          setIsFinished(true);
+        } else {
+          throw new Error(data.error || 'Sonuçlar hesaplanamadı.');
+        }
+      } catch (err: any) {
+        console.error('Submit answers error:', err);
+        Alert.alert('Bağlantı Hatası', err.message || 'Cevaplarınız gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.');
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  };
+
+  // --- YÜKLEME VE HATA EKRANLARI ---
+  if (loading || submitting) {
+    return (
+      <SacredBackground>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>
+            {loading ? 'Analiz soruları yükleniyor...' : 'Enerji bedeniniz analiz ediliyor, raporunuz hazırlanıyor...'}
+          </Text>
+        </View>
+      </SacredBackground>
+    );
+  }
+
+  if (error) {
+    return (
+      <SacredBackground>
+        <View style={styles.centerContainer}>
+          <Ionicons name="alert-circle-outline" size={60} color={COLORS.error} />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={fetchQuestions}>
+            <Text style={styles.retryBtnText}>Yeniden Dene</Text>
+          </TouchableOpacity>
+        </View>
+      </SacredBackground>
+    );
+  }
+
   // --- SONUÇ EKRANI ---
   if (isFinished) {
-    // Çakra skorlarını hesapla
-    const chakraScores: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
-    
-    answers.forEach(ans => {
-      chakraScores[ans.chakraId] += ans.score;
-    });
-
-    // Her çakranın maksimum puanı = 3 soru * 2 puan = 6 puan.
-    // Puan ne kadar yüksekse tıkanıklık (dengesizlik) o kadar fazla demektir.
-    const results = Object.keys(chakraScores).map(id => {
-      const numericId = parseInt(id);
-      const rawScore = chakraScores[numericId];
-      const blockagePercent = Math.round((rawScore / 6) * 100);
-      
-      return {
-        id: numericId,
-        name: CHAKRA_NAMES[numericId],
-        color: CHAKRA_COLORS[numericId],
-        score: rawScore,
-        percent: blockagePercent
-      };
-    });
-
-    // En çok tıkalı olandan en az tıkalı olana doğru sırala
-    results.sort((a, b) => b.percent - a.percent);
-
     return (
-      <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.8)' }]} />
+      <SacredBackground>
         
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -119,7 +162,7 @@ export default function ChakraAnalysisScreen() {
                 onPress={() => router.push(`/(dashboard)/chakra/${chakra.id}` as any)}
               >
                 <Ionicons name="medical-outline" size={18} color={chakra.color} style={{ marginRight: 8 }} />
-                <Text style={[styles.healBtnText, { color: chakra.color }]}>Şifa Frekansını Başlat</Text>
+                <Text style={[styles.healBtnText, { color: chakra.color }]}>Şifalandır</Text>
               </TouchableOpacity>
             </BlurView>
           ))}
@@ -139,19 +182,36 @@ export default function ChakraAnalysisScreen() {
             </View>
           ))}
 
+          {/* Dengelemek için frekans odası yönlendirmesi */}
+          <TouchableOpacity 
+            style={styles.frequencyRoomBtn} 
+            onPress={() => router.push('/(dashboard)/meditation' as any)}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#D4AF37', '#AA7C11']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.frequencyGradient}
+            >
+              <Text style={styles.frequencyRoomBtnText}>Dengelemek İçin Frekans Odasına Git →</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
           <View style={{ height: 50 }} />
         </ScrollView>
-      </ImageBackground>
+      </SacredBackground>
     );
   }
 
   // --- ANALİZ EKRANI ---
-  const currentQuestion = CHAKRA_ANALYSIS_QUESTIONS[currentIndex];
-  const progressPercent = ((currentIndex) / CHAKRA_ANALYSIS_QUESTIONS.length) * 100;
+  const currentQuestion = questions[currentIndex];
+  const progressPercent = questions.length > 0 ? (currentIndex / questions.length) * 100 : 0;
+
+  if (!currentQuestion) return null;
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.7)' }]} />
+    <SacredBackground>
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       {/* Header & Progress */}
@@ -164,7 +224,7 @@ export default function ChakraAnalysisScreen() {
           <View style={styles.progressContainer}>
             <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
           </View>
-          <Text style={styles.progressText}>Soru {currentIndex + 1} / {CHAKRA_ANALYSIS_QUESTIONS.length}</Text>
+          <Text style={styles.progressText}>Soru {currentIndex + 1} / {questions.length}</Text>
         </View>
       </View>
 
@@ -176,28 +236,25 @@ export default function ChakraAnalysisScreen() {
         </View>
 
         <BlurView intensity={40} tint="dark" style={styles.questionCard}>
-          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+          <Text style={styles.questionText}>{currentQuestion.text}</Text>
         </BlurView>
 
         <View style={styles.optionsContainer}>
-          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(0)} activeOpacity={0.7}>
-            <Ionicons name="leaf-outline" size={24} color={COLORS.success} style={{ marginRight: 15 }} />
+          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(1)} activeOpacity={0.7}>
             <Text style={styles.optionText}>Hiçbir Zaman</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(1)} activeOpacity={0.7}>
-            <Ionicons name="water-outline" size={24} color={COLORS.warning} style={{ marginRight: 15 }} />
+          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(2)} activeOpacity={0.7}>
             <Text style={styles.optionText}>Bazen</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(2)} activeOpacity={0.7}>
-            <Ionicons name="flame-outline" size={24} color={COLORS.error} style={{ marginRight: 15 }} />
-            <Text style={styles.optionText}>Sık Sık</Text>
+          <TouchableOpacity style={styles.optionBtn} onPress={() => handleAnswer(3)} activeOpacity={0.7}>
+            <Text style={styles.optionText}>Her Zaman</Text>
           </TouchableOpacity>
         </View>
         
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 
@@ -212,7 +269,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: SIZES.padding,
     paddingBottom: 20,
-    backgroundColor: 'rgba(10, 15, 30, 0.8)',
+    backgroundColor: 'rgba(10, 15, 30, 0.50)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
   },
@@ -295,6 +352,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     flex: 1,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   resultMainTitle: {
     fontSize: 24,
@@ -379,5 +437,57 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 2,
     overflow: 'hidden',
-  }
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SIZES.padding,
+  },
+  loadingText: {
+    color: COLORS.text,
+    fontSize: 16,
+    marginTop: 15,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: COLORS.error || '#FF3B30',
+    fontSize: 16,
+    marginTop: 15,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: SIZES.radius,
+  },
+  retryBtnText: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  frequencyRoomBtn: {
+    marginTop: 25,
+    borderRadius: 25,
+    overflow: 'hidden',
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  frequencyGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  frequencyRoomBtnText: {
+    color: '#0A0B10',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });

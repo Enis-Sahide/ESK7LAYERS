@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -27,8 +28,8 @@ export default function NumerolojiEgitimScreen() {
   const numbersArray = Object.values(numerologyData).sort((a, b) => a.number - b.number);
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -295,7 +296,7 @@ export default function NumerolojiEgitimScreen() {
 
         <View style={{ height: 50 }} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

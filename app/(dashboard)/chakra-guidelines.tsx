@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, LayoutAnimation, Platform, UIManager } from 'react-native';
 
@@ -68,8 +69,8 @@ export default function ChakraGuidelinesScreen() {
   };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -118,7 +119,7 @@ export default function ChakraGuidelinesScreen() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

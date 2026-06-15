@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -13,7 +14,7 @@ interface TestCategory {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   route?: string;
-  requiredUnlock?: string;
+  isUnderConstruction?: boolean;
   subTests?: { title: string; route: string; isHighlight?: boolean; requiredUnlock?: string }[];
 }
 
@@ -29,7 +30,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'akupunktur', 
     title: 'Akupunktur ve Meridyenler', 
     icon: 'body-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
@@ -40,7 +41,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'kabbalah', 
     title: 'Evrensel Kabbalah', 
     icon: 'git-network-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_1' },
       { title: '2. Derece: Kalfalık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_2' },
@@ -50,7 +51,7 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'astroloji', 
     title: 'Ezoterik Astroloji', 
     icon: 'planet-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/astroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/astroloji_2', requiredUnlock: 'astroloji_2' },
@@ -61,19 +62,19 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'human', 
     title: 'Human Design', 
     icon: 'finger-print-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/human_3', requiredUnlock: 'human_master', isHighlight: true },
     ]
   },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', isUnderConstruction: true },
   { 
     id: 'numeroloji', 
     title: 'Numeroloji', 
     icon: 'calculator-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/numeroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/numeroloji_2', requiredUnlock: 'numeroloji_2' },
@@ -84,19 +85,19 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'rune',
     title: 'Rune',
     icon: 'diamond-outline',
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Kademe: Semboller', route: '/(dashboard)/kadim-dersler/test/rune1' },
       { title: '2. Kademe: Bağlamalar', route: '/(dashboard)/kadim-dersler/test/rune2', requiredUnlock: 'rune_2' },
       { title: 'Büyük Final Sınavı', route: '/(dashboard)/kadim-dersler/test/runeFinal', requiredUnlock: 'rune_master', isHighlight: true },
     ]
   },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', isUnderConstruction: true },
   { 
     id: 'yoga', 
     title: 'Yoga Asanaları', 
     icon: 'fitness-outline', 
-    requiredUnlock: 'kadim_dersler_access',
+    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
@@ -131,8 +132,8 @@ export default function TestsHubScreen() {
   };
 
   const handlePress = (category: TestCategory) => {
-    if (category.requiredUnlock && !hasFullAccess) {
-      alert("Bu sınavlara erişmek için Çakra Final Sınavı ve Hastalıkların Duygusal Nedenleri Sınavından en az %85 almalısın!");
+    if (category.isUnderConstruction) {
+      Alert.alert("Yapım Aşamasında", "Bu sınavlar yapım aşamasındadır.");
       return;
     }
 
@@ -144,8 +145,8 @@ export default function TestsHubScreen() {
   };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -165,7 +166,7 @@ export default function TestsHubScreen() {
           return (
             <View key={cat.id} style={styles.cardContainer}>
               <TouchableOpacity 
-                style={[styles.categoryCard, (cat.requiredUnlock && !hasFullAccess) && { opacity: 0.6 }]} 
+                style={[styles.categoryCard, cat.isUnderConstruction && { opacity: 0.6 }]} 
                 onPress={() => handlePress(cat)}
                 activeOpacity={0.8}
               >
@@ -174,17 +175,17 @@ export default function TestsHubScreen() {
                     <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                   </View>
                   <Text style={styles.cardTitle}>
-                    {(cat.requiredUnlock && !hasFullAccess) && <Ionicons name="lock-closed" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                    {cat.isUnderConstruction && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
                     {cat.title}
                   </Text>
                 </View>
                 <Ionicons 
                   name={
-                    (cat.requiredUnlock && !hasFullAccess) ? "lock-closed-outline" :
+                    cat.isUnderConstruction ? "construct-outline" :
                     cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : "play-circle-outline"
                   } 
                   size={24} 
-                  color={(cat.subTests || (cat.requiredUnlock && !hasFullAccess)) ? COLORS.textMuted : COLORS.primary} 
+                  color={(cat.subTests || cat.isUnderConstruction) ? COLORS.textMuted : COLORS.primary} 
                 />
               </TouchableOpacity>
 
@@ -219,7 +220,7 @@ export default function TestsHubScreen() {
 
         <View style={{height: 100}} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

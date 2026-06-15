@@ -1,0 +1,514 @@
+[
+  {
+    "id": 1,
+    "title": "Kendini İfade Etme Kapısı",
+    "iching": "Yaratıcı (The Creative)",
+    "astrology": "Akrep",
+    "biology": "Karaciğer",
+    "description": "1. Kapı, evrendeki en derin yaratıcı enerjinin merkezidir. Bu kapı sadece var olarak ve kendi eşsiz doğasını ifade ederek dünyaya ilham verir. Amacı dünyayı değiştirmek değil, kendi ruhunun derinliklerindeki yaratıcılığı dışa vurmaktır. Siz kendinize has ve özgün bir şekilde var olduğunuzda, etrafınızdaki herkes bu saf yaratıcılıktan etkilenir ve kendi özgünlüklerini bulmak için cesaret alır. Unutmayın; en büyük katkınız, tamamen kendiniz olmaktır."
+  },
+  {
+    "id": 2,
+    "title": "Yüksek Bilgi ve Yön Kapısı",
+    "iching": "Alıcı (The Receptive)",
+    "astrology": "Boğa",
+    "biology": "G noktası (Kalp ve Göğüs kafesi)",
+    "description": "2. Kapı, evrenin direksiyonudur. Yaratıcı enerjinin (1. Kapı) nereye yönlendirilmesi gerektiğini sezen inanılmaz bir alıcılığa sahiptir. Siz, diğer insanların enerjilerini ve potansiyellerini nereye kanalize etmeleri gerektiğini doğal olarak bilen bir rehbersiniz. Vizyonunuz geniştir ve olayların büyük resmini görebilirsiniz. Kendi yönünüzü bulmakta bazen zorlansanız da, başkalarına yollarını bulmalarında fener olursunuz. En büyük gücünüz, evrenin akışına teslim olmak ve izin vermektir."
+  },
+  {
+    "id": 3,
+    "title": "Sıralama ve Yenilik Kapısı",
+    "iching": "Başlangıçtaki Zorluk (Difficulty at the Beginning)",
+    "astrology": "Koç",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "3. Kapı, kaosun içinden düzen ve yenilik çıkaran mutasyon enerjisidir. Dünyaya tamamen yeni, daha önce hiç denenmemiş fikirler ve yapılar getirmek için buradasınız. Ancak her yenilik doğarken bir miktar zorluk ve karmaşa yaratır. Bu yüzden sabır sizin en büyük ilacınızdır. Olayların doğru zamanlamayla kendi sırasına oturmasına izin verdiğinizde, içinizdeki o çılgın ve yenilikçi enerji dünyayı dönüştürecek güce ulaşır. Kaostan korkmayın, o sizin oyun alanınızdır."
+  },
+  {
+    "id": 4,
+    "title": "Cevaplar ve Formüller Kapısı",
+    "iching": "Gençlik / Acemilik (Youthful Folly)",
+    "astrology": "Aslan",
+    "biology": "Hipofiz Bezi",
+    "description": "4. Kapı, zihnin durmak bilmeyen bir dedektif gibi her soruya bir cevap bulma arzusudur. Çözüm üretmek, mantıksal formüller kurmak ve hayatın bulmacalarını çözmek sizin doğanızda var. Ancak unutmamalısınız ki; sizin bulduğunuz cevaplar kendi hayatınızın sorunlarını çözmekten ziyade, başkalarının hayatına ışık tutmak içindir. Doğru soru size sorulana kadar beklediğinizde, zihninizin derinliklerinden süzülüp gelen cevaplar insanlara şifa ve berraklık verir."
+  },
+  {
+    "id": 5,
+    "title": "Sabit Ritmler ve Modeller Kapısı",
+    "iching": "Beklemek (Waiting)",
+    "astrology": "Yay",
+    "biology": "Hücre İçi Yapılar",
+    "description": "5. Kapı, evrenin doğal ritmine ve akışına uyumlanma enerjisidir. Hayatınızda belirli rutinler, alışkanlıklar ve sabit modeller yaratmak size derin bir huzur ve güvenlik verir. Siz, kaosun içinde bile kendi sağlam ritminizi koruyarak etrafınızdakilere güven veren bir çapaya dönüşürsünüz. Doğru zamanın gelmesini sabırla beklemeyi öğrendiğinizde ve kendi içsel ritminize saygı duyduğunuzda, hayatın tüm kapıları sizin için kendiliğinden açılır."
+  },
+  {
+    "id": 6,
+    "title": "Sürtünme ve Sınırlar Kapısı",
+    "iching": "Çatışma (Conflict)",
+    "astrology": "Başak",
+    "biology": "pH Dengesi ve Cilt",
+    "description": "6. Kapı, duygusal sınırların belirlendiği, yakınlığın ve mesafenin kapısıdır. Kimin hayatınıza gireceğine, kime kalbinizi açacağınıza karar veren güçlü bir aura filtresine sahipsiniz. Bu kapının enerjisi bazen ilişkilerde sürtünme yaratabilir, ancak bu sürtünme yıkıcı değil, tam aksine tarafları daha derinden anlamaya ve gerçek bir bağ kurmaya yarayan yaratıcı bir ateş gibidir. Kendi sınırlarınızı sağlıklı çizdiğinizde, en derin ve gerçek sevgi bağlarını kurabilirsiniz."
+  },
+  {
+    "id": 7,
+    "title": "Liderlik ve Roller Kapısı",
+    "iching": "Ordu (The Army)",
+    "astrology": "Aslan",
+    "biology": "Bağışıklık Sistemi",
+    "description": "7. Kapı, kitleleri yönlendiren, onlara vizyon sunan ve arka planda durarak strateji belirleyen demokratik liderliğin enerjisidir. Siz gücü zorla elinde tutan bir diktatör değil, insanların gönüllü olarak takip ettiği bilge bir rehbersiniz. Doğru zamanda, doğru ekip tarafından davet edildiğinizde ve liderlik rolünüz onaylandığında, sahip olduğunuz vizyon ve strateji ile kitleleri başarıya taşırsınız. Gücünüz, takımınızı bir arada tutan görünmez bağ olmanızdadır."
+  },
+  {
+    "id": 8,
+    "title": "Katkı ve Özgünlük Kapısı",
+    "iching": "Birlik (Holding Together)",
+    "astrology": "Boğa",
+    "biology": "Tiroid Bezi",
+    "description": "8. Kapı, bireysel yeteneklerin ve farklılıkların topluma sunulduğu bir vitrin gibidir. Siz, kendi farklılığınızı cesurca yaşayarak dünyaya ilham veren ve başkalarının da özgün olmasına katkı sağlayan bir ruha sahipsiniz. Ancak sizin katkınızın değer görmesi için, dışarıdan bir davet veya tanınma beklemeniz çok önemlidir. İnsanlar sizin ışığınızı fark edip sizi sahneye çağırdığında, dünyayı güzelleştirecek o eşsiz parçanızı en parlak şekilde sergilersiniz."
+  },
+  {
+    "id": 9,
+    "title": "Odaklanma ve Detay Kapısı",
+    "iching": "Küçük Olanın Gücü (The Taming Power of the Small)",
+    "astrology": "Yay",
+    "biology": "Sakral Çakra ve Adrenalin",
+    "description": "9. Kapı, devasa enerjiyi tek bir noktaya kilitleme ve mikro detaylara inme yeteneğidir. Başkalarının gözden kaçırdığı en ufak ayrıntıları bile fark eder ve büyük projelerin başarılı olması için gereken o küçük ama hayati taşları yerine oturtursunuz. Sizin en büyük sınavınız, enerjinizi doğru ve anlamlı şeylere odaklamaktır. Eğer tutku duyduğunuz doğru konuya odaklanırsanız, o küçücük detaylar devasa başarıların mimarı olur."
+  },
+  {
+    "id": 10,
+    "title": "Kendini Sevmek ve Davranış Kapısı",
+    "iching": "Yürümek / Ayak İzleri (Treading)",
+    "astrology": "Yay",
+    "biology": "Karaciğer",
+    "description": "10. Kapı, insan olmanın en saf halini, kendini koşulsuz sevmeyi ve özgün davranışları temsil eder. Siz, toplumsal normlara uymak yerine kendi içsel doğrularınızla hareket ettiğinizde etrafınıza en güçlü şifayı yayarsınız. Kendi eşsiz doğanızı kabul edip onu sevdiğinizde, varlığınız tek başına başkalarının da uyanmasına ve kendilerini sevmesine vesile olur. Sizin en büyük yaşam misyonunuz; mükemmel olmaya çalışmak değil, sadece büyüleyici derecede kendiniz olmaktır."
+  },
+  {
+    "id": 11,
+    "title": "Fikirler ve Kavramlaştırma Kapısı",
+    "iching": "Huzur (Peace)",
+    "astrology": "İkizler",
+    "biology": "Hipofiz Bezi",
+    "description": "11. Kapı, sonsuz bir fikir ve ilham okyanusudur. Zihniniz sürekli olarak yeni olasılıklar, hikayeler ve konseptler üretir. Bu kapının en büyük sırrı şudur: Bu fikirler sizin şahsi hayatınızı çözmek için değil, başkalarına ilham vermek ve kolektif insanlık hikayesini zenginleştirmek içindir. Tüm fikirlerinizi aynı anda hayata geçirmeye çalışırsanız yorulursunuz; ancak doğru fikri doğru zamanda, doğru insanlarla paylaştığınızda, kelimeleriniz başkalarının dünyasında adeta bir sihir yaratır."
+  },
+  {
+    "id": 12,
+    "title": "Dikkat ve İhtiyat Kapısı",
+    "iching": "Duraklama (Standstill)",
+    "astrology": "İkizler",
+    "biology": "Tiroid Bezi",
+    "description": "12. Kapı, ifadenin ve duyguların zarif kapısıdır. Ruh haliniz doğru olduğunda, ses tonunuz, sözcükleriniz ve davranışlarınız kitleleri derinden etkileyecek şiirsel bir güce ulaşır. Ancak ruh haliniz uygun olmadığında içe kapanma ve sessiz kalma ihtiyacı hissedersiniz; bu bir zayıflık değil, aksine kendinizi koruma mekanizmanızdır. Ne zaman konuşacağınızı ve ne zaman sessiz kalacağınızı bilmek, sizin en büyük sosyal zekanızdır. Sadece içinizden gerçekten taştığında konuştuğunuzda etki bırakırsınız."
+  },
+  {
+    "id": 13,
+    "title": "Dinleyici ve Sırdaş Kapısı",
+    "iching": "İnsanlarla Birliktelik (Fellowship with Men)",
+    "astrology": "Kova",
+    "biology": "G noktası (Kalp)",
+    "description": "13. Kapı, insanlığın kolektif hafızası ve sırdaşıdır. Aura alanınız öylesine güven vericidir ki, hiç tanımadığınız insanlar bile yanınıza oturup size en derin sırlarını anlatma ihtiyacı hisseder. Siz, başkalarının deneyimlerini dinleyerek insan doğasının gizemlerini çözen doğal bir bilgesiniz. Dinlediğiniz bu hikayeler ve edindiğiniz tecrübeler, gelecekte insanlara yön göstermek ve onlara kendi yollarını bulmalarında rehberlik etmek için biriktirdiğiniz paha biçilmez hazinelerinizdir."
+  },
+  {
+    "id": 14,
+    "title": "Güç Becerileri ve Bolluk Kapısı",
+    "iching": "Büyük Mülk (Possession in Great Measure)",
+    "astrology": "Akrep",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "14. Kapı, yaratıcı enerjinin ve maddi bolluğun motorudur. Doğru işe ve doğru projelere kanalize edildiğinde, bu enerji tükenmek bilmeyen bir yakıta dönüşerek size ve çevrenize zenginlik getirir. Sizin gücünüz sadece para kazanmak değil, kaynakları ustaca yönetmek ve vizyoner projeleri finanse etmektir. Kendi enerjinizi sömüren işlerden uzak durup, kalbinizi hızlandıran ve size coşku veren işlere odaklandığınızda, evrenin bereket kapıları sonuna kadar açılır."
+  },
+  {
+    "id": 15,
+    "title": "Aşırılıklar ve İnsanlık Sevgisi Kapısı",
+    "iching": "Alçakgönüllülük (Modesty)",
+    "astrology": "İkizler",
+    "biology": "Karaciğer",
+    "description": "15. Kapı, insanlık sevgisinin ve farklı ritimlerin kapısıdır. Standart ve monoton bir hayata uyum sağlamakta zorlanabilirsiniz çünkü doğanızda \"aşırılıklar\" ve değişken ritimler vardır; bazen gece kuşu, bazen sabah insanı olursunuz. Sizin amacınız toplumsal kalıplara sığmak değil, farklılıkları kucaklayarak tüm insanlığa derin bir şefkat ve sevgi duymaktır. Kendi değişken ritminizi kabul edip onurlandırdığınızda, insanlara hayatın farklı renklerini sevmeyi öğretirsiniz."
+  },
+  {
+    "id": 16,
+    "title": "Beceriler ve Ustalaşma Kapısı",
+    "iching": "Coşku (Enthusiasm)",
+    "astrology": "İkizler",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "16. Kapı, yeteneğin, sanatın ve uzmanlığın dışa vurumudur. Bu enerji taze, coşkulu ve harekete geçmeye hazırdır. Ancak gerçek ustalık sadece hevesle değil, bol tekrar ve pratikle elde edilir. Bir konuya derinlemesine odaklandığınızda (48. Kapı'nın derinliğiyle birleştiğinde), ham yeteneğiniz ustalık seviyesinde bir sanata dönüşür. Siz pratik yaptıkça ve kendinizi geliştirdikçe, coşkunuz etrafınızdaki insanlara ilham veren bir gösteriye dönüşür."
+  },
+  {
+    "id": 17,
+    "title": "Fikirler ve Görüşler Kapısı",
+    "iching": "Takip Etmek (Following)",
+    "astrology": "Koç",
+    "biology": "Hipofiz Bezi",
+    "description": "17. Kapı, geleceği organize etmek için olaylara mantıksal bir yapı kazandıran görüş kapısıdır. Zihniniz olayların nasıl yürümesi gerektiğine dair net şablonlar ve güçlü fikirler üretir. Ancak unutmayın ki bir görüş, ne kadar mantıklı olursa olsun bir 'gerçek' değil, test edilmesi gereken bir 'hipotez'dir. Fikirlerinizi dayatmak yerine doğru sorularla ve davet edildiğinizde paylaştığınızda, görüşleriniz başkaları için son derece aydınlatıcı ve yol gösterici bir haritaya dönüşür."
+  },
+  {
+    "id": 18,
+    "title": "Düzeltme ve Kusur Bulma Kapısı",
+    "iching": "Bozulanı Düzeltmek (Work on what has been spoiled)",
+    "astrology": "Terazi",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "18. Kapı, mükemmelliğe giden yolda neyin bozuk olduğunu saniyesinde fark eden doğuştan gelen bir editörlük yeteneğidir. Hataları ve geliştirilmesi gereken noktaları sezgisel olarak görürsünüz. Bu inanılmaz yeteneği kendi üzerinizde veya sevdikleriniz üzerinde kullandığınızda yıkıcı eleştirilere dönüşebilir; ancak sistemleri, projeleri, dünyadaki yanlışları düzeltmeye yönlendirdiğinizde, toplum için paha biçilmez bir rehber ve iyileştirici bir güce dönüşürsünüz."
+  },
+  {
+    "id": 19,
+    "title": "İhtiyaçlar ve Yaklaşım Kapısı",
+    "iching": "Yaklaşım (Approach)",
+    "astrology": "Kova",
+    "biology": "Adrenal Bezler",
+    "description": "19. Kapı, ait olma, dokunma ve temel ihtiyaçların (gıda, barınma, sevgi) kapısıdır. Sosyal olarak inanılmaz derecede duyarlısınız; bir ortamdaki enerjiyi ve kimin neye ihtiyacı olduğunu anında hissedersiniz. Sizin için derin bağlar kurmak ve güvende hissetmek hayati önem taşır. Bazen kendinizi fazla feda etme veya aşırı hassas olma eğilimi gösterseniz de, kendi ihtiyaçlarınızı açıkça ifade ettiğinizde ve doğru insanlarla kabile bağları kurduğunuzda, toplumun en şefkatli destekçisi olursunuz."
+  },
+  {
+    "id": 20,
+    "title": "Şimdi ve Burada Kapısı",
+    "iching": "Tefekkür (Contemplation)",
+    "astrology": "İkizler",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "20. Kapı, tamamen 'Şimdi'de yaşama ve anın gerektirdiği şekilde kendiliğinden eyleme geçme gücüdür. Geçmişi ya da geleceği düşünmeden, o an içinizden gelen sezgisel farkındalığı sese ve harekete dönüştürürsünüz. Kelimeleriniz planlanmamış ama çok etkilidir. Sizin sırrınız zihnin hesaplamalarına girmeden, sadece var olmak ve anın akışında tepki vermektir. Siz 'Şimdi'ye teslim olduğunuzda, etrafınızdakilere de anı yaşamayı öğretirsiniz."
+  },
+  {
+    "id": 21,
+    "title": "Kontrol ve Saymanlık Kapısı",
+    "iching": "Isırma (Biting Through)",
+    "astrology": "Koç",
+    "biology": "Timus",
+    "description": "21. Kapı, kaynakların, paranın, zamanın ve enerjinin kontrolünü sağlayan yönetici enerjidir. İşlerin kendi yönteminizle ve standartlarınızla yapılmasını istersiniz çünkü kontrol sizde olduğunda kabilenizin her zaman güvende ve tok olacağını bilirsiniz. İnsanlar sizin bu otoriter ama güven veren tavrınızı kabul ettiğinde, harika bir yönetici ve koruyucu olursunuz. En büyük dersiniz, her şeyi tek başınıza omuzlamak yerine, gerektiğinde doğru insanlara güvenmeyi öğrenmektir."
+  },
+  {
+    "id": 22,
+    "title": "Zarafet ve Açıklık Kapısı",
+    "iching": "Zarafet (Grace)",
+    "astrology": "Balık",
+    "biology": "Solunum Sistemi ve Akciğerler",
+    "description": "22. Kapı, duygusal derinliğin dış dünyayla en estetik ve zarif şekilde buluştuğu yerdir. Sosyal ortamlarda inanılmaz bir çekiciliğe ve başkalarını dinleme yeteneğine sahipsiniz. Ancak sizin zarafetiniz, tamamen anlık duygusal ruh halinize bağlıdır. Neşeliyken etrafa ışık saçar, melankolikken derin bir yalnızlığa çekilirsiniz. Duygularınıza saygı duyduğunuzda ve hislerinizi sanatla, şiirle veya estetikle dışa vurduğunuzda, ruhunuzun o muazzam güzelliği herkesi büyüler."
+  },
+  {
+    "id": 23,
+    "title": "Asimilasyon ve Özümseme Kapısı",
+    "iching": "Ayırmak (Splitting Apart)",
+    "astrology": "Boğa",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "23. Kapı, en karmaşık ve bireysel düşünceleri sade, anlaşılır bir şekilde ifade etme yeteneğidir. Zihninizdeki o farklı ve devrimci fikirleri (43. Kapı'dan gelen), aniden dökülen net cümlelerle dünyaya aktarırsınız. Bazen anlaşılmadığınızı veya sözlerinizin yankı bulmadığını hissedebilirsiniz; bunun tek sebebi zamanlamadır. Doğru anı ve doğru dinleyiciyi beklediğinizde, o eşsiz zihinsel asimilasyonunuz dünyadaki eski ve köhne kalıpları yıkan bir aydınlanmaya dönüşür."
+  },
+  {
+    "id": 24,
+    "title": "Rasyonalizasyon ve Geri Dönüş Kapısı",
+    "iching": "Dönüş (Return)",
+    "astrology": "Boğa",
+    "biology": "Hipofiz Bezi",
+    "description": "24. Kapı, zihnin aynı konunun etrafında tekrar tekrar dönerek nihai bir gerçeğe veya 'aha!' anına ulaşma sürecidir. Zihniniz, çözülmemiş düşünceleri sürekli geri çağırır ve onları anlamlandırmaya çalışır. Bu bazen saplantılı hissettirse de, aslında zihninizin mutasyon ve aydınlanma arayışıdır. Süreci zorlamayı bırakıp zihninize rahatlaması için izin verdiğinizde, aradığınız o sihirli ilham aniden karanlık bir odada yanan bir lamba gibi beliriverir."
+  },
+  {
+    "id": 25,
+    "title": "Masumiyet ve Koşulsuz Sevgi Kapısı",
+    "iching": "Masumiyet (Innocence)",
+    "astrology": "Koç",
+    "biology": "Kalp ve Kan",
+    "description": "25. Kapı, evrensel ve koşulsuz sevginin ruhsal merkezidir. Bu enerji sadece insanları değil; bir çiçeği, evreni ve varoluşun kendisini de büyük bir kabul ve şefkatle sevmeyi içerir. Yaşadığınız zorluklar ve yaralar bile, sizin o saf masumiyetinizi ve ruhsal derinliğinizi besleyen inisiyasyonlardır. Beklentisizce sevmeyi başardığınızda ve her şeyde ilahi bir güzellik gördüğünüzde, çevrenizdeki herkesin kalbini şifalandıran yürüyen bir merhamet pınarına dönüşürsünüz."
+  },
+  {
+    "id": 26,
+    "title": "Egoist ve Düzenbaz Kapısı",
+    "iching": "Büyük Ehlileştirici Güç (The Taming Power of the Great)",
+    "astrology": "Yay",
+    "biology": "Timus Bezi",
+    "description": "26. Kapı, bir vizyonu, fikri veya ürünü kitlelere satma, pazarlama ve onları ikna etme enerjisidir. Buradaki 'düzenbaz' tabiri olumsuz değildir; insanları inandırmak için gereken zekice manipülasyonu ve ikna kabiliyetini temsil eder. Siz, az enerji harcayarak en yüksek faydayı (Maksimum etki, minimum çaba) elde etmek için doğmuşsunuz. Kendi doğruluğunuza inandığınız bir şeyi pazarladığınızda, etrafınızdakilere güven aşılar ve kabilenizin kaynaklarını büyütürsünüz."
+  },
+  {
+    "id": 27,
+    "title": "Sorumluluk ve Besleme Kapısı",
+    "iching": "Beslenme (Nourishment)",
+    "astrology": "Boğa",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "27. Kapı, zayıfları, çocukları ve yardıma muhtaç olanları koruma, büyütme ve onlara şefkat gösterme enerjisidir. Siz doğuştan gelen bir 'bakıcı'sınız. İnsanların iyiliği için sorumluluk almak sizin için refleks gibidir. Ancak en çok dikkat etmeniz gereken şey, başkalarını beslerken kendinizi ihmal etmemektir. Çünkü kendi kupanız boşken başkalarına su veremezsiniz. Önce kendi sınırlarınızı koruyup kendinizi beslediğinizde, sevginiz dünyayı iyileştiren bir güce dönüşür."
+  },
+  {
+    "id": 28,
+    "title": "Oyun Oyuncusu ve Mücadele Kapısı",
+    "iching": "Büyük Olanın Üstünlüğü (Preponderance of the Great)",
+    "astrology": "Akrep",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "28. Kapı, hayatın anlamını ve amacını bulmak için derin riskler almaktan çekinmeyen, korkularla yüzleşen cesur bir enerjidir. Hayatın sadece yüzeysel yaşanamayacak kadar değerli olduğunu bilirsiniz. Bu yüzden sınırları zorlar, mücadelelere atılırsınız. Ancak asıl mesele her mücadeleye girmek değil, 'uğruna savaşmaya değer' doğru mücadeleyi seçmektir. Gerçek amacınızı bulduğunuzda, ölüm korkusu yerini büyük bir yaşam coşkusuna ve derin bir tatmine bırakır."
+  },
+  {
+    "id": 29,
+    "title": "Derinlik ve Azim Kapısı",
+    "iching": "Dipsiz / Uçurum (The Abysmal)",
+    "astrology": "Aslan / Başak",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "29. Kapı, kendini bir işe, sürece veya ilişkiye bütünüyle adama ve sonuna kadar gitme azmidir. Sizde doğal olarak deneyimlere \"Evet\" deme eğilimi vardır. Eğer bedensel otoritenizi (örneğin Sakral yanıtınızı) beklemeden her şeye evet derseniz tükenirsiniz. Fakat enerjinizin gerçekten aktığı doğru projeye \"Evet\" dediğinizde, karşınıza çıkan zorluklar ne kadar dipsiz görünürse görünsün, o işi başarıyla tamamlayacak eşsiz bir adanmışlık ve dayanıklılık sergilersiniz."
+  },
+  {
+    "id": 30,
+    "title": "Tutununan Ateş ve Arzu Kapısı",
+    "iching": "Yapışan Ateş (The Clinging Fire)",
+    "astrology": "Kova / Balık",
+    "biology": "Pankreas",
+    "description": "30. Kapı, içsel arzuların, duygusal yoğunluğun ve hayatı iliklerine kadar hissetme isteğinin kapısıdır. İçinizde her zaman yeni bir deneyim yaşamak için yanan bir ateş vardır. En büyük dersiniz, arzularınızın hemen gerçekleşmesini beklemek yerine, o arzuyu hissetmenin getirdiği coşkunun kendisinden keyif almaktır. Arzularınızı serbest bırakıp hayattan ne beklediğiniz konusunda evrene teslim olduğunuzda, yaşam size beklemediğiniz mucizeler ve derin duygusal zenginlikler sunar."
+  },
+  {
+    "id": 31,
+    "title": "Demokrasi ve Liderlik Kapısı",
+    "iching": "Etki (Influence)",
+    "astrology": "Aslan",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "31. Kapı, kitlesel liderliğin ve sesin kapısıdır. İnsanların ne duymak istediğini ve gelecekte nasıl bir yöne gitmeleri gerektiğini anlayan inanılmaz bir yeteneğiniz vardır. Sizin liderliğiniz zorba değil, demokratiktir; ancak insanların sizi o role 'seçmesi' ve sesinizi duymaya hazır olması gerekir. Kendi başınıza otorite kurmaya çalışmak yerine, toplumun ihtiyaçlarına kulak verip onların sizi çağırmasını beklediğinizde, sesiniz milyonlara ilham verecek ve kitleleri arzu edilen geleceğe taşıyacak güce ulaşır."
+  },
+  {
+    "id": 32,
+    "title": "Süreklilik ve Değişim Kapısı",
+    "iching": "Süre (Duration)",
+    "astrology": "Terazi",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "32. Kapı, neyin değişmesi gerektiğine ve neyin korunması gerektiğine dair keskin bir sezgiye sahiptir. Başarının sırrının doğru şeyleri muhafaza etmekten geçtiğini bilirsiniz. İş hayatında ve projelerde, neyin işe yarayacağını ve neyin başarısız olacağını anında koklarsınız. Doğal bir yönetici ve finansal koruyucusunuz. Ancak başarısızlık korkusunun sizi felç etmesine izin vermeyip, sadece vizyonuna inandığınız doğru yetenekleri ve projeleri desteklediğinizde büyük maddi ve manevi başarılar elde edersiniz."
+  },
+  {
+    "id": 33,
+    "title": "Gizlilik ve Geri Çekilme Kapısı",
+    "iching": "Geri Çekilme (Retreat)",
+    "astrology": "Aslan",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "33. Kapı, hafızanın, hikaye anlatıcılığının ve geçmişten ders çıkarmanın kapısıdır. Yaşadığınız her deneyimi sindirmek, anlamlandırmak ve ondan bir bilgelik çıkarmak için düzenli olarak yalnızlığa ve sessizliğe (geri çekilmeye) ihtiyaç duyarsınız. Bu inziva anları sizin şarj olma sürenizdir. Kendi içinizde sessizce işlediğiniz bu deneyimleri, zamanı geldiğinde bir hikaye veya öğreti olarak topluma aktardığınızda, insanların aynı hataları yapmasını önler ve büyük bir kolektif rehber olursunuz."
+  },
+  {
+    "id": 34,
+    "title": "Güç ve Yaşam Enerjisi Kapısı",
+    "iching": "Büyük Güç (The Power of the Great)",
+    "astrology": "Yay",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "34. Kapı, haritadaki en yoğun, en saf ve bitmek bilmeyen güç merkezidir. Fiziksel ve zihinsel olarak inanılmaz bir kapasiteniz vardır. Ancak bu güç, düşünülmüş ve planlanmış bir şekilde değil, sadece doğru anlarda (içgüdüsel veya sakral bir tepkiyle) aniden ortaya çıkmalıdır. Bu devasa enerjiyi sadece yapmayı gerçekten sevdiğiniz şeylere harcadığınızda yenilmez olursunuz; aksi takdirde, etrafınızdaki herkes için her şeyi yapmaya çalışırken kendi tükenmişliğinizin içinde kaybolabilirsiniz."
+  },
+  {
+    "id": 35,
+    "title": "Değişim ve İlerleme Kapısı",
+    "iching": "İlerleme (Progress)",
+    "astrology": "İkizler",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "35. Kapı, hayatı tamamen bir 'deneyimler bütünü' olarak görür ve hep yeniliğe açtır. Sıkıcılık sizin en büyük düşmanınızdır; her zaman yeni bir tat, yeni bir macera, yeni bir duygu ararsınız. Amacınız hedefe ulaşmak değil, o yolculuğun tadını çıkarmaktır. Her yeni tecrübeden sonra 'Bunu da yaşadık, sırada ne var?' dersiniz. Bu bitmek bilmeyen değişim arzunuzu kabul ettiğinizde ve beklentilerden koptuğunuzda, hayatınız inanılmaz zengin ve rengarenk bir hikayeye dönüşür."
+  },
+  {
+    "id": 36,
+    "title": "Kriz ve Duygusal Deneyim Kapısı",
+    "iching": "Işığın Kararması (The Darkening of the Light)",
+    "astrology": "Balık",
+    "biology": "Gastrointestinal Sistem (Bağırsaklar)",
+    "description": "36. Kapı, en derin ve en zorlu duygusal krizleri deneyimleme ve bunlardan güçlenerek çıkma enerjisidir. Hayatınız bazen bir pembe dizi gibi çalkantılı olabilir, ancak sizin ruhunuz karanlığın içinden geçip o karanlığı aydınlığa çevirmek üzere tasarlanmıştır. Bu krizler, empati yeteneğinizi ve insanlık halini anlama kapasitenizi inanılmaz derecede derinleştirir. Yaşadığınız zorlukların aslında birer bilgelik dersi olduğunu fark edip deneyime teslim olduğunuzda, en büyük krizleri bile aşan bir bilgeye dönüşürsünüz."
+  },
+  {
+    "id": 37,
+    "title": "Aile ve Arkadaşlık Kapısı",
+    "iching": "Aile (The Family)",
+    "astrology": "Balık",
+    "biology": "Ağız ve Sindirim",
+    "description": "37. Kapı, ailenin, dostluğun, aidiyetin ve sevdikleriyle bir yemeği paylaşmanın getirdiği o sıcak sevgi enerjisidir. Kabilenizin bir arada, huzurlu ve eşit şartlarda olmasını istersiniz. Sevdiklerinizle kurduğunuz bağlar, sarılmalar ve şefkat sizin hayat yakıtınızdır. İnsanların ihtiyaçlarını karşılamada o kadar ustasınızdır ki, bazen kendi sınırlarınızı unutabilirsiniz. Alma ve verme dengesini kurduğunuzda, kurduğunuz her topluluk veya aile, kırılmaz bağlarla sevgi dolu bir yuvaya dönüşür."
+  },
+  {
+    "id": 38,
+    "title": "Savaşçı ve Mücadele Kapısı",
+    "iching": "Muhalefet (Opposition)",
+    "astrology": "Oğlak",
+    "biology": "Adrenal Bezler",
+    "description": "38. Kapı, hayatın amacını bulmak için bağımsızlığı uğruna her türlü zorluğa göğüs geren doğal bir savaşçıdır. İnatçısınızdır ve kolayca pes etmezsiniz. Sizin için hayat, uğrunda savaşılacak kadar anlamlı bir dava bulmaktır. Enerjinizi önemsiz gündelik tartışmalarda harcamak yerine, gerçekten ruhunuzu doyuran, topluma veya kendinize değer katacak o 'büyük davaya' yönlendirdiğinizde, kimsenin aşamayacağı engelleri yıkan, efsanevi ve saygıdeğer bir kahramana dönüşürsünüz."
+  },
+  {
+    "id": 39,
+    "title": "Kışkırtma ve Provokasyon Kapısı",
+    "iching": "Engel / Zorluk (Obstruction)",
+    "astrology": "Yengeç",
+    "biology": "Adrenal Bezler",
+    "description": "39. Kapı, insanların duygularını kışkırtan, durgun suları dalgalandıran provokatif bir enerjidir. Siz isteseniz de istemeseniz de, sadece bir odaya girmeniz bile insanların gerçek duygularının açığa çıkmasına neden olur. Bu enerji, yanlış insanlarla çatışma yaratabilir; ancak doğru insanların hayatındaki tıkanıklıkları açmak ve onlara yeni bir farkındalık kazandırmak için muazzam bir şifa aracıdır. Kışkırtıcılığınızın amacının yıkmak değil, canlandırmak olduğunu fark ettiğinizde oyunun kuralları değişir."
+  },
+  {
+    "id": 40,
+    "title": "Yalnızlık ve Teslimiyet Kapısı",
+    "iching": "Kurtuluş (Deliverance)",
+    "astrology": "Başak",
+    "biology": "Mide",
+    "description": "40. Kapı, sevdikleri ve kabilesi için çok çalışıp, sonrasında kendini yenilemek için mutlaka yalnız kalmaya ihtiyaç duyan enerjidir. Sorumluluk duygunuz o kadar yüksektir ki, aileniz veya işiniz için dağları yerinden oynatabilirsiniz. Ancak eforunuzun sonunda değer görmek, takdir edilmek ve en önemlisi kendi kabuğunuza çekilip dinlenmek en temel hakkınızdır. Kendi 'hayır' deme hakkınızı savunduğunuzda ve dinlenmeye izin verdiğinizde, kabileniz için her zaman güçlü bir direk olarak kalırsınız."
+  },
+  {
+    "id": 41,
+    "title": "Hayal Gücü ve Beklenti Kapısı",
+    "iching": "Azalma (Decrease)",
+    "astrology": "Kova",
+    "biology": "Adrenal Bezler",
+    "description": "41. Kapı, insanoğlunun yeni bir deneyim yaşama arzusunun başladığı ilk kıvılcımdır. İnanılmaz zengin bir hayal gücünüz vardır; sürekli olarak gelecekte neler olabileceğini, yeni olasılıkların nasıl hissettireceğini düşlersiniz. Bazen hayallerin gerçekleşmemesi sizi hayal kırıklığına uğratabilir. Ancak sizin asıl gücünüz, beklentilerin esiri olmak yerine o beklentinin verdiği heyecanı ve vizyonu deneyimlemektir. Siz hayal ettikçe ve enerjiyi başlattıkça, evren o yeni maceraları size ve çevrenize doğru çeker."
+  },
+  {
+    "id": 42,
+    "title": "Büyüme ve Tamamlama Kapısı",
+    "iching": "Artış (Increase)",
+    "astrology": "Koç",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "42. Kapı, başlatılan döngülerin, deneyimlerin veya projelerin hakkıyla sonuca ulaştırılmasını sağlayan tamamlama enerjisidir. Siz başladığınız işi yarım bırakmayı sevmezsiniz. Ancak dikkat etmeniz gereken en önemli nokta, yanlış projelere evet dememektir, çünkü bir kez girdiğiniz döngüden bitmeden çıkmanız çok zordur. Sadece sizi gerçekten heyecanlandıran ve yanıt aldığınız işlere dahil olduğunuzda, o projeyi mükemmel bir şekilde büyüterek sonlandırma gücünüz tartışılmazdır."
+  },
+  {
+    "id": 43,
+    "title": "İçgörü ve Sağır Kapı",
+    "iching": "Kararlılık (Breakthrough)",
+    "astrology": "Akrep",
+    "biology": "İç Kulak",
+    "description": "43. Kapı, tamamen kutunun dışında düşünen, devrim niteliğinde fikirlerin doğduğu kapıdır. 'Sağır' kapı olarak da bilinir, çünkü kendi içsel sesinizi duyabilmek ve o eşsiz fikirlerinizi dış seslerden korumak için dışarıya kulaklarınızı kapama eğilimindesinizdir. Sizin içgörüleriniz genellikle zamanın ötesindedir. Fikirlerinizi henüz onlara hazır olmayan bir dünyayla aniden paylaştığınızda tuhaf karşılanabilirsiniz; doğru anı ve doğru kişiyi beklediğinizde ise siz bir dahisiniz."
+  },
+  {
+    "id": 44,
+    "title": "Desenler ve Uyanıklık Kapısı",
+    "iching": "Buluşma (Coming to Meet)",
+    "astrology": "Akrep",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "44. Kapı, geçmişin desenlerini anında hatırlayarak gelecekteki potansiyelleri okuyabilen güçlü bir sezgisel bellektir. Siz insan sarrafısınızdır; bir insanın kapasitesini, bir ürünün başarısını veya bir ilişkinin nereye gideceğini ilk andan itibaren sezersiniz. Satışta, personel yönetiminde ve fırsatları değerlendirmekte üstünüze yoktur. Geçmişin hayaletleriyle yaşamak yerine, o eşsiz hafızanızı bugün kabilenize maddi ve manevi başarı getirmek için kullandığınızda durdurulamaz olursunuz."
+  },
+  {
+    "id": 45,
+    "title": "Toplama ve Kral/Kraliçe Kapısı",
+    "iching": "Bir Araya Gelme (Gathering Together)",
+    "astrology": "İkizler",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "45. Kapı, sahip olmanın, yönlendirmenin ve krallığını yönetmenin sesidir. Sizin doğal tınıda emir vermeye, kaynakları toplamaya ve kabilenize (şirket, aile veya topluluk) liderlik etmeye yönelik asil bir duruşunuz vardır. Ayrıntılarla uğraşmaktan hiç hoşlanmaz, büyük resmi görürsünüz. İnsanlar sizi yönetici olarak benimsediklerinde, vizyonunuz sayesinde herkesin maddi olarak güvende olmasını ve refah içinde yaşamasını sağlayan cömert, kucaklayıcı ve adil bir lidere dönüşürsünüz."
+  },
+  {
+    "id": 46,
+    "title": "Bedenin Tespiti ve Sevgi Kapısı",
+    "iching": "Yukarı İtme (Pushing Upward)",
+    "astrology": "Terazi",
+    "biology": "G noktası (Kalp)",
+    "description": "46. Kapı, fiziksel bedene, duyulara ve yeryüzündeki deneyime duyulan derin sevginin kapısıdır. Siz doğru zamanda doğru yerde olmanın vücut bulmuş halisinizdir. Beklentilerden arınıp hayatın sürprizlerine kendinizi bıraktığınızda, evren sizi adeta sihirli bir şekilde başarıya ve doğru insanlara doğru iter. Bedeniniz sizin en büyük rehberinizdir; bedeninize iyi baktığınızda, onu onurlandırdığınızda ve yolculuğunuza güvendiğinizde, yaşadığınız her an bir şansa ve zarafete dönüşür."
+  },
+  {
+    "id": 47,
+    "title": "Gerçekleşme ve Anlam Kapısı",
+    "iching": "Baskı / Tıkanıklık (Oppression)",
+    "astrology": "Başak",
+    "biology": "Hipofiz Bezi",
+    "description": "47. Kapı, zihnin eski deneyimlerin görüntüleri ve hatıralarıyla dolup taştığı, o resimlerin içinden hayatın anlamını bulmaya çalışan bir laboratuvardır. Zihniniz bir yapbozun parçalarını birleştirmeye çalışırken bazen baskı ve kafa karışıklığı hissedebilirsiniz. Zihninizi olayları hemen çözmeye zorlamadığınızda ve o baskının akıp gitmesine izin verdiğinizde, birdenbire tüm geçmiş deneyimlerinizin neden yaşandığını idrak ettiğiniz, başkalarına ışık tutacak muazzam bir 'Aha!' anı ve aydınlanma yaşarsınız."
+  },
+  {
+    "id": 48,
+    "title": "Derinlik ve Kuyunun Kapısı",
+    "iching": "Kuyu (The Well)",
+    "astrology": "Terazi",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "48. Kapı, bilgi, deneyim ve bilgelikle dolu dipsiz bir kuyu gibidir. Doğal olarak çok derin düşünen, olayların en kök nedenlerine inen bir yapınız vardır. Bazen kendinizi yetersiz hissetme (yeterince bilmiyorum korkusu) eğiliminde olsanız da, aslında sizin sahip olduğunuz derinlik dışarıdan bakıldığında hayranlık uyandırıcıdır. Kendinizi kanıtlamak için bilgiyi dışarı zorlamak yerine, birisi size gelip o kuyuya kovasını daldırdığında, sunduğunuz o muazzam çözüm ve bilgelik hayatları değiştirir."
+  },
+  {
+    "id": 49,
+    "title": "Prensipler ve Devrim Kapısı",
+    "iching": "Devrim (Revolution)",
+    "astrology": "Kova",
+    "biology": "Sinir Sistemi ve Deri",
+    "description": "49. Kapı, kabilenin kurallarını, sınırlarını ve kimin içeri alınıp kimin dışarıda bırakılacağını belirleyen devrimci enerjidir. Kendi prensiplerinize ve doğrularınıza son derece bağlısınızdır. Eğer adalet, sadakat veya kurallar ihlal edilirse, o kişiyi veya yapıyı hayatınızdan çıkarmakta tereddüt etmezsiniz. Sizin duygusal netliğinizi bekleyerek aldığınız kararlar, kabilenizin her zaman daha dürüst, eşit ve sağlıklı bir yola evrilmesini sağlayan adil bir devrim yaratır."
+  },
+  {
+    "id": 50,
+    "title": "Değerler ve Kazan Kapısı",
+    "iching": "Kazan (The Caldron)",
+    "astrology": "Akrep",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "50. Kapı, toplumun ahlaki kodlarını, yasalarını ve değerlerini koruyan kazandır. Siz sadece sevdiklerinizin fiziksel değil, aynı zamanda ruhsal ve ahlaki refahından da sorumlu hisseden derin bir sezgisel bilgeliğe sahipsiniz. Yanlış giden, adil olmayan veya toplumu yozlaştıran her şeyi anında hisseder ve bu kuralları toplumun iyiliği için esnetme veya yeniden yazma gücüne sahip olursunuz. Siz doğru değerlerin yılmaz bekçisi ve koruyucusunuz."
+  },
+  {
+    "id": 51,
+    "title": "Şok ve İnisiyasyon Kapısı",
+    "iching": "Uyandıran / Şok (The Arousing)",
+    "astrology": "Koç",
+    "biology": "Safra Kesesi",
+    "description": "51. Kapı, insanların konfor alanlarını yıkan, sarsan ve onları yeni bir ruhsal boyuta taşıyan şok edici bir enerjidir. Çoğu zaman ilk olmak, rekabet etmek ve sınırları zorlamak istersiniz. Sözleriniz veya davranışlarınız bazen başkalarını şoke edebilir; ancak asıl amacınız kaos yaratmak değil, uyuyan bilinçleri sarsarak uyandırmaktır. Hayatın size getirdiği şok edici olaylar (veya sizin başkalarına yaşattıklarınız), aslında herkesi daha yüksek bir sevgiye ve spiritüel aydınlanmaya fırlatan bir sıçrama tahtasıdır."
+  },
+  {
+    "id": 52,
+    "title": "Sakinlik ve Dağ Kapısı",
+    "iching": "Sükunet / Dağ (Keeping Still)",
+    "astrology": "Yengeç",
+    "biology": "Adrenal Bezler",
+    "description": "52. Kapı, odaklanabilmek ve gücü toplayabilmek için tamamen hareketsiz kalabilme kapasitesidir. Adeta bir dağ gibi sessiz ve sarsılmaz bir enerjiniz vardır. İçinizdeki stres ve adrenalin doğru bir konuya odaklanana kadar pasif kalmak istersiniz. Yanlış şeylere enerjinizi harcadığınızda derin bir huzursuzluk hissedersiniz. Ancak sizi heyecanlandıran o doğru projeyi bulduğunuzda, hareketsizliğiniz aniden devasa bir odaklanmaya dönüşür ve en karmaşık işleri bile derin bir konsantrasyonla tamamlarsınız."
+  },
+  {
+    "id": 53,
+    "title": "Başlangıçlar ve Yeni Döngüler Kapısı",
+    "iching": "Gelişim (Development)",
+    "astrology": "Yengeç",
+    "biology": "Adrenal Bezler",
+    "description": "53. Kapı, sürekli olarak yeni deneyimlere, yeni projelere ve yeni maceralara başlama itkisidir. Siz doğal bir ateşleyicisiniz. Bir işin tohumunu atar, ilk adımı atar ve enerjiyi başlatırsınız; ancak o işi bitirmek sizin doğanıza aykırı olabilir. İşleri başlatan kişi olduğunuzu, ancak onları bitirmek zorunda olmadığınızı kabul ettiğinizde üzerinizdeki suçluluk duygusu kalkar. Siz sadece doğru zamanlarda o muazzam başlangıç kıvılcımını çakan vizyonersiniz."
+  },
+  {
+    "id": 54,
+    "title": "Hırs ve Yükseliş Kapısı",
+    "iching": "Evlenen Genç Kız (The Marrying Maiden)",
+    "astrology": "Oğlak",
+    "biology": "Adrenal Bezler",
+    "description": "54. Kapı, hırsın, maddi veya manevi olarak hiyerarşide daha yukarı çıkma arzusunun kilit taşıdır. Daha iyi bir yaşam, daha iyi bir kariyer ve statü için yorulmak bilmeden çalışma dürtünüz vardır. Ancak sizin hırsınız sadece kendiniz için değil, gücünüzü kabilenizle (aileniz, şirketiniz) paylaşmak içindir. Yükselme arzunuz, kendinizden daha güçlü ve doğru insanların (müttefiklerin) sizi fark edip desteklemesiyle gerçeğe dönüşür; bu yüzden sadece saf hırsla değil, stratejiyle hareket etmek sizi zirveye taşır."
+  },
+  {
+    "id": 55,
+    "title": "Ruh ve Bolluk Kapısı",
+    "iching": "Bolluk (Abundance)",
+    "astrology": "Balık",
+    "biology": "Karaciğer",
+    "description": "55. Kapı, duygusal spektrumun en zirvesi, ruhun derin melodisi ve duygusal bolluğun kapısıdır. Duygusal dünyanız bazen güneşli bir bahar günü kadar coşkulu, bazen de kara bir bulut gibi melankoliktir. Melankoliyi bir depresyon veya 'yanlışlık' olarak görmek yerine, bunun yaratıcılığınızın en derin kaynağı olduğunu fark etmelisiniz. Şiir, müzik ve sanatsal ilham o hüzünden doğar. Duygularınızla savaşmak yerine onlara teslim olduğunuzda, hayatın sunduğu sınırsız spiritüel bolluğun kapılarını açarsınız."
+  },
+  {
+    "id": 56,
+    "title": "Gezgin ve Hikaye Anlatıcısı Kapısı",
+    "iching": "Gezgin (The Wanderer)",
+    "astrology": "Yengeç",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "56. Kapı, yaşadığı tüm deneyimleri başkalarına aktaran, onlara ilham veren büyüleyici bir hikaye anlatıcısıdır. Hayatınız bir deneyimler dizisidir ve siz her anıyı anlatarak diğer insanların ufuklarını genişletirsiniz. Hikayelerinize kattığınız duygular ve renkler bazen gerçeğin ötesine geçse de, önemli olan anlattığınızın harfiyen doğruluğu değil, hissettirdiği mesajdır. Anlatmak için davet edildiğiniz anı beklediğinizde, kelimeleriniz kitleleri peşinden sürükleyen bir aydınlanma yolculuğuna dönüşür."
+  },
+  {
+    "id": 57,
+    "title": "Sezgi ve İçgüdüsel Netlik Kapısı",
+    "iching": "Nazik / Rüzgar (The Gentle)",
+    "astrology": "Terazi",
+    "biology": "Dalak ve Lenfatik Sistem",
+    "description": "57. Kapı, haritadaki en derin ve anlık sezgisel farkındalıktır. Olayları, sesleri ve tehlikeleri daha ortaya çıkmadan saniyesinde hisseden, adeta geleceği rüzgardan okuyan bir yeteneğiniz vardır. Gelecek korkusu zaman zaman sizi ele geçirmeye çalışabilir. Bu korkuyu yenmenin tek yolu, zihninizin gürültüsünü susturup, o kısacık ama her zaman haklı çıkan fısıltıya (iç sesinize) güvenmektir. Sezginize teslim olduğunuzda, hayatın fırtınaları arasında zarar görmeden zarafetle yürürsünüz."
+  },
+  {
+    "id": 58,
+    "title": "Neşe ve Canlılık Kapısı",
+    "iching": "Neşeli / Göl (The Joyous)",
+    "astrology": "Oğlak",
+    "biology": "Adrenal Bezler",
+    "description": "58. Kapı, yaşamdan bitmek tükenmek bilmeyen bir keyif alma arzusu ve insanlığa hizmet etme neşesidir. Kusurları ve yanlışları düzeltme konusunda doğal bir basıncınız vardır; ancak bu basınç eleştirmek için değil, her şeyi daha iyi ve daha yaşanabilir kılmak içindir. Enerjinizi sürekli kusur aramaya yönlendirmek yerine, yaşamın ve anın tadını çıkarmaya odaklandığınızda, varlığınız bile etrafınızdakilere muazzam bir yaşama sevinci ve umut aşılar."
+  },
+  {
+    "id": 59,
+    "title": "Cinsellik ve Dağılma Kapısı",
+    "iching": "Dağılma / Çözülme (Dispersion)",
+    "astrology": "Başak",
+    "biology": "Yumurtalıklar ve Testisler",
+    "description": "59. Kapı, insanları birbirine bağlayan duvarları yıkan, derin bir samimiyet ve üreme (üretme) enerjisidir. Yalnızca cinsel bir aura değil, aynı zamanda dostlukta ve işte buzları eriten, sınırları ortadan kaldıran sıcak bir enerjidir. Projeler, şirketler ve yeni yaşamlar yaratmak için birleştirici bir güçsünüz. Başkalarına kendi kalkanlarını indirmeleri için nasıl güven vereceğinizi çok iyi bilirsiniz; bu derin bağ kurma yeteneğiniz, dünyanın en samimi ilişkilerini inşa etmenizi sağlar."
+  },
+  {
+    "id": 60,
+    "title": "Sınırlar ve Kabul Kapısı",
+    "iching": "Sınırlama (Limitation)",
+    "astrology": "Oğlak",
+    "biology": "Adrenal Bezler",
+    "description": "60. Kapı, değişimin ve mutasyonun doğabilmesi için gereken yapısal kısıtlamaların merkezidir. Hayatınızda sık sık karşınıza duvarlar, sınırlar veya engeller çıkıyor gibi hissedebilirsiniz. Bu enerjinin asıl amacı sizi durdurmak değil, yeniliğin ortaya çıkması için o duvarın ardında büyük bir basınç yaratmaktır. Sınırlarınıza karşı isyan etmek yerine onları kabullendiğinizde ve zamanı geldiğinde o baskının kendiliğinden yıkılıp yepyeni bir yola evrilmesine izin verdiğinizde, hayatınızda mucizevi sıçramalar yaşanır."
+  },
+  {
+    "id": 61,
+    "title": "Gizem ve İçsel Biliş Kapısı",
+    "iching": "İçsel Hakikat (Inner Truth)",
+    "astrology": "Oğlak",
+    "biology": "Pineal Bez (Epifiz)",
+    "description": "61. Kapı, evrenin en derin sırlarını ve gizemlerini çözmek isteyen, sürekli \"Neden?\" diye soran felsefi bir zihindir. Sizin beyniniz, hiç kimsenin göremediği ilahi gerçekleri ve büyük uyanış anlarını yakalayacak bir anten gibidir. Fakat her şeyi bilme baskısı bazen kafanızı yorabilir. Gizemin aslında çözülmesi gereken bir problem değil, tadı çıkarılması gereken bir merak yolculuğu olduğunu anladığınızda ve düşüncelerinizi sadece davet edildiğinizde paylaştığınızda, çevrenize gerçek bir aydınlanma getirirsiniz."
+  },
+  {
+    "id": 62,
+    "title": "Ayrıntılar ve Detaylandırma Kapısı",
+    "iching": "Küçük Olanın Üstünlüğü (Preponderance of the Small)",
+    "astrology": "Yengeç",
+    "biology": "Tiroid ve Paratiroid",
+    "description": "62. Kapı, soyut fikirleri ve kaotik durumları kelimelere, tablolara ve formüllere döken organizasyonel zekanın kapısıdır. Küçük ama kritik detayları görme konusunda eşsizsinizdir. Siz havada uçuşan fikirleri alır, ayakları yere basan pratik ve mantıksal planlara dönüştürürsünüz. Açıklamalarınız o kadar kesin ve nettir ki, karmaşık sorunları bile herkesin anlayabileceği şekilde ifade edersiniz. Başkalarından fikirlerinizi dinlemeleri için bir işaret aldığınızda, detaycılığınız her projeyi kurtaran altın anahtar olur."
+  },
+  {
+    "id": 63,
+    "title": "Şüphe ve Mantıksal Baskı Kapısı",
+    "iching": "Tamamlandıktan Sonra (After Completion)",
+    "astrology": "Balık",
+    "biology": "Hipofiz Bezi",
+    "description": "63. Kapı, her şeyin doğruluğunu sorgulayan, boşlukları ve mantık hatalarını arayan şüpheci bir zihnin merkezidir. Siz, geleceğin daha güvenli olması için mevcut durumu analiz edip mantıksal sorular sorarsınız. \"Bu doğru mu?\", \"Bu çalışır mı?\" Bu şüpheyi kendi özel hayatınızda ve yeteneklerinizde kullanırsanız kendinize zarar verebilirsiniz. Ancak bu mükemmel mantıksal sorgulama yeteneğinizi dış dünyadaki sistemleri, projeleri ve başkalarının sorunlarını çözmek için kullandığınızda, tartışılmaz bir otorite olursunuz."
+  },
+  {
+    "id": 64,
+    "title": "Kafa Karışıklığı ve Görsel Hayal Gücü Kapısı",
+    "iching": "Tamamlanmadan Önce (Before Completion)",
+    "astrology": "Başak",
+    "biology": "Pineal Bez (Epifiz)",
+    "description": "64. Kapı, zihnin geçmiş hatıralar, imgeler ve soyut anılarla dolup taştığı son kapıdır. Sizin beyniniz kelimelerle değil, videolar ve fotoğraflar gibi görsel karelerle çalışır. Geçmiş olayları anlamlandırmak için parçaları birleştirmeye çalışırken sık sık zihinsel bir kafa karışıklığı yaşayabilirsiniz. Ancak sır şudur: Olayları çözmeye çalışıp kendinizi zorlamayı bıraktığınız an, o karmaşık görsellerin içinden ansızın bir anlam ve şifa doğar. Geçmişin hikayelerini çözdüğünüzde, diğer insanlara büyük bir ilham kaynağı olursunuz."
+  }
+]

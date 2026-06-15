@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Redirect, useRouter } from 'expo-router';
 import { View, ActivityIndicator, LogBox } from 'react-native';
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 import { COLORS } from '@/src/theme';
 
 LogBox.ignoreLogs(['AuthApiError: Invalid Refresh Token']);

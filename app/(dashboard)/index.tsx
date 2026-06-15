@@ -4,12 +4,13 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { supabase } from '@/src/services/supabase';
+import { supabase } from '@/src/core/api/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
 import { useProgress } from '@/src/context/ProgressContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/utils/PlanetaryHours';
+import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
+import SacredBackground from '@/components/SacredBackground';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
@@ -177,11 +178,7 @@ export default function DashboardScreen() {
   };
 
   return (
-    <ImageBackground 
-      source={ESOTERIC_BG}
-      style={styles.container}
-      resizeMode="cover"
-    >
+    <SacredBackground>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Üst Bilgi Başlığı */}
@@ -286,7 +283,7 @@ export default function DashboardScreen() {
                 activeOpacity={0.5}
               >
                 <Ionicons name="scan-circle-outline" size={16} color={COLORS.primaryDark} style={{ marginRight: 5 }} />
-                <Text style={[styles.guidelinesText, { color: COLORS.primaryDark }]}>Aura Analizi</Text>
+                <Text style={[styles.guidelinesText, { color: COLORS.primaryDark }]}>Çakra Analizi</Text>
               </TouchableOpacity>
             </View>
 
@@ -309,7 +306,7 @@ export default function DashboardScreen() {
             return (
               <TouchableOpacity 
                 key={mod.id} 
-                style={[styles.chakraNode, { top: mod.top }]}
+                style={[styles.chakraNode, { top: mod.top as any }]}
                 activeOpacity={0.8}
                 onPress={() => {
                   if (isUnlocked) {
@@ -367,17 +364,18 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             {/* Kişisel Analizler Merkezi Linki */}
+             {/* Analizler Merkezi Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler'); setIsToolsExpanded(false); }}>
                <Ionicons name="analytics" size={20} color="#FF9500" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Kişisel Analizler</Text>
+               <Text style={styles.fabMenuText}>Analizler</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
 
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/anlik-gokyuzu'); setIsToolsExpanded(false); }}>
-               <Ionicons name="telescope-outline" size={20} color="#AF52DE" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Anlık Gökyüzü (Transit)</Text>
+             {/* Ay Döngüleri */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/ay-donguleri'); setIsToolsExpanded(false); }}>
+               <Ionicons name="moon-outline" size={20} color="#AF52DE" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Ay Döngüleri</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
@@ -421,7 +419,7 @@ export default function DashboardScreen() {
            </ScrollView>
         </TouchableOpacity>
       )}
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

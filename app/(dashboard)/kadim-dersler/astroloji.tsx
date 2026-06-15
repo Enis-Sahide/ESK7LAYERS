@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -94,11 +95,7 @@ export default function AstrolojiCurriculumScreen() {
   };
 
   return (
-    <ImageBackground 
-      source={require('@/assets/images/esoteric_bg_indigo.png')} 
-      style={styles.container}
-      resizeMode="cover"
-    >
+    <SacredBackground>
       <View style={styles.overlay} />
       <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
 
@@ -196,7 +193,7 @@ export default function AstrolojiCurriculumScreen() {
           </View>
         )}
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

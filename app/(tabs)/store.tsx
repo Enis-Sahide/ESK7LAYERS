@@ -1,13 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CATEGORIES, VENDORS, PRODUCTS } from '@/src/data/marketplaceData';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+
+const UNDER_MAINTENANCE = true;
+import SacredBackground from '@/components/SacredBackground';
 
 export default function StoreScreen() {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  if (UNDER_MAINTENANCE) {
+    return (
+      <SacredBackground>
+        
+        <BlurView intensity={30} tint="dark" style={styles.maintenanceCard}>
+          <View style={styles.iconWrapper}>
+            <Ionicons name="lock-closed-outline" size={64} color="#D4AF37" />
+          </View>
+          
+          <Text style={styles.maintenanceTitle}>Mağazamız Tadilatta</Text>
+          
+          <Text style={styles.maintenanceSubtitle}>
+            Sizlere daha mistik ve benzersiz bir alışveriş deneyimi sunabilmek için kapılarımızı kısa bir süreliğine bakıma aldık.
+          </Text>
+          
+          <Text style={styles.maintenanceDesc}>
+            Çok yakında yepyeni mistik ürünler ve şifa araçlarıyla buradayız. Anlayışınız için teşekkür ederiz.
+          </Text>
+
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.replace('/(dashboard)')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="home-outline" size={20} color="#0F172A" style={{ marginRight: 8 }} />
+            <Text style={styles.backButtonText}>Ana Sayfaya Dön</Text>
+          </TouchableOpacity>
+        </BlurView>
+      </SacredBackground>
+    );
+  }
 
   const featuredVendors = VENDORS.filter(v => v.isFeatured);
   const filteredProducts = PRODUCTS.filter(p => {
@@ -45,7 +81,6 @@ export default function StoreScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer} contentContainerStyle={styles.categoriesContent}>
             <TouchableOpacity 
               style={[styles.categoryBtn, activeCategory === null && styles.categoryBtnActive]}
-              onClick={() => setActiveCategory(null)}
               onPress={() => setActiveCategory(null)}
             >
               <Text style={[styles.categoryText, activeCategory === null && styles.categoryTextActive]}>Tümü</Text>
@@ -170,5 +205,67 @@ const styles = StyleSheet.create({
   productName: { color: '#FFF', fontSize: 14, fontWeight: '600', marginBottom: 10, height: 40 },
   productFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   productPrice: { color: '#D4AF37', fontSize: 16, fontWeight: 'bold' },
-  addToCartBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#D4AF37', alignItems: 'center', justifyContent: 'center' }
+  addToCartBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#D4AF37', alignItems: 'center', justifyContent: 'center' },
+  maintenanceContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  maintenanceCard: {
+    padding: 30,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 340,
+    overflow: 'hidden',
+  },
+  iconWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  maintenanceTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  maintenanceSubtitle: {
+    fontSize: 14,
+    color: '#E0E0E0',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  maintenanceDesc: {
+    fontSize: 12,
+    color: '#8E8E93',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 25,
+    fontStyle: 'italic',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#D4AF37',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  backButtonText: {
+    color: '#0F172A',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
 });

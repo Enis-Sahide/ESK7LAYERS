@@ -1,12 +1,17 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
-import { generateAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '../../../src/utils/AstrologyEngine';
-import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '../../../src/utils/AstrologyInterpretations';
+import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '@/src/features/astrology/api/astrologyClient';
+import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '@/src/features/astrology/engine/AstrologyInterpretations';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const AVAILABLE_COUNTRIES = [
   'Türkiye', 'Almanya', 'Amerika Birleşik Devletleri', 'İngiltere', 'Fransa', 
@@ -40,6 +45,11 @@ const ZODIAC_SYMBOLS: Record<ZodiacSign, string> = {
   'Yay': '♐', 'Oğlak': '♑', 'Kova': '♒', 'Balık': '♓'
 };
 
+const ZODIAC_ORDER: ZodiacSign[] = [
+  'Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 
+  'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'
+];
+
 const PLANET_SYMBOLS: Record<string, string> = {
   'Güneş': '☉', 'Ay': '☽', 'Merkür': '☿', 'Venüs': '♀', 'Mars': '♂', 
   'Jüpiter': '♃', 'Satürn': '♄', 'Uranüs': '♅', 'Neptün': '♆', 'Plüton': '♇',
@@ -57,7 +67,6 @@ const ASPECT_COLORS: Record<string, string> = {
 
 export default function AstrolojiAnalysisScreen() {
   const router = useRouter();
-  const [name, setName] = useState('');
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
   const [country, setCountry] = useState('Türkiye');
@@ -69,6 +78,16 @@ export default function AstrolojiAnalysisScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'Tropikal' | 'Drakonik'>('Tropikal');
   const [chart, setChart] = useState<NatalChartData | null>(null);
+  const [expandedAspects, setExpandedAspects] = useState(true);
+  const [expandedPlanets, setExpandedPlanets] = useState(true);
+  const [expandedHouses, setExpandedHouses] = useState(true);
+
+  const toggleSection = (section: 'aspects' | 'planets' | 'houses') => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    if (section === 'aspects') setExpandedAspects(!expandedAspects);
+    else if (section === 'planets') setExpandedPlanets(!expandedPlanets);
+    else if (section === 'houses') setExpandedHouses(!expandedHouses);
+  };
 
   const filteredCities = ASTRO_CITIES.filter(c => 
     c.country === country &&
@@ -96,7 +115,7 @@ export default function AstrolojiAnalysisScreen() {
     setTimeStr(formatted);
   };
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     if (!dateStr || !timeStr) {
       Alert.alert("Hata", "Lütfen doğum tarihi ve saatini girin.");
       return;
@@ -110,38 +129,32 @@ export default function AstrolojiAnalysisScreen() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      try {
-        let birthDate;
-        let finalCity = cityKey;
-        
-        try {
-          const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-          
-          const matchedCity = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === searchQuery.trim().toLocaleLowerCase('tr-TR'));
-          if (matchedCity) {
-            finalCity = matchedCity.name;
-          }
-
-          if (moment && typeof moment.tz === 'function') {
-            const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", "Europe/Istanbul");
-            birthDate = m.toDate();
-          } else {
-            birthDate = new Date(year, month - 1, day, hour, minute);
-          }
-        } catch (err) {
-          birthDate = new Date(year, month - 1, day, hour, minute);
-        }
-        
-        const result = generateAstrologyChart(birthDate, finalCity);
-        setChart(result);
-      } catch (error) {
-        Alert.alert("Hesaplama Hatası", "Harita oluşturulurken bir sorun oluştu.");
-        console.error(error);
-      } finally {
-        setIsLoading(false);
+    try {
+      let birthDate;
+      let finalCity = cityKey;
+      
+      const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+      
+      const matchedCity = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === searchQuery.trim().toLocaleLowerCase('tr-TR'));
+      if (matchedCity) {
+        finalCity = matchedCity.name;
       }
-    }, 500);
+
+      if (moment && typeof moment.tz === 'function') {
+        const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", "Europe/Istanbul");
+        birthDate = m.toDate();
+      } else {
+        birthDate = new Date(year, month - 1, day, hour, minute);
+      }
+      
+      const result = await fetchAstrologyChart(birthDate, finalCity);
+      setChart(result);
+    } catch (error) {
+      Alert.alert("Hesaplama Hatası", "Harita sunucudan alınırken bir sorun oluştu.");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderSvgWheel = () => {
@@ -226,7 +239,7 @@ export default function AstrolojiAnalysisScreen() {
           const sx = getX(midLon, RADIUS + 22);
           const sy = getY(midLon, RADIUS + 22);
           
-          const signName = Object.keys(ZODIAC_COLORS)[i] as ZodiacSign;
+          const signName = ZODIAC_ORDER[i];
 
           return (
             <G key={`zodiac-${i}`}>
@@ -355,7 +368,7 @@ export default function AstrolojiAnalysisScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <ImageBackground source={require('@/assets/images/esoteric_bg_indigo.png')} style={styles.container} resizeMode="cover">
+      <SacredBackground>
         <View style={StyleSheet.absoluteFill} />
         <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
 
@@ -374,8 +387,6 @@ export default function AstrolojiAnalysisScreen() {
           {!chart ? (
             <BlurView intensity={20} tint="light" style={styles.formCard}>
               {/* FORM FIELDS REMAIN SAME */}
-              <Text style={styles.label}>İsim Soyisim</Text>
-              <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Örn: Enis Şahide Kesik" placeholderTextColor="#666" returnKeyType="next" onSubmitEditing={() => dateInputRef.current?.focus()} />
               <Text style={styles.label}>Doğum Tarihi (YYYY-AA-GG)</Text>
               <TextInput ref={dateInputRef} style={styles.input} value={dateStr} onChangeText={handleDateChange} placeholder="Örn: 1990-05-15" placeholderTextColor="#666" keyboardType="numeric" maxLength={10} returnKeyType="next" />
               <Text style={styles.label}>Doğum Saati (SS:DD)</Text>
@@ -411,61 +422,78 @@ export default function AstrolojiAnalysisScreen() {
                   <Text style={styles.resetBtnText}>Geri</Text>
                 </TouchableOpacity>
               </View>
+              <Text style={styles.chartTitle}>Kişisel Doğum Haritanız</Text>
+              <Text style={styles.chartInfoText}>{dateStr} • {timeStr} • {searchQuery}</Text>
 
               <View style={styles.chartOuterContainer}>
                 {renderSvgWheel()}
               </View>
 
               <View style={styles.dataContainer}>
-                <Text style={styles.sectionHeader}>Açı Tablosu</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10 }}>
-                  {renderAspectGrid()}
-                </ScrollView>
+                <TouchableOpacity style={styles.sectionHeaderBtn} onPress={() => toggleSection('aspects')}>
+                  <Text style={styles.sectionHeader}>Açı Tablosu</Text>
+                  <Ionicons name={expandedAspects ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+                </TouchableOpacity>
+                {expandedAspects && (
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ padding: 10 }}>
+                    {renderAspectGrid()}
+                  </ScrollView>
+                )}
 
-                <Text style={styles.sectionHeader}>Gezegen Yerleşimleri</Text>
-                <View style={styles.dataTable}>
-                  <View style={styles.tableHeaderRow}>
-                    <Text style={styles.tableHeader}>Gezegen</Text>
-                    <Text style={styles.tableHeader}>Burç</Text>
-                    <Text style={styles.tableHeader}>Derece</Text>
-                    <Text style={styles.tableHeader}>Ev</Text>
+                <TouchableOpacity style={styles.sectionHeaderBtn} onPress={() => toggleSection('planets')}>
+                  <Text style={styles.sectionHeader}>Gezegen Yerleşimleri</Text>
+                  <Ionicons name={expandedPlanets ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+                </TouchableOpacity>
+                {expandedPlanets && (
+                  <View style={styles.dataTable}>
+                    <View style={styles.tableHeaderRow}>
+                      <Text style={styles.tableHeader}>Gezegen</Text>
+                      <Text style={styles.tableHeader}>Burç</Text>
+                      <Text style={styles.tableHeader}>Derece</Text>
+                      <Text style={styles.tableHeader}>Ev</Text>
+                    </View>
+                    {[...chart.planets, chart.ascendant, chart.midheaven].map((p, i) => (
+                      <TouchableOpacity 
+                        key={i} 
+                        style={styles.tableRow}
+                        onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                      >
+                        <Text style={styles.tableCell}><Text style={{color: COLORS.primary}}>{PLANET_SYMBOLS[p.name] || ''}</Text> {p.name}</Text>
+                        <Text style={[styles.tableCell, {color: ZODIAC_COLORS[p.sign]}]}>{p.sign}</Text>
+                        <Text style={styles.tableCell}>
+                          {`${String(p.degreeInSign).padStart(2,'0')}° ${String(p.minutes).padStart(2,'0')}'`}
+                          {p.isRetrograde && <Text style={{color: '#FF453A', fontSize: 10}}> Rx</Text>}
+                        </Text>
+                        <Text style={styles.tableCell}>{p.house}.</Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                  {[...chart.planets, chart.ascendant, chart.midheaven].map((p, i) => (
-                    <TouchableOpacity 
-                      key={i} 
-                      style={styles.tableRow}
-                      onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
-                    >
-                      <Text style={styles.tableCell}><Text style={{color: COLORS.primary}}>{PLANET_SYMBOLS[p.name] || ''}</Text> {p.name}</Text>
-                      <Text style={[styles.tableCell, {color: ZODIAC_COLORS[p.sign]}]}>{p.sign}</Text>
-                      <Text style={styles.tableCell}>
-                        {`${String(p.degreeInSign).padStart(2,'0')}° ${String(p.minutes).padStart(2,'0')}'`}
-                        {p.isRetrograde && <Text style={{color: '#FF453A', fontSize: 10}}> Rx</Text>}
-                      </Text>
-                      <Text style={styles.tableCell}>{p.house}.</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                )}
 
-                <Text style={styles.sectionHeader}>Ev Girişleri (Cusps)</Text>
-                <View style={styles.dataTable}>
-                  <View style={styles.tableHeaderRow}>
-                    <Text style={styles.tableHeader}>Ev</Text>
-                    <Text style={styles.tableHeader}>Burç</Text>
-                    <Text style={styles.tableHeader}>Derece</Text>
+                <TouchableOpacity style={styles.sectionHeaderBtn} onPress={() => toggleSection('houses')}>
+                  <Text style={styles.sectionHeader}>Ev Girişleri (Cusps)</Text>
+                  <Ionicons name={expandedHouses ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+                </TouchableOpacity>
+                {expandedHouses && (
+                  <View style={styles.dataTable}>
+                    <View style={styles.tableHeaderRow}>
+                      <Text style={styles.tableHeader}>Ev</Text>
+                      <Text style={styles.tableHeader}>Burç</Text>
+                      <Text style={styles.tableHeader}>Derece</Text>
+                    </View>
+                    {chart.houses.map((h, i) => (
+                      <TouchableOpacity 
+                        key={i} 
+                        style={styles.tableRow}
+                        onPress={() => setSelectedInterp(getHouseCuspInterpretation(h.house, h.sign))}
+                      >
+                        <Text style={styles.tableCell}>{h.house}. Ev {h.house===1?'(ASC)':h.house===10?'(MC)':h.house===4?'(IC)':h.house===7?'(DSC)':''}</Text>
+                        <Text style={[styles.tableCell, {color: ZODIAC_COLORS[h.sign]}]}>{h.sign}</Text>
+                        <Text style={styles.tableCell}>{`${String(h.degreeInSign).padStart(2,'0')}° ${String(h.minutes).padStart(2,'0')}'`}</Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
-                  {chart.houses.map((h, i) => (
-                    <TouchableOpacity 
-                      key={i} 
-                      style={styles.tableRow}
-                      onPress={() => setSelectedInterp(getHouseCuspInterpretation(h.house, h.sign))}
-                    >
-                      <Text style={styles.tableCell}>{h.house}. Ev {h.house===1?'(ASC)':h.house===10?'(MC)':h.house===4?'(IC)':h.house===7?'(DSC)':''}</Text>
-                      <Text style={[styles.tableCell, {color: ZODIAC_COLORS[h.sign]}]}>{h.sign}</Text>
-                      <Text style={styles.tableCell}>{`${String(h.degreeInSign).padStart(2,'0')}° ${String(h.minutes).padStart(2,'0')}'`}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                )}
               </View>
             </View>
           )}
@@ -503,7 +531,7 @@ export default function AstrolojiAnalysisScreen() {
             </View>
           </View>
         </Modal>
-      </ImageBackground>
+      </SacredBackground>
     </KeyboardAvoidingView>
   );
 }
@@ -547,11 +575,15 @@ const styles = StyleSheet.create({
 
   resetBtn: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   resetBtnText: { color: COLORS.primary, fontSize: 16, marginLeft: 5 },
+  
+  chartTitle: { fontSize: 24, fontFamily: 'serif', color: COLORS.text, textAlign: 'center', marginBottom: 6 },
+  chartInfoText: { fontSize: 14, color: COLORS.textMuted, textAlign: 'center', marginBottom: 20, fontStyle: 'italic' },
 
   chartOuterContainer: { alignItems: 'center', marginVertical: 20 },
   
   dataContainer: { marginTop: 10 },
-  sectionHeader: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary, marginBottom: 15, marginTop: 20, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  sectionHeaderBtn: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, marginBottom: 15, paddingBottom: 5, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  sectionHeader: { fontSize: 20, fontWeight: 'bold', color: COLORS.primary },
 
   gridContainer: { flexDirection: 'column', alignItems: 'flex-start' },
   gridRow: { flexDirection: 'row', alignItems: 'center' },

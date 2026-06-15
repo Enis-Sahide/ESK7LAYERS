@@ -1,3 +1,4 @@
+import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ImageBackground, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -145,11 +146,7 @@ export default function LessonScreen() {
   }, [lessonData]);
 
   return (
-    <ImageBackground 
-      source={ESOTERIC_BG}
-      style={styles.container}
-      resizeMode="cover"
-    >
+    <SacredBackground>
       {/* Merkezde Renk, Köşelere Doğru Şeffaf (Soft Glow) */}
       <LinearGradient 
         start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
@@ -250,7 +247,7 @@ export default function LessonScreen() {
         
         <View style={{ height: 40 }} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 

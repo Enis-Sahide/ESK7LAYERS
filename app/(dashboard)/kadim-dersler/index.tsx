@@ -1,5 +1,6 @@
+import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
@@ -12,20 +13,20 @@ interface LessonCategory {
   title: string;
   icon: keyof typeof Ionicons.glyphMap;
   route: string;
-  requiredUnlock?: string;
+  isUnderConstruction?: boolean;
 }
 
 const LESSON_CATEGORIES: LessonCategory[] = [
   { id: 'duygusal-hastaliklar', title: 'Hastalıkların Duygusal Nedenleri', icon: 'heart-half-outline', route: '/(dashboard)/kadim-dersler/duygusal-hastaliklar' },
-  { id: 'akupunktur', title: 'Akupunktur ve Meridyenler', icon: 'body-outline', route: '/(dashboard)/kadim-dersler/akupunktur', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', requiredUnlock: 'kadim_dersler_access' },
-  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga', requiredUnlock: 'kadim_dersler_access' },
+  { id: 'akupunktur', title: 'Akupunktur ve Meridyenler', icon: 'body-outline', route: '/(dashboard)/kadim-dersler/akupunktur', isUnderConstruction: true },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', isUnderConstruction: true },
+  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji', isUnderConstruction: true },
+  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', isUnderConstruction: true },
+  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', isUnderConstruction: true },
+  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji', isUnderConstruction: true },
+  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', isUnderConstruction: true },
+  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', isUnderConstruction: true },
+  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga', isUnderConstruction: true },
 ];
 
 export default function LessonsHubScreen() {
@@ -34,16 +35,16 @@ export default function LessonsHubScreen() {
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
 
   const handlePress = (cat: LessonCategory) => {
-    if (cat.requiredUnlock && !hasFullAccess) {
-      alert("Bu derse erişmek için Çakra Final Sınavı ve Hastalıkların Duygusal Nedenleri Sınavından en az %85 almalısın!");
+    if (cat.isUnderConstruction) {
+      Alert.alert("Yapım Aşamasında", "Bu ders yapım aşamasındadır.");
       return;
     }
     router.push(cat.route as any);
   };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 15, 30, 0.85)' }]} />
+    <SacredBackground>
+
       
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -60,7 +61,7 @@ export default function LessonsHubScreen() {
         {LESSON_CATEGORIES.map((cat) => (
           <View key={cat.id} style={styles.cardContainer}>
             <TouchableOpacity 
-              style={[styles.categoryCard, (cat.requiredUnlock && !hasFullAccess) && { opacity: 0.6 }]} 
+              style={[styles.categoryCard, cat.isUnderConstruction && { opacity: 0.6 }]} 
               onPress={() => handlePress(cat)}
               activeOpacity={0.8}
             >
@@ -69,14 +70,14 @@ export default function LessonsHubScreen() {
                   <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                 </View>
                 <Text style={styles.cardTitle}>
-                  {(cat.requiredUnlock && !hasFullAccess) && <Ionicons name="lock-closed" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                  {cat.isUnderConstruction && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
                   {cat.title}
                 </Text>
               </View>
               <Ionicons 
-                name={(cat.requiredUnlock && !hasFullAccess) ? "lock-closed-outline" : "chevron-forward"} 
+                name={cat.isUnderConstruction ? "construct-outline" : "chevron-forward"} 
                 size={20} 
-                color={(cat.requiredUnlock && !hasFullAccess) ? COLORS.textMuted : COLORS.primary} 
+                color={cat.isUnderConstruction ? COLORS.textMuted : COLORS.primary} 
               />
             </TouchableOpacity>
           </View>
@@ -84,7 +85,7 @@ export default function LessonsHubScreen() {
 
         <View style={{height: 100}} />
       </ScrollView>
-    </ImageBackground>
+    </SacredBackground>
   );
 }
 
