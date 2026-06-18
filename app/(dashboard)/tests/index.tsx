@@ -113,24 +113,6 @@ export default function TestsHubScreen() {
   
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
 
-  const handleReset = () => {
-    Alert.alert(
-      "İlerlemeyi Sıfırla",
-      "Tüm kilit açılma geçmişiniz (Çırak, Kalfa, Üstat durumunuz) silinecektir. Emin misiniz?",
-      [
-        { text: "İptal", style: "cancel" },
-        { 
-          text: "Sıfırla", 
-          style: "destructive", 
-          onPress: async () => {
-            await resetProgress();
-            alert("Sırlar Okulu hafızası silindi. Tüm kilitler tekrar kapandı.");
-          } 
-        }
-      ]
-    );
-  };
-
   const handlePress = (category: TestCategory) => {
     if (category.isUnderConstruction && !isAdmin) {
       Alert.alert("Yapım Aşamasında", "Bu sınavlar yapım aşamasındadır.");
@@ -213,10 +195,6 @@ export default function TestsHubScreen() {
             </View>
           );
         })}
-
-        <TouchableOpacity style={{ marginTop: 40, alignItems: 'center', padding: 10 }} onPress={handleReset}>
-          <Text style={{ color: 'rgba(255, 69, 58, 0.6)', fontSize: 13 }}>[ Sırlar Okulu Hafızasını Sıfırla ]</Text>
-        </TouchableOpacity>
 
         <View style={{height: 100}} />
       </ScrollView>

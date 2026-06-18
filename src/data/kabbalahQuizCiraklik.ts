@@ -1,3 +1,5 @@
+import { Quiz } from './allQuizzes';
+
 export const kabbalahQuizCiraklik: Quiz = {
   id: "kabbalah_1",
   title: "1. Derece: Çıraklık Sınavı",

@@ -1,3 +1,5 @@
+import { Quiz } from './allQuizzes';
+
 export const kabbalahQuizKalfalik: Quiz = {
   id: "kabbalah_2",
   title: "2. Derece: Kalfalık Sınavı",
