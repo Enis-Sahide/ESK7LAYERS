@@ -25,10 +25,6 @@ const REPEAT_OPTIONS = [
   { label: 'Pazarları', value: 'sunday' },
 ];
 
-const ACTION_OPTIONS = [
-  { label: 'Sadece Bildir', value: 'notify' },
-  { label: 'Etkileşim Talep Et', value: 'interaction' },
-];
 
 const PLANET_OPTIONS = [
   { label: 'Satürn ♄', value: 'Saturn' },
@@ -83,7 +79,6 @@ export default function GezegenSaatleriScreen() {
   const [newAlarmPlanet, setNewAlarmPlanet] = useState('Jupiter');
   const [newAlarmOffset, setNewAlarmOffset] = useState(0);
   const [newAlarmRepeat, setNewAlarmRepeat] = useState<'once' | 'always' | 'never' | 'weekday' | 'weekend' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'>('always');
-  const [newAlarmAction, setNewAlarmAction] = useState<'notify' | 'interaction'>('notify');
 
   // Planet specific alarms modal state
   const [planetAlarmsModalVisible, setPlanetAlarmsModalVisible] = useState(false);
@@ -317,7 +312,7 @@ export default function GezegenSaatleriScreen() {
         planet: newAlarmPlanet,
         offsetMinutes: newAlarmOffset,
         repeatType: newAlarmRepeat,
-        actionType: newAlarmAction,
+        actionType: 'notify',
       });
       await loadRules();
       if (currentCoords) {
@@ -581,7 +576,6 @@ export default function GezegenSaatleriScreen() {
                     setNewAlarmPlanet('Jupiter');
                     setNewAlarmOffset(0);
                     setNewAlarmRepeat('always');
-                    setNewAlarmAction('notify');
                     setShowAddAlarmModal(true);
                   }}
                 >
@@ -601,7 +595,6 @@ export default function GezegenSaatleriScreen() {
                 alarmRules.map((rule) => {
                   const info = getPlanetInfo(rule.planet);
                   const repeatLabel = REPEAT_OPTIONS.find(o => o.value === rule.repeatType)?.label || rule.repeatType;
-                  const actionLabel = ACTION_OPTIONS.find(o => o.value === rule.actionType)?.label || rule.actionType;
                   
                   let offsetLabel = 'Tam vaktinde';
                   if (rule.offsetMinutes < 0) offsetLabel = `${Math.abs(rule.offsetMinutes)} dk önce`;
@@ -639,16 +632,6 @@ export default function GezegenSaatleriScreen() {
                         >
                           <Ionicons name="calendar-outline" size={14} color={COLORS.primary} />
                           <Text style={styles.ruleDetailText}>{repeatLabel}</Text>
-                          <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
-                        </TouchableOpacity>
-
-                        {/* Action Edit */}
-                        <TouchableOpacity 
-                          style={styles.ruleDetailItem} 
-                          onPress={() => openCustomPicker('Bildirim Türü', ACTION_OPTIONS, rule.actionType, (val) => handleUpdateRule(rule.id, { actionType: val }))}
-                        >
-                          <Ionicons name="alert-circle-outline" size={14} color={COLORS.primary} />
-                          <Text style={styles.ruleDetailText}>{actionLabel}</Text>
                           <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
                         </TouchableOpacity>
                       </View>
@@ -715,19 +698,6 @@ export default function GezegenSaatleriScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Action Field */}
-            <View style={styles.modalFormGroup}>
-              <Text style={styles.modalFormLabel}>Eylem Türü</Text>
-              <TouchableOpacity 
-                style={styles.modalDropdown} 
-                onPress={() => openCustomPicker('Eylem Türü', ACTION_OPTIONS, newAlarmAction, setNewAlarmAction)}
-              >
-                <Text style={styles.modalDropdownText}>
-                  {ACTION_OPTIONS.find(o => o.value === newAlarmAction)?.label || 'Seçin'}
-                </Text>
-                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
-              </TouchableOpacity>
-            </View>
 
             {/* Save Button */}
             <TouchableOpacity style={styles.modalSaveBtn} onPress={handleCreateRule}>
@@ -763,7 +733,6 @@ export default function GezegenSaatleriScreen() {
                       setNewAlarmPlanet(selectedPlanetForAlarms);
                       setNewAlarmOffset(0);
                       setNewAlarmRepeat('always');
-                      setNewAlarmAction('notify');
                       setPlanetAlarmsModalVisible(false);
                       setShowAddAlarmModal(true);
                     }}
@@ -799,7 +768,6 @@ export default function GezegenSaatleriScreen() {
                       setNewAlarmPlanet(selectedPlanetForAlarms);
                       setNewAlarmOffset(0);
                       setNewAlarmRepeat('always');
-                      setNewAlarmAction('notify');
                       setPlanetAlarmsModalVisible(false);
                       setShowAddAlarmModal(true);
                     }}
