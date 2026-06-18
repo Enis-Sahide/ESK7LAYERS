@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
@@ -26,7 +26,6 @@ export default function DuygusalHastaliklarScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SacredBackground>
-
         
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -54,41 +53,45 @@ export default function DuygusalHastaliklarScreen() {
           </View>
         </View>
 
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent} 
-          showsVerticalScrollIndicator={false}
+        <FlatList
+          data={filteredDiseases}
+          keyExtractor={(item, index) => index.toString()}
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === 'android'}
           keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.introContainer}>
-            <Ionicons name="heart-half-outline" size={40} color="#FF3B30" style={{ marginBottom: 15 }} />
-            <Text style={styles.introTitle}>Bedenin Dili</Text>
-            <Text style={styles.introText}>
-              Ezoterik öğretilere göre her fiziksel rahatsızlığın kökeninde çözülmemiş bir duygusal veya zihinsel blokaj yatar. Beden, zihnin taşıyamadığı yükleri fiziksel bir dilde ifade eder.
-            </Text>
-          </View>
-
-          <View style={styles.resultsContainer}>
-            {filteredDiseases.length > 0 ? (
-              filteredDiseases.map((disease, i) => (
-                <View key={i} style={styles.diseaseCard}>
-                  <Text style={styles.diseaseName}>{disease.name}</Text>
-                  <View style={styles.diseaseRow}>
-                    <Ionicons name="alert-circle-outline" size={16} color="#FF9500" style={styles.diseaseIcon} />
-                    <Text style={styles.diseaseCause}>{disease.cause}</Text>
-                  </View>
-                  <View style={styles.diseaseRow}>
-                    <Ionicons name="heart-circle-outline" size={16} color="#34C759" style={styles.diseaseIcon} />
-                    <Text style={styles.diseaseAffirmation}>{disease.affirmation}</Text>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.noResultText}>Sonuç bulunamadı.</Text>
-            )}
-          </View>
-        
-          <View style={{ height: 40 }} />
-        </ScrollView>
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          ListHeaderComponent={
+            <View style={styles.introContainer}>
+              <Ionicons name="heart-half-outline" size={40} color="#FF3B30" style={{ marginBottom: 15 }} />
+              <Text style={styles.introTitle}>Bedenin Dili</Text>
+              <Text style={styles.introText}>
+                Ezoterik öğretilere göre her fiziksel rahatsızlığın kökeninde çözülmemiş bir duygusal veya zihinsel blokaj yatar. Beden, zihnin taşıyamadığı yükleri fiziksel bir dilde ifade eder.
+              </Text>
+            </View>
+          }
+          renderItem={({ item: disease }) => (
+            <View style={styles.diseaseCard}>
+              <Text style={styles.diseaseName}>{disease.name}</Text>
+              <View style={styles.diseaseRow}>
+                <Ionicons name="alert-circle-outline" size={16} color="#FF9500" style={styles.diseaseIcon} />
+                <Text style={styles.diseaseCause}>{disease.cause}</Text>
+              </View>
+              <View style={styles.diseaseRow}>
+                <Ionicons name="heart-circle-outline" size={16} color="#34C759" style={styles.diseaseIcon} />
+                <Text style={styles.diseaseAffirmation}>{disease.affirmation}</Text>
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text style={styles.noResultText}>Sonuç bulunamadı.</Text>
+          }
+          ListFooterComponent={
+            <View style={{ height: 40 }} />
+          }
+        />
       </SacredBackground>
     </KeyboardAvoidingView>
   );

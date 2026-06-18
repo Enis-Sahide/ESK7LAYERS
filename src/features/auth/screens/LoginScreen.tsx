@@ -43,64 +43,64 @@ export default function LoginScreen() {
   };
 
   return (
-    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover">
+    <ImageBackground source={ESOTERIC_BG} style={styles.container} resizeMode="cover" imageStyle={{ opacity: 0.07 }}>
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
-        <Text style={styles.title}>7LAYERS</Text>
-        <Text style={styles.subtitle}>Gizemli yolculuğa hoş geldin.</Text>
+          <Text style={styles.title}>7LAYERS</Text>
+          <Text style={styles.subtitle}>Gizemli yolculuğa hoş geldin.</Text>
 
-        {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>E-Posta</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="E-posta adresin"
-            placeholderTextColor={COLORS.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>E-Posta</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="E-posta adresin"
+              placeholderTextColor={COLORS.textMuted}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Şifre</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Şifren"
-            placeholderTextColor={COLORS.textMuted}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity onPress={() => router.push('/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 8 }}>
-            <Text style={{ color: COLORS.primary, fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum?</Text>
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Şifre</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Şifren"
+              placeholderTextColor={COLORS.textMuted}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
+            <TouchableOpacity onPress={() => router.push('/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 8 }}>
+              <Text style={{ color: COLORS.primary, fontSize: 13, fontWeight: '600' }}>Şifremi Unuttum?</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity 
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color={COLORS.background} />
+            ) : (
+              <Text style={styles.buttonText}>GİRİŞ YAP</Text>
+            )}
           </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={COLORS.background} />
-          ) : (
-            <Text style={styles.buttonText}>GİRİŞ YAP</Text>
-          )}
-        </TouchableOpacity>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Henüz inisiye olmadın mı?</Text>
-          <TouchableOpacity onPress={() => router.push('/register')}>
-            <Text style={styles.footerLink}> Kayıt Ol</Text>
-          </TouchableOpacity>
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Henüz inisiye olmadın mı?</Text>
+            <TouchableOpacity onPress={() => router.push('/register')}>
+              <Text style={styles.footerLink}> Kayıt Ol</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
       </KeyboardAvoidingView>
     </ImageBackground>
   );

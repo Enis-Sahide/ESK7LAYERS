@@ -1,15 +1,60 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, ImageBackground, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+// @ts-ignore
 import tzlookup from 'tz-lookup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
 import { COLORS, SIZES } from '@/src/theme';
-import { refreshAllAlarms, addSingleAlarm, removeSingleAlarm, subscribePlanet, unsubscribePlanet } from '@/src/utils/AlarmManager';
+import { refreshAllAlarms, getAlarmRules, addAlarmRule, removeAlarmRule, updateAlarmRule, AlarmRule } from '@/src/utils/AlarmManager';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const REPEAT_OPTIONS = [
+  { label: 'Tek sefer', value: 'once' },
+  { label: 'Her zaman', value: 'always' },
+  { label: 'Hiçbir zaman', value: 'never' },
+  { label: 'Hafta içi', value: 'weekday' },
+  { label: 'Hafta sonu', value: 'weekend' },
+  { label: 'Pazartesileri', value: 'monday' },
+  { label: 'Salıları', value: 'tuesday' },
+  { label: 'Çarşambaları', value: 'wednesday' },
+  { label: 'Perşembeleri', value: 'thursday' },
+  { label: 'Cumaları', value: 'friday' },
+  { label: 'Cumartesileri', value: 'saturday' },
+  { label: 'Pazarları', value: 'sunday' },
+];
+
+const ACTION_OPTIONS = [
+  { label: 'Sadece Bildir', value: 'notify' },
+  { label: 'Etkileşim Talep Et', value: 'interaction' },
+];
+
+const PLANET_OPTIONS = [
+  { label: 'Satürn ♄', value: 'Saturn' },
+  { label: 'Jüpiter ♃', value: 'Jupiter' },
+  { label: 'Mars ♂', value: 'Mars' },
+  { label: 'Güneş ☉', value: 'Sun' },
+  { label: 'Venüs ♀', value: 'Venus' },
+  { label: 'Merkür ☿', value: 'Mercury' },
+  { label: 'Ay ☽', value: 'Moon' },
+];
+
+const MINS_OPTIONS = [
+  { label: '45 dk önce', value: -45 },
+  { label: '30 dk önce', value: -30 },
+  { label: '20 dk önce', value: -20 },
+  { label: '15 dk önce', value: -15 },
+  { label: '10 dk önce', value: -10 },
+  { label: '5 dk önce', value: -5 },
+  { label: 'Tam vaktinde', value: 0 },
+  { label: '5 dk sonra', value: 5 },
+  { label: '10 dk sonra', value: 10 },
+  { label: '15 dk sonra', value: 15 },
+  { label: '20 dk sonra', value: 20 },
+  { label: '30 dk sonra', value: 30 },
+  { label: '45 dk sonra', value: 45 },
+];
 
 export default function GezegenSaatleriScreen() {
   const router = useRouter();
@@ -19,14 +64,30 @@ export default function GezegenSaatleriScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [expandedHour, setExpandedHour] = useState<string | null>(null);
   
-  // Notification State
-  const [notifyMinutes, setNotifyMinutes] = useState<number>(0);
+  // Rules and Settings State
+  const [alarmRules, setAlarmRules] = useState<AlarmRule[]>([]);
   const [quietHours, setQuietHours] = useState<boolean>(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [activeAlarms, setActiveAlarms] = useState<string[]>([]);
-  const [alarmModalVisible, setAlarmModalVisible] = useState(false);
-  const [selectedAlarmHour, setSelectedAlarmHour] = useState<PlanetaryHour | null>(null);
   const [currentCoords, setCurrentCoords] = useState<{lat: number, lon: number} | null>(null);
+
+  // Reusable custom picker state
+  const [customPickerVisible, setCustomPickerVisible] = useState(false);
+  const [customPickerTitle, setCustomPickerTitle] = useState('');
+  const [customPickerOptions, setCustomPickerOptions] = useState<{ label: string, value: any }[]>([]);
+  const [customPickerSelectedValue, setCustomPickerSelectedValue] = useState<any>(null);
+  const [customPickerCallback, setCustomPickerCallback] = useState<(value: any) => void>(() => {});
+
+  // Add Alarm State
+  const [showAddAlarmModal, setShowAddAlarmModal] = useState(false);
+  const [newAlarmPlanet, setNewAlarmPlanet] = useState('Jupiter');
+  const [newAlarmOffset, setNewAlarmOffset] = useState(0);
+  const [newAlarmRepeat, setNewAlarmRepeat] = useState<'once' | 'always' | 'never' | 'weekday' | 'weekend' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'>('always');
+  const [newAlarmAction, setNewAlarmAction] = useState<'notify' | 'interaction'>('notify');
+
+  // Planet specific alarms modal state
+  const [planetAlarmsModalVisible, setPlanetAlarmsModalVisible] = useState(false);
+  const [selectedPlanetForAlarms, setSelectedPlanetForAlarms] = useState('Jupiter');
 
   if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -53,17 +114,24 @@ export default function GezegenSaatleriScreen() {
 
   const datesList = getNext7Days();
 
+  const loadRules = async () => {
+    try {
+      const rules = await getAlarmRules();
+      setAlarmRules(rules);
+    } catch (e) {}
+  };
+
   useEffect(() => {
     const loadSavedLocation = async () => {
       try {
         const savedWidget = await AsyncStorage.getItem('@show_planetary_widget');
         if (savedWidget === 'true') setShowWidget(true);
-        const sMins = await AsyncStorage.getItem('@notify_minutes');
-        if (sMins) setNotifyMinutes(parseInt(sMins));
         const sQuiet = await AsyncStorage.getItem('@quiet_hours');
         if (sQuiet) setQuietHours(sQuiet === 'true');
         const sAlarms = await AsyncStorage.getItem('@active_alarms');
         if (sAlarms) setActiveAlarms(JSON.parse(sAlarms));
+
+        await loadRules();
 
         const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
         if (savedLocation) {
@@ -230,36 +298,65 @@ export default function GezegenSaatleriScreen() {
     setExpandedHour(expandedHour === id ? null : id);
   };
 
-  const handleSetAlarm = async (type: 'single' | 'all') => {
-    if (!selectedAlarmHour || !currentCoords) return;
-    
-    if (type === 'single') {
-      await addSingleAlarm(selectedAlarmHour.startTime.toISOString(), selectedAlarmHour.planet);
-    } else {
-      await subscribePlanet(selectedAlarmHour.planet);
-    }
-    
-    const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
-    setActiveAlarms(actives);
-    
-    setAlarmModalVisible(false);
-    setSelectedAlarmHour(null);
+  const openCustomPicker = (
+    title: string,
+    options: { label: string, value: any }[],
+    currentVal: any,
+    callback: (val: any) => void
+  ) => {
+    setCustomPickerTitle(title);
+    setCustomPickerOptions(options);
+    setCustomPickerSelectedValue(currentVal);
+    setCustomPickerCallback(() => callback);
+    setCustomPickerVisible(true);
   };
 
-  const handleCancelAlarm = async (type: 'single' | 'all') => {
-    if (!selectedAlarmHour || !currentCoords) return;
-    
-    if (type === 'single') {
-      await removeSingleAlarm(selectedAlarmHour.startTime.toISOString());
-    } else {
-      await unsubscribePlanet(selectedAlarmHour.planet);
+  const handleCreateRule = async () => {
+    try {
+      await addAlarmRule({
+        planet: newAlarmPlanet,
+        offsetMinutes: newAlarmOffset,
+        repeatType: newAlarmRepeat,
+        actionType: newAlarmAction,
+      });
+      await loadRules();
+      if (currentCoords) {
+        const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+        setActiveAlarms(actives);
+      }
+      setShowAddAlarmModal(false);
+    } catch (err) {}
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    try {
+      await removeAlarmRule(id);
+      await loadRules();
+      if (currentCoords) {
+        const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+        setActiveAlarms(actives);
+      }
+    } catch (err) {}
+  };
+
+  const handleUpdateRule = async (id: string, updates: Partial<AlarmRule>) => {
+    try {
+      await updateAlarmRule(id, updates);
+      await loadRules();
+      if (currentCoords) {
+        const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+        setActiveAlarms(actives);
+      }
+    } catch (err) {}
+  };
+
+  const handleQuietHoursChange = async (val: boolean) => {
+    setQuietHours(val);
+    await AsyncStorage.setItem('@quiet_hours', val ? 'true' : 'false');
+    if (currentCoords) {
+      const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
+      setActiveAlarms(actives);
     }
-    
-    const actives = await refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone || '');
-    setActiveAlarms(actives);
-    
-    setAlarmModalVisible(false);
-    setSelectedAlarmHour(null);
   };
 
   const renderHourList = (hours: PlanetaryHour[], title: string, isDayMode: boolean) => (
@@ -270,6 +367,10 @@ export default function GezegenSaatleriScreen() {
         const isActive = isCurrentHour(hour.startTime, hour.endTime);
         const id = `${isDayMode ? 'day' : 'night'}-${idx}`;
         const isExpanded = expandedHour === id;
+
+        // Check if there are active rules for this planet
+        const planetRules = alarmRules.filter(r => r.planet === hour.planet && r.repeatType !== 'never');
+        const hasRule = planetRules.length > 0;
 
         return (
           <TouchableOpacity 
@@ -300,11 +401,18 @@ export default function GezegenSaatleriScreen() {
                     <Text style={styles.activeBadgeText}>ŞU AN</Text>
                   </View>
                 )}
-                <TouchableOpacity onPress={(e) => { e.stopPropagation(); setSelectedAlarmHour(hour); setAlarmModalVisible(true); }}>
+                <TouchableOpacity 
+                  onPress={(e) => { 
+                    e.stopPropagation(); 
+                    setSelectedPlanetForAlarms(hour.planet);
+                    setPlanetAlarmsModalVisible(true); 
+                  }}
+                  style={{ padding: 6 }}
+                >
                   <Ionicons 
-                    name={activeAlarms.includes(hour.startTime.toISOString()) ? "notifications" : "notifications-outline"} 
+                    name={hasRule ? "notifications" : "notifications-outline"} 
                     size={24} 
-                    color={activeAlarms.includes(hour.startTime.toISOString()) ? COLORS.primary : COLORS.textMuted} 
+                    color={hasRule ? COLORS.primary : COLORS.textMuted} 
                   />
                 </TouchableOpacity>
               </View>
@@ -323,8 +431,6 @@ export default function GezegenSaatleriScreen() {
 
   return (
     <SacredBackground>
-
-      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
@@ -428,7 +534,7 @@ export default function GezegenSaatleriScreen() {
           <TouchableOpacity style={styles.widgetToggleContainer} onPress={() => setShowSettingsModal(true)}>
             <View style={{ flex: 1 }}>
               <Text style={styles.widgetToggleTitle}>Bildirim Ayarları</Text>
-              <Text style={styles.widgetToggleDesc}>{notifyMinutes > 0 ? `${notifyMinutes} dk önce` : 'Tam vaktinde'} haber ver | Gece Sessizliği: {quietHours ? 'Açık' : 'Kapalı'}</Text>
+              <Text style={styles.widgetToggleDesc}>Kurulu alarmları ve kuralları buradan yönetin.</Text>
             </View>
             <Ionicons name="settings-outline" size={24} color={COLORS.primary} />
           </TouchableOpacity>
@@ -440,97 +546,308 @@ export default function GezegenSaatleriScreen() {
         </ScrollView>
       ) : null}
 
-      {/* Alarm Type Modal */}
-      <Modal visible={alarmModalVisible} transparent animationType="slide" onRequestClose={() => setAlarmModalVisible(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setAlarmModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Alarm Kur</Text>
-            {selectedAlarmHour && (
-              <Text style={styles.modalSubtitle}>{getPlanetInfo(selectedAlarmHour.planet).name} Saati ({formatTime(selectedAlarmHour.startTime, timezone)})</Text>
-            )}
-            
-            {selectedAlarmHour && activeAlarms.includes(selectedAlarmHour.startTime.toISOString()) ? (
-              <>
-                <TouchableOpacity style={[styles.modalOptionBtn, {backgroundColor: 'rgba(255,59,48,0.1)'}]} onPress={() => handleCancelAlarm('single')}>
-                  <Ionicons name="trash-outline" size={24} color={COLORS.error} style={{ marginRight: 10 }} />
-                  <Text style={[styles.modalOptionText, {color: COLORS.error}]}>Bu Saatin Alarmını İptal Et</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalOptionBtn, {backgroundColor: 'rgba(255,59,48,0.1)'}]} onPress={() => handleCancelAlarm('all')}>
-                  <Ionicons name="close-circle-outline" size={24} color={COLORS.error} style={{ marginRight: 10 }} />
-                  <Text style={[styles.modalOptionText, {color: COLORS.error}]}>Bu Gezegenin Tüm Alarmlarını İptal Et</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <TouchableOpacity style={styles.modalOptionBtn} onPress={() => handleSetAlarm('single')}>
-                  <Ionicons name="time-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
-                  <Text style={styles.modalOptionText}>Sadece Bu Saate Kur</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity style={styles.modalOptionBtn} onPress={() => handleSetAlarm('all')}>
-                  <Ionicons name="calendar-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
-                  <View>
-                    <Text style={styles.modalOptionText}>Tüm Saatlere Kur (7 Gün)</Text>
-                    <Text style={{fontSize: 10, color: COLORS.textMuted}}>Bu gezegenin önümüzdeki tüm saatlerine alarm kurar.</Text>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
+      {/* Settings Modal (Bildirim Ayarları) */}
+      <Modal visible={showSettingsModal} transparent animationType="slide" onRequestClose={() => setShowSettingsModal(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowSettingsModal(false)}>
+          <View style={[styles.modalContent, { height: '80%' }]} onStartShouldSetResponder={() => true}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Bildirim Ayarları</Text>
+              <TouchableOpacity onPress={() => setShowSettingsModal(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setAlarmModalVisible(false)}>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, marginTop: 10 }}>
+              {/* Gece Rahatsız Etme */}
+              <View style={styles.quietHoursContainer}>
+                <View style={{ flex: 1, paddingRight: 15 }}>
+                  <Text style={styles.sectionSubTitle}>Gece Rahatsız Etme</Text>
+                  <Text style={styles.sectionDesc}>Açıksa, 00:00 ile 07:00 arasındaki saatlere alarm kurulmaz.</Text>
+                </View>
+                <Switch
+                  value={quietHours}
+                  onValueChange={handleQuietHoursChange}
+                  trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
+                  thumbColor={quietHours ? '#fff' : '#ccc'}
+                />
+              </View>
+
+              {/* Rules List Title */}
+              <View style={styles.rulesListHeader}>
+                <Text style={styles.rulesListTitle}>Aktif Alarm Kuralları</Text>
+                <TouchableOpacity 
+                  style={styles.rulesAddMiniBtn} 
+                  onPress={() => {
+                    setNewAlarmPlanet('Jupiter');
+                    setNewAlarmOffset(0);
+                    setNewAlarmRepeat('always');
+                    setNewAlarmAction('notify');
+                    setShowAddAlarmModal(true);
+                  }}
+                >
+                  <Ionicons name="add" size={16} color="#000" />
+                  <Text style={styles.rulesAddMiniBtnText}>Ekle</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Rules List */}
+              {alarmRules.length === 0 ? (
+                <View style={styles.emptyStateContainer}>
+                  <Ionicons name="notifications-off-outline" size={48} color={COLORS.textMuted} />
+                  <Text style={styles.emptyStateText}>Henüz bir alarm kuralı eklemediniz.</Text>
+                  <Text style={styles.emptyStateSubtext}>Belirli bir gezegen saati geldiğinde haberdar olmak için yeni bir kural ekleyin.</Text>
+                </View>
+              ) : (
+                alarmRules.map((rule) => {
+                  const info = getPlanetInfo(rule.planet);
+                  const repeatLabel = REPEAT_OPTIONS.find(o => o.value === rule.repeatType)?.label || rule.repeatType;
+                  const actionLabel = ACTION_OPTIONS.find(o => o.value === rule.actionType)?.label || rule.actionType;
+                  
+                  let offsetLabel = 'Tam vaktinde';
+                  if (rule.offsetMinutes < 0) offsetLabel = `${Math.abs(rule.offsetMinutes)} dk önce`;
+                  if (rule.offsetMinutes > 0) offsetLabel = `${rule.offsetMinutes} dk sonra`;
+
+                  return (
+                    <View key={rule.id} style={[styles.ruleCard, { borderLeftColor: info.color }]}>
+                      <View style={styles.ruleCardHeader}>
+                        <View style={styles.ruleCardTitleGroup}>
+                          <View style={[styles.rulePlanetSymbolBg, { backgroundColor: info.color + '20' }]}>
+                            <Text style={[styles.rulePlanetSymbol, { color: info.color }]}>{info.symbol}</Text>
+                          </View>
+                          <Text style={styles.ruleCardTitle}>{info.name} Saati</Text>
+                        </View>
+                        <TouchableOpacity style={styles.ruleDeleteBtn} onPress={() => handleDeleteRule(rule.id)}>
+                          <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+                        </TouchableOpacity>
+                      </View>
+
+                      <View style={styles.ruleDetailsContainer}>
+                        {/* Offset Edit */}
+                        <TouchableOpacity 
+                          style={styles.ruleDetailItem} 
+                          onPress={() => openCustomPicker('Bildirim Zamanı', MINS_OPTIONS, rule.offsetMinutes, (val) => handleUpdateRule(rule.id, { offsetMinutes: val }))}
+                        >
+                          <Ionicons name="time-outline" size={14} color={COLORS.primary} />
+                          <Text style={styles.ruleDetailText}>{offsetLabel}</Text>
+                          <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
+                        </TouchableOpacity>
+
+                        {/* Repeat Edit */}
+                        <TouchableOpacity 
+                          style={styles.ruleDetailItem} 
+                          onPress={() => openCustomPicker('Tekrar Ayarı', REPEAT_OPTIONS, rule.repeatType, (val) => handleUpdateRule(rule.id, { repeatType: val }))}
+                        >
+                          <Ionicons name="calendar-outline" size={14} color={COLORS.primary} />
+                          <Text style={styles.ruleDetailText}>{repeatLabel}</Text>
+                          <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
+                        </TouchableOpacity>
+
+                        {/* Action Edit */}
+                        <TouchableOpacity 
+                          style={styles.ruleDetailItem} 
+                          onPress={() => openCustomPicker('Bildirim Türü', ACTION_OPTIONS, rule.actionType, (val) => handleUpdateRule(rule.id, { actionType: val }))}
+                        >
+                          <Ionicons name="alert-circle-outline" size={14} color={COLORS.primary} />
+                          <Text style={styles.ruleDetailText}>{actionLabel}</Text>
+                          <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })
+              )}
+              <View style={{ height: 30 }} />
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Add Alarm Modal */}
+      <Modal visible={showAddAlarmModal} transparent animationType="fade" onRequestClose={() => setShowAddAlarmModal(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowAddAlarmModal(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Yeni Alarm Kuralı</Text>
+              <TouchableOpacity onPress={() => setShowAddAlarmModal(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Planet Field */}
+            <View style={styles.modalFormGroup}>
+              <Text style={styles.modalFormLabel}>Gezegen Saati</Text>
+              <TouchableOpacity 
+                style={styles.modalDropdown} 
+                onPress={() => openCustomPicker('Gezegen Seçin', PLANET_OPTIONS, newAlarmPlanet, setNewAlarmPlanet)}
+              >
+                <Text style={styles.modalDropdownText}>
+                  {PLANET_OPTIONS.find(o => o.value === newAlarmPlanet)?.label || 'Seçin'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Offset Field */}
+            <View style={styles.modalFormGroup}>
+              <Text style={styles.modalFormLabel}>Bildirim Zamanı</Text>
+              <TouchableOpacity 
+                style={styles.modalDropdown} 
+                onPress={() => openCustomPicker('Bildirim Zamanı', MINS_OPTIONS, newAlarmOffset, setNewAlarmOffset)}
+              >
+                <Text style={styles.modalDropdownText}>
+                  {MINS_OPTIONS.find(o => o.value === newAlarmOffset)?.label || 'Seçin'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Repeat Field */}
+            <View style={styles.modalFormGroup}>
+              <Text style={styles.modalFormLabel}>Tekrar Ayarı</Text>
+              <TouchableOpacity 
+                style={styles.modalDropdown} 
+                onPress={() => openCustomPicker('Tekrar Ayarı', REPEAT_OPTIONS, newAlarmRepeat, setNewAlarmRepeat)}
+              >
+                <Text style={styles.modalDropdownText}>
+                  {REPEAT_OPTIONS.find(o => o.value === newAlarmRepeat)?.label || 'Seçin'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Action Field */}
+            <View style={styles.modalFormGroup}>
+              <Text style={styles.modalFormLabel}>Eylem Türü</Text>
+              <TouchableOpacity 
+                style={styles.modalDropdown} 
+                onPress={() => openCustomPicker('Eylem Türü', ACTION_OPTIONS, newAlarmAction, setNewAlarmAction)}
+              >
+                <Text style={styles.modalDropdownText}>
+                  {ACTION_OPTIONS.find(o => o.value === newAlarmAction)?.label || 'Seçin'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Save Button */}
+            <TouchableOpacity style={styles.modalSaveBtn} onPress={handleCreateRule}>
+              <Text style={styles.modalSaveBtnText}>Kaydet ve Kur</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Planet Alarms Modal (Gezegen Özelinde Alarmlar) */}
+      <Modal visible={planetAlarmsModalVisible} transparent animationType="slide" onRequestClose={() => setPlanetAlarmsModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPlanetAlarmsModalVisible(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>
+                {getPlanetInfo(selectedPlanetForAlarms).name} Saati Alarmları
+              </Text>
+              <TouchableOpacity onPress={() => setPlanetAlarmsModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ marginTop: 15, marginBottom: 20 }}>
+              {alarmRules.filter(r => r.planet === selectedPlanetForAlarms).length === 0 ? (
+                <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                  <Ionicons name="notifications-outline" size={48} color={COLORS.textMuted} style={{ marginBottom: 10 }} />
+                  <Text style={{ color: '#fff', textAlign: 'center', marginBottom: 15 }}>
+                    Bu gezegen için aktif bir alarm kuralı bulunmamaktadır.
+                  </Text>
+                  <TouchableOpacity 
+                    style={[styles.modalSaveBtn, { width: '100%' }]} 
+                    onPress={() => {
+                      setNewAlarmPlanet(selectedPlanetForAlarms);
+                      setNewAlarmOffset(0);
+                      setNewAlarmRepeat('always');
+                      setNewAlarmAction('notify');
+                      setPlanetAlarmsModalVisible(false);
+                      setShowAddAlarmModal(true);
+                    }}
+                  >
+                    <Text style={styles.modalSaveBtnText}>+ Alarm Kuralı Ekle</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View>
+                  {alarmRules.filter(r => r.planet === selectedPlanetForAlarms).map(rule => {
+                    const repeatLabel = REPEAT_OPTIONS.find(o => o.value === rule.repeatType)?.label || rule.repeatType;
+                    
+                    let offsetLabel = 'Tam vaktinde';
+                    if (rule.offsetMinutes < 0) offsetLabel = `${Math.abs(rule.offsetMinutes)} dk önce`;
+                    if (rule.offsetMinutes > 0) offsetLabel = `${rule.offsetMinutes} dk sonra`;
+
+                    return (
+                      <View key={rule.id} style={styles.compactRuleRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: '#fff', fontWeight: 'bold' }}>{offsetLabel}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 12 }}>{repeatLabel}</Text>
+                        </View>
+                        <TouchableOpacity style={styles.ruleDeleteBtn} onPress={() => handleDeleteRule(rule.id)}>
+                          <Ionicons name="trash-outline" size={18} color={COLORS.error} />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                  
+                  <TouchableOpacity 
+                    style={[styles.modalSaveBtn, { width: '100%', marginTop: 15, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.4)' }]} 
+                    onPress={() => {
+                      setNewAlarmPlanet(selectedPlanetForAlarms);
+                      setNewAlarmOffset(0);
+                      setNewAlarmRepeat('always');
+                      setNewAlarmAction('notify');
+                      setPlanetAlarmsModalVisible(false);
+                      setShowAddAlarmModal(true);
+                    }}
+                  >
+                    <Text style={[styles.modalSaveBtnText, { color: COLORS.primary }]}>+ Yeni Alarm Kuralı Ekle</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+
+            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setPlanetAlarmsModalVisible(false)}>
               <Text style={styles.modalCancelText}>Kapat</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
 
-      {/* Settings Modal */}
-      <Modal visible={showSettingsModal} transparent animationType="fade" onRequestClose={() => setShowSettingsModal(false)}>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowSettingsModal(false)}>
-          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-            <Text style={styles.modalTitle}>Bildirim Ayarları</Text>
-            
-            <View style={{ marginVertical: 15 }}>
-              <Text style={{color: '#fff', marginBottom: 10, fontWeight: 'bold'}}>Bildirim Zamanı</Text>
-              <View style={{flexDirection: 'row', gap: 10}}>
-                {[0, 5, 10, 15].map(min => (
-                  <TouchableOpacity 
-                    key={min} 
-                    style={[styles.timeOptionBtn, notifyMinutes === min && { backgroundColor: COLORS.primary }]}
-                    onPress={async () => {
-                      setNotifyMinutes(min);
-                      await AsyncStorage.setItem('@notify_minutes', min.toString());
+      {/* Reusable Custom Picker Modal */}
+      <Modal visible={customPickerVisible} transparent animationType="fade" onRequestClose={() => setCustomPickerVisible(false)}>
+        <TouchableOpacity style={styles.pickerOverlay} activeOpacity={1} onPress={() => setCustomPickerVisible(false)}>
+          <View style={styles.pickerContent} onStartShouldSetResponder={() => true}>
+            <Text style={styles.pickerTitle}>{customPickerTitle}</Text>
+            <ScrollView style={{ maxHeight: 300 }}>
+              {customPickerOptions.map((item, index) => {
+                const isSelected = item.value === customPickerSelectedValue;
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.pickerOption, isSelected && styles.pickerOptionSelected]}
+                    onPress={() => {
+                      customPickerCallback(item.value);
+                      setCustomPickerVisible(false);
                     }}
                   >
-                    <Text style={{color: '#fff'}}>{min === 0 ? 'Tam' : `${min} dk`}</Text>
+                    <Text style={[styles.pickerOptionText, isSelected && styles.pickerOptionTextSelected]}>
+                      {item.label}
+                    </Text>
+                    {isSelected && <Ionicons name="checkmark" size={20} color={COLORS.primary} />}
                   </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 15, justifyContent: 'space-between' }}>
-              <View style={{flex: 1, paddingRight: 15}}>
-                <Text style={{color: '#fff', fontWeight: 'bold'}}>Gece Rahatsız Etme</Text>
-                <Text style={{color: COLORS.textMuted, fontSize: 11, marginTop: 4}}>Açıksa, 00:00 ile 07:00 arasındaki saatlere alarm kurulmaz.</Text>
-              </View>
-              <Switch
-                value={quietHours}
-                onValueChange={async (val) => {
-                  setQuietHours(val);
-                  await AsyncStorage.setItem('@quiet_hours', val ? 'true' : 'false');
-                }}
-                trackColor={{ false: 'rgba(255,255,255,0.1)', true: COLORS.primary }}
-                thumbColor={quietHours ? '#fff' : '#ccc'}
-              />
-            </View>
-
-            <TouchableOpacity style={[styles.modalCancelBtn, { backgroundColor: COLORS.primary, borderWidth: 0 }]} onPress={() => setShowSettingsModal(false)}>
-              <Text style={[styles.modalCancelText, {color: '#1a1f33'}]}>Kapat</Text>
+                );
+              })}
+            </ScrollView>
+            <TouchableOpacity style={styles.pickerCloseBtn} onPress={() => setCustomPickerVisible(false)}>
+              <Text style={styles.pickerCloseBtnText}>İptal</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
-
     </SacredBackground>
   );
 }
@@ -826,5 +1143,240 @@ const styles = StyleSheet.create({
   suggestionText: {
     color: '#fff',
     fontSize: 14,
-  }
+  },
+  modalHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  quietHoursContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  sectionSubTitle: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  sectionDesc: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    marginTop: 4,
+  },
+  rulesListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    marginTop: 5,
+  },
+  rulesListTitle: {
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  rulesAddMiniBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 4,
+  },
+  rulesAddMiniBtnText: {
+    color: '#000',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    borderStyle: 'dashed',
+  },
+  emptyStateText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 10,
+    textAlign: 'center',
+  },
+  emptyStateSubtext: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  ruleCard: {
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  ruleCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  ruleCardTitleGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  rulePlanetSymbolBg: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rulePlanetSymbol: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  ruleCardTitle: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  ruleDeleteBtn: {
+    padding: 4,
+  },
+  ruleDetailsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  ruleDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  ruleDetailText: {
+    color: '#fff',
+    fontSize: 11,
+  },
+  modalFormGroup: {
+    marginBottom: 15,
+  },
+  modalFormLabel: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    marginBottom: 6,
+  },
+  modalDropdown: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+  },
+  modalDropdownText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  modalSaveBtn: {
+    backgroundColor: COLORS.primary,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  modalSaveBtnText: {
+    color: '#000',
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  compactRuleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  pickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  pickerContent: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#1a1f33',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  pickerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  pickerOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  pickerOptionSelected: {
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  pickerOptionText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  pickerOptionTextSelected: {
+    color: COLORS.primary,
+    fontWeight: 'bold',
+  },
+  pickerCloseBtn: {
+    marginTop: 15,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  pickerCloseBtnText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 });
