@@ -529,7 +529,7 @@ export default function GezegenSaatleriScreen() {
           <TouchableOpacity style={styles.widgetToggleContainer} onPress={() => setShowSettingsModal(true)}>
             <View style={{ flex: 1 }}>
               <Text style={styles.widgetToggleTitle}>Bildirim Ayarları</Text>
-              <Text style={styles.widgetToggleDesc}>Kurulu alarmları ve kuralları buradan yönetin.</Text>
+              <Text style={styles.widgetToggleDesc}>Kurulu alarmları buradan yönetin.</Text>
             </View>
             <Ionicons name="settings-outline" size={24} color={COLORS.primary} />
           </TouchableOpacity>
@@ -569,7 +569,7 @@ export default function GezegenSaatleriScreen() {
 
               {/* Rules List Title */}
               <View style={styles.rulesListHeader}>
-                <Text style={styles.rulesListTitle}>Aktif Alarm Kuralları</Text>
+                <Text style={styles.rulesListTitle}>Aktif Alarmlar</Text>
                 <TouchableOpacity 
                   style={styles.rulesAddMiniBtn} 
                   onPress={() => {
@@ -588,8 +588,8 @@ export default function GezegenSaatleriScreen() {
               {alarmRules.length === 0 ? (
                 <View style={styles.emptyStateContainer}>
                   <Ionicons name="notifications-off-outline" size={48} color={COLORS.textMuted} />
-                  <Text style={styles.emptyStateText}>Henüz bir alarm kuralı eklemediniz.</Text>
-                  <Text style={styles.emptyStateSubtext}>Belirli bir gezegen saati geldiğinde haberdar olmak için yeni bir kural ekleyin.</Text>
+                  <Text style={styles.emptyStateText}>Henüz bir alarm eklemediniz.</Text>
+                  <Text style={styles.emptyStateSubtext}>Belirli bir gezegen saati geldiğinde haberdar olmak için yeni bir alarm ekleyin.</Text>
                 </View>
               ) : (
                 alarmRules.map((rule) => {
@@ -650,7 +650,7 @@ export default function GezegenSaatleriScreen() {
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowAddAlarmModal(false)}>
           <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>Yeni Alarm Kuralı</Text>
+              <Text style={styles.modalTitle}>Yeni Alarm</Text>
               <TouchableOpacity onPress={() => setShowAddAlarmModal(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -725,7 +725,7 @@ export default function GezegenSaatleriScreen() {
                 <View style={{ alignItems: 'center', paddingVertical: 20 }}>
                   <Ionicons name="notifications-outline" size={48} color={COLORS.textMuted} style={{ marginBottom: 10 }} />
                   <Text style={{ color: '#fff', textAlign: 'center', marginBottom: 15 }}>
-                    Bu gezegen için aktif bir alarm kuralı bulunmamaktadır.
+                    Bu gezegen için aktif bir alarm bulunmamaktadır.
                   </Text>
                   <TouchableOpacity 
                     style={[styles.modalSaveBtn, { width: '100%' }]} 
@@ -737,7 +737,7 @@ export default function GezegenSaatleriScreen() {
                       setShowAddAlarmModal(true);
                     }}
                   >
-                    <Text style={styles.modalSaveBtnText}>+ Alarm Kuralı Ekle</Text>
+                    <Text style={styles.modalSaveBtnText}>+ Alarm Ekle</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -772,7 +772,7 @@ export default function GezegenSaatleriScreen() {
                       setShowAddAlarmModal(true);
                     }}
                   >
-                    <Text style={[styles.modalSaveBtnText, { color: COLORS.primary }]}>+ Yeni Alarm Kuralı Ekle</Text>
+                    <Text style={[styles.modalSaveBtnText, { color: COLORS.primary }]}>+ Yeni Alarm Ekle</Text>
                   </TouchableOpacity>
                 </View>
               )}
