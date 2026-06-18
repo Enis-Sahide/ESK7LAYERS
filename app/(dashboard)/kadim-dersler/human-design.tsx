@@ -86,7 +86,7 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string,
 export default function HumanDesignCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'neofit' | 'adept' | 'master'>('neofit');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
 
   const handleTabPress = (tab: 'neofit' | 'adept' | 'master') => {
     setActiveTab(tab);
@@ -118,19 +118,19 @@ export default function HumanDesignCurriculumScreen() {
             <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>I. Çıraklık</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !hasAccess('human_2') && { opacity: 0.5 }]} 
-            onPress={() => hasAccess('human_2') ? handleTabPress('adept') : alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.")}
+            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('human_2') || isAdmin) && { opacity: 0.5 }]} 
+            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.")}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
-              {!hasAccess('human_2') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
+              {!(hasAccess('human_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'master' && styles.activeTab, !hasAccess('human_master') && { opacity: 0.5 }]} 
-            onPress={() => hasAccess('human_master') ? handleTabPress('master') : alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.")}
+            style={[styles.tab, activeTab === 'master' && styles.activeTab, !(hasAccess('human_master') || isAdmin) && { opacity: 0.5 }]} 
+            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.")}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
-              {!hasAccess('human_master') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
+              {!(hasAccess('human_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
             </Text>
           </TouchableOpacity>
         </View>

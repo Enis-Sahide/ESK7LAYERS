@@ -17,12 +17,12 @@ const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 export default function NumerolojiEgitimScreen() {
   const router = useRouter();
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'cirak' | 'kalfa' | 'ustat'>('cirak');
 
-  const isKalfaUnlocked = hasAccess('numeroloji_2');
-  const isUstatUnlocked = hasAccess('numeroloji_3');
+  const isKalfaUnlocked = hasAccess('numeroloji_2') || isAdmin;
+  const isUstatUnlocked = hasAccess('numeroloji_3') || isAdmin;
 
   // Convert object to array and sort numerically
   const numbersArray = Object.values(numerologyData).sort((a, b) => a.number - b.number);
@@ -157,7 +157,7 @@ export default function NumerolojiEgitimScreen() {
                       <Ionicons name="sunny" size={16} color="#FFD700" style={{ marginRight: 6 }} />
                       <Text style={styles.traitTitle}>Işık Yönü (Aydınlık)</Text>
                     </View>
-                    <Text style={styles.traitText}>{item.light}</Text>
+                    <Text style={styles.traitText}>{item.constructivePotentials}</Text>
                   </View>
 
                   <View style={styles.traitBox}>
@@ -165,12 +165,12 @@ export default function NumerolojiEgitimScreen() {
                       <Ionicons name="moon" size={16} color="#A0A0A0" style={{ marginRight: 6 }} />
                       <Text style={[styles.traitTitle, { color: '#A0A0A0' }]}>Gölge Yönü (Karanlık)</Text>
                     </View>
-                    <Text style={styles.traitText}>{item.shadow}</Text>
+                    <Text style={styles.traitText}>{item.negativePotentials}</Text>
                   </View>
 
                   <View style={styles.pathBox}>
                     <Text style={styles.pathTitle}>Kader ve Yaşam Yolunda {item.number}</Text>
-                    <Text style={styles.pathText}>{item.lifePath}</Text>
+                    <Text style={styles.pathText}>{item.lifePathDetails}</Text>
                   </View>
                 </View>
               )}

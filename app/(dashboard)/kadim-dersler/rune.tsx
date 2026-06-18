@@ -11,7 +11,7 @@ const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 export default function RuneMainScreen() {
   const router = useRouter();
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
 
   return (
     <SacredBackground>
@@ -44,9 +44,9 @@ export default function RuneMainScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={[styles.card, !hasAccess('rune_2') && { opacity: 0.5 }]}
+          style={[styles.card, !(hasAccess('rune_2') || isAdmin) && { opacity: 0.5 }]}
           onPress={() => {
-            if (hasAccess('rune_2')) {
+            if (hasAccess('rune_2') || isAdmin) {
               router.push('/(dashboard)/kadim-dersler/rune2');
             } else {
               alert("Bu derece kilitli! Önce Rune Sembolleri Sınavını (1. Kademe) %100 başarıyla geçmelisin.");
@@ -57,7 +57,7 @@ export default function RuneMainScreen() {
           <BlurView intensity={40} tint="dark" style={styles.cardBlur}>
             <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/runes/fear_bindrune.png' }} style={{width: 50, height: 50, marginBottom: 10, resizeMode: 'contain'}} />
             <Text style={styles.cardTitle}>
-              {!hasAccess('rune_2') && <Ionicons name="lock-closed" size={20} color={COLORS.primary} />} Rune Bağlamaları
+              {!(hasAccess('rune_2') || isAdmin) && <Ionicons name="lock-closed" size={20} color={COLORS.primary} />} Rune Bağlamaları
             </Text>
             <Text style={styles.cardDesc}>
               Sembollerin birleşimiyle oluşan tılsımlar, ritüeller ve rüya kapanı.

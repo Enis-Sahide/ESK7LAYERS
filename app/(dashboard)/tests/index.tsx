@@ -108,7 +108,7 @@ const TEST_CATEGORIES: TestCategory[] = [
 
 export default function TestsHubScreen() {
   const router = useRouter();
-  const { hasAccess, resetProgress } = useProgress();
+  const { hasAccess, resetProgress, isAdmin } = useProgress();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
@@ -132,7 +132,7 @@ export default function TestsHubScreen() {
   };
 
   const handlePress = (category: TestCategory) => {
-    if (category.isUnderConstruction) {
+    if (category.isUnderConstruction && !isAdmin) {
       Alert.alert("Yapım Aşamasında", "Bu sınavlar yapım aşamasındadır.");
       return;
     }
@@ -166,7 +166,7 @@ export default function TestsHubScreen() {
           return (
             <View key={cat.id} style={styles.cardContainer}>
               <TouchableOpacity 
-                style={[styles.categoryCard, cat.isUnderConstruction && { opacity: 0.6 }]} 
+                style={[styles.categoryCard, cat.isUnderConstruction && !isAdmin && { opacity: 0.6 }]} 
                 onPress={() => handlePress(cat)}
                 activeOpacity={0.8}
               >
@@ -175,24 +175,24 @@ export default function TestsHubScreen() {
                     <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                   </View>
                   <Text style={styles.cardTitle}>
-                    {cat.isUnderConstruction && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                    {cat.isUnderConstruction && !isAdmin && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
                     {cat.title}
                   </Text>
                 </View>
                 <Ionicons 
                   name={
-                    cat.isUnderConstruction ? "construct-outline" :
+                    (cat.isUnderConstruction && !isAdmin) ? "construct-outline" :
                     cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : "play-circle-outline"
                   } 
                   size={24} 
-                  color={(cat.subTests || cat.isUnderConstruction) ? COLORS.textMuted : COLORS.primary} 
+                  color={(cat.subTests || (cat.isUnderConstruction && !isAdmin)) ? COLORS.textMuted : COLORS.primary} 
                 />
               </TouchableOpacity>
 
               {isExpanded && cat.subTests && (
                 <View style={styles.subTestsContainer}>
                   {cat.subTests.map((sub, index) => {
-                    const isLocked = sub.requiredUnlock ? !hasAccess(sub.requiredUnlock) : false;
+                    const isLocked = isAdmin ? false : (sub.requiredUnlock ? !hasAccess(sub.requiredUnlock) : false);
 
                     return (
                       <TouchableOpacity 

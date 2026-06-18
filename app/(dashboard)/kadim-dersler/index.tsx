@@ -1,12 +1,10 @@
 import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '@/src/context/ProgressContext';
-
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
 interface LessonCategory {
   id: string;
@@ -31,11 +29,11 @@ const LESSON_CATEGORIES: LessonCategory[] = [
 
 export default function LessonsHubScreen() {
   const router = useRouter();
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
 
   const handlePress = (cat: LessonCategory) => {
-    if (cat.isUnderConstruction) {
+    if (cat.isUnderConstruction && !isAdmin) {
       Alert.alert("Yapım Aşamasında", "Bu ders yapım aşamasındadır.");
       return;
     }
@@ -44,8 +42,6 @@ export default function LessonsHubScreen() {
 
   return (
     <SacredBackground>
-
-      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
@@ -61,7 +57,7 @@ export default function LessonsHubScreen() {
         {LESSON_CATEGORIES.map((cat) => (
           <View key={cat.id} style={styles.cardContainer}>
             <TouchableOpacity 
-              style={[styles.categoryCard, cat.isUnderConstruction && { opacity: 0.6 }]} 
+              style={[styles.categoryCard, cat.isUnderConstruction && !isAdmin && { opacity: 0.6 }]} 
               onPress={() => handlePress(cat)}
               activeOpacity={0.8}
             >
@@ -70,14 +66,14 @@ export default function LessonsHubScreen() {
                   <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
                 </View>
                 <Text style={styles.cardTitle}>
-                  {cat.isUnderConstruction && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+                  {cat.isUnderConstruction && !isAdmin && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
                   {cat.title}
                 </Text>
               </View>
               <Ionicons 
-                name={cat.isUnderConstruction ? "construct-outline" : "chevron-forward"} 
+                name={(cat.isUnderConstruction && !isAdmin) ? "construct-outline" : "chevron-forward"} 
                 size={20} 
-                color={cat.isUnderConstruction ? COLORS.textMuted : COLORS.primary} 
+                color={(cat.isUnderConstruction && !isAdmin) ? COLORS.textMuted : COLORS.primary} 
               />
             </TouchableOpacity>
           </View>

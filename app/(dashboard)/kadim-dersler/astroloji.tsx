@@ -87,7 +87,7 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string,
 export default function AstrolojiCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'neofit' | 'adept' | 'master'>('neofit');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
 
   const handleToggle = (key: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -116,9 +116,9 @@ export default function AstrolojiCurriculumScreen() {
             <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>I. Çıraklık</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !hasAccess('astroloji_2') && { opacity: 0.5 }]}
+            style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('astroloji_2') || isAdmin) && { opacity: 0.5 }]}
             onPress={() => {
-              if (hasAccess('astroloji_2')) {
+              if (hasAccess('astroloji_2') || isAdmin) {
                 setActiveTab('adept'); setExpandedLesson(null);
               } else {
                 alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.");
@@ -126,13 +126,13 @@ export default function AstrolojiCurriculumScreen() {
             }}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
-              {!hasAccess('astroloji_2') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
+              {!(hasAccess('astroloji_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'master' && styles.activeTab, !hasAccess('astroloji_master') && { opacity: 0.5 }]}
+            style={[styles.tab, activeTab === 'master' && styles.activeTab, !(hasAccess('astroloji_master') || isAdmin) && { opacity: 0.5 }]}
             onPress={() => {
-              if (hasAccess('astroloji_master')) {
+              if (hasAccess('astroloji_master') || isAdmin) {
                 setActiveTab('master'); setExpandedLesson(null);
               } else {
                 alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.");
@@ -140,7 +140,7 @@ export default function AstrolojiCurriculumScreen() {
             }}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
-              {!hasAccess('astroloji_master') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
+              {!(hasAccess('astroloji_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
             </Text>
           </TouchableOpacity>
         </View>

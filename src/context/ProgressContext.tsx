@@ -8,12 +8,14 @@ interface ProgressContextType {
   unlockTier: (tierId: string) => Promise<void>;
   hasAccess: (tierId: string) => boolean;
   resetProgress: () => Promise<void>;
+  isAdmin: boolean;
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [unlockedTiers, setUnlockedTiers] = useState<string[]>([]);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     loadProgress();
@@ -21,8 +23,10 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to auth state changes to reload progress when user logs in
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
+        setUserEmail(session?.user?.email || null);
         loadProgress();
       } else if (event === 'SIGNED_OUT') {
+        setUserEmail(null);
         setUnlockedTiers([]);
       }
     });
@@ -36,6 +40,12 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     try {
       // 1. Try to load from Supabase User Metadata first (source of truth)
       const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      } else {
+        setUserEmail(null);
+      }
       
       if (session?.user?.user_metadata?.unlockedTiers) {
         const metadataTiers = session.user.user_metadata.unlockedTiers;
@@ -108,8 +118,10 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isAdmin = userEmail?.toLowerCase() === 'enissahide.kesik@outlook.com';
+
   return (
-    <ProgressContext.Provider value={{ unlockedTiers, unlockTier, hasAccess, resetProgress }}>
+    <ProgressContext.Provider value={{ unlockedTiers, unlockTier, hasAccess, resetProgress, isAdmin }}>
       {children}
     </ProgressContext.Provider>
   );

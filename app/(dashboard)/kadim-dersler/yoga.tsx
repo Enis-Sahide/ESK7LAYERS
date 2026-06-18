@@ -17,14 +17,14 @@ const COLORS = {
 
 export default function YogaCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'cirak' | 'kalfa' | 'ustat'>('cirak');
-  const { hasAccess } = useProgress();
+  const { hasAccess, isAdmin } = useProgress();
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
-    if (tab === 'kalfa' && !hasAccess('yoga_2')) {
+    if (tab === 'kalfa' && !(hasAccess('yoga_2') || isAdmin)) {
       alert("Bu bilgiye erişmek için Çıraklık sınavında (Yoga - 1. Derece) %100 'Tam İdrak' seviyesine ulaşmalısın.");
       return;
     }
-    if (tab === 'ustat' && !hasAccess('yoga_master')) {
+    if (tab === 'ustat' && !(hasAccess('yoga_master') || isAdmin)) {
       alert("Bu kadim sırlara erişmek için Kalfalık sınavında (Yoga - 2. Derece) %100 'Tam İdrak' seviyesine ulaşmalısın.");
       return;
     }
@@ -50,14 +50,14 @@ export default function YogaCurriculumScreen() {
           <TouchableOpacity style={[styles.tab, activeTab === 'cirak' && styles.activeTab]} onPress={() => handleTabPress('cirak')}>
             <Text style={[styles.tabText, activeTab === 'cirak' && styles.activeTabText]}>I. Çırak</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, activeTab === 'kalfa' && styles.activeTab, !hasAccess('yoga_2') && { opacity: 0.5 }]} onPress={() => handleTabPress('kalfa')}>
+          <TouchableOpacity style={[styles.tab, activeTab === 'kalfa' && styles.activeTab, !(hasAccess('yoga_2') || isAdmin) && { opacity: 0.5 }]} onPress={() => handleTabPress('kalfa')}>
             <Text style={[styles.tabText, activeTab === 'kalfa' && styles.activeTabText]}>
-              {!hasAccess('yoga_2') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} II. Kalfa
+              {!(hasAccess('yoga_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} II. Kalfa
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, activeTab === 'ustat' && styles.activeTab, !hasAccess('yoga_master') && { opacity: 0.5 }]} onPress={() => handleTabPress('ustat')}>
+          <TouchableOpacity style={[styles.tab, activeTab === 'ustat' && styles.activeTab, !(hasAccess('yoga_master') || isAdmin) && { opacity: 0.5 }]} onPress={() => handleTabPress('ustat')}>
             <Text style={[styles.tabText, activeTab === 'ustat' && styles.activeTabText]}>
-              {!hasAccess('yoga_master') && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} III. Üstat
+              {!(hasAccess('yoga_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} III. Üstat
             </Text>
           </TouchableOpacity>
         </View>
