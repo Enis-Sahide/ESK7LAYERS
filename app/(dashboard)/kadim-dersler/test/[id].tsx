@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { allQuizzes } from '@/src/data/allQuizzes';
 import { useProgress } from '@/src/context/ProgressContext';
+import { supabase } from '@/src/core/api/supabase';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
 
@@ -21,7 +22,97 @@ export default function KadimDerslerTestScreen() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [isLoadingCheck, setIsLoadingCheck] = useState(true);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    let activeSessionCleaned = false;
+
+    async function checkExamAccess() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          Alert.alert("Giriş Gerekli", "Sınava girmek için lütfen önce giriş yapın.");
+          router.back();
+          return;
+        }
+
+        const metadata = session.user.user_metadata || {};
+        const activeExam = metadata.activeExam;
+        const examAttempts = metadata.examAttempts || {};
+
+        // 1. Check if another device has an active session for this or any exam
+        if (activeExam && activeExam.examId) {
+          const startTime = new Date(activeExam.startTime).getTime();
+          const now = new Date().getTime();
+          const diffInMinutes = (now - startTime) / (1000 * 60);
+
+          // If session is on another device type and started less than 60 minutes ago
+          if (activeExam.device !== 'mobile' && diffInMinutes < 60) {
+            Alert.alert(
+              "Sınav Engellendi",
+              "Bu sınava şu anda başka bir cihazdan giriş yapılmış durumda! Güvenlik nedeniyle aynı anda iki cihazdan sınava girilemez."
+            );
+            router.back();
+            return;
+          }
+        }
+
+        // 2. Check if already taken today
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        if (examAttempts[id as string] === today) {
+          Alert.alert(
+            "Günlük Sınır",
+            "Bu sınava bugün zaten girdiniz! Bir sınava aynı gün içerisinde en fazla 1 kez girebilirsiniz. Lütfen yarın tekrar deneyin."
+          );
+          router.back();
+          return;
+        }
+
+        // 3. Register active session & record attempt
+        const updatedAttempts = { ...examAttempts, [id as string]: today };
+        await supabase.auth.updateUser({
+          data: {
+            ...metadata,
+            activeExam: { examId: id, startTime: new Date().toISOString(), device: 'mobile' },
+            examAttempts: updatedAttempts
+          }
+        });
+
+        setIsLoadingCheck(false);
+      } catch (err) {
+        console.error("Exam access check error:", err);
+        setIsLoadingCheck(false);
+      }
+    }
+
+    checkExamAccess();
+
+    // Clean up active session when user exits or unmounts
+    return () => {
+      if (!activeSessionCleaned) {
+        activeSessionCleaned = true;
+        clearActiveSession();
+      }
+    };
+  }, [id]);
+
+  const clearActiveSession = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const metadata = session.user.user_metadata || {};
+        await supabase.auth.updateUser({
+          data: {
+            ...metadata,
+            activeExam: null
+          }
+        });
+      }
+    } catch (e) {
+      console.error("Failed to clear active exam session:", e);
+    }
+  };
 
   useEffect(() => {
     if (isFinished && quizData) {
@@ -59,6 +150,14 @@ export default function KadimDerslerTestScreen() {
       }
     }
   }, [isFinished]);
+
+  if (isLoadingCheck) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }]}>
+        <Text style={{color: 'white'}}>Sınav doğrulaması yapılıyor...</Text>
+      </View>
+    );
+  }
 
   if (!quizData) {
     return (

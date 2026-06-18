@@ -90,6 +90,42 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           await supabase.auth.updateUser({
             data: { unlockedTiers: newTiers }
           });
+
+          // Determine overall role level and sync to public.profiles table
+          const hasMaster = newTiers.some((t: string) => t.includes('master') || t.endsWith('_3') || t.includes('Final'));
+          const hasJourneyman = newTiers.some((t: string) => t.includes('_2') || t.endsWith('_2'));
+          
+          let newRole = 'free';
+          if (hasMaster) {
+            newRole = 'master';
+          } else if (hasJourneyman) {
+            newRole = 'journeyman';
+          } else if (newTiers.length > 0) {
+            newRole = 'apprentice';
+          }
+
+          // Fetch current profile role to see if we should upgrade
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          const roleLevels: Record<string, number> = {
+            free: 0,
+            apprentice: 1,
+            journeyman: 2,
+            master: 3,
+            admin: 999
+          };
+
+          const currentRole = profile?.role || 'free';
+          if (roleLevels[newRole] > roleLevels[currentRole]) {
+            await supabase
+              .from('profiles')
+              .update({ role: newRole })
+              .eq('id', session.user.id);
+          }
         }
       }
     } catch (error) {
