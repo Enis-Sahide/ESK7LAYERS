@@ -395,10 +395,10 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             {/* Mağaza Linki */}
+             {/* Keşfet Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/store'); setIsToolsExpanded(false); }}>
-               <Ionicons name="cart" size={20} color="#D4AF37" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Mistika Mağaza</Text>
+               <Ionicons name="compass" size={20} color="#10B981" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Keşfet</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />

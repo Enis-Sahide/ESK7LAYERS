@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ImageBackground } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ImageBackground, Modal, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { CATEGORIES, VENDORS, PRODUCTS } from '@/src/data/marketplaceData';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const UNDER_MAINTENANCE = true;
 import SacredBackground from '@/components/SacredBackground';
+import { useProgress } from '@/src/context/ProgressContext';
 
 export default function StoreScreen() {
   const router = useRouter();
+  const { isAdmin } = useProgress();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isImeceModalOpen, setIsImeceModalOpen] = useState(false);
 
-  if (UNDER_MAINTENANCE) {
+  const handleOpenImeceLink = () => {
+    Linking.openURL('https://imecesistem.com.tr/davet/TM/BT90000000114');
+    setIsImeceModalOpen(false);
+  };
+
+  const navigateToImeceHealth = () => {
+    setIsImeceModalOpen(false);
+    router.push('/(dashboard)/imece-health');
+  };
+
+  if (UNDER_MAINTENANCE && !isAdmin) {
     return (
       <SacredBackground>
         
@@ -57,9 +71,16 @@ export default function StoreScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Keşfet & Mağaza</Text>
-            <Text style={styles.headerSubtitle}>Mistik yolculuğunuz için ürünler...</Text>
+          <TouchableOpacity 
+            onPress={() => router.replace('/(dashboard)')} 
+            style={styles.headerBackButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chevron-back" size={28} color="#D4AF37" />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Keşfet</Text>
+            <Text style={styles.headerSubtitle}>Bütünsel şifa, sağlık ve mistik ürünler...</Text>
           </View>
         </View>
 
@@ -95,6 +116,43 @@ export default function StoreScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
+
+          {/* İmece Banner */}
+          {!activeCategory && !searchQuery && (
+            <LinearGradient
+              colors={['rgba(16, 185, 129, 0.25)', 'rgba(20, 184, 166, 0.15)', 'rgba(0, 0, 0, 0.6)']}
+              style={styles.imeceBannerContainer}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <View style={styles.imeceBannerHeader}>
+                <View style={styles.imeceHeartIconWrapper}>
+                  <Ionicons name="heart-half-outline" size={32} color="#10B981" />
+                </View>
+                <View style={styles.imeceBannerTextContainer}>
+                  <Text style={styles.imeceBannerTitle}>İmece ile Sağlığı Destekle</Text>
+                  <Text style={styles.imeceBannerDesc}>
+                    Beden ve zihin dengenizi doğal, temiz ve güvenilir ürünlerle desteklemeye hazır mısınız? İmece sisteminin özel seçkisini inceleyin.
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity 
+                style={styles.imeceBannerButton} 
+                onPress={() => setIsImeceModalOpen(true)}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#10B981', '#14B8A6']}
+                  style={styles.imeceBannerButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.imeceBannerButtonText}>Tercihli Müşteri Ol & Alışverişe Başla</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </LinearGradient>
+          )}
 
           {/* Featured Stores */}
           {!activeCategory && !searchQuery && (
@@ -161,9 +219,102 @@ export default function StoreScreen() {
               })}
             </View>
           </View>
-          
         </ScrollView>
       </View>
+
+      {/* İmece Modal */}
+      <Modal
+        visible={isImeceModalOpen}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsImeceModalOpen(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+          
+          <View style={styles.modalCard}>
+            <TouchableOpacity 
+              style={styles.closeButton} 
+              onPress={() => setIsImeceModalOpen(false)}
+            >
+              <Ionicons name="close" size={24} color="#8E8E93" />
+            </TouchableOpacity>
+
+            <View style={styles.modalIconWrapper}>
+              <Ionicons name="heart-half-outline" size={40} color="#10B981" />
+            </View>
+
+            <Text style={styles.modalTitle}>İmece ile Sağlığını Destekle</Text>
+            <Text style={styles.modalSubtitle}>
+              Beden ve zihin dengenizi doğal, temiz ve güvenilir ürünlerle desteklemeye hazır mısınız?
+            </Text>
+
+            <View style={styles.bulletList}>
+              <View style={styles.bulletItem}>
+                <Text style={styles.bulletEmoji}>🌿</Text>
+                <View style={styles.bulletTextContainer}>
+                  <Text style={styles.bulletTitle}>Doğal & Güvenilir İçerikler</Text>
+                  <Text style={styles.bulletDesc}>Katkısız, temiz ve doğanın gücünü yansıtan formüller.</Text>
+                </View>
+              </View>
+
+              <View style={styles.bulletItem}>
+                <Text style={styles.bulletEmoji}>🤝</Text>
+                <View style={styles.bulletTextContainer}>
+                  <Text style={styles.bulletTitle}>İmece Paylaşım Ruhu</Text>
+                  <Text style={styles.bulletDesc}>Sağlığınızı desteklerken toplumsal yardımlaşmaya katkı sağlayın.</Text>
+                </View>
+              </View>
+
+              <View style={styles.bulletItem}>
+                <Text style={styles.bulletEmoji}>🎯</Text>
+                <View style={styles.bulletTextContainer}>
+                  <Text style={styles.bulletTitle}>Bütünsel Şifa Yaklaşımı</Text>
+                  <Text style={styles.bulletDesc}>Yaşam kalitenizi artırmaya yönelik özel ürün seçkisi.</Text>
+                </View>
+              </View>
+            </View>
+
+            <Text style={styles.modalLinkNotice}>
+              Aşağıdaki buton sizi güvenli bir şekilde İmece Sistem tercihli müşteri sayfasına yönlendirir.
+            </Text>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity 
+                style={styles.primaryAction} 
+                onPress={handleOpenImeceLink}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={['#10B981', '#14B8A6']}
+                  style={styles.actionGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Ionicons name="heart" size={16} color="#FFF" style={{ marginRight: 6 }} />
+                  <Text style={styles.primaryActionText}>Tercihli Müşteri Ol & Alışverişe Başla</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.secondaryAction} 
+                onPress={navigateToImeceHealth}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.secondaryActionText}>Sağlık Teknolojisini & Ürünleri İncele</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.cancelAction} 
+                onPress={() => setIsImeceModalOpen(false)}
+              >
+                <Text style={styles.cancelActionText}>Daha Sonra</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -171,7 +322,13 @@ export default function StoreScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#0B0C10' },
   container: { flex: 1, backgroundColor: '#0B0C10' },
-  header: { padding: 20, paddingTop: 10 },
+  header: { padding: 20, paddingTop: 10, flexDirection: 'row', alignItems: 'center' },
+  headerBackButton: {
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 4,
+  },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#D4AF37' },
   headerSubtitle: { fontSize: 14, color: '#8E8E93', marginTop: 4 },
   searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1C1C1E', marginHorizontal: 20, borderRadius: 12, paddingHorizontal: 12, marginBottom: 15, borderWidth: 1, borderColor: '#333' },
@@ -267,5 +424,196 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     fontWeight: 'bold',
     fontSize: 15,
+  },
+  imeceBannerContainer: {
+    marginHorizontal: 20,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    marginBottom: 20,
+  },
+  imeceBannerHeader: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  imeceHeartIconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  imeceBannerTextContainer: {
+    flex: 1,
+  },
+  imeceBannerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 6,
+  },
+  imeceBannerDesc: {
+    fontSize: 13,
+    color: '#A0A0B0',
+    lineHeight: 18,
+  },
+  imeceBannerButton: {
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  imeceBannerButtonGradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imeceBannerButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#0F172A',
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 30,
+    elevation: 10,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    padding: 4,
+  },
+  modalIconWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: '#A0A0B0',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  bulletList: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    marginBottom: 16,
+  },
+  bulletItem: {
+    flexDirection: 'row',
+    marginBottom: 14,
+  },
+  bulletEmoji: {
+    fontSize: 20,
+    marginRight: 12,
+    marginTop: 2,
+  },
+  bulletTextContainer: {
+    flex: 1,
+  },
+  bulletTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  bulletDesc: {
+    fontSize: 11,
+    color: '#8E8E93',
+    lineHeight: 15,
+  },
+  modalLinkNotice: {
+    fontSize: 11,
+    color: 'rgba(160, 160, 176, 0.6)',
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  modalActions: {
+    width: '100%',
+    gap: 10,
+  },
+  primaryAction: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  actionGradient: {
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryActionText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  secondaryAction: {
+    width: '100%',
+    paddingVertical: 14,
+    borderRadius: 16,
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryActionText: {
+    color: '#34D399',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  cancelAction: {
+    width: '100%',
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelActionText: {
+    color: '#8E8E93',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
