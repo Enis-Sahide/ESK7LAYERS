@@ -54,7 +54,7 @@ export const ASTRO_CITIES: AstroCity[] = [
 
 // Geliştirme aşamasında Expo mobil cihazdan kendi bilgisayarınıza bağlanabilmek için 
 // 'localhost' yerine bilgisayarınızın yerel IP adresini kullanmalısınız.
-const API_BASE_URL = 'http://192.168.1.9:3000/api';
+const API_BASE_URL = 'https://7layers.tr/api';
 
 export async function fetchAstrologyChart(birthDate: Date, cityKey: string = 'İstanbul'): Promise<NatalChartData> {
   try {

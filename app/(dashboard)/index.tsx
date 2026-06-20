@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
 import SacredBackground from '@/components/SacredBackground';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 const { width } = Dimensions.get('window');
 
@@ -184,7 +184,7 @@ export default function DashboardScreen() {
         {/* Üst Bilgi Başlığı */}
         <View style={styles.header}>
         <View style={styles.headerProfile}>
-          <Image source={require('@/assets/images/indir.png')} style={styles.headerAvatar} />
+          <Image source={require('@/assets/images/indir.webp')} style={styles.headerAvatar} />
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
               <Text style={styles.welcomeText}>Hoş Geldin, </Text>

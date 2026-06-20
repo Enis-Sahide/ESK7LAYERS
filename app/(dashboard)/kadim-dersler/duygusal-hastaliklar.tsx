@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { EMOTIONAL_DISEASES } from '@/src/data/emotionalDiseases';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function DuygusalHastaliklarScreen() {
   const router = useRouter();

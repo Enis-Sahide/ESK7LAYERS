@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
 import { supabase } from '@/src/core/api/supabase';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function LoginScreen() {
   const router = useRouter();

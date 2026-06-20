@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 const GUIDELINES = [
   {

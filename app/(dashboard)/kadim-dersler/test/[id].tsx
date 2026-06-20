@@ -9,7 +9,7 @@ import { allQuizzes } from '@/src/data/allQuizzes';
 import { useProgress } from '@/src/context/ProgressContext';
 import { supabase } from '@/src/core/api/supabase';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function KadimDerslerTestScreen() {
   const router = useRouter();

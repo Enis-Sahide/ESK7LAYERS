@@ -9,7 +9,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { LESSONS } from '@/src/data/chakraLessons';
 import { WebView } from 'react-native-webview';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 const WEBVIEW_HTML = `
 <!DOCTYPE html>

@@ -10,7 +10,7 @@ import moment from 'moment-timezone';
 import tzlookup from 'tz-lookup';
 import gatesData from '@/src/data/gates.json';
 
-const API_BASE_URL = 'http://192.168.1.9:3000/api';
+const API_BASE_URL = 'https://7layers.tr/api';
 
 const COLORS = {
   background: '#0F172A', // Dark Navy to match the app's theme

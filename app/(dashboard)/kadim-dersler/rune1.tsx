@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { runeSymbols } from '@/src/data/runeLessons';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function Rune1Screen() {
   const router = useRouter();

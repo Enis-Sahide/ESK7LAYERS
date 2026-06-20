@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import { supabase } from '@/src/core/api/supabase';
 import { COLORS, SIZES } from '@/src/theme';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 
 export default function ProfileScreen() {
@@ -159,7 +159,7 @@ export default function ProfileScreen() {
 
         <View style={{ alignItems: 'center', marginBottom: 30 }}>
           <Image 
-            source={require('@/assets/images/indir.png')} 
+            source={require('@/assets/images/indir.webp')} 
             style={{ width: 120, height: 120, borderRadius: 60, borderWidth: 2, borderColor: COLORS.primary }} 
           />
         </View>

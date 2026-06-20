@@ -8,8 +8,8 @@ import { COLORS, SIZES } from '@/src/theme';
 
 import SacredBackground from '@/components/SacredBackground';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
-const API_BASE_URL = 'http://192.168.1.9:3000/api';
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
+const API_BASE_URL = 'https://7layers.tr/api';
 
 interface ChakraQuestion {
   id: number;

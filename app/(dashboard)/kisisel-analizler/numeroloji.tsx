@@ -8,7 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { numerologyData } from '@/src/data/numerologyData';
 import { lifePathData, birthdayData, arrowsData, emptyArrowsData, personalYearData } from '@/src/data/numerologyDataWeb';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.png');
+const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 const LETTER_VALUES: Record<string, number> = {
   A: 1, J: 1, S: 1, Ş: 1,
@@ -23,7 +23,7 @@ const LETTER_VALUES: Record<string, number> = {
 };
 
 const VOWELS = ['A', 'E', 'I', 'İ', 'O', 'Ö', 'U', 'Ü'];
-const API_BASE_URL = 'http://192.168.1.9:3000/api';
+const API_BASE_URL = 'https://7layers.tr/api';
 
 // Master numbers
 const isMaster = (num: number) => num === 11 || num === 22 || num === 33;
