@@ -93,8 +93,8 @@ export default function AnlikGokyuzuScreen() {
   const router = useRouter();
   
   // Natal (Birth) Inputs
-  const [natalDateStr, setNatalDateStr] = useState('1995-03-17');
-  const [natalTimeStr, setNatalTimeStr] = useState('18:05');
+  const [natalDateStr, setNatalDateStr] = useState('');
+  const [natalTimeStr, setNatalTimeStr] = useState('');
   const [searchQuery, setSearchQuery] = useState('İstanbul');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);

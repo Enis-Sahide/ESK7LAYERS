@@ -72,8 +72,8 @@ const GATE_COORDS: Record<number, { x: number, y: number }> = {
 
 export default function HumanDesignScreen() {
   const router = useRouter();
-  const [dateStr, setDateStr] = useState('1995-03-17');
-  const [timeStr, setTimeStr] = useState('18:05');
+  const [dateStr, setDateStr] = useState('');
+  const [timeStr, setTimeStr] = useState('');
   
   const [searchQuery, setSearchQuery] = useState('İstanbul');
   const [showSuggestions, setShowSuggestions] = useState(false);
