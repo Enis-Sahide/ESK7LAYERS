@@ -4,9 +4,9 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { supabase } from '@/src/core/api/supabase';
+import { getMe, logout as apiLogout } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
-import { DAILY_AFFIRMATIONS } from '@/src/data/affirmations';
+import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
@@ -157,23 +157,25 @@ export default function DashboardScreen() {
   const [selectedDay, setSelectedDay] = useState(currentDay);
   const selectedInfo = DAY_CHAKRA_MAP[selectedDay];
   const selectedChakra = MODULES.find(m => m.id === selectedInfo.chakraId);
-  const dailyAffirmation = DAILY_AFFIRMATIONS[selectedDay];
+  const { data: affirmations } = useContent<Record<number, { text: string; author: string }>>('/api/content/affirmations');
+  const dailyAffirmation = (affirmations ?? {})[selectedDay];
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserName(user.user_metadata?.full_name?.split(' ')[0] || 'Yolcu');
-        if (user.user_metadata?.spiritual_title) {
-          setUserTitle(user.user_metadata.spiritual_title);
+    const loadUser = async () => {
+      try {
+        const me: any = await getMe();
+        if (me?.user) {
+          setUserName(me.user.fullName?.split(' ')[0] || 'Yolcu');
         }
+      } catch {
+        /* yoksay */
       }
     };
-    getUser();
+    loadUser();
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await apiLogout();
     router.replace('/(auth)/login');
   };
 

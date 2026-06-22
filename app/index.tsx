@@ -1,42 +1,44 @@
 import { useEffect, useState } from 'react';
-import { Redirect, useRouter } from 'expo-router';
-import { View, ActivityIndicator, LogBox } from 'react-native';
-import { supabase } from '@/src/core/api/supabase';
+import { useRouter } from 'expo-router';
+import { View, ActivityIndicator } from 'react-native';
+import { isAuthenticated, getMe, onAuthChange } from '@/src/core/api/client';
 import { COLORS } from '@/src/theme';
-
-LogBox.ignoreLogs(['AuthApiError: Invalid Refresh Token']);
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        const race = session.user.user_metadata?.race;
-        if (!race) {
-          router.replace('/(onboarding)/race-reveal');
-        } else {
-          router.replace('/(dashboard)');
-        }
-      } else {
-        router.replace('/(auth)/login');
-      }
-      setLoading(false);
-    });
+    let mounted = true;
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        const race = session.user.user_metadata?.race;
-        if (!race) {
-          router.replace('/(onboarding)/race-reveal');
+    const route = async () => {
+      try {
+        if (await isAuthenticated()) {
+          const me: any = await getMe();
+          if (!mounted) return;
+          if (!me?.user?.race) {
+            router.replace('/(onboarding)/race-reveal');
+          } else {
+            router.replace('/(dashboard)');
+          }
         } else {
-          router.replace('/(dashboard)');
+          if (mounted) router.replace('/(auth)/login');
         }
-      } else {
-        router.replace('/(auth)/login');
+      } catch {
+        if (mounted) router.replace('/(auth)/login');
+      } finally {
+        if (mounted) setLoading(false);
       }
+    };
+
+    route();
+    const unsub = onAuthChange(() => {
+      route();
     });
+    return () => {
+      mounted = false;
+      unsub();
+    };
   }, []);
 
   if (loading) {
@@ -47,6 +49,5 @@ export default function Index() {
     );
   }
 
-  // Fallback (Aslında useEffect router.replace yapıyor)
   return null;
 }

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
-import { LESSONS } from '@/src/data/chakraLessons';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -39,7 +39,9 @@ export default function ChakraDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
-  
+  const { data: lessonsData } = useContent<Record<string, any>>('/api/content/chakra-lessons');
+  const LESSONS = lessonsData ?? {};
+
   const chakra = CHAKRAS[id as keyof typeof CHAKRAS];
 
   if (!chakra) {

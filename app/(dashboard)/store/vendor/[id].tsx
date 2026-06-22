@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { VENDORS, PRODUCTS } from '@/src/data/marketplaceData';
+import { useMarketplace } from '@/src/core/content/useContent';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -9,10 +9,12 @@ const { width } = Dimensions.get('window');
 export default function VendorProfileScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  
+
+  const { vendors: VENDORS, products: PRODUCTS, loading } = useMarketplace();
   const vendor = VENDORS.find(v => v.id === id);
   const vendorProducts = PRODUCTS.filter(p => p.vendorId === id);
 
+  if (loading) return <View style={styles.container}><Text style={styles.errorText}>Yükleniyor...</Text></View>;
   if (!vendor) return <View style={styles.container}><Text style={styles.errorText}>Mağaza bulunamadı</Text></View>;
 
   return (

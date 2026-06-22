@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, 
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
-import { KABBALAH_LESSONS } from '@/src/data/kabbalahLessons';
+import { useContent } from '@/src/core/content/useContent';
 import { useRouter } from 'expo-router';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -84,8 +84,9 @@ const SubAccordionItem = ({ item, isExpanded, onToggle, onImagePress }: { item: 
 };
 
 const AccordionItem = ({ lessonKey, isExpanded, onToggle, onImagePress }: { lessonKey: string, isExpanded: boolean, onToggle: () => void, onImagePress?: (image: any) => void }) => {
-  const lesson = KABBALAH_LESSONS[lessonKey];
+  const { data: lessons } = useContent<Record<string, any>>('/api/content/lessons?discipline=kabbalah');
   const [expandedSubLesson, setExpandedSubLesson] = useState<number | null>(null);
+  const lesson = (lessons ?? {})[lessonKey];
 
   if (!lesson) return null;
 
@@ -161,8 +162,9 @@ export default function KabbalahCurriculumScreen() {
     setExpandedLesson(prev => prev === key ? null : key);
   };
 
-  const ciraklikKeys = Object.keys(KABBALAH_LESSONS).filter(k => k.startsWith('ciraklik'));
-  const kalfalikKeys = Object.keys(KABBALAH_LESSONS).filter(k => k.startsWith('kalfalik'));
+  const { data: kabbalahLessons } = useContent<Record<string, any>>('/api/content/lessons?discipline=kabbalah');
+  const ciraklikKeys = Object.keys(kabbalahLessons ?? {}).filter(k => k.startsWith('ciraklik'));
+  const kalfalikKeys = Object.keys(kabbalahLessons ?? {}).filter(k => k.startsWith('kalfalik'));
 
   return (
     <ImageBackground 

@@ -5,12 +5,13 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
-import { runeSymbols } from '@/src/data/runeLessons';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function Rune1Screen() {
   const router = useRouter();
+  const { data: runeSymbols } = useContent<any[]>('/api/content/runes');
 
   return (
     <SacredBackground>
@@ -28,7 +29,7 @@ export default function Rune1Screen() {
           Kadim bilgelerin kayalara kazıdığı bu sırlar, yalnızca frekansı doğru okuyan gözlere fısıldar. 24 Elder Futhark sembolünün kozmik sırrını, elementlerini ve şifalarını keşfet.
         </Text>
         
-        {runeSymbols.map((rune) => (
+        {(runeSymbols ?? []).map((rune: any) => (
           <BlurView intensity={30} tint="dark" style={styles.runeCard} key={rune.id}>
             <View style={styles.runeHeader}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>

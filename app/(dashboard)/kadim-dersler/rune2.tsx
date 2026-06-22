@@ -5,12 +5,13 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
-import { runeBindings } from '@/src/data/runeLessons';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function Rune2Screen() {
   const router = useRouter();
+  const { data: runeBindings } = useContent<any[]>('/api/content/rune-bindings');
 
   return (
     <SacredBackground>
@@ -28,7 +29,7 @@ export default function Rune2Screen() {
           Frekansların birbiriyle dansı, tek bir sembolün gücünü kozmik bir şifaya dönüştürür. Uyumlanmış semboller, niyetle birleştiğinde evrenin en güçlü tılsımlarını yaratır.
         </Text>
         
-        {runeBindings.map((binding) => (
+        {(runeBindings ?? []).map((binding: any) => (
           <BlurView intensity={30} tint="dark" style={styles.runeCard} key={binding.id}>
             <View style={styles.runeHeader}>
               <Ionicons name="layers-outline" size={24} color={COLORS.primary} style={{marginRight: 10}}/>

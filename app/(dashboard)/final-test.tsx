@@ -6,8 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
-import { FINAL_QUIZ_QUESTIONS } from '@/src/data/finalQuiz';
-import { supabase } from '@/src/core/api/supabase';
+import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
@@ -31,16 +30,18 @@ export default function FinalTestScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const { unlockTier } = useProgress();
+  const { data: finalQuestions } = useContent<any[]>('/api/content/final-quiz');
 
-  // Initialize and shuffle questions on mount
+  // Initialize and shuffle questions when content loads
   useEffect(() => {
+    if (!finalQuestions || finalQuestions.length === 0) return;
     // Sadece soruları değil, şıkları da kendi içinde karıştıralım
-    const shuffledQuestions = shuffleArray(FINAL_QUIZ_QUESTIONS).map(q => ({
+    const shuffledQuestions = shuffleArray(finalQuestions).map(q => ({
       ...q,
       options: shuffleArray(q.options)
     }));
     setQuestions(shuffledQuestions);
-  }, []);
+  }, [finalQuestions]);
 
   const handleOptionSelect = (option: string) => {
     if (selectedOption !== null) return; // Prevent double clicking
@@ -101,24 +102,10 @@ export default function FinalTestScreen() {
     }
 
     useEffect(() => {
-      if (isFinished) {
-        const saveResult = async () => {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            await supabase.auth.updateUser({
-              data: {
-                spiritual_title: title,
-                spiritual_score: score
-              }
-            });
-          }
-          if (score >= 85) {
-            await unlockTier('kadim_dersler_access');
-          }
-        };
-        saveResult();
+      if (isFinished && score >= 85) {
+        unlockTier('kadim_dersler_access');
       }
-    }, [isFinished, score, title]);
+    }, [isFinished, score]);
 
     return (
       <SacredBackground>

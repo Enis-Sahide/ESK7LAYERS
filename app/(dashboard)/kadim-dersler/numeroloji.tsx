@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
-import { numerologyData } from '@/src/data/numerologyData';
+import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
 
 // LayoutAnimation'u Android'de etkinleştirmek için:
@@ -24,8 +24,10 @@ export default function NumerolojiEgitimScreen() {
   const isKalfaUnlocked = hasAccess('numeroloji_2') || isAdmin;
   const isUstatUnlocked = hasAccess('numeroloji_3') || isAdmin;
 
+  const { data: numData } = useContent<Record<number, any>>('/api/content/numerology/meanings');
+
   // Convert object to array and sort numerically
-  const numbersArray = Object.values(numerologyData).sort((a, b) => a.number - b.number);
+  const numbersArray = Object.values(numData ?? {}).sort((a: any, b: any) => a.number - b.number);
 
   return (
     <SacredBackground>

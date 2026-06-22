@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import moment from 'moment-timezone';
 import tzlookup from 'tz-lookup';
-import gatesData from '@/src/data/gates.json';
+import { useContent } from '@/src/core/content/useContent';
 
 const API_BASE_URL = 'https://7layers.tr/api';
 
@@ -90,7 +90,8 @@ export default function HumanDesignScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeGateId, setActiveGateId] = useState<number | null>(null);
 
-  const activeGateData = activeGateId ? gatesData.find((g: any) => g.id === activeGateId) : null;
+  const { data: gatesData } = useContent<any[]>('/api/content/hd-gates');
+  const activeGateData = activeGateId && gatesData ? gatesData.find((g: any) => g.id === activeGateId) : null;
 
   const dateInputRef = useRef<TextInput>(null);
   const timeInputRef = useRef<TextInput>(null);

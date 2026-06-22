@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
-import { supabase } from '@/src/core/api/supabase';
+import { register as apiRegister } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -25,24 +25,14 @@ export default function RegisterScreen() {
 
     setLoading(true);
     setErrorMsg('');
-    
-    // Supabase Auth ile Kullanıcı Oluşturma
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-        }
-      }
-    });
 
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
-    } else {
-      // Başarılı kayıt, garanti olması için doğrudan Irk Keşfi ekranına yönlendir
+    try {
+      await apiRegister(email, password, name);
+      // Başarılı kayıt → Irk Keşfi (onboarding) ekranına yönlendir
       router.replace('/(onboarding)/race-reveal');
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Kayıt sırasında bir hata oluştu.');
+      setLoading(false);
     }
   };
 

@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ImageB
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { supabase } from '@/src/core/api/supabase';
+import { getMe, updateProfile, changePassword } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
@@ -29,12 +29,8 @@ export default function ProfileScreen() {
 
   const fetchProfile = async () => {
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      
-      if (user) {
-        setFullName(user.user_metadata?.full_name || '');
-      }
+      const me: any = await getMe();
+      setFullName(me?.user?.fullName || '');
     } catch (error: any) {
       Alert.alert('Hata', 'Profil bilgileri alınamadı.');
     } finally {
@@ -50,25 +46,17 @@ export default function ProfileScreen() {
 
     setSaving(true);
     try {
-      const updateData: any = {
-        data: {
-          full_name: fullName.trim()
-        }
-      };
-
-      if (password.trim().length > 0) {
-        if (password.trim().length < 6) {
-          Alert.alert('Uyarı', 'Şifre en az 6 karakter olmalıdır.');
-          setSaving(false);
-          return;
-        }
-        updateData.password = password.trim();
+      if (password.trim().length > 0 && password.trim().length < 6) {
+        Alert.alert('Uyarı', 'Şifre en az 6 karakter olmalıdır.');
+        setSaving(false);
+        return;
       }
 
-      const { error } = await supabase.auth.updateUser(updateData);
+      await updateProfile({ fullName: fullName.trim() });
+      if (password.trim().length >= 6) {
+        await changePassword(password.trim());
+      }
 
-      if (error) throw error;
-      
       Alert.alert(
         'Başarılı', 
         'Bilgileriniz evrenin kayıtlarına işlendi.',

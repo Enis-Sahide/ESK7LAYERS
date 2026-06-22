@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
-import { supabase } from '@/src/core/api/supabase';
+import { login as apiLogin } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -21,24 +21,18 @@ export default function LoginScreen() {
 
     setLoading(true);
     setErrorMsg('');
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
 
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
-    } else {
-      // Başarılı giriş
-      const { data: { session } } = await supabase.auth.getSession();
-      const race = session?.user?.user_metadata?.race;
+    try {
+      const data: any = await apiLogin(email, password);
+      const race = data?.user?.race;
       if (!race) {
         router.replace('/(onboarding)/race-reveal');
       } else {
         router.replace('/(dashboard)');
       }
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Giriş başarısız. Bilgilerinizi kontrol edin.');
+      setLoading(false);
     }
   };
 

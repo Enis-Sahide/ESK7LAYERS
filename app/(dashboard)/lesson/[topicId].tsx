@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
-import { LESSONS } from '@/src/data/chakraLessons';
+import { useContent } from '@/src/core/content/useContent';
 import { WebView } from 'react-native-webview';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
@@ -113,18 +113,8 @@ export default function LessonScreen() {
   
   const chakraColor = CHAKRA_COLORS[chakraId as string] || COLORS.primary;
   const lessonKey = `${chakraId}_${topicId}`;
-  const lessonData = LESSONS[lessonKey];
-
-  if (!lessonData) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{color: 'white'}}>Bu dersin kadim parşömeni henüz yazılmadı...</Text>
-        <TouchableOpacity onPress={() => router.back()} style={{marginTop: 20}}>
-          <Text style={{color: COLORS.primary}}>Geri Dön</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const { data: lessonsData } = useContent<Record<string, any>>('/api/content/chakra-lessons');
+  const lessonData = (lessonsData ?? {})[lessonKey];
 
   useEffect(() => {
     let timeout: any;
@@ -144,6 +134,25 @@ export default function LessonScreen() {
       }
     };
   }, [lessonData]);
+
+  if (!lessonsData) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{ color: 'white' }}>Yükleniyor...</Text>
+      </View>
+    );
+  }
+
+  if (!lessonData) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text style={{color: 'white'}}>Bu dersin kadim parşömeni henüz yazılmadı...</Text>
+        <TouchableOpacity onPress={() => router.back()} style={{marginTop: 20}}>
+          <Text style={{color: COLORS.primary}}>Geri Dön</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <SacredBackground>

@@ -5,18 +5,19 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
-import { allQuizzes } from '@/src/data/allQuizzes';
+import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
-import { supabase } from '@/src/core/api/supabase';
+import { examStart, examFinish, isAuthenticated } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function KadimDerslerTestScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { unlockTier } = useProgress();
-  
-  const quizData = allQuizzes[id as string];
+  const { refresh } = useProgress();
+
+  const { data: quizzes } = useContent<Record<string, any>>('/api/content/quizzes');
+  const quizData = (quizzes ?? {})[id as string];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -26,72 +27,33 @@ export default function KadimDerslerTestScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    let activeSessionCleaned = false;
+    let cleaned = false;
 
     async function checkExamAccess() {
+      if (!(await isAuthenticated())) {
+        Alert.alert("Giriş Gerekli", "Sınava girmek için lütfen önce giriş yapın.");
+        router.back();
+        return;
+      }
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          Alert.alert("Giriş Gerekli", "Sınava girmek için lütfen önce giriş yapın.");
-          router.back();
-          return;
-        }
-
-        const metadata = session.user.user_metadata || {};
-        const activeExam = metadata.activeExam;
-        const examAttempts = metadata.examAttempts || {};
-
-        // 1. Check if another device has an active session for this or any exam
-        if (activeExam && activeExam.examId) {
-          const startTime = new Date(activeExam.startTime).getTime();
-          const now = new Date().getTime();
-          const diffInMinutes = (now - startTime) / (1000 * 60);
-
-          // If session is on another device type and started less than 60 minutes ago
-          if (activeExam.device !== 'mobile' && diffInMinutes < 60) {
-            Alert.alert(
-              "Sınav Engellendi",
-              "Bu sınava şu anda başka bir cihazdan giriş yapılmış durumda! Güvenlik nedeniyle aynı anda iki cihazdan sınava girilemez."
-            );
-            router.back();
-            return;
-          }
-        }
-
-        // 2. Check if already taken today
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-        if (examAttempts[id as string] === today) {
-          Alert.alert(
-            "Günlük Sınır",
-            "Bu sınava bugün zaten girdiniz! Bir sınava aynı gün içerisinde en fazla 1 kez girebilirsiniz. Lütfen yarın tekrar deneyin."
-          );
-          router.back();
-          return;
-        }
-
-        // 3. Register active session & record attempt
-        const updatedAttempts = { ...examAttempts, [id as string]: today };
-        await supabase.auth.updateUser({
-          data: {
-            ...metadata,
-            activeExam: { examId: id, startTime: new Date().toISOString(), device: 'mobile' },
-            examAttempts: updatedAttempts
-          }
-        });
-
+        // Tek-cihaz + günlük limit kontrolü + aktif oturum kaydı (sunucu tarafı)
+        await examStart(id as string);
         setIsLoadingCheck(false);
-      } catch (err) {
-        console.error("Exam access check error:", err);
-        setIsLoadingCheck(false);
+      } catch (err: any) {
+        Alert.alert(
+          "Sınav Engellendi",
+          err?.message || "Sınav doğrulaması sırasında bir hata oluştu."
+        );
+        router.back();
       }
     }
 
     checkExamAccess();
 
-    // Clean up active session when user exits or unmounts
+    // Çıkışta/unmount'ta aktif sınav oturumunu temizle
     return () => {
-      if (!activeSessionCleaned) {
-        activeSessionCleaned = true;
+      if (!cleaned) {
+        cleaned = true;
         clearActiveSession();
       }
     };
@@ -99,16 +61,8 @@ export default function KadimDerslerTestScreen() {
 
   const clearActiveSession = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const metadata = session.user.user_metadata || {};
-        await supabase.auth.updateUser({
-          data: {
-            ...metadata,
-            activeExam: null
-          }
-        });
-      }
+      // score yok → sadece aktif sınav oturumunu temizler
+      await examFinish(id as string);
     } catch (e) {
       console.error("Failed to clear active exam session:", e);
     }
@@ -118,36 +72,10 @@ export default function KadimDerslerTestScreen() {
     if (isFinished && quizData) {
       const totalQuestions = quizData.questions.length;
       const score = (correctCount / totalQuestions) * 100;
-      
-      if (score === 100) {
-        if (id === 'numeroloji_1') unlockTier('numeroloji_2');
-        if (id === 'numeroloji_2') unlockTier('numeroloji_3');
-        if (id === 'numeroloji_3') unlockTier('numeroloji_master');
-        
-        // Rune Kilitleri
-        if (id === 'rune1') unlockTier('rune_2');
-        if (id === 'rune2') unlockTier('rune_master');
-        
-        // Yoga Kilitleri
-        if (id === 'yoga_1') unlockTier('yoga_2');
-        if (id === 'yoga_2') unlockTier('yoga_master');
-        
-        // Human Design Kilitleri
-        if (id === 'human_1') unlockTier('human_2');
-        if (id === 'human_2') unlockTier('human_master');
-
-        // Astroloji Kilitleri
-        if (id === 'astroloji_1') unlockTier('astroloji_2');
-        if (id === 'astroloji_2') unlockTier('astroloji_master');
-
-        // Akupunktur Kilitleri
-        if (id === 'akupunktur_1') unlockTier('akupunktur_2');
-        if (id === 'akupunktur_2') unlockTier('akupunktur_master');
-      }
-
-      if (score >= 85) {
-        if (id === 'duygusal_hastaliklar_50') unlockTier('duygusal_hastaliklar_access');
-      }
+      // Tier kilidi sunucuda (quizzes.unlock_tier + pass_threshold) açılır.
+      examFinish(id as string, score)
+        .then(() => refresh())
+        .catch((e) => console.error('Unlock error:', e));
     }
   }, [isFinished]);
 
@@ -274,7 +202,7 @@ export default function KadimDerslerTestScreen() {
         </BlurView>
 
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, idx) => {
+          {currentQuestion.options.map((option: string, idx: number) => {
             const isSelected = selectedOption === idx;
             const isCorrect = idx === currentQuestion.correctAnswerIndex;
             const showCorrect = selectedOption !== null && isCorrect;

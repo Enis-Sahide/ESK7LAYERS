@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/src/core/api/supabase';
+import { updateProfile } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
 
 const { width } = Dimensions.get('window');
@@ -45,9 +45,11 @@ export default function RaceSelectionScreen() {
 
   const handleConfirm = async () => {
     setLoading(true);
-    await supabase.auth.updateUser({
-      data: { race: selectedRace.id }
-    });
+    try {
+      await updateProfile({ race: selectedRace.id });
+    } catch (e) {
+      console.error('Race kaydedilemedi:', e);
+    }
     setLoading(false);
     router.replace('/(dashboard)');
   };

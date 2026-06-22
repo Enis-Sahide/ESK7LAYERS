@@ -5,8 +5,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
-import { numerologyData } from '@/src/data/numerologyData';
-import { lifePathData, birthdayData, arrowsData, emptyArrowsData, personalYearData } from '@/src/data/numerologyDataWeb';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -59,7 +58,17 @@ export default function NumerolojiKisiselAnalizScreen() {
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
-  
+
+  // İçerik API'den (sayı anlamları + hesap sözlükleri)
+  const { data: numMeanings } = useContent<Record<number, any>>('/api/content/numerology/meanings');
+  const { data: calcData } = useContent<Record<string, Record<string, any>>>('/api/content/numerology/calc');
+  const numerologyData: Record<number, any> = numMeanings ?? {};
+  const lifePathData: Record<number, any> = calcData?.life_path ?? {};
+  const birthdayData: Record<number, any> = calcData?.birthday ?? {};
+  const arrowsData: Record<string, any> = calcData?.arrows ?? {};
+  const emptyArrowsData: Record<string, any> = calcData?.empty_arrows ?? {};
+  const personalYearData: Record<number, any> = calcData?.personal_year ?? {};
+
   const [results, setResults] = useState<NumerologyResults | null>(null);
   const [activeTab, setActiveTab] = useState<'name' | 'date'>('name');
   const [loading, setLoading] = useState(false);

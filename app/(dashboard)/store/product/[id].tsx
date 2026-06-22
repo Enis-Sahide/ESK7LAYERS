@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, SafeAreaView, Dimensions, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { PRODUCTS, VENDORS } from '@/src/data/marketplaceData';
+import { useMarketplace } from '@/src/core/content/useContent';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
@@ -10,10 +10,12 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
-  
+
+  const { vendors: VENDORS, products: PRODUCTS, loading } = useMarketplace();
   const product = PRODUCTS.find(p => p.id === id);
   const vendor = product ? VENDORS.find(v => v.id === product.vendorId) : null;
 
+  if (loading) return <View style={styles.container}><Text style={styles.errorText}>Yükleniyor...</Text></View>;
   if (!product) return <View style={styles.container}><Text style={styles.errorText}>Ürün bulunamadı</Text></View>;
 
   const handleAddToCart = () => {

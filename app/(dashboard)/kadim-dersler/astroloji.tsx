@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, 
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
-import { ASTROLOGY_LESSONS } from '@/src/data/astrologyLessons';
+import { useContent } from '@/src/core/content/useContent';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -38,8 +38,9 @@ const SubAccordionItem = ({ item, isExpanded, onToggle }: { item: { title: strin
 };
 
 const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string, isExpanded: boolean, onToggle: () => void }) => {
-  const lesson = ASTROLOGY_LESSONS[lessonKey];
+  const { data: lessons } = useContent<Record<string, any>>('/api/content/lessons?discipline=astrology');
   const [expandedSubLesson, setExpandedSubLesson] = useState<number | null>(null);
+  const lesson = (lessons ?? {})[lessonKey];
 
   if (!lesson) return null;
 

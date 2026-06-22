@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, TextInput, SafeAreaView, ImageBackground, Modal, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CATEGORIES, VENDORS, PRODUCTS } from '@/src/data/marketplaceData';
+import { useMarketplace } from '@/src/core/content/useContent';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,6 +13,7 @@ import { useProgress } from '@/src/context/ProgressContext';
 export default function StoreScreen() {
   const router = useRouter();
   const { isAdmin } = useProgress();
+  const { categories: CATEGORIES, vendors: VENDORS, products: PRODUCTS } = useMarketplace();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isImeceModalOpen, setIsImeceModalOpen] = useState(false);

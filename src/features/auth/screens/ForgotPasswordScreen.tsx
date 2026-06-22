@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
-import { supabase } from '@/src/core/api/supabase';
+import { forgotPassword } from '@/src/core/api/client';
 import { Ionicons } from '@expo/vector-icons';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
@@ -23,16 +23,16 @@ export default function ForgotPasswordScreen() {
     setLoading(true);
     setErrorMsg('');
     setSuccessMsg('');
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://mbqjklupfoqbcfxusigs.supabase.co/auth/v1/callback',
-    });
 
-    if (error) {
-      setErrorMsg(error.message);
-    } else {
-      setSuccessMsg('Şifre yenileme bağlantısı e-posta adresinize gönderildi. Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin.');
+    try {
+      const res: any = await forgotPassword(email);
+      setSuccessMsg(
+        res?.message ||
+          'Eğer bu e-posta kayıtlıysa, şifre yenileme talimatı gönderildi. Lütfen gelen kutunuzu kontrol edin.',
+      );
       setEmail('');
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Sıfırlama isteği gönderilemedi.');
     }
     setLoading(false);
   };

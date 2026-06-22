@@ -4,21 +4,23 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ImageBackground, Te
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
-import { EMOTIONAL_DISEASES } from '@/src/data/emotionalDiseases';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 export default function DuygusalHastaliklarScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: diseases } = useContent<any[]>('/api/content/emotional-diseases');
 
   const filteredDiseases = useMemo(() => {
-    if (!searchQuery.trim()) return EMOTIONAL_DISEASES;
-    return EMOTIONAL_DISEASES.filter(d => 
-      d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const all = diseases ?? [];
+    if (!searchQuery.trim()) return all;
+    return all.filter(d =>
+      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       d.cause.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, diseases]);
 
   return (
     <KeyboardAvoidingView 
