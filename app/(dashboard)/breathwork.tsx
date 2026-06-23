@@ -5,27 +5,20 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 const { width } = Dimensions.get('window');
 
-const TECHNIQUES = [
-  { id: 'nadishodhan', name: 'Nadi Shodhan', desc: 'İda ve Pingala Dengesi', instruction: 'Gözlerinizi kapatın. Sol burun deliğinden yavaşça, derin ve yumuşak nefes alın. Sol deliği yüzük ve serçe parmaklarınızla kapatıp sağdan nefes verin. Çiçek koklar gibi nazikçe yapın. Bu egzersiz bedeninizdeki 72000 nadi kanalını temizler.', phases: [{ name: 'SOL AL', time: 4 }, { name: 'SAĞ VER', time: 6 }, { name: 'SAĞ AL', time: 4 }, { name: 'SOL VER', time: 6 }] },
-  { id: '448', name: '4-4-8 Nefesi', desc: 'Derin Gevşeme', instruction: 'Nefesi 4 saniye boyunca burnunuzdan alın. 4 saniye boyunca nefesinizi tutun. Ardından 8 saniye boyunca ağzınızdan yavaşça nefesinizi verin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'TUT', time: 4 }, { name: 'NEFES VER', time: 8 }] },
-  { id: '478', name: 'Kadim 4-7-8', desc: 'Uyku ve Sakinlik', instruction: 'Dilinizi üst dişlerinizin arkasına yerleştirin. Nefesi burnunuzdan karnınıza (diyaframa) doğru alın. Ağzınızdan güçlü bir "hııış" sesiyle verin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'TUT', time: 7 }, { name: 'NEFES VER', time: 8 }] },
-  { id: 'box', name: 'Kare Nefes', desc: 'Odaklanma ve Denge', instruction: 'Dik oturun. Burnunuzdan göğüs kafesinizi eşit genişleterek alın. Nefesi tutarken omuzlarınızı kasmayın. Akciğerler boşaldığında huzurla bekleyin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'TUT', time: 4 }, { name: 'NEFES VER', time: 4 }, { name: 'BEKLE', time: 4 }] },
-  { id: 'ujjayi', name: 'Ateş Nefesi', desc: 'Enerji ve Canlılık', instruction: 'Sadece burundan alın ve verin. Karın kaslarınızı bir körük gibi kullanarak nefesi hızlı ve ritmik bir şekilde itin. Göğüs hareketsiz kalmalıdır.', phases: [{ name: 'NEFES AL', time: 3 }, { name: 'NEFES VER', time: 3 }] },
-  { id: 'relax', name: 'Stres Savar', desc: 'Anksiyete Giderici', instruction: 'Sadece burnunuzdan derin diyafram nefesi alın. Verirken dudaklarınızı ıslık çalacakmış gibi büzün ve havayı çok yavaşça üfleyerek verin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'TUT', time: 4 }, { name: 'NEFES VER', time: 6 }, { name: 'BEKLE', time: 2 }] },
-  { id: 'bhramari', name: 'Arı Nefesi', desc: 'Zihni Susturur', instruction: 'Gözlerinizi ve kulaklarınızı hafifçe kapatın. Burnunuzdan derin nefes alın. Verirken kapalı ağızla arı gibi "mmmm" diye mırıldanıp titreşimi beyninizde hissedin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'NEFES VER', time: 8 }] },
-  { id: 'sama', name: 'Sama Vritti', desc: 'Sağ-Sol Lob Dengesi', instruction: 'Beyin loblarını eşitler. Omurganız dik olsun. Akciğerlerinize dolan ve boşalan havanın eşit sürede (6 saniye) olmasına tam odaklanın.', phases: [{ name: 'NEFES AL', time: 6 }, { name: 'NEFES VER', time: 6 }] },
-  { id: 'tummo', name: 'Tummo', desc: 'İçsel Isı ve Güç', instruction: 'Derin nefes alıp karın kaslarınızı ve pelvik tabanınızı sıkın (kök kilidi). Bedendeki sıcaklığın arttığını imgeleyin. Ardından çok yavaşça nefesi verin.', phases: [{ name: 'NEFES AL', time: 4 }, { name: 'TUT', time: 4 }, { name: 'NEFES VER', time: 8 }] },
-];
+// TECHNIQUES içeriği DB'den gelir (/api/content/breathwork)
 
 export default function BreathworkScreen() {
   const router = useRouter();
+  const { data: techData } = useContent<any[]>('/api/content/breathwork');
+  const TECHNIQUES = techData ?? [];
   const [isActive, setIsActive] = useState(false);
   const isActiveRef = useRef(false);
-  const [selectedTech, setSelectedTech] = useState(TECHNIQUES[0]);
+  const [selectedTech, setSelectedTech] = useState<any>(null);
   const [phase, setPhase] = useState('DURUYOR');
   const [timeLeft, setTimeLeft] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
@@ -115,6 +108,21 @@ export default function BreathworkScreen() {
       stopBreathing();
     };
   }, []);
+
+  // İçerik gelince ilk tekniği seç
+  useEffect(() => {
+    if (!selectedTech && TECHNIQUES.length > 0) setSelectedTech(TECHNIQUES[0]);
+  }, [techData]);
+
+  if (!selectedTech) {
+    return (
+      <SacredBackground>
+        <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={{ color: COLORS.text }}>Yükleniyor...</Text>
+        </View>
+      </SacredBackground>
+    );
+  }
 
   return (
     <SacredBackground>

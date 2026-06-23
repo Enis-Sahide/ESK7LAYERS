@@ -18,15 +18,7 @@ const { width } = Dimensions.get('window');
 
 
 // İçerik Kategorileri (7 Çakra - 7 Katman)
-export const MODULES = [
-  { id: 1, title: 'Kök Çakra', subtitle: 'Temel Bilgiler', reqLevel: 1, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/root.png' }, color: '#FF3B30', top: '82%' },
-  { id: 2, title: 'Sakral Çakra', subtitle: 'Bağlar ve Yaratım', reqLevel: 2, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/sacral.png' }, color: '#FF9500', top: '72%' },
-  { id: 3, title: 'Solar Pleksus', subtitle: 'İrade ve Güç', reqLevel: 3, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/solar.png' }, color: '#FFCC00', top: '62%' },
-  { id: 4, title: 'Kalp Çakrası', subtitle: 'Sevgi ve Denge', reqLevel: 4, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/heart.png' }, color: '#34C759', top: '52%' },
-  { id: 5, title: 'Boğaz Çakrası', subtitle: 'İfade ve Gerçek', reqLevel: 5, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/throat.png' }, color: '#00C7BE', top: '37%' },
-  { id: 6, title: 'Üçüncü Göz', subtitle: 'Sezgi ve İdrak', reqLevel: 6, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/thirdeye.png' }, color: '#32ADE6', top: '25%' },
-  { id: 7, title: 'Tepe Çakra', subtitle: 'Kozmik Bağlantı', reqLevel: 7, imageIcon: { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/chakras/crown.png' }, color: '#AF52DE', top: '15%' },
-];
+// MODULES (ana sayfa çakra kartları) içeriği DB'den gelir (/api/content/chakras → modules)
 
 const DAY_CHAKRA_MAP: Record<number, { name: string, planet: string, chakraId: number, symbol: string }> = {
   0: { name: 'Pazar', planet: 'Güneş Günü', chakraId: 3, symbol: '☉' },
@@ -148,6 +140,7 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { hasAccess } = useProgress();
   const [userName, setUserName] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTitle, setUserTitle] = useState('Arayışta');
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isLessonsExpanded, setIsLessonsExpanded] = useState(false);
@@ -155,8 +148,10 @@ export default function DashboardScreen() {
   
   const currentDay = new Date().getDay(); // 0: Pazar, 1: Pzt ...
   const [selectedDay, setSelectedDay] = useState(currentDay);
+  const { data: chakraData } = useContent<{ modules: any[] }>('/api/content/chakras');
+  const MODULES = chakraData?.modules ?? [];
   const selectedInfo = DAY_CHAKRA_MAP[selectedDay];
-  const selectedChakra = MODULES.find(m => m.id === selectedInfo.chakraId);
+  const selectedChakra = MODULES.find((m: any) => m.id === selectedInfo.chakraId);
   const { data: affirmations } = useContent<Record<number, { text: string; author: string }>>('/api/content/affirmations');
   const dailyAffirmation = (affirmations ?? {})[selectedDay];
 
@@ -166,9 +161,12 @@ export default function DashboardScreen() {
         const me: any = await getMe();
         if (me?.user) {
           setUserName(me.user.fullName?.split(' ')[0] || 'Yolcu');
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
         }
       } catch {
-        /* yoksay */
+        setIsLoggedIn(false); // misafir
       }
     };
     loadUser();
@@ -177,6 +175,10 @@ export default function DashboardScreen() {
   const handleLogout = async () => {
     await apiLogout();
     router.replace('/(auth)/login');
+  };
+
+  const handleLogin = () => {
+    router.push('/(auth)/login');
   };
 
   return (
@@ -413,10 +415,17 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             <TouchableOpacity style={[styles.fabMenuItem, { marginBottom: 10 }]} onPress={handleLogout}>
-               <Ionicons name="log-out-outline" size={20} color={COLORS.error} style={{ marginRight: 10 }} />
-               <Text style={[styles.fabMenuText, { color: COLORS.error }]}>Çıkış Yap</Text>
-             </TouchableOpacity>
+             {isLoggedIn ? (
+               <TouchableOpacity style={[styles.fabMenuItem, { marginBottom: 10 }]} onPress={handleLogout}>
+                 <Ionicons name="log-out-outline" size={20} color={COLORS.error} style={{ marginRight: 10 }} />
+                 <Text style={[styles.fabMenuText, { color: COLORS.error }]}>Çıkış Yap</Text>
+               </TouchableOpacity>
+             ) : (
+               <TouchableOpacity style={[styles.fabMenuItem, { marginBottom: 10 }]} onPress={handleLogin}>
+                 <Ionicons name="log-in-outline" size={20} color={COLORS.primary} style={{ marginRight: 10 }} />
+                 <Text style={[styles.fabMenuText, { color: COLORS.primary }]}>Giriş Yap</Text>
+               </TouchableOpacity>
+             )}
 
            </ScrollView>
         </TouchableOpacity>

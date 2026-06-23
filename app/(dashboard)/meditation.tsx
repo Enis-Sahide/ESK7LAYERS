@@ -8,28 +8,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { WebView } from 'react-native-webview';
 import Slider from '@react-native-community/slider';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
-const FREQUENCIES = [
-  { id: '1', hz: 396, name: 'Korku ve Suçluluk', desc: 'Kök çakrayı temizler, engelleri kaldırır.', intent: 'Tüm eski korkularımı ve suçluluk duygularımı sevgiyle serbest bırakıyorum. Evrende tamamen güvendeyim.', color: '#FF3B30' },
-  { id: '2', hz: 417, name: 'Değişimi Kolaylaştırma', desc: 'Sakral çakrayı arındırır, negatif enerjiyi ve travmaları temizler.', intent: 'Geçmişin yüklerinden özgürleşiyorum. Hayatımdaki mucizevi değişimleri sevgiyle kabul ediyorum.', color: '#FF9500' },
-  { id: '3', hz: 528, name: 'DNA Onarımı ve Mucize', desc: 'Solar pleksus çakrasını dengeler, yaşam enerjisini artırır, frekansı yükseltir.', intent: 'Hücrelerim evrenin sevgi frekansıyla yenileniyor. Kendi içimdeki mucizevi şifa gücüne uyanıyorum.', color: '#FFCC00' },
-  { id: '4', hz: 639, name: 'İlişkiler ve Bağlantı', desc: 'Kalp çakrasını açar, evrensel uyum getirir.', intent: 'Kendimi ve tüm varoluşu şefkatle kucaklıyorum. İlişkilerim saf sevgi, uyum ve denge içinde akıyor.', color: '#34C759' },
-  { id: '5', hz: 741, name: 'Sezgi ve Uyanış', desc: 'Boğaz çakrasını açar, içgüdüleri güçlendirir, zihni berraklaştırır.', intent: 'Zihnimdeki tüm yanılsamalar (illüzyonlar) çözülüyor. İçsel rehberliğimi net bir şekilde duyuyorum.', color: '#32ADE6' },
-  { id: '6', hz: 852, name: 'Kozmik Bağlantı', desc: 'Üçüncü göz çakrasını dengeler, üst benlikle bağ kurdurur, ruhani uyanış.', intent: 'Yüksek bilincimle tam bir bütünlük içindeyim. Evrensel gerçeği kalbimin gözüyle, açıkça görebiliyorum.', color: '#007AFF' },
-  { id: '7', hz: 963, name: 'İlahi Bütünlük', desc: 'Tepe çakrayı açar, evrensel bilinçle tam bağlantı sağlar.', intent: 'Ben evrenin ta kendisiyim. İlahi olanla aramdaki tüm sınırlar kalktı ve sonsuz ışığa uyandım.', color: '#AF52DE' },
-];
-
-const ORGAN_FREQUENCIES = [
-  { id: 'org_1', hz: 110.0, name: 'Mide Şifası', desc: 'Mide sağlığını destekler, sindirimi rahatlatır.', intent: 'Sindirimi sevgiyle kabul ediyor, midemi şifalandırıyorum.', color: '#FFCC00' }, // Solar Pleksus Çakrası
-  { id: 'org_2', hz: 117.3, name: 'Pankreas Şifası', desc: 'Pankreası dengeler, kan şekerini düzenlemeye yardımcı olur.', intent: 'Pankreasım sağlıklı ve dengede, bedenimi besliyor.', color: '#FFCC00' }, // Solar Pleksus Çakrası
-  { id: 'org_3', hz: 220.0, name: 'Akciğer Şifası', desc: 'Akciğer kapasitesini artırır, nefesi derinleştirir.', intent: 'Hayatın nefesini tam ve derinden içime çekiyorum.', color: '#34C759' }, // Kalp Çakrası
-  { id: 'org_4', hz: 315.8, name: 'Beyin Şifası', desc: 'Zihinsel yorgunluğu giderir, beyin fonksiyonlarını dengeler.', intent: 'Zihnim berrak ve sakin, yüksek bilincimle uyum içindeyim.', color: '#AF52DE' }, // Tepe Çakrası
-  { id: 'org_5', hz: 317.8, name: 'Karaciğer Şifası', desc: 'Karaciğerin arınmasını ve detoksifikasyonunu destekler.', intent: 'Bedenimdeki tüm toksinlerden ve öfkeden arınıyorum.', color: '#FFCC00' }, // Solar Pleksus Çakrası
-  { id: 'org_6', hz: 319.9, name: 'Böbrek Şifası', desc: 'Böbrek sağlığını destekler, korkulardan arınmaya yardımcı olur.', intent: 'Korkuyu serbest bırakıyor, derin bir güven duygusuyla doluyorum.', color: '#FF9500' }, // Sakral Çakra
-  { id: 'org_7', hz: 321.9, name: 'Kan ve Dolaşım', desc: 'Kan hücrelerini canlandırır, dolaşımı rahatlatır.', intent: 'Yaşam enerjisi tüm bedenimde özgürce dolaşıyor.', color: '#FF3B30' }, // Kök Çakra
-];
+// FREQUENCIES / ORGAN_FREQUENCIES içeriği DB'den gelir (/api/content/meditation)
 
 const WEBVIEW_HTML = `
 <!DOCTYPE html>
@@ -130,6 +113,10 @@ export default function MeditationScreen() {
   const router = useRouter();
   const webviewRef = useRef<WebView>(null);
   
+  const { data: medData } = useContent<{ chakra: any[]; organ: any[] }>('/api/content/meditation');
+  const FREQUENCIES = medData?.chakra ?? [];
+  const ORGAN_FREQUENCIES = medData?.organ ?? [];
+
   const [activeFreq, setActiveFreq] = useState<any>(null); // From FREQUENCIES or Custom
   const [isPlaying, setIsPlaying] = useState(false);
   const [customHz, setCustomHz] = useState<number>(432); // Default to 432 Hz

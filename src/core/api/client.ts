@@ -59,6 +59,12 @@ export async function isAuthenticated(): Promise<boolean> {
   return !!accessToken;
 }
 
+// İçerik fetch'lerinde kullanmak için (varsa) Bearer başlığı.
+export async function getAuthHeaders(): Promise<Record<string, string>> {
+  await loadTokens();
+  return accessToken ? { Authorization: 'Bearer ' + accessToken } : {};
+}
+
 async function rawFetch(path: string, opts: RequestInit, withAuth: boolean) {
   await loadTokens();
   const headers: Record<string, string> = {
@@ -156,9 +162,19 @@ export async function examStart(quizId: string) {
     body: JSON.stringify({ quizId, device: 'mobile' }),
   });
 }
-export async function examFinish(quizId: string, score?: number) {
+// Sınavı bitir: istemci SKOR göndermez, seçtiği cevapları gönderir (sunucu puanlar).
+// answers = { [qKey]: seçilenSeçenekMetni }. answers yoksa sadece aktif oturum temizlenir.
+export async function examFinish(quizId: string, answers?: Record<string, string>) {
   return apiFetch('/api/progress/exam/finish', {
     method: 'POST',
-    body: JSON.stringify({ quizId, score }),
+    body: JSON.stringify({ quizId, answers }),
   });
+}
+
+// Tek soruluk anlık geri bildirim (doğru/yanlış + açıklama).
+export async function examCheck(quizId: string, qKey: string, answer: string) {
+  return apiFetch<{ correct: boolean; correctAnswer: string | null; explanation: string | null }>(
+    '/api/exam/check',
+    { method: 'POST', body: JSON.stringify({ quizId, qKey, answer }) },
+  );
 }

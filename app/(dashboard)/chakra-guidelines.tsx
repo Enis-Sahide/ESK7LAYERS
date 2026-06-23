@@ -11,57 +11,27 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
+import { useContent } from '@/src/core/content/useContent';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
-const GUIDELINES = [
-  {
-    icon: 'arrow-up-outline',
-    title: 'Köklerden Başlayın (Aşağıdan Yukarıya)',
-    content: 'Çakra sisteminde enerji aşağıdan yukarıya doğru hareket eder. Sağlam bir temel (kök çakra) inşa etmeden üst çakraları (üçüncü göz, tepe) aşırı uyarmak, ruhsal dengesizliğe, topraklanma sorunlarına ve psikolojik dalgalanmalara yol açabilir. Daima kökten başlayın ve temelinizi sağlamlaştırın.',
-    color: '#FF3B30'
-  },
-  {
-    icon: 'leaf-outline',
-    title: 'Topraklanmayı İhmal Etmeyin',
-    content: 'Herhangi bir enerji çalışmasından sonra mutlaka topraklanın. Çıplak ayakla toprağa basmak, tuzlu su ile duş almak veya doğada vakit geçirmek, serbest kalan negatif enerjinin bedenden atılmasını sağlar.',
-    color: '#34C759'
-  },
-  {
-    icon: 'water-outline',
-    title: 'Duygusal Salınımlara İzin Verin',
-    content: 'Tıkanmış bir çakra açılırken veya dengelenirken, bastırılmış duygular (ağlama isteği, öfke, ani sevinç) yüzeye çıkabilir. Bu durum bir iyileşme krizidir (healing crisis). Duyguları bastırmayın, şifalanmaları için akmasına izin verin.',
-    color: '#32ADE6'
-  },
-  {
-    icon: 'infinite-outline',
-    title: 'Zorlamayın, Akışta Kalın',
-    content: 'Çakralar mekanik çarklar değildir, bilincinizin katmanlarıdır. Bir günde tüm çakraları açmaya çalışmak veya nefes çalışmalarında bedeni aşırı zorlamak enerji kanallarına (nadilere) zarar verebilir. Kademeli ve sabırlı ilerleyin.',
-    color: '#AF52DE'
-  },
-  {
-    icon: 'pint-outline',
-    title: 'Bol Su Tüketin',
-    content: 'Enerji çalışmaları fiziksel bedende detoks etkisi yaratır. Çıkan hücresel atıkların ve toksik enerjinin bedenden kolayca atılması için günlük olarak beden ağırlığınızın %4\'ü civarında su tüketmeniz esastır (Örn: 70kg biri için ~2.8 Litre). Suyunuzu içerken şifa niyetinizi suya kodlamayı unutmayın.',
-    color: '#00C7BE'
-  },
-  {
-    icon: 'shield-checkmark-outline',
-    title: 'Enerji Alanınızı Mühürleyin',
-    content: 'Meditasyon veya çakra çalışmalarını bitirdiğinizde açılan enerji alanınızı (auranızı) mutlaka kapatmalısınız. Aksi takdirde dış dünyanın düşük frekanslı enerjilerine açık (sünger gibi) hale gelirsiniz. Çalışma bittiğinde "Enerji alanımı sevgiyle mühürlüyorum" diyerek tüm bedeninizi saran altından bir kalkan hayal edin.',
-    color: '#5E5CE6'
-  },
-  {
-    icon: 'restaurant-outline',
-    title: 'Bedeninizi Temiz Tutun',
-    content: 'İnisiyasyon sürecinde bedeniniz hassaslaşır. Alkol ve ağır işlenmiş gıdalar enerji bedeninizi ağırlaştırır, frekansınızı düşürür ve çalışmaların verimini azaltır. Bedeninize bir tapınak gibi davranın.',
-    color: '#FF9500'
-  }
-];
+// DB'deki guidelines lucide ikon adlarını kullanır → Ionicons adına eşle.
+const ICON_MAP: Record<string, any> = {
+  'arrow-up': 'arrow-up-outline',
+  leaf: 'leaf-outline',
+  droplet: 'water-outline',
+  infinity: 'infinite-outline',
+  'cup-soda': 'pint-outline',
+  'shield-check': 'shield-checkmark-outline',
+  utensils: 'restaurant-outline',
+  smartphone: 'phone-portrait-outline',
+};
 
 export default function ChakraGuidelinesScreen() {
   const router = useRouter();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const { data: guidelinesData } = useContent<any[]>('/api/content/guidelines');
+  const GUIDELINES = guidelinesData ?? [];
 
   const toggleExpand = (index: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -104,7 +74,7 @@ export default function ChakraGuidelinesScreen() {
               <BlurView intensity={20} tint="dark" style={[styles.ruleCard, { marginBottom: 0 }]}>
                 <View style={[styles.ruleHeader, !isExpanded && { marginBottom: 0 }]}>
                   <View style={[styles.iconContainer, { backgroundColor: item.color + '15', borderColor: item.color + '40' }]}>
-                    <Ionicons name={item.icon as any} size={22} color={item.color} />
+                    <Ionicons name={(ICON_MAP[item.icon] ?? 'ellipse-outline') as any} size={22} color={item.color} />
                   </View>
                   <Text style={[styles.ruleTitle, { color: COLORS.textMuted }]}>{item.title}</Text>
                   <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.textMuted} />

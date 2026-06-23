@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '../config';
+import { getAuthHeaders } from '../api/client';
 
 // Bellek-içi cache (uygulama ömrü boyunca tek fetch hedefi) + AsyncStorage
 // (offline / hızlı açılış). Strateji: stale-while-revalidate.
@@ -35,9 +36,10 @@ export function useContent<T = any>(path: string) {
         }
       }
 
-      // 3) Ağdan tazele
+      // 3) Ağdan tazele (varsa Bearer token ile — gated içerik için)
       try {
-        const res = await fetch(API_BASE_URL + path);
+        const headers = await getAuthHeaders();
+        const res = await fetch(API_BASE_URL + path, { headers });
         if (!res.ok) throw new Error('İçerik yüklenemedi (' + res.status + ')');
         const json = (await res.json()) as T;
         if (!active) return;

@@ -1,47 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { updateProfile } from '@/src/core/api/client';
+import { useContent } from '@/src/core/content/useContent';
 import { COLORS, SIZES } from '@/src/theme';
 
 const { width } = Dimensions.get('window');
 
-const AVATARS: Record<string, any> = {
-  'pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-  'sirius': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
-  'arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
-  'andromeda': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/andromeda.png' },
-  'lyra': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/lyra.png' },
-  'orion': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion.png' },
-  'mintaka': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'orion_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/orion_pleiades.png' },
-  'blue_avians': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/sirius.png' },
-  'sirius_pleiades': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-  'lyra_arcturus': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/arcturus.png' },
-  'atlantis': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/mintaka.png' },
-  'indigo': { uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/avatars/pleiades.png' },
-};
-
-const RACES = [
-  { id: 'pleiades', name: 'Pleiades (Ülker)', desc: 'Şifacılar, sevgi ve ışık elçileri.' },
-  { id: 'sirius', name: 'Sirius', desc: 'Kadim bilgelik, büyü ve spiritüel rehberler.' },
-  { id: 'arcturus', name: 'Arcturus', desc: 'İleri teknoloji, kutsal geometri, zihinsel şifa.' },
-  { id: 'andromeda', name: 'Andromeda', desc: 'Özgürlük savaşçıları, galaktik gezginler.' },
-  { id: 'lyra', name: 'Lyra (Lir)', desc: 'Galaksinin ataları, cesur savaşçılar.' },
-  { id: 'orion', name: 'Orion', desc: 'Bilgi, zihinsel güç ve çatışma çözücü bilgeler.' },
-  { id: 'mintaka', name: 'Mintaka', desc: 'Su elementi, derin empati ve barış elçileri.' },
-  { id: 'blue_avians', name: 'Mavi Kuşsullar', desc: '6. Boyut varlıkları, adalet ve kozmik denge.' },
-  { id: 'sirius_pleiades', name: 'Sirius - Pleiades Melezi', desc: 'Bilgelik ve sonsuz sevginin birleşimi.' },
-  { id: 'lyra_arcturus', name: 'Lyra - Arcturus Melezi', desc: 'Kadim cesaret ve yüksek teknolojinin sentezi.' },
-  { id: 'orion_pleiades', name: 'Orion - Pleiades Melezi', desc: 'Keskin bir zeka ve koşulsuz sevginin nadir birleşimi.' },
-  { id: 'atlantis', name: 'Lemurya / Atlantis Tohumu', desc: 'Kadim Dünya bilgeliği ile kozmik enerjinin melezleri.' },
-  { id: 'indigo', name: 'İndigo / Kristal Enerji', desc: 'Dünyanın titreşimini yükseltmek için gelmiş yeni çağ melezleri.' }
-];
+// RACES içeriği (avatar URL dahil) DB'den gelir (/api/content/races)
 
 export default function RaceSelectionScreen() {
   const router = useRouter();
-  const [selectedRace, setSelectedRace] = useState(RACES[0]);
+  const { data: racesData } = useContent<any[]>('/api/content/races');
+  const RACES = racesData ?? [];
+  const [selectedRace, setSelectedRace] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!selectedRace && RACES.length > 0) setSelectedRace(RACES[0]);
+  }, [racesData]);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -61,9 +38,9 @@ export default function RaceSelectionScreen() {
         style={[styles.raceCard, isSelected && styles.raceCardSelected]} 
         onPress={() => setSelectedRace(item)}
       >
-        <Image 
-          source={AVATARS[item.id] || AVATARS['pleiades']} 
-          style={styles.cardImage} 
+        <Image
+          source={{ uri: item.avatar }}
+          style={styles.cardImage}
         />
         <View style={[styles.cardOverlay, isSelected && styles.cardOverlaySelected]}>
           <Text style={[styles.cardTitle, isSelected && styles.cardTitleSelected]}>
@@ -73,6 +50,14 @@ export default function RaceSelectionScreen() {
       </TouchableOpacity>
     );
   };
+
+  if (!selectedRace) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator color={COLORS.primary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

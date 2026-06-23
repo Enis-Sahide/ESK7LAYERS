@@ -174,7 +174,9 @@ export default function TestsHubScreen() {
               {isExpanded && cat.subTests && (
                 <View style={styles.subTestsContainer}>
                   {cat.subTests.map((sub, index) => {
-                    const isLocked = isAdmin ? false : (sub.requiredUnlock ? !hasAccess(sub.requiredUnlock) : false);
+                    // Seviye-bazlı kilit: 2./3. derece için requiredUnlock, 1. derece için sınav id'si (rota son parçası)
+                    const lockKey = sub.requiredUnlock ?? (sub.route?.split('/').pop() ?? '');
+                    const isLocked = isAdmin ? false : !hasAccess(lockKey);
 
                     return (
                       <TouchableOpacity 

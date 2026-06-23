@@ -22,10 +22,13 @@ export default function Index() {
             router.replace('/(dashboard)');
           }
         } else {
-          if (mounted) router.replace('/(auth)/login');
+          // Misafir: public bölümleri gezebilsin (giriş zorunlu değil).
+          // Kilitli bölümler (Dersler/Sınavlar/Keşfet/Profil) ayrıca login ister.
+          if (mounted) router.replace('/(dashboard)');
         }
       } catch {
-        if (mounted) router.replace('/(auth)/login');
+        // Hata olursa da dashboard'u dene (misafir görünümü)
+        if (mounted) router.replace('/(dashboard)');
       } finally {
         if (mounted) setLoading(false);
       }

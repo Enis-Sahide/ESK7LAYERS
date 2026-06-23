@@ -18,31 +18,27 @@ if (Platform.OS === 'android') {
 
 const { width } = Dimensions.get('window');
 
-const CHAKRAS = {
-  '1': { title: 'Kök Çakra', subtitle: 'Temel Bilgiler', color: '#FF3B30' },
-  '2': { title: 'Sakral Çakra', subtitle: 'Bağlar ve Yaratım', color: '#FF9500' },
-  '3': { title: 'Solar Pleksus', subtitle: 'İrade ve Güç', color: '#FFCC00' },
-  '4': { title: 'Kalp Çakrası', subtitle: 'Sevgi ve Denge', color: '#34C759' },
-  '5': { title: 'Boğaz Çakrası', subtitle: 'İfade ve Gerçek', color: '#00C7BE' },
-  '6': { title: 'Üçüncü Göz', subtitle: 'Sezgi ve İdrak', color: '#32ADE6' },
-  '7': { title: 'Tepe Çakra', subtitle: 'Kozmik Bağlantı', color: '#AF52DE' },
-};
-
-const TOPICS = [
-  { id: 'nedir', title: 'Çakra Hakkında & Tıkanıklıklar', icon: 'information-circle-outline' },
-  { id: 'dengeleme', title: 'Şifa ve Dengeleme Rehberi', icon: 'leaf-outline' },
-  { id: 'tasavvuf', title: 'Sufizm ve Nefs Mertebesi', icon: 'book-outline' },
-  { id: 'meditasyon', title: 'Aktivasyon ve Meditasyon', icon: 'body-outline' },
-];
+// CHAKRAS + TOPICS içeriği DB'den gelir (/api/content/chakras)
 
 export default function ChakraDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(null);
   const { data: lessonsData } = useContent<Record<string, any>>('/api/content/chakra-lessons');
+  const { data: chakraData } = useContent<{ chakras: Record<string, any>; topics: any[] }>('/api/content/chakras');
   const LESSONS = lessonsData ?? {};
+  const CHAKRAS = chakraData?.chakras ?? {};
+  const TOPICS = chakraData?.topics ?? [];
 
-  const chakra = CHAKRAS[id as keyof typeof CHAKRAS];
+  const chakra = CHAKRAS[id as string];
+
+  if (!chakraData) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'white' }}>Yükleniyor...</Text>
+      </View>
+    );
+  }
 
   if (!chakra) {
     return (

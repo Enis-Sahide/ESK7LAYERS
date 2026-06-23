@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
-import { examStart, examFinish, isAuthenticated } from '@/src/core/api/client';
+import { examStart, examFinish, examCheck, isAuthenticated } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -24,6 +24,8 @@ export default function KadimDerslerTestScreen() {
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isLoadingCheck, setIsLoadingCheck] = useState(true);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [reveal, setReveal] = useState<{ correctText: string | null; explanation: string | null } | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -70,10 +72,8 @@ export default function KadimDerslerTestScreen() {
 
   useEffect(() => {
     if (isFinished && quizData) {
-      const totalQuestions = quizData.questions.length;
-      const score = (correctCount / totalQuestions) * 100;
-      // Tier kilidi sunucuda (quizzes.unlock_tier + pass_threshold) açılır.
-      examFinish(id as string, score)
+      // Skoru ve kilidi SUNUCU belirler; istemci sadece cevapları gönderir.
+      examFinish(id as string, answers)
         .then(() => refresh())
         .catch((e) => console.error('Unlock error:', e));
     }
@@ -97,14 +97,19 @@ export default function KadimDerslerTestScreen() {
 
   const currentQuestion = quizData.questions[currentIndex];
 
-  const handleOptionSelect = (optionIndex: number) => {
-    if (selectedOption !== null) return; 
-    
+  const handleOptionSelect = async (optionIndex: number) => {
+    if (selectedOption !== null) return;
+
+    const optionText = currentQuestion.options[optionIndex];
     setSelectedOption(optionIndex);
-    
-    const isCorrect = optionIndex === currentQuestion.correctAnswerIndex;
-    if (isCorrect) {
-      setCorrectCount(prev => prev + 1);
+    setAnswers(prev => ({ ...prev, [currentQuestion.id]: optionText }));
+
+    try {
+      const res = await examCheck(id as string, currentQuestion.id, optionText);
+      setReveal({ correctText: res.correctAnswer, explanation: res.explanation });
+      if (res.correct) setCorrectCount(prev => prev + 1);
+    } catch {
+      setReveal({ correctText: null, explanation: null });
     }
 
     setTimeout(() => {
@@ -116,6 +121,7 @@ export default function KadimDerslerTestScreen() {
     if (currentIndex < quizData.questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setSelectedOption(null);
+      setReveal(null);
     } else {
       setIsFinished(true);
     }
@@ -204,7 +210,7 @@ export default function KadimDerslerTestScreen() {
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option: string, idx: number) => {
             const isSelected = selectedOption === idx;
-            const isCorrect = idx === currentQuestion.correctAnswerIndex;
+            const isCorrect = reveal != null && option === reveal.correctText;
             const showCorrect = selectedOption !== null && isCorrect;
             const showWrong = selectedOption !== null && isSelected && !isCorrect;
 
@@ -241,7 +247,7 @@ export default function KadimDerslerTestScreen() {
               <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} style={{marginRight: 8}}/>
               <Text style={styles.explanationTitle}>Kadim Bilgi</Text>
             </View>
-            <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+            <Text style={styles.explanationText}>{reveal?.explanation}</Text>
             
             <TouchableOpacity 
               style={styles.nextBtn}

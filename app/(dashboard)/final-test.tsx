@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
+import { examCheck, examFinish } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -29,7 +30,9 @@ export default function FinalTestScreen() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const { unlockTier } = useProgress();
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [reveal, setReveal] = useState<{ correctText: string | null } | null>(null);
+  const { refresh } = useProgress();
   const { data: finalQuestions } = useContent<any[]>('/api/content/final-quiz');
 
   // Initialize and shuffle questions when content loads
@@ -43,21 +46,36 @@ export default function FinalTestScreen() {
     setQuestions(shuffledQuestions);
   }, [finalQuestions]);
 
-  const handleOptionSelect = (option: string) => {
+  // Bitince cevapları SUNUCUYA gönder ('aura' → final soruları, %85 ile kadim_dersler_access açar)
+  useEffect(() => {
+    if (!isFinished) return;
+    examFinish('aura', answers)
+      .then(() => refresh())
+      .catch((e) => console.error('Sınav gönderim hatası:', e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFinished]);
+
+  const handleOptionSelect = async (option: string) => {
     if (selectedOption !== null) return; // Prevent double clicking
-    
+
+    const q = questions[currentIndex];
     setSelectedOption(option);
-    
-    const isCorrect = option === questions[currentIndex].correctAnswer;
-    if (isCorrect) {
-      setCorrectCount(prev => prev + 1);
+    setAnswers(prev => ({ ...prev, [String(q.id)]: option }));
+
+    try {
+      const res = await examCheck('aura', String(q.id), option);
+      setReveal({ correctText: res.correctAnswer });
+      if (res.correct) setCorrectCount(prev => prev + 1);
+    } catch {
+      setReveal({ correctText: null });
     }
 
-    // Wait a bit to show correct/wrong colors, then move to next question
+    // Renkleri göster, sonra sonraki soruya geç
     setTimeout(() => {
       if (currentIndex < questions.length - 1) {
         setCurrentIndex(prev => prev + 1);
         setSelectedOption(null);
+        setReveal(null);
       } else {
         setIsFinished(true);
       }
@@ -100,12 +118,6 @@ export default function FinalTestScreen() {
       color = COLORS.error;
       icon = "alert-circle";
     }
-
-    useEffect(() => {
-      if (isFinished && score >= 85) {
-        unlockTier('kadim_dersler_access');
-      }
-    }, [isFinished, score]);
 
     return (
       <SacredBackground>
@@ -166,7 +178,7 @@ export default function FinalTestScreen() {
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option: string, index: number) => {
             const isSelected = selectedOption === option;
-            const isCorrectOption = option === currentQuestion.correctAnswer;
+            const isCorrectOption = reveal != null && option === reveal.correctText;
             
             let optionStyle: any[] = [styles.optionBtn];
             let iconName = "ellipse-outline";

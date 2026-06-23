@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Lin
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import SacredBackground from '@/components/SacredBackground';
+import { useContent } from '@/src/core/content/useContent';
 
 export default function ImeceHealthScreen() {
   const router = useRouter();
@@ -11,37 +12,9 @@ export default function ImeceHealthScreen() {
     Linking.openURL('https://imecesistem.com.tr/davet/TM/BT90000000114');
   };
 
-  const productSeries = [
-    {
-      title: 'SUP Gıda Takviyeleri (Jel Serisi)',
-      icon: 'heart-outline',
-      desc: 'Bitkilerin, şifalı mantarların ve deniz bileşenlerinin gücünü jel formunda sunan, hücre savunması ve yenilenmesini destekleyen patentli seri.',
-      items: [
-        { name: 'Sup Detoks Mix Jel', desc: 'Toksinlerin atılmasını ve karaciğer fonksiyonlarını destekleyen arındırıcı formül.' },
-        { name: 'Sup Propolis Mix Jel', desc: 'Bağışıklık sistemini güçlendiren hücresel savunma kalkanı.' },
-        { name: 'Sup Reishi & Spirulina Jelleri', desc: 'Stres dengesi, zengin protein, mineral ve hücresel enerji takviyesi.' },
-        { name: 'Sup Krill Mix Jel', desc: 'Hücre emilimi yüksek Omega-3, kalp ve beyin sağlığı desteği.' }
-      ]
-    },
-    {
-      title: 'Hyranus Kişisel Bakım',
-      icon: 'sparkles-outline',
-      desc: 'Tene ve saça uyumlu, kimyasal koruyucular içermeyen özel saç ve cilt bakım serisi. Saç derisinin mikrobiyom dengesini korur.',
-      items: []
-    },
-    {
-      title: "Coffee's Şah & Şifalı Gıdalar",
-      icon: 'cafe-outline',
-      desc: 'Kırmızı Reishi özlü kahve serisi ve içme suyunun alkali dengesini sağlayan Sup Alkali pH Damlası.',
-      items: []
-    },
-    {
-      title: 'Manyetik Biyoenerji Denge Serisi',
-      icon: 'pulse-outline',
-      desc: 'Çevremizdeki elektromanyetik kirliliğin vücudumuz üzerindeki olumsuz etkilerini dengelemek üzere tasarlanmış biyoenerji takıları.',
-      items: []
-    }
-  ];
+  // İçerik DB'den gelir (/api/content/imece-products)
+  const { data: productSeriesData } = useContent<any[]>('/api/content/imece-products');
+  const productSeries = productSeriesData ?? [];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -109,7 +82,7 @@ export default function ImeceHealthScreen() {
 
                 {series.items.length > 0 && (
                   <View style={styles.itemsGrid}>
-                    {series.items.map((item, idx) => (
+                    {series.items.map((item: any, idx: number) => (
                       <View key={idx} style={styles.itemBubble}>
                         <View style={styles.itemTitleRow}>
                           <Ionicons name="checkmark-circle-outline" size={14} color="#10B981" style={{ marginRight: 6 }} />
