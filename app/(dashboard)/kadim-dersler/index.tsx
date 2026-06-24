@@ -1,10 +1,11 @@
 import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '@/src/context/ProgressContext';
+import { ROLE_LEVELS } from '@/src/core/auth/roles';
 
 interface LessonCategory {
   id: string;
@@ -16,25 +17,38 @@ interface LessonCategory {
 
 const LESSON_CATEGORIES: LessonCategory[] = [
   { id: 'duygusal-hastaliklar', title: 'Hastalıkların Duygusal Nedenleri', icon: 'heart-half-outline', route: '/(dashboard)/kadim-dersler/duygusal-hastaliklar' },
-  { id: 'akupunktur', title: 'Akupunktur ve Meridyenler', icon: 'body-outline', route: '/(dashboard)/kadim-dersler/akupunktur', isUnderConstruction: true },
-  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah', isUnderConstruction: true },
-  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji', isUnderConstruction: true },
-  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design', isUnderConstruction: true },
+  { id: 'akupunktur', title: 'Akupunktur ve Meridyenler', icon: 'body-outline', route: '/(dashboard)/kadim-dersler/akupunktur' },
+  { id: 'kabbalah', title: 'Evrensel Kabbalah', icon: 'git-network-outline', route: '/(dashboard)/kadim-dersler/kabbalah' },
+  { id: 'astroloji', title: 'Ezoterik Astroloji', icon: 'planet-outline', route: '/(dashboard)/kadim-dersler/astroloji' },
+  { id: 'human', title: 'Human Design', icon: 'finger-print-outline', route: '/(dashboard)/kadim-dersler/human-design' },
   { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm', isUnderConstruction: true },
-  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji', isUnderConstruction: true },
-  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune', isUnderConstruction: true },
+  { id: 'numeroloji', title: 'Numeroloji', icon: 'calculator-outline', route: '/(dashboard)/kadim-dersler/numeroloji' },
+  { id: 'rune', title: 'Rune Tılsımları', icon: 'diamond-outline', route: '/(dashboard)/kadim-dersler/rune' },
   { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot', isUnderConstruction: true },
-  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga', isUnderConstruction: true },
+  { id: 'yoga', title: 'Yoga Asanaları', icon: 'fitness-outline', route: '/(dashboard)/kadim-dersler/yoga' },
 ];
 
 export default function LessonsHubScreen() {
   const router = useRouter();
-  const { hasAccess, isAdmin } = useProgress();
+  const { hasAccess, role, isAdmin } = useProgress();
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}\n\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const handlePress = (cat: LessonCategory) => {
+    const userLvl = ROLE_LEVELS[role] ?? 0;
+    if (cat.id !== 'duygusal-hastaliklar' && userLvl < 1 && !isAdmin) {
+      showAlert("Derece Kilitli", "Dersleri açabilmeniz için en az Çıraklık seviyesine ulaşmış olmanız lazım.");
+      return;
+    }
     if (cat.isUnderConstruction && !isAdmin) {
-      Alert.alert("Yapım Aşamasında", "Bu ders yapım aşamasındadır.");
+      showAlert("Yapım Aşamasında", "Bu ders yapım aşamasındadır.");
       return;
     }
     router.push(cat.route as any);

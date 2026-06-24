@@ -23,13 +23,8 @@ export default function LoginScreen() {
     setErrorMsg('');
 
     try {
-      const data: any = await apiLogin(email, password);
-      const race = data?.user?.race;
-      if (!race) {
-        router.replace('/(onboarding)/race-reveal');
-      } else {
-        router.replace('/(dashboard)');
-      }
+      await apiLogin(email, password);
+      router.replace('/(dashboard)');
     } catch (err: any) {
       setErrorMsg(err?.message || 'Giriş başarısız. Bilgilerinizi kontrol edin.');
       setLoading(false);

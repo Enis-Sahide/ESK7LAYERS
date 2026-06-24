@@ -15,11 +15,16 @@ export default function DuygusalHastaliklarScreen() {
 
   const filteredDiseases = useMemo(() => {
     const all = diseases ?? [];
-    if (!searchQuery.trim()) return all;
-    return all.filter(d =>
-      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.cause.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let result = [...all];
+    if (searchQuery.trim()) {
+      result = result.filter(d =>
+        d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        d.cause.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    // Alfabetik sırala (Türkçe karakter desteği ile)
+    result.sort((a, b) => a.name.localeCompare(b.name, 'tr-TR'));
+    return result;
   }, [searchQuery, diseases]);
 
   return (
@@ -68,9 +73,11 @@ export default function DuygusalHastaliklarScreen() {
           ListHeaderComponent={
             <View style={styles.introContainer}>
               <Ionicons name="heart-half-outline" size={40} color="#FF3B30" style={{ marginBottom: 15 }} />
-              <Text style={styles.introTitle}>Bedenin Dili</Text>
-              <Text style={styles.introText}>
-                Ezoterik öğretilere göre her fiziksel rahatsızlığın kökeninde çözülmemiş bir duygusal veya zihinsel blokaj yatar. Beden, zihnin taşıyamadığı yükleri fiziksel bir dilde ifade eder.
+              <Text style={styles.introTitle}>Bedenin Mesajları: Psikozomatik Bağlantı</Text>
+              <Text style={[styles.introText, { textAlign: 'left', fontStyle: 'normal' }]}>
+                Kadim öğretilere ve modern psikolojiye göre, bedenimiz aslında bilinçaltımızın bir yansımasıdır. Yaşadığımız, ancak ifade edemediğimiz veya çözemediğimiz duygusal tıkanıklıklar zamanla fiziksel bedende "hastalık" olarak tezahür eder.{"\n\n"}
+                Bir ağrı veya semptom ortaya çıktığında, bu aslında bedenin bir yardım çağrısıdır. Kadim şifa sanatlarına göre, her organın ve bedensel bölgenin temsil ettiği spesifik duygusal ve zihinsel kalıplar vardır.{"\n\n"}
+                Bu kütüphane, fiziksel semptomlarınızın altında yatan olası zihinsel kök inançları bulmanız için tasarlanmıştır. Şifa süreci, semptomu sadece fiziksel olarak bastırmakla değil, onun size ne anlatmaya çalıştığını anlamakla başlar. Mesajı alıp o kök duyguyu sevgiyle serbest bıraktığınızda, bedenin kendi kendini iyileştirme mekanizması devreye girer.
               </Text>
             </View>
           }

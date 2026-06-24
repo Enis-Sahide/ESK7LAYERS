@@ -14,13 +14,7 @@ export default function Index() {
     const route = async () => {
       try {
         if (await isAuthenticated()) {
-          const me: any = await getMe();
-          if (!mounted) return;
-          if (!me?.user?.race) {
-            router.replace('/(onboarding)/race-reveal');
-          } else {
-            router.replace('/(dashboard)');
-          }
+          if (mounted) router.replace('/(dashboard)');
         } else {
           // Misafir: public bölümleri gezebilsin (giriş zorunlu değil).
           // Kilitli bölümler (Dersler/Sınavlar/Keşfet/Profil) ayrıca login ister.

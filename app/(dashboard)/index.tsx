@@ -394,7 +394,7 @@ export default function DashboardScreen() {
              {/* Sınavlar Merkezi Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/tests'); }}>
                <Ionicons name="school" size={20} color="#FFCC00" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Öğrendiklerini Test Et</Text>
+               <Text style={styles.fabMenuText}>Sınavlar</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />

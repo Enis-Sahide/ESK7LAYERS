@@ -141,7 +141,7 @@ export async function forgotPassword(email: string) {
   return postNoAuth('/api/auth/forgot-password', { email });
 }
 
-export async function updateProfile(patch: { fullName?: string; race?: string }) {
+export async function updateProfile(patch: { fullName?: string }) {
   return apiFetch('/api/auth/profile', { method: 'PATCH', body: JSON.stringify(patch) });
 }
 

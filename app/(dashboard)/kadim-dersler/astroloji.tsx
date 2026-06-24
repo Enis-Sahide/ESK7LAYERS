@@ -122,7 +122,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_2') || isAdmin) {
                 setActiveTab('adept'); setExpandedLesson(null);
               } else {
-                alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.");
+                alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >
@@ -136,7 +136,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_master') || isAdmin) {
                 setActiveTab('master'); setExpandedLesson(null);
               } else {
-                alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.");
+                alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >

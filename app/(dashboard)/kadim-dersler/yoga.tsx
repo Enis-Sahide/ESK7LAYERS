@@ -21,11 +21,11 @@ export default function YogaCurriculumScreen() {
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !(hasAccess('yoga_2') || isAdmin)) {
-      alert("Bu bilgiye erişmek için Çıraklık sınavında (Yoga - 1. Derece) %100 'Tam İdrak' seviyesine ulaşmalısın.");
+      alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     if (tab === 'ustat' && !(hasAccess('yoga_master') || isAdmin)) {
-      alert("Bu kadim sırlara erişmek için Kalfalık sınavında (Yoga - 2. Derece) %100 'Tam İdrak' seviyesine ulaşmalısın.");
+      alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

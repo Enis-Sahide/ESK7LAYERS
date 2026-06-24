@@ -120,7 +120,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('human_2') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.")}
+            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
               {!(hasAccess('human_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
@@ -128,7 +128,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'master' && styles.activeTab, !(hasAccess('human_master') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.")}
+            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
               {!(hasAccess('human_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık

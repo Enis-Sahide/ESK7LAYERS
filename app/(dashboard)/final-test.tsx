@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ImageBackground } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, ImageBackground, ActivityIndicator, Alert, BackHandler, Platform, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
-import { examCheck, examFinish } from '@/src/core/api/client';
+import { examCheck, examFinish, examStart, isAuthenticated } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -32,8 +32,64 @@ export default function FinalTestScreen() {
   const [isFinished, setIsFinished] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [reveal, setReveal] = useState<{ correctText: string | null } | null>(null);
+  const [isLoadingCheck, setIsLoadingCheck] = useState(true);
+  const [blockedReason, setBlockedReason] = useState<string | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const examStarted = useRef(false);
   const { refresh } = useProgress();
   const { data: finalQuestions } = useContent<any[]>('/api/content/final-quiz');
+
+  useEffect(() => {
+    let cleaned = false;
+
+    async function checkExamAccess() {
+      if (!(await isAuthenticated())) {
+        if (Platform.OS === 'web') {
+          window.alert("Sınava girmek için lütfen önce giriş yapın.");
+        } else {
+          Alert.alert("Giriş Gerekli", "Sınava girmek için lütfen önce giriş yapın.");
+        }
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace('/(dashboard)/tests');
+        }
+        return;
+      }
+      try {
+        await examStart('aura');
+        examStarted.current = true;
+        setIsLoadingCheck(false);
+      } catch (err: any) {
+        setBlockedReason(err?.message || "Sınav doğrulaması sırasında bir hata oluştu.");
+        setIsLoadingCheck(false);
+      }
+    }
+
+    checkExamAccess();
+
+    return () => {
+      if (!cleaned) {
+        cleaned = true;
+        if (examStarted.current) {
+          examFinish('aura').catch((e) => console.error("Failed to clear active session:", e));
+        }
+      }
+    };
+  }, []);
+
+  const handleBackPress = () => {
+    setShowExitConfirm(true);
+  };
+
+  useEffect(() => {
+    const backAction = () => {
+      handleBackPress();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   // Initialize and shuffle questions when content loads
   useEffect(() => {
@@ -81,6 +137,15 @@ export default function FinalTestScreen() {
       }
     }, 1200);
   };
+
+  if (isLoadingCheck) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }]}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ color: 'white', marginTop: 10 }}>Sınav doğrulaması yapılıyor...</Text>
+      </View>
+    );
+  }
 
   if (questions.length === 0) {
     return (
@@ -150,6 +215,27 @@ export default function FinalTestScreen() {
   const currentQuestion = questions[currentIndex];
   const progressPercent = ((currentIndex) / questions.length) * 100;
 
+  if (blockedReason) {
+    return (
+      <SacredBackground>
+        <View style={styles.blockedContainer}>
+          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          <View style={styles.blockedCard}>
+            <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" style={{ marginBottom: 20 }} />
+            <Text style={styles.blockedTitle}>Sınav Girişi Engellendi</Text>
+            <Text style={styles.blockedText}>{blockedReason}</Text>
+            <TouchableOpacity 
+              style={styles.blockedBtn}
+              onPress={() => router.replace('/(dashboard)/tests')}
+            >
+              <Text style={styles.blockedBtnText}>Mabede Dön</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SacredBackground>
+    );
+  }
+
   return (
     <SacredBackground>
 
@@ -157,11 +243,11 @@ export default function FinalTestScreen() {
 
       {/* Header & Progress */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="close" size={28} color={COLORS.textMuted} />
+        <TouchableOpacity onPress={handleBackPress} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>Sırların Sınavı</Text>
+          <Text style={styles.headerTitle}>Aura & Çakra Sınavı</Text>
           <View style={styles.progressContainer}>
             <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
           </View>
@@ -178,25 +264,28 @@ export default function FinalTestScreen() {
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option: string, index: number) => {
             const isSelected = selectedOption === option;
-            const isCorrectOption = reveal != null && option === reveal.correctText;
+            const showCorrect = reveal !== null && option === reveal.correctText;
+            const showWrong = reveal !== null && isSelected && option !== reveal.correctText;
+            const isPending = reveal === null && isSelected;
             
             let optionStyle: any[] = [styles.optionBtn];
             let iconName = "ellipse-outline";
             let iconColor = COLORS.textMuted;
+            let showSpinner = false;
 
-            if (selectedOption !== null) {
-              if (isCorrectOption) {
-                optionStyle.push(styles.optionCorrect);
-                iconName = "checkmark-circle";
-                iconColor = COLORS.success;
-              } else if (isSelected && !isCorrectOption) {
-                optionStyle.push(styles.optionWrong);
-                iconName = "close-circle";
-                iconColor = COLORS.error;
-              }
-            } else if (isSelected) {
-              iconName = "ellipse";
-              iconColor = COLORS.primary;
+            if (showCorrect) {
+              optionStyle.push(styles.optionCorrect);
+              iconName = "checkmark-circle";
+              iconColor = COLORS.success;
+            } else if (showWrong) {
+              optionStyle.push(styles.optionWrong);
+              iconName = "close-circle";
+              iconColor = COLORS.error;
+            } else if (isPending) {
+              optionStyle.push({ borderColor: COLORS.primary, backgroundColor: 'rgba(212, 175, 55, 0.15)' });
+              showSpinner = true;
+            } else if (selectedOption !== null) {
+              optionStyle.push({ opacity: 0.4 });
             }
 
             return (
@@ -207,7 +296,11 @@ export default function FinalTestScreen() {
                 disabled={selectedOption !== null}
                 activeOpacity={0.7}
               >
-                <Ionicons name={iconName as any} size={22} color={iconColor} style={{ marginRight: 15 }} />
+                {showSpinner ? (
+                  <ActivityIndicator size="small" color={COLORS.primary} style={{ marginRight: 15 }} />
+                ) : (
+                  <Ionicons name={iconName as any} size={22} color={iconColor} style={{ marginRight: 15 }} />
+                )}
                 <Text style={styles.optionText}>{option}</Text>
               </TouchableOpacity>
             );
@@ -215,6 +308,41 @@ export default function FinalTestScreen() {
         </View>
         
       </ScrollView>
+
+      <Modal
+        visible={showExitConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowExitConfirm(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+          <View style={styles.modalCard}>
+            <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" style={{ marginBottom: 15 }} />
+            <Text style={styles.modalTitle}>Sınavdan Çıkış</Text>
+            <Text style={styles.modalText}>
+              Sınavdan çıkmak istediğinize emin misiniz? Çıkış yaparsanız bugünkü sınav hakkınız yanacaktır ve bugün tekrar giremezsiniz.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalBtn, styles.modalBtnCancel]} 
+                onPress={() => setShowExitConfirm(false)}
+              >
+                <Text style={styles.modalBtnTextCancel}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalBtn, styles.modalBtnConfirm]} 
+                onPress={async () => {
+                  setShowExitConfirm(false);
+                  router.replace('/(dashboard)/tests');
+                }}
+              >
+                <Text style={styles.modalBtnTextConfirm}>Çıkış Yap</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SacredBackground>
   );
 }
@@ -364,6 +492,110 @@ const styles = StyleSheet.create({
   returnBtnText: {
     color: COLORS.primary,
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: '#0c0314',
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    padding: 25,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalBtnCancel: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  modalBtnConfirm: {
+    backgroundColor: '#FF3B30',
+  },
+  modalBtnTextCancel: {
+    color: COLORS.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalBtnTextConfirm: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  blockedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  blockedCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 59, 48, 0.2)',
+    padding: 30,
+    alignItems: 'center',
+  },
+  blockedTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  blockedText: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    lineHeight: 22,
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  blockedBtn: {
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    paddingHorizontal: 40,
+    paddingVertical: 15,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  blockedBtnText: {
+    color: COLORS.primary,
+    fontSize: 16,
     fontWeight: 'bold',
   }
 });

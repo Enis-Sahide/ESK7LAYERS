@@ -28,8 +28,8 @@ export default function RegisterScreen() {
 
     try {
       await apiRegister(email, password, name);
-      // Başarılı kayıt → Irk Keşfi (onboarding) ekranına yönlendir
-      router.replace('/(onboarding)/race-reveal');
+      // Başarılı kayıt → Dashboard'a yönlendir
+      router.replace('/(dashboard)');
     } catch (err: any) {
       setErrorMsg(err?.message || 'Kayıt sırasında bir hata oluştu.');
       setLoading(false);

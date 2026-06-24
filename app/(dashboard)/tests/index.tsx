@@ -30,7 +30,6 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'akupunktur', 
     title: 'Akupunktur ve Meridyenler', 
     icon: 'body-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/akupunktur_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/akupunktur_2', requiredUnlock: 'akupunktur_2' },
@@ -41,7 +40,6 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'kabbalah', 
     title: 'Evrensel Kabbalah', 
     icon: 'git-network-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_1' },
       { title: '2. Derece: Kalfalık (50 S.)', route: '/(dashboard)/kadim-dersler/test/kabbalah_2' },
@@ -51,7 +49,6 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'astroloji', 
     title: 'Ezoterik Astroloji', 
     icon: 'planet-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/astroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/astroloji_2', requiredUnlock: 'astroloji_2' },
@@ -62,7 +59,6 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'human', 
     title: 'Human Design', 
     icon: 'finger-print-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/human_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/human_2', requiredUnlock: 'human_2' },
@@ -74,18 +70,16 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'numeroloji', 
     title: 'Numeroloji', 
     icon: 'calculator-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/numeroloji_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/numeroloji_2', requiredUnlock: 'numeroloji_2' },
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/numeroloji_3', requiredUnlock: 'numeroloji_3', isHighlight: true },
     ]
   },
-  {
-    id: 'rune',
-    title: 'Rune',
-    icon: 'diamond-outline',
-    isUnderConstruction: true,
+  { 
+    id: 'rune', 
+    title: 'Rune', 
+    icon: 'diamond-outline', 
     subTests: [
       { title: '1. Kademe: Semboller', route: '/(dashboard)/kadim-dersler/test/rune1' },
       { title: '2. Kademe: Bağlamalar', route: '/(dashboard)/kadim-dersler/test/rune2', requiredUnlock: 'rune_2' },
@@ -97,7 +91,6 @@ const TEST_CATEGORIES: TestCategory[] = [
     id: 'yoga', 
     title: 'Yoga Asanaları', 
     icon: 'fitness-outline', 
-    isUnderConstruction: true,
     subTests: [
       { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/yoga_1' },
       { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/yoga_2', requiredUnlock: 'yoga_2' },
@@ -131,7 +124,7 @@ export default function TestsHubScreen() {
 
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.replace('/(dashboard)')} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{alignItems: 'center'}}>

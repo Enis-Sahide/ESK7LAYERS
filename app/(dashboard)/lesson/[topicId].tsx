@@ -184,9 +184,8 @@ export default function LessonScreen() {
         javaScriptEnabled={true}
       />
 
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.replace('/(dashboard)')} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <Text style={[styles.title, { color: chakraColor }]}>Çakra Rehberi</Text>

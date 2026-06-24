@@ -51,7 +51,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'kalfa' && styles.tabBtnActive, !isKalfaUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : alert("Bu derece kilitli! Önce Çıraklık Sınavını geçmelisin.")}
+          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isKalfaUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
@@ -61,7 +61,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive, !isUstatUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : alert("Bu derece kilitli! Önce Kalfalık Sınavını geçmelisin.")}
+          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}

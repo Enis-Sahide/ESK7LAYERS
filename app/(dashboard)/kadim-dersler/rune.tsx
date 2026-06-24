@@ -49,7 +49,7 @@ export default function RuneMainScreen() {
             if (hasAccess('rune_2') || isAdmin) {
               router.push('/(dashboard)/kadim-dersler/rune2');
             } else {
-              alert("Bu derece kilitli! Önce Rune Sembolleri Sınavını (1. Kademe) %100 başarıyla geçmelisin.");
+              alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
             }
           }}
           activeOpacity={0.8}

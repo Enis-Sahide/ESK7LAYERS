@@ -128,7 +128,7 @@ export default function ProfileScreen() {
 
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => router.canGoBack() ? router.back() : router.replace('/(dashboard)')} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{alignItems: 'center'}}>
@@ -245,64 +245,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontSize: 16,
   },
-  sectionTitle: {
-    fontSize: 16,
-    color: COLORS.text,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    paddingHorizontal: 5,
-  },
-  racesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 30,
-  },
-  raceCard: {
-    width: '31%',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 12,
-    padding: 10,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  raceCardSelected: {
-    backgroundColor: 'rgba(212, 175, 55, 0.2)',
-    borderColor: COLORS.primary,
-  },
-  avatarImg: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    marginBottom: 8,
-  },
-  avatarImgSelected: {
-    borderColor: COLORS.primary,
-  },
-  raceName: {
-    color: COLORS.textMuted,
-    fontSize: 11,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  raceNameSelected: {
-    color: COLORS.primary,
-  },
-  checkBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: COLORS.primary,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   saveBtn: {
     backgroundColor: COLORS.primary,
     flexDirection: 'row',
