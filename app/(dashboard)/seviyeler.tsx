@@ -25,11 +25,13 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#8E8E93',
     badge: 'Ücretsiz Üyelik',
     accessList: [
+      'Astrolojik Doğum Haritası Analizi',
+      'Anlık Gökyüzü (Transit) Etkileşimleri',
+      'Numeroloji Analizi (Doğum Tarihi ve İsim ile)',
+      'Çakra Analizi, Haritası ve Blokaj Tespiti',
       'Günlük Çakra Rehberi ve Olumlamalar',
-      'Temel Çakra Analizi ve Haritası',
       'Nefes Egzersizleri ve Frekans Odası',
-      'Keşfet (Mağaza) Bölümü erişimi',
-      'Önemli Hususlar Kılavuzu'
+      'Keşfet (Mağaza) Bölümü ve Önemli Hususlar'
     ]
   },
   {
@@ -39,8 +41,7 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#32ADE6',
     badge: '1. Aşama Derecesi',
     accessList: [
-      'Numeroloji Analizi (Doğum tarihi ve İsim ile)',
-      'Çıraklık Derecesindeki Kadim Dersler (Astroloji, Numeroloji vb.)',
+      'Çıraklık Derecesindeki Kadim Dersler (Astroloji, Numeroloji vb. Başlangıç Dersleri)',
       'Çıraklık Seviyesi Sınavları ve İlerleme Takibi',
       'Ücretsiz üyelik içeriklerinin tamamı'
     ]
@@ -52,7 +53,6 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#AF52DE',
     badge: '2. Aşama Derecesi',
     accessList: [
-      'Anlık Gökyüzü (Transit) ve Doğum Haritası etkileşimleri',
       'Kalfalık Derecesindeki Kadim Dersler (Rün Eğitimi vb.)',
       'Kalfalık Derecesi Sınavları ve Derece Belgeleri',
       'Çıraklık derecesi içeriklerinin tamamı'
