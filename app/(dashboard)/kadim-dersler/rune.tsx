@@ -185,7 +185,7 @@ export default function RuneCurriculumScreen() {
                 
                 <View style={styles.divider} />
                 
-                <Text style={styles.symbolsBadge}>
+                <View style={styles.symbolsBadge}>
                   <Text style={styles.symbolsText}>{binding.runesUsed}</Text>
                 </View>
 
