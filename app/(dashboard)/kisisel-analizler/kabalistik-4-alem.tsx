@@ -7,8 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
 import { ASTRO_CITIES, AstroCity, ZodiacSign, NatalChartData } from '@/src/features/astrology/api/astrologyClient';
-import { getKabbalahAnalysis } from '@/src/features/astrology/engine/KabbalahInterpretations';
-import { getEsotericPlanetInterpretation } from '@/src/features/astrology/engine/KabbalahPlanetInterpretations';
+// Interpretations are fetched from the backend API.
 import { API_BASE_URL } from '@/src/core/config';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -68,6 +67,8 @@ export default function KabbalahAnalysisScreen() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [chartData, setChartData] = useState<any>(null);
+  const [kabbalahAnalysis, setKabbalahAnalysis] = useState<any>(null);
+  const [interpretations, setInterpretations] = useState<any>(null);
   const [selectedWorld, setSelectedWorld] = useState<'assiah' | 'yetzirah' | 'beriyah' | 'atzilut'>('assiah');
   const [selectedInterp, setSelectedInterp] = useState<{title: string, content: string} | null>(null);
 
@@ -107,14 +108,13 @@ export default function KabbalahAnalysisScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/calculate`, {
+      const response = await fetch(`${API_BASE_URL}/api/astrology/kabbalah`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           localDate: dateStr,
           localTime: timeStr,
-          cityData: matchedCity,
-          calcAllWorlds: true
+          cityData: matchedCity
         })
       });
 
@@ -123,7 +123,9 @@ export default function KabbalahAnalysisScreen() {
         throw new Error(data.error || "Hesaplama hatası");
       }
 
-      setChartData(data.data);
+      setChartData(data.data.charts);
+      setKabbalahAnalysis(data.data.kabbalahAnalysis);
+      setInterpretations(data.data.interpretations);
       setSelectedWorld('assiah');
     } catch (error: any) {
       console.error('Kabalistik hesaplama hatası:', error);
@@ -132,8 +134,6 @@ export default function KabbalahAnalysisScreen() {
       setIsLoading(false);
     }
   };
-
-  const kabbalahAnalysis = chartData?.assiah ? getKabbalahAnalysis(dateStr) : null;
 
   const renderSvgWheel = (currentChart: NatalChartData | null) => {
     if (!currentChart) return null;
@@ -319,7 +319,7 @@ export default function KabbalahAnalysisScreen() {
           ) : (
             <View>
               {/* Reset trigger */}
-              <TouchableOpacity style={styles.resetBtn} onPress={() => setChartData(null)}>
+              <TouchableOpacity style={styles.resetBtn} onPress={() => { setChartData(null); setKabbalahAnalysis(null); setInterpretations(null); }}>
                 <Ionicons name="refresh-outline" size={16} color={COLORS.primary} />
                 <Text style={styles.resetBtnText}>Yeni Bir Sorgulama Yap</Text>
               </TouchableOpacity>
@@ -399,7 +399,7 @@ export default function KabbalahAnalysisScreen() {
                   <TouchableOpacity 
                     key={idx} 
                     style={styles.listItem}
-                    onPress={() => setSelectedInterp(getEsotericPlanetInterpretation(p.name, p.sign, p.house, selectedWorld === 'yetzirah', selectedWorld === 'beriyah', selectedWorld === 'atzilut', p.isRetrograde))}
+                    onPress={() => setSelectedInterp(interpretations?.[selectedWorld]?.[p.name] || null)}
                   >
                     <View style={styles.listItemLeft}>
                       <View style={styles.planetIcon}>
