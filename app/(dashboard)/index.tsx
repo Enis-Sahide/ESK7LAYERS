@@ -142,6 +142,7 @@ export default function DashboardScreen() {
   const [userName, setUserName] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userTitle, setUserTitle] = useState('Arayışta');
+  const [userRole, setUserRole] = useState('free');
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isLessonsExpanded, setIsLessonsExpanded] = useState(false);
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
@@ -162,6 +163,15 @@ export default function DashboardScreen() {
         if (me?.user) {
           setUserName(me.user.fullName?.split(' ')[0] || 'Yolcu');
           setIsLoggedIn(true);
+          setUserRole(me.role || 'free');
+          const roleLabels: Record<string, string> = {
+            free: 'Arayışta',
+            apprentice: 'Çırak',
+            journeyman: 'Kalfa',
+            master: 'Usta',
+            admin: 'Yönetici',
+          };
+          setUserTitle(roleLabels[me.role] || 'Arayışta');
         } else {
           setIsLoggedIn(false);
         }
@@ -418,6 +428,17 @@ export default function DashboardScreen() {
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
+
+             {/* Admin Paneli */}
+             {isLoggedIn && userRole === 'admin' && (
+               <>
+                 <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/admin-dashboard'); setIsToolsExpanded(false); }}>
+                   <Ionicons name="shield-checkmark-outline" size={20} color="#FFD700" style={{ marginRight: 10 }} />
+                   <Text style={styles.fabMenuText}>Admin Paneli</Text>
+                 </TouchableOpacity>
+                 <View style={styles.fabMenuDivider} />
+               </>
+             )}
 
              {isLoggedIn ? (
                <TouchableOpacity style={[styles.fabMenuItem, { marginBottom: 10 }]} onPress={handleLogout}>

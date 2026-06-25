@@ -25,8 +25,9 @@ export default function DashboardLayout() {
   useEffect(() => {
     let active = true;
     (async () => {
+      const isAdminDashboard = pathname.includes('admin-dashboard');
       // 1) Giriş kontrolü (misafir kilitli bölüme giremez)
-      if (AUTH_REQUIRED.some((s) => pathname.includes(s))) {
+      if (AUTH_REQUIRED.some((s) => pathname.includes(s)) || isAdminDashboard) {
         if (!(await isAuthenticated())) {
           if (active) router.replace('/(auth)/login');
           return;
@@ -34,6 +35,10 @@ export default function DashboardLayout() {
       }
       // 2) Rol/seviye kontrolü
       if (role === 'admin') return;
+      if (isAdminDashboard && role !== 'admin') {
+        if (active) router.replace('/(dashboard)');
+        return;
+      }
       const key = Object.keys(ROUTE_MIN_ROLE).find((k) => pathname.includes(k));
       if (!key) return;
       const min = ROUTE_MIN_ROLE[key];
