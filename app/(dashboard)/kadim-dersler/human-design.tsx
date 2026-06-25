@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
@@ -120,7 +120,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('human_2') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
+            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
               {!(hasAccess('human_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 2. Derece
@@ -128,7 +128,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'master' && styles.activeTab, !(hasAccess('human_master') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
+            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
               {!(hasAccess('human_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 3. Derece

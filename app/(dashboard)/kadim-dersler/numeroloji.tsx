@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -51,7 +51,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'kalfa' && styles.tabBtnActive, !isKalfaUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
+          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isKalfaUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
@@ -61,7 +61,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive, !isUstatUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
+          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}

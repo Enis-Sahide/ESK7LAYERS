@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager, Modal, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager, Modal, SafeAreaView, Dimensions, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
@@ -136,12 +136,15 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle, onImagePress }: { less
 
 export default function KabbalahCurriculumScreen() {
   const router = useRouter();
+  const { hasAccess, isAdmin } = useProgress();
   const [activeTab, setActiveTab] = useState<'ciraklik' | 'kalfalik' | 'ustat'>('ciraklik');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
   
   // ImageViewing state
   const [isViewerVisible, setIsViewerVisible] = useState(false);
   const [viewerImage, setViewerImage] = useState<any>(null);
+
+  const isKalfaUnlocked = hasAccess('kabbalah_2') || isAdmin;
 
   const handleImagePress = (imageSource: any) => {
     try {
@@ -153,6 +156,10 @@ export default function KabbalahCurriculumScreen() {
   };
 
   const handleTabPress = (tab: 'ciraklik' | 'kalfalik' | 'ustat') => {
+    if (tab === 'kalfalik' && !isKalfaUnlocked) {
+      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      return;
+    }
     setActiveTab(tab);
     setExpandedLesson(null);
   };
@@ -229,10 +236,13 @@ export default function KabbalahCurriculumScreen() {
             <Text style={[styles.tabText, activeTab === 'ciraklik' && styles.activeTabText]}>1. Derece</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'kalfalik' && styles.activeTab]} 
+            style={[styles.tab, activeTab === 'kalfalik' && styles.activeTab, !isKalfaUnlocked && { opacity: 0.5 }]} 
             onPress={() => handleTabPress('kalfalik')}
           >
-            <Text style={[styles.tabText, activeTab === 'kalfalik' && styles.activeTabText]}>2. Derece</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {!isKalfaUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+              <Text style={[styles.tabText, activeTab === 'kalfalik' && styles.activeTabText]}>2. Derece</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'ustat' && styles.activeTab]} 

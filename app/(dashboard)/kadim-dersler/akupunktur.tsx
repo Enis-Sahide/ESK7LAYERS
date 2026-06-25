@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
@@ -127,11 +127,11 @@ export default function AkupunkturScreen() {
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !(hasAccess('akupunktur_2') || isAdmin)) {
-      alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     if (tab === 'ustat' && !(hasAccess('akupunktur_master') || isAdmin)) {
-      alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

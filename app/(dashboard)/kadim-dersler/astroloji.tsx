@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
@@ -122,7 +122,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_2') || isAdmin) {
                 setActiveTab('adept'); setExpandedLesson(null);
               } else {
-                alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+                Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >
@@ -136,7 +136,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_master') || isAdmin) {
                 setActiveTab('master'); setExpandedLesson(null);
               } else {
-                alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+                Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >
