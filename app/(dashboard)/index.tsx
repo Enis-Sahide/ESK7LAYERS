@@ -431,6 +431,14 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
+             {/* Seviyeler Linki */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/seviyeler'); setIsToolsExpanded(false); }}>
+               <Ionicons name="shield-outline" size={20} color="#D4AF37" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Seviyeler</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
              {/* Keşfet Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/store'); setIsToolsExpanded(false); }}>
                <Ionicons name="compass" size={20} color="#10B981" style={{ marginRight: 10 }} />
