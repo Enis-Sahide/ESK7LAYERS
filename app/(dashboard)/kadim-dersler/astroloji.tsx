@@ -114,7 +114,7 @@ export default function AstrolojiCurriculumScreen() {
             style={[styles.tab, activeTab === 'neofit' && styles.activeTab]}
             onPress={() => { setActiveTab('neofit'); setExpandedLesson(null); }}
           >
-            <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>I. Çıraklık</Text>
+            <Text style={[styles.tabText, activeTab === 'neofit' && styles.activeTabText]}>1. Derece</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('astroloji_2') || isAdmin) && { opacity: 0.5 }]}
@@ -127,7 +127,7 @@ export default function AstrolojiCurriculumScreen() {
             }}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
-              {!(hasAccess('astroloji_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} II. Kalfalık
+              {!(hasAccess('astroloji_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 2. Derece
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
@@ -141,7 +141,7 @@ export default function AstrolojiCurriculumScreen() {
             }}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
-              {!(hasAccess('astroloji_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} III. Üstatlık
+              {!(hasAccess('astroloji_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 3. Derece
             </Text>
           </TouchableOpacity>
         </View>

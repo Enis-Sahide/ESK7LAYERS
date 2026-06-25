@@ -1,20 +1,150 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
+import { useProgress } from '../../../src/context/ProgressContext';
+import { useContent } from '@/src/core/content/useContent';
 
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const getImageSource = (img: any) => {
+  if (!img) return null;
+  if (typeof img === 'string') return { uri: img };
+  if (img.uri) return { uri: img.uri };
+  return img;
+};
+
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+  // Fotoğraf linklerini gizle
+  let cleanText = text.replace(/!\[.*?\]\(.*?\)/g, '');
+  cleanText = cleanText.replace(/<img.*?src=".*?".*?>/g, '');
+  
+  // GitHub alert formatlarını Türkçeye ve Emojiye çevir
+  cleanText = cleanText.replace(/>\s*\[!WARNING\]/gi, '⚠️ **DİKKAT:**');
+  cleanText = cleanText.replace(/>\s*\[!TIP\]/gi, '💡 **İPUCU:**');
+  cleanText = cleanText.replace(/>\s*\[!NOTE\]/gi, '📝 **NOT:**');
+  cleanText = cleanText.replace(/>\s*\[!IMPORTANT\]/gi, '⭐ **ÖNEMLİ:**');
+  
+  // Satır başlarındaki ">" alıntı işaretlerini temizle
+  cleanText = cleanText.replace(/\n>\s?/g, '\n');
+  
+  // **kalın** ve *eğik* metinleri ayır ve stillendir
+  const parts = cleanText.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <Text key={index} style={{ fontWeight: 'bold', color: COLORS.primary }}>
+          {part.slice(2, -2)}
+        </Text>
+      );
+    } else if (part.startsWith('*') && part.endsWith('*')) {
+      return (
+        <Text key={index} style={{ fontStyle: 'italic', color: '#9CA3AF' }}>
+          {part.slice(1, -1)}
+        </Text>
+      );
+    }
+    return <Text key={index}>{part}</Text>;
+  });
+};
+
+const SubAccordionItem = ({ item, isExpanded, onToggle }: { item: { title: string, content: string }, isExpanded: boolean, onToggle: () => void }) => {
+  return (
+    <View style={styles.subAccordionContainer}>
+      <TouchableOpacity style={styles.subAccordionHeader} onPress={onToggle} activeOpacity={0.8}>
+        <Text style={styles.subSectionTitle}>{item.title}</Text>
+        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={18} color="#9CA3AF" />
+      </TouchableOpacity>
+      {isExpanded && (
+        <View style={styles.subAccordionContent}>
+          <Text style={styles.methodText}>{renderFormattedText(item.content)}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string, isExpanded: boolean, onToggle: () => void }) => {
+  const { data: lessons } = useContent<Record<string, any>>('/api/content/lessons?discipline=akupunktur');
+  const [expandedSubLesson, setExpandedSubLesson] = useState<number | null>(null);
+  const lesson = (lessons ?? {})[lessonKey];
+
+  if (!lesson) return null;
+
+  const handleSubToggle = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedSubLesson(prev => prev === index ? null : index);
+  };
+
+  const imageSource = getImageSource(lesson.image);
+
+  return (
+    <View style={styles.accordionContainer}>
+      <TouchableOpacity style={styles.accordionHeader} onPress={onToggle} activeOpacity={0.8}>
+        <Text style={styles.sectionTitle}>{lesson.title}</Text>
+        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={24} color={COLORS.primary} />
+      </TouchableOpacity>
+      
+      {isExpanded && (
+        <View style={styles.accordionContent}>
+          {imageSource && (
+            <Image 
+              source={imageSource} 
+              style={styles.lessonImage} 
+              resizeMode="cover"
+            />
+          )}
+          {lesson.content ? <Text style={styles.methodText}>{renderFormattedText(lesson.content)}</Text> : null}
+          
+          {lesson.items && lesson.items.length > 0 && (
+            <View style={{ marginTop: 15 }}>
+              {lesson.items.map((item: any, index: number) => (
+                <SubAccordionItem 
+                  key={index} 
+                  item={item} 
+                  isExpanded={expandedSubLesson === index}
+                  onToggle={() => handleSubToggle(index)}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+    </View>
+  );
+};
 
 export default function AkupunkturScreen() {
   const router = useRouter();
+  const { hasAccess, isAdmin } = useProgress();
   const [activeTab, setActiveTab] = useState<'cirak' | 'kalfa' | 'ustat'>('cirak');
+  const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
+
+  const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
+    if (tab === 'kalfa' && !(hasAccess('akupunktur_2') || isAdmin)) {
+      alert("Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      return;
+    }
+    if (tab === 'ustat' && !(hasAccess('akupunktur_master') || isAdmin)) {
+      alert("Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+      return;
+    }
+    setActiveTab(tab);
+    setExpandedLesson(null);
+  };
+
+  const handleToggle = (key: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedLesson(prev => prev === key ? null : key);
+  };
 
   return (
     <SacredBackground>
-
-      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
@@ -35,71 +165,45 @@ export default function AkupunkturScreen() {
         <View style={styles.tabContainer}>
           <TouchableOpacity 
             style={[styles.tabBtn, activeTab === 'cirak' && styles.tabBtnActive]} 
-            onPress={() => setActiveTab('cirak')}
+            onPress={() => handleTabPress('cirak')}
           >
             <Text style={[styles.tabText, activeTab === 'cirak' && styles.tabTextActive]}>1. Derece</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tabBtn, activeTab === 'kalfa' && styles.tabBtnActive]} 
-            onPress={() => setActiveTab('kalfa')}
+            style={[styles.tabBtn, activeTab === 'kalfa' && styles.tabBtnActive, !(hasAccess('akupunktur_2') || isAdmin) && { opacity: 0.5 }]} 
+            onPress={() => handleTabPress('kalfa')}
           >
-            <Text style={[styles.tabText, activeTab === 'kalfa' && styles.tabTextActive]}>2. Derece</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {!(hasAccess('akupunktur_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color="#9CA3AF" style={{ marginRight: 5 }} />}
+              <Text style={[styles.tabText, activeTab === 'kalfa' && styles.tabTextActive]}>2. Derece</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive]} 
-            onPress={() => setActiveTab('ustat')}
+            style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive, !(hasAccess('akupunktur_master') || isAdmin) && { opacity: 0.5 }]} 
+            onPress={() => handleTabPress('ustat')}
           >
-            <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>3. Derece</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {!(hasAccess('akupunktur_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color="#9CA3AF" style={{ marginRight: 5 }} />}
+              <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>3. Derece</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
         {activeTab === 'cirak' && (
           <View style={styles.tabContentContainer}>
-            <Text style={styles.sectionTitle}>Çıraklık: Temel Şifa Enerjisi</Text>
-            <Text style={styles.ruleContent}>
-              Akupunktur, bedenin yaşam enerjisi (Chi veya Prana) akışını dengelemeye dayanan binlerce yıllık kadim bir şifa yöntemidir.
-            </Text>
-            <View style={styles.highlightBox}>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Chi (Yaşam Enerjisi):</Text> Evreni ve bedeni canlı tutan evrensel frekanstır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Yin ve Yang:</Text> Bedenimizdeki organlar zıt kutupların (Eril/Dişil, Ateş/Su, Sıcak/Soğuk) dengesiyle çalışır. Hastalık, bu dengenin bozulmasıdır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Meridyenler:</Text> Chi enerjisinin içinde aktığı nehirlerdir.
-              </Text>
-            </View>
+            <AccordionItem lessonKey="1_temel_sifa" isExpanded={expandedLesson === '1_temel_sifa'} onToggle={() => handleToggle('1_temel_sifa')} />
           </View>
         )}
 
         {activeTab === 'kalfa' && (
           <View style={styles.tabContentContainer}>
-            <Text style={styles.sectionTitle}>Kalfalık: 12 Ana Meridyen</Text>
-            <Text style={styles.ruleContent}>
-              Ezoterik anatomiye göre bedenimizde organlara bağlı 12 Ana Meridyen bulunur. Her organ sadece kan pompalamaz, aynı zamanda bir duyguyu da depolar.
-            </Text>
-            <View style={styles.highlightBox}>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Akciğer Meridyeni:</Text> Keder, yas ve üzüntüyü barındırır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Karaciğer Meridyeni:</Text> Öfke, nefret ve hayal kırıklığının merkezidir.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Böbrek Meridyeni:</Text> Derin korkuları ve fobileri depolar. Yaşam enerjisinin bataryasıdır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Mide Meridyeni:</Text> Yeni olayları, durumları ve fikirleri sindirememe, uzun süreli endişeleri tutar.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kalp Meridyeni:</Text> Neşe, sevgi ve ruhun (Shen) tahtıdır. Katılaşmış kalp, kriz yaratır.
-              </Text>
-            </View>
+            <AccordionItem lessonKey="2_12_meridyen" isExpanded={expandedLesson === '2_12_meridyen'} onToggle={() => handleToggle('2_12_meridyen')} />
           </View>
         )}
 
         {activeTab === 'ustat' && (
           <View style={styles.tabContentContainer}>
-            <Text style={styles.sectionTitle}>Üstatlık: Düğümleri Çözmek</Text>
-            <Text style={styles.ruleContent}>
-              Hastalıklar, enerjinin (Chi) kanallarda duygusal travmalarla tıkanması sonucu oluşur. Akupunktur noktaları, bu tıkanıklıkların açıldığı, nehrin akışının tekrar sağlandığı enerji düğümleridir.
-            </Text>
-            <View style={styles.highlightBox}>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Yönetici Meridyenler:</Text> Ren Mai (Kavrama) ve Du Mai (Yönetme) kanalları omurga ve ön hattan geçerek tüm çakraları birbirine bağlar.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>İğnelerin Sırrı:</Text> İğneler (veya akupresür noktalarına yapılan niyetli basılar), sinir sistemine şok vererek biriken öfke ve kederi serbest bırakır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Hücresel Hafıza:</Text> Bedene atılan kördüğümler, bilinçli yüzleşme ve affetme ritüeli ile fiziksel olarak çözülür. Şifa, organın frekansının tekrar evrenle uyumlanmasıdır.
-              </Text>
-            </View>
+            <AccordionItem lessonKey="3_dugumler_cozmek" isExpanded={expandedLesson === '3_dugumler_cozmek'} onToggle={() => handleToggle('3_dugumler_cozmek')} />
           </View>
         )}
         <View style={{ height: 40 }} />
@@ -109,7 +213,6 @@ export default function AkupunkturScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -135,12 +238,12 @@ const styles = StyleSheet.create({
   introTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: '#E0E0E0',
     marginBottom: 10,
     textAlign: 'center',
   },
   introText: {
-    color: COLORS.textMuted,
+    color: '#9CA3AF',
     fontSize: 14,
     lineHeight: 22,
     textAlign: 'center',
@@ -148,27 +251,93 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: SIZES.radius,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
     padding: 4,
-    marginBottom: 20,
+    marginBottom: 30,
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  tabBtnActive: {
+    backgroundColor: COLORS.primary,
+  },
+  tabText: {
+    color: '#9CA3AF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  tabTextActive: {
+    color: '#0B0F19',
+    fontWeight: 'bold',
+  },
+  tabContentContainer: {
+    marginTop: 10,
+  },
+  accordionContainer: {
+    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    borderRadius: 12,
+    marginBottom: 15,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',
+    overflow: 'hidden',
   },
-  tabBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: SIZES.radius - 2 },
-  tabBtnActive: { backgroundColor: 'rgba(212, 175, 55, 0.2)' },
-  tabText: { color: COLORS.textMuted, fontSize: 13, fontWeight: '600' },
-  tabTextActive: { color: COLORS.primary },
-  tabContentContainer: { marginTop: 5 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10 },
-  ruleContent: { color: COLORS.text, fontSize: 14, lineHeight: 22 },
-  highlightBox: {
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
-    padding: 15,
-    borderRadius: 5,
-    marginTop: 15,
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
-  methodExample: { color: COLORS.text, fontSize: 14, lineHeight: 24 },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    flex: 1,
+  },
+  accordionContent: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  lessonImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  methodText: {
+    fontSize: 15,
+    color: '#E0E0E0',
+    lineHeight: 24,
+  },
+  subAccordionContainer: {
+    marginTop: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    overflow: 'hidden',
+  },
+  subAccordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  subSectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    flex: 1,
+  },
+  subAccordionContent: {
+    padding: 14,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
 });

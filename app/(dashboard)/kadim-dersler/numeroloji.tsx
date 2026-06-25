@@ -46,7 +46,7 @@ export default function NumerolojiEgitimScreen() {
           style={[styles.tabBtn, activeTab === 'cirak' && styles.tabBtnActive]} 
           onPress={() => setActiveTab('cirak')}
         >
-          <Text style={[styles.tabText, activeTab === 'cirak' && styles.tabTextActive]}>I. Çırak</Text>
+          <Text style={[styles.tabText, activeTab === 'cirak' && styles.tabTextActive]}>1. Derece</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -55,7 +55,7 @@ export default function NumerolojiEgitimScreen() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isKalfaUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
-            <Text style={[styles.tabText, activeTab === 'kalfa' && styles.tabTextActive]}>II. Kalfa</Text>
+            <Text style={[styles.tabText, activeTab === 'kalfa' && styles.tabTextActive]}>2. Derece</Text>
           </View>
         </TouchableOpacity>
 
@@ -65,7 +65,7 @@ export default function NumerolojiEgitimScreen() {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
-            <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>III. Üstat</Text>
+            <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>3. Derece</Text>
           </View>
         </TouchableOpacity>
       </View>

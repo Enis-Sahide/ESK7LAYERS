@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, Image, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useProgress } from '../../../src/context/ProgressContext';
+import { useContent } from '@/src/core/content/useContent';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const COLORS = {
   background: '#0B0F19',
@@ -15,8 +20,117 @@ const COLORS = {
   highlight: 'rgba(212, 175, 55, 0.15)',
 };
 
+const getImageSource = (img: any) => {
+  if (!img) return null;
+  if (typeof img === 'string') return { uri: img };
+  if (img.uri) return { uri: img.uri };
+  return img;
+};
+
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+  // Fotoğraf linklerini gizle
+  let cleanText = text.replace(/!\[.*?\]\(.*?\)/g, '');
+  cleanText = cleanText.replace(/<img.*?src=".*?".*?>/g, '');
+  
+  // GitHub alert formatlarını Türkçeye ve Emojiye çevir
+  cleanText = cleanText.replace(/>\s*\[!WARNING\]/gi, '⚠️ **DİKKAT:**');
+  cleanText = cleanText.replace(/>\s*\[!TIP\]/gi, '💡 **İPUCU:**');
+  cleanText = cleanText.replace(/>\s*\[!NOTE\]/gi, '📝 **NOT:**');
+  cleanText = cleanText.replace(/>\s*\[!IMPORTANT\]/gi, '⭐ **ÖNEMLİ:**');
+  
+  // Satır başlarındaki ">" alıntı işaretlerini temizle
+  cleanText = cleanText.replace(/\n>\s?/g, '\n');
+  
+  // **kalın** ve *eğik* metinleri ayır ve stillendir
+  const parts = cleanText.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <Text key={index} style={{ fontWeight: 'bold', color: COLORS.primary }}>
+          {part.slice(2, -2)}
+        </Text>
+      );
+    } else if (part.startsWith('*') && part.endsWith('*')) {
+      return (
+        <Text key={index} style={{ fontStyle: 'italic', color: COLORS.textMuted }}>
+          {part.slice(1, -1)}
+        </Text>
+      );
+    }
+    return <Text key={index}>{part}</Text>;
+  });
+};
+
+const SubAccordionItem = ({ item, isExpanded, onToggle }: { item: { title: string, content: string }, isExpanded: boolean, onToggle: () => void }) => {
+  return (
+    <View style={styles.subAccordionContainer}>
+      <TouchableOpacity style={styles.subAccordionHeader} onPress={onToggle} activeOpacity={0.8}>
+        <Text style={styles.subSectionTitle}>{item.title}</Text>
+        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={18} color={COLORS.textMuted} />
+      </TouchableOpacity>
+      {isExpanded && (
+        <View style={styles.subAccordionContent}>
+          <Text style={styles.methodText}>{renderFormattedText(item.content)}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string, isExpanded: boolean, onToggle: () => void }) => {
+  const { data: lessons } = useContent<Record<string, any>>('/api/content/lessons?discipline=yoga');
+  const [expandedSubLesson, setExpandedSubLesson] = useState<number | null>(null);
+  const lesson = (lessons ?? {})[lessonKey];
+
+  if (!lesson) return null;
+
+  const handleSubToggle = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedSubLesson(prev => prev === index ? null : index);
+  };
+
+  const imageSource = getImageSource(lesson.image);
+
+  return (
+    <View style={styles.accordionContainer}>
+      <TouchableOpacity style={styles.accordionHeader} onPress={onToggle} activeOpacity={0.8}>
+        <Text style={styles.sectionTitle}>{lesson.title}</Text>
+        <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={24} color={COLORS.primary} />
+      </TouchableOpacity>
+      
+      {isExpanded && (
+        <View style={styles.accordionContent}>
+          {imageSource && (
+            <Image 
+              source={imageSource} 
+              style={styles.lessonImage} 
+              resizeMode="cover"
+            />
+          )}
+          {lesson.content ? <Text style={styles.methodText}>{renderFormattedText(lesson.content)}</Text> : null}
+          
+          {lesson.items && lesson.items.length > 0 && (
+            <View style={{ marginTop: 15 }}>
+              {lesson.items.map((item: any, index: number) => (
+                <SubAccordionItem 
+                  key={index} 
+                  item={item} 
+                  isExpanded={expandedSubLesson === index}
+                  onToggle={() => handleSubToggle(index)}
+                />
+              ))}
+            </View>
+          )}
+        </View>
+      )}
+    </View>
+  );
+};
+
 export default function YogaCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'cirak' | 'kalfa' | 'ustat'>('cirak');
+  const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
   const { hasAccess, isAdmin } = useProgress();
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
@@ -29,6 +143,12 @@ export default function YogaCurriculumScreen() {
       return;
     }
     setActiveTab(tab);
+    setExpandedLesson(null);
+  };
+
+  const handleToggle = (key: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedLesson(prev => prev === key ? null : key);
   };
 
   return (
@@ -39,7 +159,7 @@ export default function YogaCurriculumScreen() {
     >
       <View style={styles.overlay} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.title}>Yoga Asanaları</Text>
           <Text style={styles.subtitle}>Bedenin, Zihnin ve Ruhun Ezoterik Birleşimi</Text>
@@ -48,16 +168,16 @@ export default function YogaCurriculumScreen() {
         {/* Sekmeler (Tabs) */}
         <View style={styles.tabContainer}>
           <TouchableOpacity style={[styles.tab, activeTab === 'cirak' && styles.activeTab]} onPress={() => handleTabPress('cirak')}>
-            <Text style={[styles.tabText, activeTab === 'cirak' && styles.activeTabText]}>I. Çırak</Text>
+            <Text style={[styles.tabText, activeTab === 'cirak' && styles.activeTabText]}>1. Derece</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.tab, activeTab === 'kalfa' && styles.activeTab, !(hasAccess('yoga_2') || isAdmin) && { opacity: 0.5 }]} onPress={() => handleTabPress('kalfa')}>
             <Text style={[styles.tabText, activeTab === 'kalfa' && styles.activeTabText]}>
-              {!(hasAccess('yoga_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} II. Kalfa
+              {!(hasAccess('yoga_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 2. Derece
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.tab, activeTab === 'ustat' && styles.activeTab, !(hasAccess('yoga_master') || isAdmin) && { opacity: 0.5 }]} onPress={() => handleTabPress('ustat')}>
             <Text style={[styles.tabText, activeTab === 'ustat' && styles.activeTabText]}>
-              {!(hasAccess('yoga_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />} III. Üstat
+              {!(hasAccess('yoga_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 3. Derece
             </Text>
           </TouchableOpacity>
         </View>
@@ -69,53 +189,13 @@ export default function YogaCurriculumScreen() {
               <Ionicons name="leaf" size={40} color={COLORS.primary} style={{ marginBottom: 15 }} />
               <Text style={styles.introTitle}>Köklenme ve Felsefe</Text>
               <Text style={styles.introText}>
-                <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Yoga</Text> kelimesi, Sanskritçe <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Yuj"</Text> kökünden gelir ve <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Bütünleşmek/Birleşmek"</Text> anlamına gelir. Bireysel ruhun evrensel ruhla birleştiği, egonun eridiği yerdir.
+                <Text style={{fontWeight: 'bold', color: COLORS.primary}} font-medium>Yoga</Text> kelimesi, Sanskritçe <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Yuj"</Text> kökünden gelir ve <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Bütünleşmek/Birleşmek"</Text> anlamına gelir. Bireysel ruhun evrensel ruhla birleştiği, egonun eridiği yerdir.
               </Text>
             </BlurView>
 
-            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/neophyte_lotus.png' }} style={styles.heroImage} resizeMode="cover" />
-
-            <Text style={styles.sectionTitle}>1. Ashtanga: 8 Basamaklı Yol</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>
-                Bilge <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Patanjali</Text>'nin kurduğu sisteme <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Ashtanga (8 Uzuv)</Text> denir. Bu basamaklar şunlardır:
-              </Text>
-              <Text style={styles.methodExample}>
-                1. Yama (Ahlaki Disiplinler){"\n"}
-                2. Niyama (Kişisel Gözlemler){"\n"}
-                3. Asana (Fiziksel Duruşlar){"\n"}
-                4. Pranayama (Nefes Kontrolü){"\n"}
-                5. Pratyahara (Duyuları Geri Çekme){"\n"}
-                6. Dharana (Odaklanma){"\n"}
-                7. Dhyana (Meditasyon){"\n"}
-                8. Samadhi (Mutlak Birleşme)
-              </Text>
-            </View>
-
-            <Text style={styles.sectionTitle}>2. Asana: Rahat ve Sabit Duruş</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>
-                Patanjali'ye göre <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Asana'nın tam anlamı "Rahat ve Sabit Oturuş/Duruş"</Text> demektir (Sthiram sukham asanam). Temel asanalarımız:
-              </Text>
-              <View style={styles.highlightBox}>
-                <Text style={styles.methodExample}>
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Tadasana (Dağ Pozu):</Text> Köklenmenin ve ayakta duruşun en temel asanasıdır. Tüm ayakta pozların anasıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Balasana (Çocuk Pozu):</Text> Dinlenme, içe dönme ve ego teslimiyeti pozudur. Sistem burada sakinleşir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Vriksasana (Ağaç Pozu):</Text> Tek ayak üzerinde denge pozudur. Zihni sabitlemek için bakışları <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Drishti'ye (Odak Noktası)</Text> kilitleriz.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Savasana (Ceset Pozu):</Text> Dersin <Text style={{fontWeight: 'bold', color: COLORS.primary}}>en sonunda uygulanan</Text> yatarak dinlenme pozudur. Amacı tüm pratiğin hücresel entegrasyonudur.
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>3. Pranayama: Yaşam Enerjisi</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>
-                <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Pranayama, yaşam enerjisini (Nefesi) kontrol etmektir.</Text>
-              </Text>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Ujjayi Nefesi:</Text> Glottis kaslarının hafif sıkılmasıyla yaratılan <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Okyanus dalgası sesi"</Text> çıkaran nefestir. Bedeni içten ısıtır.
-              </Text>
-            </View>
+            <AccordionItem lessonKey="1_ashtanga" isExpanded={expandedLesson === '1_ashtanga'} onToggle={() => handleToggle('1_ashtanga')} />
+            <AccordionItem lessonKey="1_asana" isExpanded={expandedLesson === '1_asana'} onToggle={() => handleToggle('1_asana')} />
+            <AccordionItem lessonKey="1_pranayama" isExpanded={expandedLesson === '1_pranayama'} onToggle={() => handleToggle('1_pranayama')} />
           </View>
         )}
 
@@ -130,52 +210,9 @@ export default function YogaCurriculumScreen() {
               </Text>
             </BlurView>
 
-            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/surya_namaskar.png' }} style={styles.heroImage} resizeMode="contain" />
-
-            <Text style={styles.sectionTitle}>1. Surya Namaskar & Akış Dinamikleri</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>
-                <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Surya Namaskar (Güneşe Selam):</Text> Tam <Text style={{fontWeight: 'bold', color: COLORS.primary}}>12 asanadan</Text> oluşan ardışık kozmik bir döngüdür. Kurucusu <Text style={{fontWeight: 'bold', color: COLORS.primary}}>K. Pattabhi Jois</Text> olan Ashtanga Vinyasa sisteminin belkemiğidir.
-              </Text>
-              <View style={styles.highlightBox}>
-                <Text style={styles.methodExample}>
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Adho Mukha Svanasana (Aşağı Bakan Köpek):</Text> Göğüs kafesi yere eridiği için en çok <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kalp Çakrasını</Text> uyarır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Chaturanga Dandasana:</Text> Şınavın alt pozisyonudur. <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Omuzlar dirsek hizasında, kollar kaburgalara yapışık</Text> olmalıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kobra vs Yukarı Bakan Köpek:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kobra (Bhujangasana)'da kalça ve uyluklar YERDEDİR.</Text> Yukarı Bakan Köpekte ise dizler ve kalça HAVADADIR.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Virabhadrasana (Savaşçı Pozları):</Text> Hindu efsanesine göre Shiva'nın öfkesiyle saç telinden yarattığı savaşçıdır. Egoyla olan savaşı temsil eder.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kapotasana (Güvercin Pozu):</Text> Derin bir <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kalça Açıcıdır</Text>. Yogaya göre <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Psoas (Kalça) kası "Duygu Çöplüğüdür"</Text> ve travmalar en çok burada depolanır.
-                </Text>
-              </View>
-            </View>
-
-            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/nadis_anatomy.png' }} style={styles.heroImage} resizeMode="contain" />
-
-            <Text style={styles.sectionTitle}>2. Enerji Anatomisi (Nadi ve Vayu)</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>
-                Fiziksel bedenin ötesinde, prana enerjisi 72.000 <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Nadi (Kanal)</Text> içinde akar. Hatha Pradipika'ya göre hastalıkların sebebi <Text style={{fontWeight: 'bold', color: COLORS.primary}}>bu nadilerdeki tıkanıklıklardır.</Text>
-              </Text>
-              <View style={styles.highlightBox}>
-                <Text style={styles.methodExample}>
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Ida Nadi:</Text> Sol burun deliği ile bağlantılı, Ay (Dişil/Serinletici) kanalıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Pingala Nadi:</Text> Sağ burun deliği ile bağlantılı, Güneş (Eril/Isıtıcı) kanalıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Sushumna Nadi:</Text> Omurganın tam ortasından geçen <Text style={{fontWeight: 'bold', color: COLORS.primary}}>ana enerji kanalıdır.</Text>{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Nadi Shodhana Nefesi:</Text> Dönüşümlü burun nefesidir. <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Sağ ve sol beyni (Güneş-Ay enerjilerini) dengeler.</Text>{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Apana Vayu:</Text> Bedendeki 5 rüzgardan biridir, <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Aşağı doğru akan boşaltım ve topraklanma</Text> enerjisidir.
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>3. Bandhalar (Enerji Kilitleri)</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>Enerjinin sızmasını önleyen fiziksel kilitlerdir.</Text>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Mula Bandha:</Text> Pelvik taban kaslarının sıkılmasıdır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Uddiyana Bandha:</Text> Karın vakumudur. <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Sadece nefes tamamen VERİLDİKTEN SONRA uygulanır.</Text>{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Jalandhara Bandha:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Çenenin göğse (sternum) kilitlenmesidir.</Text>{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Maha Bandha (Büyük Kilit):</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Üç kilidin aynı anda uygulanmasıdır.</Text>
-              </Text>
-            </View>
+            <AccordionItem lessonKey="2_surya_namaskar" isExpanded={expandedLesson === '2_surya_namaskar'} onToggle={() => handleToggle('2_surya_namaskar')} />
+            <AccordionItem lessonKey="2_nadi_vayu" isExpanded={expandedLesson === '2_nadi_vayu'} onToggle={() => handleToggle('2_nadi_vayu')} />
+            <AccordionItem lessonKey="2_bandhalar" isExpanded={expandedLesson === '2_bandhalar'} onToggle={() => handleToggle('2_bandhalar')} />
           </View>
         )}
 
@@ -190,47 +227,9 @@ export default function YogaCurriculumScreen() {
               </Text>
             </BlurView>
 
-            <Image source={{ uri: 'https://mbqjklupfoqbcfxusigs.supabase.co/storage/v1/object/public/app-assets/images/yoga/master_kundalini.png' }} style={styles.heroImage} resizeMode="contain" />
-
-            <Text style={styles.sectionTitle}>1. Kundalini ve İleri Pratikler</Text>
-            <View style={styles.methodCard}>
-              <View style={styles.highlightBox}>
-                <Text style={styles.methodExample}>
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kundalini:</Text> Kök çakrada <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kuyruk Sokumu tabanında (3.5 kez kıvrılmış)</Text> uyuyan sembolik yılan ateşidir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>3 Granthi (Düğüm):</Text> Kundalini yükselirken <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Brahma, Vishnu ve Rudra düğümlerini (Granthi)</Text> delmek zorundadır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kriya Yoga:</Text> Yogananda'ya göre <Text style={{fontWeight: 'bold', color: COLORS.primary}}>prana enerjisini doğrudan omurga etrafında dolaştırarak</Text> evrimi hızlandıran sistemdir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Sirsasana (Baş Duruşu):</Text> Taç çakradan damlayan <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Amrita (Nektar)</Text> ateş çakrasında yanıp bitmesin diye süreci tersine çevirir. Bu yüzden Asanaların Kralıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Padmasana (Lotus):</Text> Topukların basıncı sayesinde <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Apana (Aşağı akan) enerjisini yukarı iterek</Text> meditasyonu kilitler.
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>2. Mudralar, Mantralar ve Uyku</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodExample}>
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kechari Mudra:</Text> Sırların sırrıdır. <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Dilin genze kıvrılarak</Text> epifizden damlayan Soma nektarını yakalamasıdır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Jnana Mudra:</Text> İşaret (Ego) ve Başparmak (Evren) birleşimidir.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Mantra Gücü:</Text> Anlama değil, <Text style={{fontWeight: 'bold', color: COLORS.primary}}>ses titreşimlerinin (Naad) epifiz bezini ve çakraları yeniden kodlamasına</Text> dayanır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Trataka:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Ajna (3. Göz)</Text> çakrasını uyarmak için muma sabit bakıştır.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Yoga Nidra:</Text> Bilincin uyanık kaldığı <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Bilinçli Uyku"</Text> şifa sistemidir.{"\n"}
-                • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Savasana Sırrı:</Text> Bedeni terk edip astral uyanıklığın provasını yapmaktır, <Text style={{fontWeight: 'bold', color: COLORS.primary}}>"Bilinçli Ölü Taklidi"</Text> olarak bilinir.
-              </Text>
-            </View>
-
-            <Text style={styles.sectionTitle}>3. Samadhi ve Felsefi Derinlik</Text>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>Patanjali'nin 8. basamağının ötesine geçen son sırlar:</Text>
-              <View style={styles.highlightBox}>
-                <Text style={styles.methodExample}>
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Pratyahara:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Duyu organlarının</Text> dış dünyadan tamamen geri çekilmesidir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Samyama:</Text> Son 3 uzvun (<Text style={{fontWeight: 'bold', color: COLORS.primary}}>Dharana, Dhyana, Samadhi</Text>) kesintisiz birleşik akışıdır.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Kleshas (Izdıraplar):</Text> Patanjali'ye göre acıların EN TEMEL nedeni <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Avidya (Cehâlet/Gerçeği görememe)</Text>'dir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Karma Yoga:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Eylemin sonucundan beklenti duymadan</Text> hizmet etmektir.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Ahimsa:</Text> Düşüncede, sözde ve eylemde <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Şiddetsizliktir</Text>.{"\n"}
-                  • <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Samadhi:</Text> <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Gözlemleyen ile gözlemlenenin BİR olmasıdır</Text>. Son evresi <Text style={{fontWeight: 'bold', color: COLORS.primary}}>Nirvikalpa Samadhi</Text>, egonun tohumsuz ve mutlak geri dönüşsüz yıkımıdır.
-                </Text>
-              </View>
-            </View>
+            <AccordionItem lessonKey="3_kundalini" isExpanded={expandedLesson === '3_kundalini'} onToggle={() => handleToggle('3_kundalini')} />
+            <AccordionItem lessonKey="3_mudra_mantra" isExpanded={expandedLesson === '3_mudra_mantra'} onToggle={() => handleToggle('3_mudra_mantra')} />
+            <AccordionItem lessonKey="3_samadhi" isExpanded={expandedLesson === '3_samadhi'} onToggle={() => handleToggle('3_samadhi')} />
           </View>
         )}
       </ScrollView>
@@ -310,46 +309,67 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     lineHeight: 24,
   },
-  heroImage: {
-    width: '100%',
-    height: 250,
-    borderRadius: 16,
-    marginBottom: 30,
+  accordionContainer: {
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 12,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    overflow: 'hidden',
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
     color: COLORS.primary,
-    marginBottom: 15,
-    marginTop: 10,
+    flex: 1,
   },
-  methodCard: {
-    backgroundColor: COLORS.cardBg,
+  accordionContent: {
     padding: 20,
-    borderRadius: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.primary,
-    marginBottom: 25,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  lessonImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 15,
   },
   methodText: {
     fontSize: 15,
     color: COLORS.text,
     lineHeight: 24,
-    marginBottom: 12,
   },
-  highlightBox: {
-    backgroundColor: COLORS.highlight,
-    padding: 15,
-    borderRadius: 8,
+  subAccordionContainer: {
     marginTop: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.3)'
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    overflow: 'hidden',
   },
-  methodExample: {
+  subAccordionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  subSectionTitle: {
     fontSize: 14,
-    color: COLORS.textMuted,
-    lineHeight: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    flex: 1,
+  },
+  subAccordionContent: {
+    padding: 14,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
   },
 });

@@ -136,7 +136,7 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle, onImagePress }: { less
 
 export default function KabbalahCurriculumScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'ciraklik' | 'kalfalik'>('ciraklik');
+  const [activeTab, setActiveTab] = useState<'ciraklik' | 'kalfalik' | 'ustat'>('ciraklik');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
   
   // ImageViewing state
@@ -152,7 +152,7 @@ export default function KabbalahCurriculumScreen() {
     }
   };
 
-  const handleTabPress = (tab: 'ciraklik' | 'kalfalik') => {
+  const handleTabPress = (tab: 'ciraklik' | 'kalfalik' | 'ustat') => {
     setActiveTab(tab);
     setExpandedLesson(null);
   };
@@ -226,13 +226,19 @@ export default function KabbalahCurriculumScreen() {
         {/* Sekmeler (Tabs) */}
         <View style={styles.tabContainer}>
           <TouchableOpacity style={[styles.tab, activeTab === 'ciraklik' && styles.activeTab]} onPress={() => handleTabPress('ciraklik')}>
-            <Text style={[styles.tabText, activeTab === 'ciraklik' && styles.activeTabText]}>I. Çıraklık</Text>
+            <Text style={[styles.tabText, activeTab === 'ciraklik' && styles.activeTabText]}>1. Derece</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'kalfalik' && styles.activeTab]} 
             onPress={() => handleTabPress('kalfalik')}
           >
-            <Text style={[styles.tabText, activeTab === 'kalfalik' && styles.activeTabText]}>II. Kalfalık</Text>
+            <Text style={[styles.tabText, activeTab === 'kalfalik' && styles.activeTabText]}>2. Derece</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, activeTab === 'ustat' && styles.activeTab]} 
+            onPress={() => handleTabPress('ustat')}
+          >
+            <Text style={[styles.tabText, activeTab === 'ustat' && styles.activeTabText]}>3. Derece</Text>
           </TouchableOpacity>
         </View>
 
@@ -280,6 +286,17 @@ export default function KabbalahCurriculumScreen() {
               />
             ))}
           </View>
+        )}
+
+        {/* III. ÜSTATLIK SEKME İÇERİĞİ */}
+        {activeTab === 'ustat' && (
+          <BlurView intensity={30} tint="dark" style={[styles.introCard, { paddingVertical: 40, alignItems: 'center' }]}>
+            <Ionicons name="lock-closed" size={48} color={COLORS.primary} style={{ marginBottom: 15 }} />
+            <Text style={styles.introTitle}>Mistik Bilgi Hazırlanıyor</Text>
+            <Text style={styles.introText}>
+              Bu derecenin öğretileri henüz aktarılmamıştır. Tapınak çalışmalarına devam edin.
+            </Text>
+          </BlurView>
         )}
       </ScrollView>
     </ImageBackground>
