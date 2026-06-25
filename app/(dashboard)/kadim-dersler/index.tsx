@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
@@ -32,6 +32,7 @@ export default function LessonsHubScreen() {
   const router = useRouter();
   const { hasAccess, role, isAdmin } = useProgress();
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
+  const [lockModalVisible, setLockModalVisible] = React.useState(false);
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -45,7 +46,7 @@ export default function LessonsHubScreen() {
     const userLvl = ROLE_LEVELS[role] ?? 0;
     console.log("Mobile handlePress click:", { catId: cat.id, role, userLvl });
     if (cat.id !== 'duygusal-hastaliklar' && userLvl < 1 && !isAdmin) {
-      showAlert("Derece Kilitli", "Dersleri açabilmeniz için en az Çıraklık seviyesine ulaşmış olmanız lazım.");
+      setLockModalVisible(true);
       return;
     }
     if (cat.isUnderConstruction && !isAdmin) {
@@ -96,6 +97,29 @@ export default function LessonsHubScreen() {
 
         <View style={{height: 100}} />
       </ScrollView>
+
+      <Modal
+        visible={lockModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLockModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Ionicons name="lock-closed-outline" size={48} color="#FF3B30" style={{ marginBottom: 15 }} />
+            <Text style={styles.modalTitle}>Derece Kilitli</Text>
+            <Text style={styles.modalText}>
+              Dersleri açabilmeniz için en az Çıraklık seviyesine ulaşmış olmanız lazım.
+            </Text>
+            <TouchableOpacity 
+              style={styles.modalBtnConfirm} 
+              onPress={() => setLockModalVisible(false)}
+            >
+              <Text style={styles.modalBtnTextConfirm}>Anladım</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SacredBackground>
   );
 }
@@ -146,6 +170,50 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     color: COLORS.text,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: '#0c0314',
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    padding: 25,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#E0E0E0',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#9CA3AF',
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalBtnConfirm: {
+    backgroundColor: '#D4AF37',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  modalBtnTextConfirm: {
+    color: '#000',
+    fontSize: 14,
     fontWeight: '600',
   },
 });
