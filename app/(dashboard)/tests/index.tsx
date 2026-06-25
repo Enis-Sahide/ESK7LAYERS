@@ -65,7 +65,16 @@ const TEST_CATEGORIES: TestCategory[] = [
       { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/human_3', requiredUnlock: 'human_master', isHighlight: true },
     ]
   },
-  { id: 'sembolizm', title: 'Kadim Sembolizm', icon: 'shapes-outline', route: '/(dashboard)/kadim-dersler/sembolizm-test', isUnderConstruction: true },
+  { 
+    id: 'sembolizm', 
+    title: 'Kadim Sembolizm', 
+    icon: 'shapes-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/sembolizm_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/sembolizm_2', requiredUnlock: 'sembolizm_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/sembolizm_3', requiredUnlock: 'sembolizm_master', isHighlight: true },
+    ]
+  },
   { 
     id: 'numeroloji', 
     title: 'Numeroloji', 
@@ -86,7 +95,16 @@ const TEST_CATEGORIES: TestCategory[] = [
       { title: 'Büyük Final Sınavı', route: '/(dashboard)/kadim-dersler/test/runeFinal', requiredUnlock: 'rune_master', isHighlight: true },
     ]
   },
-  { id: 'tarot', title: 'Tarot ve Arkana', icon: 'albums-outline', route: '/(dashboard)/kadim-dersler/tarot-test', isUnderConstruction: true },
+  { 
+    id: 'tarot', 
+    title: 'Tarot ve Arkana', 
+    icon: 'albums-outline', 
+    subTests: [
+      { title: '1. Derece: Çıraklık', route: '/(dashboard)/kadim-dersler/test/tarot_1' },
+      { title: '2. Derece: Kalfalık', route: '/(dashboard)/kadim-dersler/test/tarot_2', requiredUnlock: 'tarot_2' },
+      { title: '3. Derece: Üstatlık', route: '/(dashboard)/kadim-dersler/test/tarot_3', requiredUnlock: 'tarot_master', isHighlight: true },
+    ]
+  },
   { 
     id: 'yoga', 
     title: 'Yoga Asanaları', 
@@ -102,13 +120,13 @@ const TEST_CATEGORIES: TestCategory[] = [
 const getTestLevel = (routePath: string): number => {
   if (!routePath) return 0;
   const path = routePath.toLowerCase();
-  if (path.endsWith('_3') || path.endsWith('final') || path.endsWith('yoga_3') || path.endsWith('numeroloji_3') || path.endsWith('astroloji_3') || path.endsWith('human_3') || path.endsWith('akupunktur_3') || path.endsWith('runefinal')) {
+  if (path.endsWith('_3') || path.endsWith('final') || path.endsWith('yoga_3') || path.endsWith('numeroloji_3') || path.endsWith('astroloji_3') || path.endsWith('human_3') || path.endsWith('akupunktur_3') || path.endsWith('runefinal') || path.endsWith('sembolizm_3') || path.endsWith('tarot_3')) {
     return 3;
   }
-  if (path.endsWith('_2') || path.endsWith('2') || path.endsWith('rune2') || path.endsWith('yoga_2') || path.endsWith('numeroloji_2') || path.endsWith('astroloji_2') || path.endsWith('human_2') || path.endsWith('akupunktur_2')) {
+  if (path.endsWith('_2') || path.endsWith('2') || path.endsWith('rune2') || path.endsWith('yoga_2') || path.endsWith('numeroloji_2') || path.endsWith('astroloji_2') || path.endsWith('human_2') || path.endsWith('akupunktur_2') || path.endsWith('sembolizm_2') || path.endsWith('tarot_2')) {
     return 2;
   }
-  if (path.endsWith('_1') || path.endsWith('1') || path.endsWith('rune1') || path.endsWith('yoga_1') || path.endsWith('numeroloji_1') || path.endsWith('astroloji_1') || path.endsWith('human_1') || path.endsWith('akupunktur_1')) {
+  if (path.endsWith('_1') || path.endsWith('1') || path.endsWith('rune1') || path.endsWith('yoga_1') || path.endsWith('numeroloji_1') || path.endsWith('astroloji_1') || path.endsWith('human_1') || path.endsWith('akupunktur_1') || path.endsWith('sembolizm_1') || path.endsWith('tarot_1')) {
     return 1;
   }
   return 0;
