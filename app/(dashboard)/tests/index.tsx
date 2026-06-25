@@ -99,9 +99,29 @@ const TEST_CATEGORIES: TestCategory[] = [
   },
 ];
 
+const getTestLevel = (routePath: string): number => {
+  if (!routePath) return 0;
+  const path = routePath.toLowerCase();
+  if (path.endsWith('_3') || path.endsWith('final') || path.endsWith('yoga_3') || path.endsWith('numeroloji_3') || path.endsWith('astroloji_3') || path.endsWith('human_3') || path.endsWith('akupunktur_3') || path.endsWith('runefinal')) {
+    return 3;
+  }
+  if (path.endsWith('_2') || path.endsWith('2') || path.endsWith('rune2') || path.endsWith('yoga_2') || path.endsWith('numeroloji_2') || path.endsWith('astroloji_2') || path.endsWith('human_2') || path.endsWith('akupunktur_2')) {
+    return 2;
+  }
+  if (path.endsWith('_1') || path.endsWith('1') || path.endsWith('rune1') || path.endsWith('yoga_1') || path.endsWith('numeroloji_1') || path.endsWith('astroloji_1') || path.endsWith('human_1') || path.endsWith('akupunktur_1')) {
+    return 1;
+  }
+  return 0;
+};
+
+const getTestId = (routePath: string): string => {
+  if (routePath.includes('final-test')) return 'aura';
+  return routePath.split('/').pop() ?? '';
+};
+
 export default function TestsHubScreen() {
   const router = useRouter();
-  const { hasAccess, resetProgress, isAdmin } = useProgress();
+  const { hasAccess, resetProgress, isAdmin, role, passedExams } = useProgress();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
@@ -119,6 +139,38 @@ export default function TestsHubScreen() {
     }
   };
 
+  const ROLE_LEVELS: Record<string, number> = {
+    free: 0,
+    apprentice: 1,
+    journeyman: 2,
+    master: 3,
+    admin: 999,
+  };
+  const userLevel = ROLE_LEVELS[role] ?? 0;
+
+  const filteredCategories = TEST_CATEGORIES.map(cat => {
+    // 1. Direct route (no subtests)
+    if (cat.route) {
+      const level = getTestLevel(cat.route);
+      if (isAdmin || level === userLevel) {
+        return cat;
+      }
+      return null;
+    }
+    // 2. Has subtests
+    if (cat.subTests) {
+      const sub = cat.subTests.filter(s => {
+        const level = getTestLevel(s.route);
+        return isAdmin || level === userLevel;
+      });
+      if (sub.length > 0) {
+        return { ...cat, subTests: sub };
+      }
+      return null;
+    }
+    return cat;
+  }).filter((c): c is TestCategory => c !== null);
+
   return (
     <SacredBackground>
 
@@ -135,7 +187,7 @@ export default function TestsHubScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {TEST_CATEGORIES.map((cat) => {
+        {filteredCategories.map((cat) => {
           const isExpanded = expandedId === cat.id;
           
           return (
@@ -157,19 +209,24 @@ export default function TestsHubScreen() {
                 <Ionicons 
                   name={
                     (cat.isUnderConstruction && !isAdmin) ? "construct-outline" :
-                    cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : "play-circle-outline"
+                    cat.subTests ? (isExpanded ? "chevron-up" : "chevron-down") : 
+                    (cat.route && passedExams.includes(getTestId(cat.route))) ? "checkmark-circle" : "play-circle-outline"
                   } 
                   size={24} 
-                  color={(cat.subTests || (cat.isUnderConstruction && !isAdmin)) ? COLORS.textMuted : COLORS.primary} 
+                  color={
+                    (cat.subTests || (cat.isUnderConstruction && !isAdmin)) ? COLORS.textMuted : 
+                    (cat.route && passedExams.includes(getTestId(cat.route))) ? COLORS.success : COLORS.primary
+                  } 
                 />
               </TouchableOpacity>
 
               {isExpanded && cat.subTests && (
                 <View style={styles.subTestsContainer}>
                   {cat.subTests.map((sub, index) => {
-                    // Seviye-bazlı kilit: 2./3. derece için requiredUnlock, 1. derece için sınav id'si (rota son parçası)
                     const lockKey = sub.requiredUnlock ?? (sub.route?.split('/').pop() ?? '');
                     const isLocked = isAdmin ? false : !hasAccess(lockKey);
+                    const examId = sub.route?.split('/').pop() ?? '';
+                    const hasPassed = passedExams.includes(examId);
 
                     return (
                       <TouchableOpacity 
@@ -178,9 +235,23 @@ export default function TestsHubScreen() {
                         onPress={() => isLocked ? alert("Bu sınava girmek için önceki dereceyi geçmelisin!") : router.push(sub.route as any)}
                         activeOpacity={0.7}
                       >
-                        <Text style={[styles.subTestTitle, sub.isHighlight && { color: '#FFCC00', fontWeight: 'bold' }]}>
-                          {isLocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} {sub.title}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                          {isLocked ? (
+                            <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 8 }} />
+                          ) : hasPassed ? (
+                            <Ionicons name="checkmark-circle" size={16} color={COLORS.success} style={{ marginRight: 8 }} />
+                          ) : (
+                            <Ionicons name="play-outline" size={14} color={COLORS.primary} style={{ marginRight: 8 }} />
+                          )}
+                          <Text style={[styles.subTestTitle, sub.isHighlight && { color: '#FFCC00', fontWeight: 'bold' }, hasPassed && { color: COLORS.success }]}>
+                            {sub.title}
+                          </Text>
+                        </View>
+                        {hasPassed && (
+                          <View style={{ backgroundColor: 'rgba(52, 199, 89, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginRight: 8 }}>
+                            <Text style={{ color: COLORS.success, fontSize: 10, fontWeight: 'bold' }}>Tamamlandı</Text>
+                          </View>
+                        )}
                         <Ionicons name={isLocked ? "lock-closed-outline" : "arrow-forward"} size={16} color={sub.isHighlight ? '#FFCC00' : COLORS.textMuted} />
                       </TouchableOpacity>
                     );
