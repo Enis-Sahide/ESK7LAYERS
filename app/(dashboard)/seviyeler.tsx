@@ -23,7 +23,7 @@ const LEVELS_DATA: LevelDetail[] = [
     roleKey: 'free',
     icon: 'search-outline',
     color: '#8E8E93',
-    badge: 'Ücretsiz Üyelik',
+    badge: 'Arayış Derecesi',
     accessList: [
       'Astrolojik Doğum Haritası Analizi',
       'Anlık Gökyüzü (Transit) Etkileşimleri',
@@ -42,8 +42,8 @@ const LEVELS_DATA: LevelDetail[] = [
     badge: '1. Aşama Derecesi',
     accessList: [
       'Çıraklık Derecesindeki Kadim Dersler (Astroloji, Numeroloji vb. Başlangıç Dersleri)',
-      'Çıraklık Seviyesi Sınavları ve İlerleme Takibi',
-      'Ücretsiz üyelik içeriklerinin tamamı'
+      'Çıraklık Aşaması Sınavları ve İlerleme Takibi',
+      'Arayış derecesi içeriklerinin tamamı'
     ]
   },
   {
@@ -94,7 +94,7 @@ export default function LevelsScreen() {
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
           <Text style={styles.headerTitle}>Tekamül Dereceleri</Text>
-          <Text style={styles.headerSubtitle}>Mistik Seviyeler ve Kriterler</Text>
+          <Text style={styles.headerSubtitle}>Mistik Dereceler ve Kriterler</Text>
         </View>
         <View style={{ width: 28 }} />
       </View>
@@ -108,10 +108,10 @@ export default function LevelsScreen() {
             <Text style={styles.criteriaTitle}>Derece Geçiş Kriterleri</Text>
           </View>
           <Text style={styles.criteriaText}>
-            • Bir üst seviyedeki dersleri ve sınavları açabilmek için mevcut seviyenizin sınavlarından <Text style={{color: COLORS.primary, fontWeight: 'bold'}}>en az %80</Text> başarı puanı almalısınız.
+            • Bir üst derecedeki dersleri ve sınavları açabilmek için mevcut aşamanızın sınavlarından <Text style={{color: COLORS.primary, fontWeight: 'bold'}}>en az %80</Text> başarı puanı almalısınız.
           </Text>
           <Text style={styles.criteriaText}>
-            • Örneğin; açılmış olan tüm <Text style={{color: '#32ADE6', fontWeight: 'bold'}}>Çıraklık Sınavlarını %80 ve üzeri</Text> başarıyla tamamlayan adaylar, bir üst aşama olan <Text style={{color: '#AF52DE', fontWeight: 'bold'}}>Kalfalık seviyesine</Text> geçmeye hak kazanırlar.
+            • Örneğin; açılmış olan tüm <Text style={{color: '#32ADE6', fontWeight: 'bold'}}>Çıraklık Sınavlarını %80 ve üzeri</Text> başarıyla tamamlayan adaylar, bir üst aşama olan <Text style={{color: '#AF52DE', fontWeight: 'bold'}}>Kalfalık aşamasına</Text> geçmeye hak kazanırlar.
           </Text>
         </BlurView>
 
@@ -143,12 +143,12 @@ export default function LevelsScreen() {
         {/* Web Sitesine Yönlendirme Kartı */}
         <BlurView intensity={35} tint="dark" style={styles.redirectCard}>
           <Ionicons name="information-circle-outline" size={32} color="#D4AF37" style={{ marginBottom: 12 }} />
-          <Text style={styles.redirectTitle}>Seviye Yükseltme İşlemi</Text>
+          <Text style={styles.redirectTitle}>Aşama Aktivasyon İşlemi</Text>
           <Text style={styles.redirectText}>
-            Mobil uygulama üzerinden ödeme veya seviye yükseltme işlemi yapılmamaktadır. Hak kazandığınız veya geçmek istediğiniz ücretli seviyeleri aktif etmek için lütfen web sitemizi ziyaret edin.
+            Mobil uygulama üzerinden doğrudan aşama geçişi veya derece aktivasyon işlemi gerçekleştirilmemektedir. Hak kazandığınız veya ilerlemek istediğiniz yeni dereceleri etkinleştirmek için lütfen web sitemizi ziyaret edin.
           </Text>
           <Text style={styles.redirectTextSub}>
-            Web sitesinden kullanıcı hesabınızla giriş yaparak Seviyeler sayfasından satın alımınızı gerçekleştirebilirsiniz.
+            Web sitemiz üzerinden hesabınıza giriş yaparak, hak kazandığınız dereceleri kolayca aktif edebilirsiniz.
           </Text>
           
           <TouchableOpacity style={styles.webBtn} onPress={handleOpenWeb}>
