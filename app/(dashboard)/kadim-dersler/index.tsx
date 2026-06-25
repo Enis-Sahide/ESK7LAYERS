@@ -43,6 +43,7 @@ export default function LessonsHubScreen() {
 
   const handlePress = (cat: LessonCategory) => {
     const userLvl = ROLE_LEVELS[role] ?? 0;
+    console.log("Mobile handlePress click:", { catId: cat.id, role, userLvl });
     if (cat.id !== 'duygusal-hastaliklar' && userLvl < 1 && !isAdmin) {
       showAlert("Derece Kilitli", "Dersleri açabilmeniz için en az Çıraklık seviyesine ulaşmış olmanız lazım.");
       return;
