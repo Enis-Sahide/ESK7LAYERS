@@ -90,6 +90,19 @@ export default function KadimDerslerTestScreen() {
     }
   }, [isFinished]);
 
+  const handleBackPress = () => {
+    setShowExitConfirm(true);
+  };
+
+  useEffect(() => {
+    const backAction = () => {
+      handleBackPress();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
+
   if (isLoadingCheck) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }]}>
@@ -137,19 +150,6 @@ export default function KadimDerslerTestScreen() {
       setIsFinished(true);
     }
   };
-
-  const handleBackPress = () => {
-    setShowExitConfirm(true);
-  };
-
-  useEffect(() => {
-    const backAction = () => {
-      handleBackPress();
-      return true;
-    };
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
-  }, []);
 
   if (isFinished) {
     const totalQuestions = quizData.questions.length;
