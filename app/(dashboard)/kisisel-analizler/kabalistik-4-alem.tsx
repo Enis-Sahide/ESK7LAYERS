@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
 import { ASTRO_CITIES, AstroCity, ZodiacSign, NatalChartData } from '@/src/features/astrology/api/astrologyClient';
 // Interpretations are fetched from the backend API.
-import { API_BASE_URL } from '@/src/core/config';
+import { apiFetch } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -109,9 +109,8 @@ export default function KabbalahAnalysisScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/kabbalah`, {
+      const data = await apiFetch('/api/astrology/kabbalah', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           localDate: dateStr,
           localTime: timeStr,
@@ -119,8 +118,7 @@ export default function KabbalahAnalysisScreen() {
         })
       });
 
-      const data = await response.json();
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.error || "Hesaplama hatası");
       }
 
