@@ -11,6 +11,7 @@ import { ROLE_LEVELS } from '@/src/core/auth/roles';
 interface ProgressContextType {
   unlockedTiers: string[];
   passedExams: string[];
+  examAttempts: Record<string, any>;
   role: string;
   isAdmin: boolean;
   unlockTier: (tierId: string) => Promise<void>;
@@ -24,6 +25,7 @@ const ProgressContext = createContext<ProgressContextType | undefined>(undefined
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [unlockedTiers, setUnlockedTiers] = useState<string[]>([]);
   const [passedExams, setPassedExams] = useState<string[]>([]);
+  const [examAttempts, setExamAttempts] = useState<Record<string, any>>({});
   const [role, setRole] = useState<string>('free');
 
   const refresh = useCallback(async () => {
@@ -31,12 +33,14 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
       if (!(await isAuthenticated())) {
         setUnlockedTiers([]);
         setPassedExams([]);
+        setExamAttempts({});
         setRole('free');
         return;
       }
       const p: any = await getProgress();
       setUnlockedTiers(p.unlockedTiers || []);
       setPassedExams(p.passedExams || []);
+      setExamAttempts(p.examAttempts || {});
       setRole(p.role || 'free');
     } catch (e) {
       // Offline / hata: mevcut durumu koru
@@ -84,7 +88,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProgressContext.Provider
-      value={{ unlockedTiers, passedExams, role, isAdmin, unlockTier, hasAccess, resetProgress, refresh }}
+      value={{ unlockedTiers, passedExams, examAttempts, role, isAdmin, unlockTier, hasAccess, resetProgress, refresh }}
     >
       {children}
     </ProgressContext.Provider>

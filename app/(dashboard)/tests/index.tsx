@@ -137,9 +137,26 @@ const getTestId = (routePath: string): string => {
   return routePath.split('/').pop() ?? '';
 };
 
+const getTestDisplayName = (quizId: string): string => {
+  if (quizId === 'aura') return 'Aura & Çakra Sınavı';
+  if (quizId === 'duygusal_hastaliklar_50') return 'Hastalıkların Duygusal Nedenleri';
+  
+  for (const cat of TEST_CATEGORIES) {
+    if (cat.subTests) {
+      for (const sub of cat.subTests) {
+        const subId = sub.route.split('/').pop();
+        if (subId === quizId) {
+          return `${cat.title} - ${sub.title.replace(/\s*\(.*?\)\s*/g, '')}`;
+        }
+      }
+    }
+  }
+  return quizId;
+};
+
 export default function TestsHubScreen() {
   const router = useRouter();
-  const { hasAccess, resetProgress, isAdmin, role, passedExams } = useProgress();
+  const { hasAccess, resetProgress, isAdmin, role, passedExams, examAttempts } = useProgress();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
@@ -280,6 +297,49 @@ export default function TestsHubScreen() {
           );
         })}
 
+        {/* Geçmiş Sınav Sonuçları Tablosu */}
+        {Object.keys(examAttempts || {}).length > 0 && (
+          <View style={styles.resultsSection}>
+            <Text style={styles.sectionHeading}>Geçmiş Sınav Sonuçlarınız</Text>
+            
+            <View style={styles.tableHeader}>
+              <Text style={[styles.headerCell, { flex: 2.2 }]}>Sınav Adı</Text>
+              <Text style={[styles.headerCell, { flex: 1.2, textAlign: 'center' }]}>Tarih</Text>
+              <Text style={[styles.headerCell, { flex: 0.8, textAlign: 'right' }]}>Skor</Text>
+            </View>
+
+            {Object.entries(examAttempts || {}).map(([quizId, val]) => {
+              const date = typeof val === 'string' ? val : val?.date ?? '';
+              const score = typeof val === 'object' && val ? val.score : null;
+              const hasPassed = score !== null && score >= 80;
+
+              return (
+                <View key={quizId} style={styles.tableRow}>
+                  <Text style={[styles.rowCell, { flex: 2.2, fontWeight: 'bold' }]}>
+                    {getTestDisplayName(quizId)}
+                  </Text>
+                  <Text style={[styles.rowCell, { flex: 1.2, textAlign: 'center', fontSize: 11, color: COLORS.textMuted }]}>
+                    {date ? date.split('-').reverse().join('.') : '-'}
+                  </Text>
+                  <View style={{ flex: 0.8, alignItems: 'flex-end' }}>
+                    <View style={[
+                      styles.scoreBadge,
+                      { backgroundColor: score === null ? 'rgba(255,255,255,0.08)' : hasPassed ? 'rgba(52, 199, 89, 0.15)' : 'rgba(255, 69, 58, 0.15)' }
+                    ]}>
+                      <Text style={[
+                        styles.scoreText,
+                        { color: score === null ? COLORS.textMuted : hasPassed ? COLORS.success : '#FF453A' }
+                      ]}>
+                        {score !== null ? `%${score}` : '-'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+
         <View style={{height: 100}} />
       </ScrollView>
     </SacredBackground>
@@ -355,5 +415,56 @@ const styles = StyleSheet.create({
   subTestTitle: {
     fontSize: 14,
     color: COLORS.textMuted,
+  },
+  resultsSection: {
+    marginTop: 30,
+    backgroundColor: 'rgba(10, 10, 10, 0.8)',
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    padding: 18,
+    marginBottom: 20,
+  },
+  sectionHeading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)',
+    paddingBottom: 8,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 8,
+    marginBottom: 10,
+  },
+  headerCell: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  rowCell: {
+    color: COLORS.text,
+    fontSize: 13,
+  },
+  scoreBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  scoreText: {
+    fontSize: 11,
+    fontWeight: 'bold',
   }
 });
