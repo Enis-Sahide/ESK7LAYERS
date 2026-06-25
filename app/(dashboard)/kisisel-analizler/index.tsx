@@ -92,6 +92,10 @@ export default function AnalysisHubScreen() {
     router.push(tool.route as any);
   };
 
+  const visibleTools = ANALYSIS_TOOLS.filter(
+    (tool) => tool.id !== 'kabalistik4alem' || isMasterOrAdmin
+  );
+
   return (
     <SacredBackground>
       <View style={styles.header}>
@@ -106,7 +110,7 @@ export default function AnalysisHubScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {ANALYSIS_TOOLS.map((tool) => (
+        {visibleTools.map((tool) => (
           <TouchableOpacity 
             key={tool.id} 
             style={[styles.toolCard, !tool.isAvailable && { opacity: 0.6 }]} 
