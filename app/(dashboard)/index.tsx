@@ -187,7 +187,11 @@ export default function DashboardScreen() {
         
         {/* Üst Bilgi Başlığı */}
         <View style={styles.header}>
-        <View style={styles.headerProfile}>
+        <TouchableOpacity 
+          style={styles.headerProfile}
+          onPress={() => router.push('/(dashboard)/profile')}
+          activeOpacity={0.7}
+        >
           <Image source={require('@/assets/images/indir.webp')} style={styles.headerAvatar} />
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
@@ -199,7 +203,7 @@ export default function DashboardScreen() {
             </View>
             <Text style={styles.nameText}>{userName}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.headerMenuBtn} 
           onPress={() => {
