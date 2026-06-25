@@ -195,7 +195,7 @@ export default function HumanDesignScreen() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/human-design`, {
+      const response = await fetch(`${API_BASE_URL}/api/human-design`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

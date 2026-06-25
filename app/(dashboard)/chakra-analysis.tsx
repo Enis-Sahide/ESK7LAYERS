@@ -38,7 +38,7 @@ export default function ChakraAnalysisScreen() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/chakra-analysis`);
+      const response = await fetch(`${API_BASE_URL}/api/chakra-analysis`);
       if (!response.ok) {
         throw new Error('Analiz soruları sunucudan alınamadı.');
       }
@@ -66,7 +66,7 @@ export default function ChakraAnalysisScreen() {
     } else {
       setSubmitting(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/chakra-analysis`, {
+        const response = await fetch(`${API_BASE_URL}/api/chakra-analysis`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

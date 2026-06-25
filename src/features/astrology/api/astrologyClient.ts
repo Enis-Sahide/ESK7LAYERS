@@ -64,7 +64,7 @@ export async function fetchAstrologyChart(birthDate: Date, cityKey: string = 'İ
     const localDate = m.format('YYYY-MM-DD');
     const localTime = m.format('HH:mm');
 
-    const response = await fetch(`${API_BASE_URL}/astrology/calculate`, {
+    const response = await fetch(`${API_BASE_URL}/api/astrology/calculate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

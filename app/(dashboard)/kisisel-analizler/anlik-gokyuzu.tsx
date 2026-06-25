@@ -232,7 +232,7 @@ export default function AnlikGokyuzuScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/astrology/calculate-transit`, {
+      const response = await fetch(`${API_BASE_URL}/api/astrology/calculate-transit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -100,7 +100,7 @@ export default function NumerolojiKisiselAnalizScreen() {
       const formattedDay = String(d).padStart(2, '0');
       const birthDateStr = `${y}-${formattedMonth}-${formattedDay}`;
 
-      const response = await fetch(`${API_BASE_URL}/numerology`, {
+      const response = await fetch(`${API_BASE_URL}/api/numerology`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ export default function NumerolojiKisiselAnalizScreen() {
       const formattedDay = String(d).padStart(2, '0');
       const birthDateStr = `${y}-${formattedMonth}-${formattedDay}`;
 
-      const response = await fetch(`${API_BASE_URL}/numerology`, {
+      const response = await fetch(`${API_BASE_URL}/api/numerology`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
