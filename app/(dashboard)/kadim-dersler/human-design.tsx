@@ -84,6 +84,14 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string,
   );
 };
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function HumanDesignCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'neofit' | 'adept' | 'master'>('neofit');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
@@ -120,7 +128,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'adept' && styles.activeTab, !(hasAccess('human_2') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
+            onPress={() => (hasAccess('human_2') || isAdmin) ? handleTabPress('adept') : showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'adept' && styles.activeTabText]}>
               {!(hasAccess('human_2') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 2. Derece
@@ -128,7 +136,7 @@ export default function HumanDesignCurriculumScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.tab, activeTab === 'master' && styles.activeTab, !(hasAccess('human_master') || isAdmin) && { opacity: 0.5 }]} 
-            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
+            onPress={() => (hasAccess('human_master') || isAdmin) ? handleTabPress('master') : showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
           >
             <Text style={[styles.tabText, activeTab === 'master' && styles.activeTabText]}>
               {!(hasAccess('human_master') || isAdmin) && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />} 3. Derece

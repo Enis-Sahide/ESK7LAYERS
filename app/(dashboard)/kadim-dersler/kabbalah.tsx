@@ -155,9 +155,17 @@ export default function KabbalahCurriculumScreen() {
     }
   };
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}\n\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const handleTabPress = (tab: 'ciraklik' | 'kalfalik' | 'ustat') => {
     if (tab === 'kalfalik' && !isKalfaUnlocked) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

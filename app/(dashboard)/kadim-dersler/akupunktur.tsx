@@ -119,6 +119,14 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string,
   );
 };
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function AkupunkturScreen() {
   const router = useRouter();
   const { hasAccess, isAdmin } = useProgress();
@@ -127,11 +135,11 @@ export default function AkupunkturScreen() {
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !(hasAccess('akupunktur_2') || isAdmin)) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     if (tab === 'ustat' && !(hasAccess('akupunktur_master') || isAdmin)) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

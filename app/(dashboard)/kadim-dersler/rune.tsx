@@ -19,6 +19,14 @@ const getImageSource = (img: any) => {
   return img;
 };
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function RuneCurriculumScreen() {
   const router = useRouter();
   const { hasAccess, isAdmin } = useProgress();
@@ -31,7 +39,7 @@ export default function RuneCurriculumScreen() {
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !isKalfaUnlocked) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

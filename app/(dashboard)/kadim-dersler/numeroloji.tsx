@@ -15,6 +15,14 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function NumerolojiEgitimScreen() {
   const router = useRouter();
   const { hasAccess, isAdmin } = useProgress();
@@ -51,7 +59,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'kalfa' && styles.tabBtnActive, !isKalfaUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
+          onPress={() => isKalfaUnlocked ? setActiveTab('kalfa') : showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isKalfaUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
@@ -61,7 +69,7 @@ export default function NumerolojiEgitimScreen() {
 
         <TouchableOpacity 
           style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive, !isUstatUnlocked && { opacity: 0.5 }]} 
-          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
+          onPress={() => isUstatUnlocked ? setActiveTab('ustat') : showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.")}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}

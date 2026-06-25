@@ -27,6 +27,14 @@ const getImageSource = (img: any) => {
   return img;
 };
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 const renderFormattedText = (text: string) => {
   if (!text) return null;
   // Fotoğraf linklerini gizle
@@ -135,11 +143,11 @@ export default function YogaCurriculumScreen() {
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !(hasAccess('yoga_2') || isAdmin)) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     if (tab === 'ustat' && !(hasAccess('yoga_master') || isAdmin)) {
-      Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
       return;
     }
     setActiveTab(tab);

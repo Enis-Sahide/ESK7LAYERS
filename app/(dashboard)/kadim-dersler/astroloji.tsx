@@ -85,6 +85,14 @@ const AccordionItem = ({ lessonKey, isExpanded, onToggle }: { lessonKey: string,
   );
 };
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function AstrolojiCurriculumScreen() {
   const [activeTab, setActiveTab] = useState<'neofit' | 'adept' | 'master'>('neofit');
   const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
@@ -122,7 +130,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_2') || isAdmin) {
                 setActiveTab('adept'); setExpandedLesson(null);
               } else {
-                Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+                showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >
@@ -136,7 +144,7 @@ export default function AstrolojiCurriculumScreen() {
               if (hasAccess('astroloji_master') || isAdmin) {
                 setActiveTab('master'); setExpandedLesson(null);
               } else {
-                Alert.alert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
+                showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Üstatlık seviyesine ulaşmış olmanız gerekmektedir.");
               }
             }}
           >
