@@ -145,6 +145,7 @@ export default function KabbalahCurriculumScreen() {
   const [viewerImage, setViewerImage] = useState<any>(null);
 
   const isKalfaUnlocked = hasAccess('kabbalah_2') || isAdmin;
+  const isUstatUnlocked = hasAccess('kabbalah_3') || isAdmin;
 
   const handleImagePress = (imageSource: any) => {
     try {
@@ -155,17 +156,11 @@ export default function KabbalahCurriculumScreen() {
     }
   };
 
-  const showAlert = (title: string, message: string) => {
-    if (Platform.OS === 'web') {
-      alert(`${title}\n\n${message}`);
-    } else {
-      Alert.alert(title, message);
-    }
-  };
-
   const handleTabPress = (tab: 'ciraklik' | 'kalfalik' | 'ustat') => {
     if (tab === 'kalfalik' && !isKalfaUnlocked) {
-      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      return;
+    }
+    if (tab === 'ustat' && !isUstatUnlocked) {
       return;
     }
     setActiveTab(tab);
@@ -253,10 +248,13 @@ export default function KabbalahCurriculumScreen() {
             </View>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tab, activeTab === 'ustat' && styles.activeTab]} 
+            style={[styles.tab, activeTab === 'ustat' && styles.activeTab, !isUstatUnlocked && { opacity: 0.5 }]} 
             onPress={() => handleTabPress('ustat')}
           >
-            <Text style={[styles.tabText, activeTab === 'ustat' && styles.activeTabText]}>3. Derece</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
+              <Text style={[styles.tabText, activeTab === 'ustat' && styles.activeTabText]}>3. Derece</Text>
+            </View>
           </TouchableOpacity>
         </View>
 

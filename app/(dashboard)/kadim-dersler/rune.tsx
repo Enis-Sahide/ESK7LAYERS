@@ -19,27 +19,22 @@ const getImageSource = (img: any) => {
   return img;
 };
 
-const showAlert = (title: string, message: string) => {
-  if (Platform.OS === 'web') {
-    alert(`${title}\n\n${message}`);
-  } else {
-    Alert.alert(title, message);
-  }
-};
-
 export default function RuneCurriculumScreen() {
   const router = useRouter();
   const { hasAccess, isAdmin } = useProgress();
   const [activeTab, setActiveTab] = useState<'cirak' | 'kalfa' | 'ustat'>('cirak');
 
   const isKalfaUnlocked = hasAccess('rune_2') || isAdmin;
+  const isUstatUnlocked = hasAccess('rune_3') || isAdmin;
 
   const { data: runesData } = useContent<any[]>('/api/content/runes');
   const { data: bindingsData } = useContent<any[]>('/api/content/rune-bindings');
 
   const handleTabPress = (tab: 'cirak' | 'kalfa' | 'ustat') => {
     if (tab === 'kalfa' && !isKalfaUnlocked) {
-      showAlert("Derece Kilitli", "Bu dersi/dereceyi açabilmeniz için en az Kalfalık seviyesine ulaşmış olmanız gerekmektedir.");
+      return;
+    }
+    if (tab === 'ustat' && !isUstatUnlocked) {
       return;
     }
     setActiveTab(tab);
@@ -75,10 +70,13 @@ export default function RuneCurriculumScreen() {
             </View>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive]} 
+            style={[styles.tabBtn, activeTab === 'ustat' && styles.tabBtnActive, !isUstatUnlocked && { opacity: 0.5 }]} 
             onPress={() => handleTabPress('ustat')}
           >
-            <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>3. Derece</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {!isUstatUnlocked && <Ionicons name="lock-closed" size={14} color="#9CA3AF" style={{ marginRight: 5 }} />}
+              <Text style={[styles.tabText, activeTab === 'ustat' && styles.tabTextActive]}>3. Derece</Text>
+            </View>
           </TouchableOpacity>
         </View>
 

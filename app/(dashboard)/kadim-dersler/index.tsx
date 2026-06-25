@@ -32,7 +32,6 @@ export default function LessonsHubScreen() {
   const router = useRouter();
   const { hasAccess, role, isAdmin } = useProgress();
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
-  const [lockModalVisible, setLockModalVisible] = React.useState(false);
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -46,7 +45,6 @@ export default function LessonsHubScreen() {
     const userLvl = ROLE_LEVELS[role] ?? 0;
     console.log("Mobile handlePress click:", { catId: cat.id, role, userLvl });
     if (cat.id !== 'duygusal-hastaliklar' && userLvl < 1 && !isAdmin) {
-      setLockModalVisible(true);
       return;
     }
     if (cat.isUnderConstruction && !isAdmin) {
@@ -70,56 +68,38 @@ export default function LessonsHubScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {LESSON_CATEGORIES.map((cat) => (
-          <View key={cat.id} style={styles.cardContainer}>
-            <TouchableOpacity 
-              style={[styles.categoryCard, cat.isUnderConstruction && !isAdmin && { opacity: 0.6 }]} 
-              onPress={() => handlePress(cat)}
-              activeOpacity={0.8}
-            >
-              <View style={styles.cardLeft}>
-                <View style={styles.iconContainer}>
-                  <Ionicons name={cat.icon} size={24} color={COLORS.primary} />
+        {LESSON_CATEGORIES.map((cat) => {
+          const userLvl = ROLE_LEVELS[role] ?? 0;
+          const isLocked = cat.id !== 'duygusal-hastaliklar' && userLvl < 1 && !isAdmin;
+          return (
+            <View key={cat.id} style={styles.cardContainer}>
+              <TouchableOpacity 
+                style={[styles.categoryCard, (cat.isUnderConstruction && !isAdmin) && { opacity: 0.6 }, isLocked && { opacity: 0.5 }]} 
+                onPress={() => handlePress(cat)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.cardLeft}>
+                  <View style={styles.iconContainer}>
+                    <Ionicons name={cat.icon} size={24} color={isLocked ? COLORS.textMuted : COLORS.primary} />
+                  </View>
+                  <Text style={[styles.cardTitle, isLocked && { color: COLORS.textMuted }]}>
+                    {cat.title}
+                  </Text>
                 </View>
-                <Text style={styles.cardTitle}>
-                  {cat.isUnderConstruction && !isAdmin && <Ionicons name="construct-outline" size={16} color={COLORS.textMuted} style={{ marginRight: 5 }} />}
-                  {cat.title}
-                </Text>
-              </View>
-              <Ionicons 
-                name={(cat.isUnderConstruction && !isAdmin) ? "construct-outline" : "chevron-forward"} 
-                size={20} 
-                color={(cat.isUnderConstruction && !isAdmin) ? COLORS.textMuted : COLORS.primary} 
-              />
-            </TouchableOpacity>
-          </View>
-        ))}
+                <Ionicons 
+                  name={isLocked ? "lock-closed" : (cat.isUnderConstruction && !isAdmin) ? "construct-outline" : "chevron-forward"} 
+                  size={20} 
+                  color={isLocked ? COLORS.textMuted : (cat.isUnderConstruction && !isAdmin) ? COLORS.textMuted : COLORS.primary} 
+                />
+              </TouchableOpacity>
+            </View>
+          );
+        })}
 
         <View style={{height: 100}} />
       </ScrollView>
 
-      <Modal
-        visible={lockModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setLockModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Ionicons name="lock-closed-outline" size={48} color="#FF3B30" style={{ marginBottom: 15 }} />
-            <Text style={styles.modalTitle}>Derece Kilitli</Text>
-            <Text style={styles.modalText}>
-              Dersleri açabilmeniz için en az Çıraklık seviyesine ulaşmış olmanız lazım.
-            </Text>
-            <TouchableOpacity 
-              style={styles.modalBtnConfirm} 
-              onPress={() => setLockModalVisible(false)}
-            >
-              <Text style={styles.modalBtnTextConfirm}>Anladım</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+
     </SacredBackground>
   );
 }
