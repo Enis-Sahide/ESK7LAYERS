@@ -1,12 +1,10 @@
 import SacredBackground from '@/components/SacredBackground';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '@/src/context/ProgressContext';
-
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 interface AnalysisTool {
   id: string;
@@ -96,6 +94,56 @@ export default function AnalysisHubScreen() {
 
   return (
     <SacredBackground>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+        </TouchableOpacity>
+        <View style={{alignItems: 'center'}}>
+          <Text style={styles.headerTitle}>Analizler</Text>
+          <Text style={styles.headerSubtitle}>Kendini Bilme Yolculuğu</Text>
+        </View>
+        <View style={{ width: 28 }} />
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {ANALYSIS_TOOLS.map((tool) => (
+          <TouchableOpacity 
+            key={tool.id} 
+            style={[styles.toolCard, !tool.isAvailable && { opacity: 0.6 }]} 
+            onPress={() => handlePress(tool)}
+            activeOpacity={0.8}
+            disabled={!tool.isAvailable}
+          >
+            <View style={[styles.iconContainer, { backgroundColor: tool.color + '20', borderColor: tool.color }]}>
+              <Ionicons name={tool.icon} size={28} color={tool.color} />
+            </View>
+            <View style={styles.cardContent}>
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <Text style={[styles.cardTitle, { color: tool.color }]}>{tool.title}</Text>
+                {!tool.isAvailable && (
+                  <View style={styles.soonBadge}>
+                    <Text style={styles.soonText}>Yakında</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={styles.cardDesc}>{tool.description}</Text>
+            </View>
+            
+            {tool.isAvailable && (
+              <Ionicons name="chevron-forward" size={20} color={COLORS.textMuted} style={{ marginLeft: 10 }} />
+            )}
+          </TouchableOpacity>
+        ))}
+        <View style={{height: 100}} />
+      </ScrollView>
+    </SacredBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: 60,
