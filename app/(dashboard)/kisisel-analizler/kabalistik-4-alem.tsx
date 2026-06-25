@@ -9,6 +9,7 @@ import * as moment from 'moment-timezone';
 import { ASTRO_CITIES, AstroCity, ZodiacSign, NatalChartData } from '@/src/features/astrology/api/astrologyClient';
 // Interpretations are fetched from the backend API.
 import { API_BASE_URL } from '@/src/core/config';
+import { COLORS, SIZES } from '@/src/theme';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
