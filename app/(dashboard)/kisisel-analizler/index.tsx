@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   toolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: SIZES.radius,
     padding: 20,
     marginBottom: 15,

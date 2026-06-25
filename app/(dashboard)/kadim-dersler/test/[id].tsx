@@ -245,7 +245,7 @@ export default function KadimDerslerTestScreen() {
             const showWrong = reveal !== null && isSelected && !isCorrect;
             const isPending = reveal === null && isSelected;
 
-            let bgColor = 'rgba(20, 25, 40, 0.7)';
+            let bgColor = 'rgba(10, 10, 10, 0.7)';
             let borderColor = 'rgba(212, 175, 55, 0.3)';
             let textOpacity = 1;
 
@@ -259,7 +259,7 @@ export default function KadimDerslerTestScreen() {
               bgColor = 'rgba(212, 175, 55, 0.15)';
               borderColor = COLORS.primary;
             } else if (selectedOption !== null) {
-              bgColor = 'rgba(20, 25, 40, 0.3)';
+              bgColor = 'rgba(10, 10, 10, 0.3)';
               borderColor = 'rgba(255, 255, 255, 0.05)';
               textOpacity = 0.4;
             }
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 340,
-    backgroundColor: '#0c0314',
+    backgroundColor: '#000000',
     borderRadius: SIZES.radius,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',

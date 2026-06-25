@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: SIZES.padding,
     paddingBottom: 20,
-    backgroundColor: 'rgba(10, 15, 30, 0.50)',
+    backgroundColor: 'rgba(10, 10, 10, 0.50)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
   },
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 340,
-    backgroundColor: '#0c0314',
+    backgroundColor: '#000000',
     borderRadius: SIZES.radius,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',

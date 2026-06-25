@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: SIZES.padding,
     paddingBottom: 20,
-    backgroundColor: 'rgba(10, 15, 30, 0.50)',
+    backgroundColor: 'rgba(10, 10, 10, 0.50)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
   },

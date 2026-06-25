@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 15,
     borderRadius: SIZES.radius,
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',
     overflow: 'hidden',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 340,
-    backgroundColor: '#0c0314',
+    backgroundColor: '#000000',
     borderRadius: SIZES.radius,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',

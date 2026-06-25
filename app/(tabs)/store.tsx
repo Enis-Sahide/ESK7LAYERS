@@ -321,8 +321,8 @@ export default function StoreScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0B0C10' },
-  container: { flex: 1, backgroundColor: '#0B0C10' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
+  container: { flex: 1, backgroundColor: '#000000' },
   header: { padding: 20, paddingTop: 10, flexDirection: 'row', alignItems: 'center' },
   headerBackButton: {
     marginRight: 10,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#000000',
     borderRadius: 28,
     borderWidth: 1,
     borderColor: 'rgba(16, 185, 129, 0.3)',

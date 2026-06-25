@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
   introTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10 },
   introText: { fontSize: 14, color: COLORS.text, textAlign: 'center', lineHeight: 22, opacity: 0.9 },
   calculatorSection: {
-    backgroundColor: 'rgba(20, 25, 40, 0.6)',
+    backgroundColor: 'rgba(10, 10, 10, 0.6)',
     padding: 20,
     borderRadius: SIZES.radius,
     borderWidth: 1,
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   analysisCard: {
-    backgroundColor: 'rgba(20, 25, 40, 0.8)',
+    backgroundColor: 'rgba(10, 10, 10, 0.8)',
     borderRadius: SIZES.radius,
     padding: 20,
     marginBottom: 20,
@@ -903,7 +903,7 @@ const styles = StyleSheet.create({
     color: COLORS.background,
   },
   collapsibleCard: {
-    backgroundColor: 'rgba(20, 25, 40, 0.8)',
+    backgroundColor: 'rgba(10, 10, 10, 0.8)',
     borderRadius: SIZES.radius,
     marginBottom: 15,
     borderWidth: 1,

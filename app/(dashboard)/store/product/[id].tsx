@@ -118,8 +118,8 @@ export default function ProductDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0B0C10' },
-  container: { flex: 1, backgroundColor: '#0B0C10' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
+  container: { flex: 1, backgroundColor: '#000000' },
   errorText: { color: '#FFF', textAlign: 'center', marginTop: 50 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#1C1C1E' },
   backBtn: { padding: 5 },
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   infoBox: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: '#D4AF3715', padding: 15, borderRadius: 12, borderWidth: 1, borderColor: '#D4AF3730' },
   infoText: { color: '#D4AF37', fontSize: 13, marginLeft: 10, flex: 1, lineHeight: 20 },
   bottomBar: { flexDirection: 'row', padding: 15, paddingBottom: 25, backgroundColor: '#1C1C1E', borderTopWidth: 1, borderTopColor: '#333', alignItems: 'center', justifyContent: 'space-between' },
-  quantitySelector: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#0B0C10', borderRadius: 12, borderWidth: 1, borderColor: '#333' },
+  quantitySelector: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#000000', borderRadius: 12, borderWidth: 1, borderColor: '#333' },
   qtyBtn: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center' },
   qtyBtnText: { color: '#D4AF37', fontSize: 20, fontWeight: 'bold' },
   qtyText: { color: '#FFF', fontSize: 16, fontWeight: 'bold', width: 30, textAlign: 'center' },

@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   accordionContainer: {
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: 12,
     marginBottom: 15,
     borderWidth: 1,

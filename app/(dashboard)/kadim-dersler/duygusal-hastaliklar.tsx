@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: 'rgba(10, 15, 30, 0.9)',
+    backgroundColor: 'rgba(10, 10, 10, 0.9)',
     zIndex: 10,
   },
   searchInputContainer: {

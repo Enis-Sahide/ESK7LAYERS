@@ -122,7 +122,7 @@ export default function ChakraDetailScreen() {
         style={StyleSheet.absoluteFill} 
       />
       
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 11, 16, 0.4)' }]} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10, 10, 10, 0.4)' }]} />
       <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
 
       <View style={styles.header}>
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row', alignItems: 'center', paddingTop: 60, paddingHorizontal: SIZES.padding, paddingBottom: 20,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(212, 175, 55, 0.3)', backgroundColor: 'rgba(10, 15, 30, 0.5)',
+    borderBottomWidth: 1, borderBottomColor: 'rgba(212, 175, 55, 0.3)', backgroundColor: 'rgba(10, 10, 10, 0.5)',
   },
   backBtn: { padding: 8, marginRight: 10 },
   headerTitleContainer: { flex: 1 },

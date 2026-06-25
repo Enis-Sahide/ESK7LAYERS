@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
-    backgroundColor: 'rgba(10, 15, 30, 0.5)',
+    backgroundColor: 'rgba(10, 10, 10, 0.5)',
   },
   tabBtn: {
     flex: 1,
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   },
 
   numberCard: {
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: SIZES.radius,
     padding: 20,
     marginBottom: 20,

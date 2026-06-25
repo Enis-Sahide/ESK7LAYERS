@@ -24,11 +24,11 @@ const CENTER = CHART_SIZE / 2;
 const RADIUS = CENTER - 50; // Inner working radius
 
 const COLORS = {
-  background: '#0F172A',
+  background: '#000000',
   primary: '#D4AF37', // Gold
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
-  cardBg: 'rgba(20, 25, 40, 0.85)',
+  cardBg: 'rgba(10, 10, 10, 0.85)',
   border: 'rgba(212, 175, 55, 0.3)',
 };
 

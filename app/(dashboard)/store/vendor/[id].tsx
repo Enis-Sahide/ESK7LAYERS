@@ -83,15 +83,15 @@ export default function VendorProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#0B0C10' },
-  container: { flex: 1, backgroundColor: '#0B0C10' },
+  safeArea: { flex: 1, backgroundColor: '#000000' },
+  container: { flex: 1, backgroundColor: '#000000' },
   errorText: { color: '#FFF', textAlign: 'center', marginTop: 50 },
   coverContainer: { height: 280, position: 'relative', alignItems: 'center' },
   coverImage: { width: '100%', height: '100%', position: 'absolute' },
   coverOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(11, 12, 16, 0.7)' },
   backBtn: { position: 'absolute', top: 20, left: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   profileHeader: { position: 'absolute', bottom: -30, alignItems: 'center', width: '100%' },
-  avatar: { width: 100, height: 100, borderRadius: 50, borderWidth: 4, borderColor: '#0B0C10', marginBottom: 10 },
+  avatar: { width: 100, height: 100, borderRadius: 50, borderWidth: 4, borderColor: '#000000', marginBottom: 10 },
   vendorName: { fontSize: 24, fontWeight: 'bold', color: '#FFF', marginBottom: 8 },
   statsRow: { flexDirection: 'row', gap: 10 },
   statBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1C1C1E', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: '#333' },

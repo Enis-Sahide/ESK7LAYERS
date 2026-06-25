@@ -13,13 +13,13 @@ import { useContent } from '@/src/core/content/useContent';
 import { API_BASE_URL } from '@/src/core/config';
 
 const COLORS = {
-  background: '#0F172A', // Dark Navy to match the app's theme
+  background: '#000000', // Dark Navy to match the app's theme
   primary: '#0EA5E9', // Cyan/Blue to match the title text in the screenshot
   accent: '#E63946', // Red for unconscious (Design)
   conscious: '#FFFFFF', // White for conscious (Personality) text on dark bg
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
-  cardBg: 'rgba(15, 23, 42, 0.8)',
+  cardBg: 'rgba(10, 10, 10, 0.8)',
 };
 const CENTER_COORDS: Record<CenterCode, { x: number, y: number, shape: string, color: string, s: number }> = {
   Head: { x: 200, y: 45, shape: 'triangle', color: '#F4D03F', s: 28 },
@@ -610,7 +610,7 @@ export default function HumanDesignScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(15, 23, 42, 0.55)' },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(10, 10, 10, 0.55)' },
   scrollContent: { paddingTop: 60, paddingHorizontal: 10, paddingBottom: 40 },
   header: { marginBottom: 20, paddingHorizontal: 5, alignItems: 'center' },
   title: { fontSize: 26, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4 },
@@ -658,7 +658,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   gateModalContent: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#000000',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     height: '60%',

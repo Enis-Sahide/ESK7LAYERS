@@ -24,12 +24,12 @@ const R_TRANSIT_PLANETS = RADIUS + 20;
 const R_CUSP_NUM = RADIUS - 60;
 
 const COLORS = {
-  background: '#0F172A',
+  background: '#000000',
   primary: '#D4AF37', // Gold
   secondary: '#0EA5E9', // Cyan/Blue
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
-  cardBg: 'rgba(20, 25, 40, 0.85)',
+  cardBg: 'rgba(10, 10, 10, 0.85)',
   border: 'rgba(212, 175, 55, 0.3)',
 };
 
@@ -819,7 +819,7 @@ const styles = StyleSheet.create({
   aspectBadge: { fontSize: 12, fontWeight: 'bold', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.05)' },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#0F172A', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '60%', padding: 22, borderWidth: 1, borderColor: COLORS.primary },
+  modalContent: { backgroundColor: '#000000', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '60%', padding: 22, borderWidth: 1, borderColor: COLORS.primary },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)', paddingBottom: 10 },
   modalTitle: { fontSize: 17, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 8 },
   modalText: { fontSize: 15, color: COLORS.text, lineHeight: 24 }

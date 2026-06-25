@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   mainToolCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: SIZES.radius,
     padding: 20,
     marginBottom: 15,
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
   },
   floatingMenuContainer: {
-    backgroundColor: 'rgba(20, 25, 40, 0.95)',
+    backgroundColor: 'rgba(10, 10, 10, 0.95)',
     borderRadius: SIZES.radius,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.3)',
@@ -768,7 +768,7 @@ const styles = StyleSheet.create({
   },
   planetaryWidget: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: SIZES.radius,
     padding: 15,
     marginBottom: 25,

@@ -16,7 +16,7 @@ const COLORS = {
   tertiary: '#FF453A', // Red
   text: '#E0E0E0',
   textMuted: '#9CA3AF',
-  cardBg: 'rgba(20, 25, 40, 0.7)',
+  cardBg: 'rgba(10, 10, 10, 0.7)',
   highlight: 'rgba(212, 175, 55, 0.15)',
 };
 

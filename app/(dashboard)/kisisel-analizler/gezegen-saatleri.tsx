@@ -911,7 +911,7 @@ const styles = StyleSheet.create({
   },
   hourCard: {
     flexDirection: 'column',
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderRadius: 12,
     padding: 15,
     marginBottom: 10,
@@ -1013,7 +1013,7 @@ const styles = StyleSheet.create({
   widgetToggleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     padding: 15,
     borderRadius: SIZES.radius,
     marginBottom: 20,

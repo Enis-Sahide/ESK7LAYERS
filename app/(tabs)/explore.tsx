@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    backgroundColor: '#0F172A',
+    backgroundColor: '#000000',
     borderRadius: 28,
     borderWidth: 1,
     borderColor: 'rgba(16, 185, 129, 0.3)',

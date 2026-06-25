@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginBottom: 15,
     borderRadius: SIZES.radius,
-    backgroundColor: 'rgba(20, 25, 40, 0.7)',
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.2)',
     overflow: 'hidden',
