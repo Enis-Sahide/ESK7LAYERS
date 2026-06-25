@@ -7,14 +7,14 @@ import { ROLE_LEVELS, type MinRole } from '@/src/core/auth/roles';
 // ── GİRİŞ ZORUNLU BÖLÜMLER (web ile aynı mantık) ──────────────────
 // Public: Ana Sayfa, Frekans Odası (meditation), Nefes (breathwork), Analiz (kisisel-analizler).
 // Aşağıdaki segmentler en az GİRİŞ ister (misafir → /(auth)/login):
-const AUTH_REQUIRED = ['kadim-dersler', 'tests', 'final-test', 'store', 'profile'];
+const AUTH_REQUIRED = ['kadim-dersler', 'tests', 'final-test', 'store', 'profile', 'kadim-uygulamalar'];
 
 // ── SAYFA (ROUTE) BAZLI MİNİMUM ROL ───────────────────────────────
 // Anahtar: yol içinde geçen segment. Yetersiz seviye → sınavlara yönlenir. admin her zaman geçer.
 // Örnek (yorumu açıp kullan):
 //   'vip-teknolojiler': 'master',
 const ROUTE_MIN_ROLE: Record<string, MinRole> = {
-  // 'vip-teknolojiler': 'master',
+  'kadim-uygulamalar': 'master',
 };
 
 export default function DashboardLayout() {

@@ -368,6 +368,24 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
+             {/* Kadim Uygulamalar Linki */}
+             {isLoggedIn && (userRole === 'admin' || userRole === 'master') && (
+               <>
+                 <TouchableOpacity 
+                    style={styles.fabMenuItem} 
+                    onPress={() => { 
+                      router.push('/(dashboard)/kadim-uygulamalar'); 
+                      setIsToolsExpanded(false);
+                    }}
+                  >
+                   <Ionicons name="flask-outline" size={20} color="#E0A96D" style={{ marginRight: 10 }} />
+                   <Text style={styles.fabMenuText}>Kadim Uygulamalar</Text>
+                 </TouchableOpacity>
+
+                 <View style={styles.fabMenuDivider} />
+               </>
+             )}
+
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/meditation'); }}>
                <Ionicons name="musical-notes" size={20} color="#32ADE6" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Frekans Odası</Text>
