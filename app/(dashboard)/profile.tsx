@@ -182,7 +182,7 @@ export default function ProfileScreen() {
           {/* VIP Seviyeniz Card */}
           <View style={styles.vipCard}>
             <View style={styles.vipLeft}>
-              <Ionicons name="award-outline" size={20} color={COLORS.primary} style={{ marginRight: 12 }} />
+              <Ionicons name="ribbon-outline" size={20} color={COLORS.primary} style={{ marginRight: 12 }} />
               <View>
                 <Text style={styles.vipTitle}>VIP Seviyeniz</Text>
                 <Text style={styles.vipSubtitle}>Kazanılan İnisiyasyon Seviyesi</Text>
