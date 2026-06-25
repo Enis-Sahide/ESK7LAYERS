@@ -9,7 +9,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import SacredBackground from '@/components/SacredBackground';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
-const API_BASE_URL = 'https://7layers.tr/api';
+import { API_BASE_URL } from '@/src/core/config';
 
 interface ChakraQuestion {
   id: number;

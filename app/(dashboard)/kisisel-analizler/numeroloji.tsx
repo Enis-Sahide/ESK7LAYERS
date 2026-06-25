@@ -22,7 +22,7 @@ const LETTER_VALUES: Record<string, number> = {
 };
 
 const VOWELS = ['A', 'E', 'I', 'İ', 'O', 'Ö', 'U', 'Ü'];
-const API_BASE_URL = 'https://7layers.tr/api';
+import { API_BASE_URL } from '@/src/core/config';
 
 // Master numbers
 const isMaster = (num: number) => num === 11 || num === 22 || num === 33;
