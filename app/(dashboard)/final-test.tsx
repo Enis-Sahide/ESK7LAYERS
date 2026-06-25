@@ -147,6 +147,27 @@ export default function FinalTestScreen() {
     );
   }
 
+  if (blockedReason) {
+    return (
+      <SacredBackground>
+        <View style={styles.blockedContainer}>
+          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          <View style={styles.blockedCard}>
+            <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" style={{ marginBottom: 20 }} />
+            <Text style={styles.blockedTitle}>Sınav Girişi Engellendi</Text>
+            <Text style={styles.blockedText}>{blockedReason}</Text>
+            <TouchableOpacity 
+              style={styles.blockedBtn}
+              onPress={() => router.replace('/(dashboard)/tests')}
+            >
+              <Text style={styles.blockedBtnText}>Mabede Dön</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SacredBackground>
+    );
+  }
+
   if (questions.length === 0) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -215,26 +236,7 @@ export default function FinalTestScreen() {
   const currentQuestion = questions[currentIndex];
   const progressPercent = ((currentIndex) / questions.length) * 100;
 
-  if (blockedReason) {
-    return (
-      <SacredBackground>
-        <View style={styles.blockedContainer}>
-          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
-          <View style={styles.blockedCard}>
-            <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" style={{ marginBottom: 20 }} />
-            <Text style={styles.blockedTitle}>Sınav Girişi Engellendi</Text>
-            <Text style={styles.blockedText}>{blockedReason}</Text>
-            <TouchableOpacity 
-              style={styles.blockedBtn}
-              onPress={() => router.replace('/(dashboard)/tests')}
-            >
-              <Text style={styles.blockedBtnText}>Mabede Dön</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SacredBackground>
-    );
-  }
+
 
   return (
     <SacredBackground>

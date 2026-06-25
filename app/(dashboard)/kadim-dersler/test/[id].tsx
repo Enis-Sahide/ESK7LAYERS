@@ -111,6 +111,27 @@ export default function KadimDerslerTestScreen() {
     );
   }
 
+  if (blockedReason) {
+    return (
+      <SacredBackground>
+        <View style={styles.blockedContainer}>
+          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+          <View style={styles.blockedCard}>
+            <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" style={{ marginBottom: 20 }} />
+            <Text style={styles.blockedTitle}>Sınav Girişi Engellendi</Text>
+            <Text style={styles.blockedText}>{blockedReason}</Text>
+            <TouchableOpacity 
+              style={styles.blockedBtn}
+              onPress={() => router.replace('/(dashboard)/tests')}
+            >
+              <Text style={styles.blockedBtnText}>Mabede Dön</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SacredBackground>
+    );
+  }
+
   if (!quizData) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -196,26 +217,7 @@ export default function KadimDerslerTestScreen() {
     );
   }
 
-  if (blockedReason) {
-    return (
-      <SacredBackground>
-        <View style={styles.blockedContainer}>
-          <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
-          <View style={styles.blockedCard}>
-            <Ionicons name="alert-circle-outline" size={64} color="#FF3B30" style={{ marginBottom: 20 }} />
-            <Text style={styles.blockedTitle}>Sınav Girişi Engellendi</Text>
-            <Text style={styles.blockedText}>{blockedReason}</Text>
-            <TouchableOpacity 
-              style={styles.blockedBtn}
-              onPress={() => router.replace('/(dashboard)/tests')}
-            >
-              <Text style={styles.blockedBtnText}>Mabede Dön</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SacredBackground>
-    );
-  }
+
 
   return (
     <SacredBackground>
