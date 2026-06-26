@@ -49,7 +49,7 @@ const LEVELS_DATA: LevelDetail[] = [
     accessList: [
       'Her dersin çıraklık seviyesi',
       'Çıraklık dersi sınavları',
-      'Arayış derecesi içeriklerinin tamamı'
+      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)'
     ]
   },
   {
@@ -62,7 +62,7 @@ const LEVELS_DATA: LevelDetail[] = [
       'Her dersin çıraklık ve kalfa seviyesi',
       'Kalfa dersi sınavları',
       'İnsan tasarımı detaylı analiz',
-      'Arayış derecesi içeriklerin tamamı'
+      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)'
     ]
   },
   {
