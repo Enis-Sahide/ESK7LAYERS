@@ -122,7 +122,7 @@ export default function LevelsScreen() {
             • Bir üst derecedeki dersleri ve sınavları açabilmek için mevcut aşamanızın sınavlarından <Text style={{color: COLORS.primary, fontWeight: 'bold'}}>en az %80</Text> başarı puanı almalısınız.
           </Text>
           <Text style={styles.criteriaText}>
-            • Örneğin; açılmış olan tüm <Text style={{color: '#32ADE6', fontWeight: 'bold'}}>Çıraklık Sınavlarını %80 ve üzeri</Text> başarıyla tamamlayan adaylar, bir üst aşama olan <Text style={{color: '#AF52DE', fontWeight: 'bold'}}>Kalfalık aşamasına</Text> geçmeye hak kazanırlar.
+            • Örneğin; açılmış olan tüm <Text style={{color: COLORS.primary, fontWeight: 'bold'}}>Çıraklık Sınavlarını %80 ve üzeri</Text> başarıyla tamamlayan adaylar, bir üst aşama olan <Text style={{color: COLORS.primary, fontWeight: 'bold'}}>Kalfalık aşamasına</Text> geçmeye hak kazanırlar.
           </Text>
         </BlurView>
 
