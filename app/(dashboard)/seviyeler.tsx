@@ -72,11 +72,11 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#D4AF37',
     badge: 'Mistik Derece (VIP)',
     accessList: [
-      'Kabalistik 4 Alem Haritası ve Derin Ruh Analizi',
-      'Kadim Uygulamalar (VIP modüller - Mikrokozmik Yörünge vb.)',
-      'Sınırsız Kadim Ders İçerikleri (Tarot, Kabala vb.)',
-      'Ustalık İnisiyasyon Sınavı',
-      'Kalfalık ve Çıraklık derecesi içeriklerinin tamamı'
+      '4 katmanlı harita analizi',
+      'Kadim uygulamalar',
+      'Her dersin çıraklık, kalfa ve ustalık seviyesi',
+      'Ustalık dersi sınavları',
+      'Kalfalık ve çıraklık derecesi içeriklerinin tamamı'
     ]
   }
 ];
