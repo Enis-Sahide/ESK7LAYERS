@@ -59,9 +59,10 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#AF52DE',
     badge: '2. Aşama Derecesi',
     accessList: [
-      'Kalfalık Derecesindeki Kadim Dersler (Rün Eğitimi vb.)',
-      'Kalfalık Derecesi Sınavları ve Derece Belgeleri',
-      'Çıraklık derecesi içeriklerinin tamamı'
+      'Her dersin çıraklık ve kalfa seviyesi',
+      'Kalfa dersi sınavları',
+      'İnsan tasarımı detaylı analiz',
+      'Arayış derecesi içeriklerin tamamı'
     ]
   },
   {
