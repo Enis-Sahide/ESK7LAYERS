@@ -75,7 +75,8 @@ const LEVELS_DATA: LevelDetail[] = [
       '4 katmanlı harita analizi',
       'Kadim uygulamalar',
       'Her dersin çıraklık, kalfa ve ustalık seviyesi',
-      'Ustalık dersi sınavları'
+      'Ustalık dersi sınavları',
+      'Alt derecelerin tüm içerikleri'
     ]
   }
 ];
