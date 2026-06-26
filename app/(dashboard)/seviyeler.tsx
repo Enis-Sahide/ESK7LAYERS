@@ -45,7 +45,7 @@ const LEVELS_DATA: LevelDetail[] = [
     title: 'Çırak',
     roleKey: 'apprentice',
     icon: 'school-outline',
-    color: '#32ADE6',
+    color: '#EF4444',
     badge: '1. Aşama Derecesi',
     accessList: [
       'Her dersin çıraklık seviyesi',
@@ -58,7 +58,7 @@ const LEVELS_DATA: LevelDetail[] = [
     title: 'Kalfa',
     roleKey: 'journeyman',
     icon: 'git-commit-outline',
-    color: '#AF52DE',
+    color: '#22C55E',
     badge: '2. Aşama Derecesi',
     accessList: [
       'Her dersin çıraklık ve kalfa seviyesi',
@@ -72,7 +72,7 @@ const LEVELS_DATA: LevelDetail[] = [
     title: 'Usta',
     roleKey: 'master',
     icon: 'ribbon-outline',
-    color: '#D4AF37',
+    color: '#AF52DE',
     badge: 'Mistik Derece (VIP)',
     accessList: [
       '4 katmanlı harita analizi',
