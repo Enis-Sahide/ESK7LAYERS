@@ -5,7 +5,9 @@ import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
+import { useProgress } from '@/src/context/ProgressContext';
 
+const UNDER_MAINTENANCE = true;
 const { width } = Dimensions.get('window');
 
 interface LevelDetail {
@@ -87,6 +89,41 @@ const LEVELS_DATA: LevelDetail[] = [
 
 export default function LevelsScreen() {
   const router = useRouter();
+  const { isAdmin } = useProgress();
+
+  if (UNDER_MAINTENANCE && !isAdmin) {
+    return (
+      <SacredBackground>
+        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+        <View style={styles.maintenanceContainer}>
+          <View style={styles.maintenanceCard}>
+            <View style={styles.iconWrapperMaintenance}>
+              <Ionicons name="lock-closed-outline" size={64} color="#D4AF37" />
+            </View>
+            
+            <Text style={styles.maintenanceTitle}>Sistem Güncelleniyor</Text>
+            
+            <Text style={styles.maintenanceSubtitle}>
+              Dereceler ve kriterler sayfamız daha gelişmiş bir sisteme geçiş aşamasında olduğu için geçici olarak kapatılmıştır.
+            </Text>
+            
+            <Text style={styles.maintenanceDesc}>
+              Çok yakında yepyeni aşamalar, sınavlar ve gelişim yolları ile tekrar aktif olacaktır. Anlayışınız için teşekkür ederiz.
+            </Text>
+
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.replace('/(dashboard)')}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="home-outline" size={20} color="#0F172A" style={{ marginRight: 8 }} />
+              <Text style={styles.backButtonText}>Ana Sayfaya Dön</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SacredBackground>
+    );
+  }
 
   const handleOpenWeb = () => {
     Linking.openURL('http://localhost:3000/membership').catch((err) => {
@@ -312,5 +349,67 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
     fontWeight: 'bold',
-  }
+  },
+  maintenanceContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  maintenanceCard: {
+    padding: 30,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 340,
+    overflow: 'hidden',
+  },
+  iconWrapperMaintenance: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  maintenanceTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  maintenanceSubtitle: {
+    fontSize: 14,
+    color: '#E0E0E0',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 15,
+  },
+  maintenanceDesc: {
+    fontSize: 12,
+    color: '#8E8E93',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 25,
+    fontStyle: 'italic',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#D4AF37',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  backButtonText: {
+    color: '#0F172A',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
 });
