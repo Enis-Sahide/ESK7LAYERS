@@ -76,7 +76,7 @@ const LEVELS_DATA: LevelDetail[] = [
       'Kadim uygulamalar',
       'Her dersin çıraklık, kalfa ve ustalık seviyesi',
       'Ustalık dersi sınavları',
-      'Alt derecelerin tüm içerikleri'
+      'Alt derecelerin tüm içerikleri (sınavlar hariç)'
     ]
   }
 ];
