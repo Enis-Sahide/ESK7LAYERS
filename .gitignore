@@ -45,3 +45,4 @@ app-example
 # Local logs and scratch files
 scratch/
 *.log
+*.apk
