@@ -101,8 +101,11 @@ export default function AnlikGokyuzuScreen() {
   const [selectedCityData, setSelectedCityData] = useState<any>(null);
 
   // Transit Inputs
-  const [transitDateStr, setTransitDateStr] = useState('');
-  const [transitTimeStr, setTransitTimeStr] = useState('');
+  const today = new Date();
+  const defaultTDate = today.toISOString().split('T')[0];
+  const defaultTTime = today.toTimeString().slice(0, 5);
+  const [transitDateStr, setTransitDateStr] = useState(defaultTDate);
+  const [transitTimeStr, setTransitTimeStr] = useState(defaultTTime);
 
   // States
   const [isLoading, setIsLoading] = useState(false);
