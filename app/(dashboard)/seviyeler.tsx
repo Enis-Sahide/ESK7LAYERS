@@ -37,7 +37,8 @@ const LEVELS_DATA: LevelDetail[] = [
       'Nefes egzersizleri',
       'Hastalıkların duygusal nedenleri dersi',
       'Aura çakra sınavı',
-      'Hastalıkların duygusal nedenleri sınavı'
+      'Hastalıkların duygusal nedenleri sınavı',
+      'Seviyeye uygun kaynak önerileri'
     ]
   },
   {
@@ -49,7 +50,8 @@ const LEVELS_DATA: LevelDetail[] = [
     accessList: [
       'Her dersin çıraklık seviyesi',
       'Çıraklık dersi sınavları',
-      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)'
+      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)',
+      'Seviyeye uygun kaynak önerileri'
     ]
   },
   {
@@ -62,7 +64,8 @@ const LEVELS_DATA: LevelDetail[] = [
       'Her dersin çıraklık ve kalfa seviyesi',
       'Kalfa dersi sınavları',
       'İnsan tasarımı detaylı analiz',
-      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)'
+      'Arayış derecesi içeriklerinin tamamı (sınavlar hariç)',
+      'Seviyeye uygun kaynak önerileri'
     ]
   },
   {
@@ -76,7 +79,8 @@ const LEVELS_DATA: LevelDetail[] = [
       'Kadim uygulamalar',
       'Her dersin çıraklık, kalfa ve ustalık seviyesi',
       'Ustalık dersi sınavları',
-      'Alt derecelerin tüm içerikleri (sınavlar hariç)'
+      'Alt derecelerin tüm içerikleri (sınavlar hariç)',
+      'Seviyeye uygun kaynak önerileri'
     ]
   }
 ];
