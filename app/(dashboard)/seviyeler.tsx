@@ -47,8 +47,8 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#32ADE6',
     badge: '1. Aşama Derecesi',
     accessList: [
-      'Çıraklık Derecesindeki Kadim Dersler (Astroloji, Numeroloji vb. Başlangıç Dersleri)',
-      'Çıraklık Aşaması Sınavları ve İlerleme Takibi',
+      'Tüm derslerin çıraklık derecesindeki içerikleri',
+      'Çıraklık dersi sınavları',
       'Arayış derecesi içeriklerinin tamamı'
     ]
   },
