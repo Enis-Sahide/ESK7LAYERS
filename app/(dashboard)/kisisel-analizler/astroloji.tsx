@@ -71,9 +71,9 @@ export default function AstrolojiAnalysisScreen() {
   const [timeStr, setTimeStr] = useState('');
   const [country, setCountry] = useState('Türkiye');
   const [showCountryModal, setShowCountryModal] = useState(false);
-  const [cityKey, setCityKey] = useState('İstanbul');
+  const [cityKey, setCityKey] = useState('');
   const [selectedInterp, setSelectedInterp] = useState<{ title: string, content: string } | null>(null);
-  const [searchQuery, setSearchQuery] = useState('İstanbul');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [chartType, setChartType] = useState<'Tropikal' | 'Drakonik'>('Tropikal');
@@ -116,6 +116,10 @@ export default function AstrolojiAnalysisScreen() {
   };
 
   const handleCalculate = async () => {
+    if (!searchQuery.trim()) {
+      Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
+      return;
+    }
     if (!dateStr || !timeStr) {
       Alert.alert("Hata", "Lütfen doğum tarihi ve saatini girin.");
       return;
@@ -388,16 +392,16 @@ export default function AstrolojiAnalysisScreen() {
             <BlurView intensity={20} tint="light" style={styles.formCard}>
               {/* FORM FIELDS REMAIN SAME */}
               <Text style={styles.label}>Doğum Tarihi (YYYY-AA-GG)</Text>
-              <TextInput ref={dateInputRef} style={styles.input} value={dateStr} onChangeText={handleDateChange} placeholder="Örn: 1990-05-15" placeholderTextColor="#666" keyboardType="numeric" maxLength={10} returnKeyType="next" />
+              <TextInput ref={dateInputRef} style={styles.input} value={dateStr} onChangeText={handleDateChange} placeholder="Örn: 2012-12-22" placeholderTextColor="#666" keyboardType="numeric" maxLength={10} returnKeyType="next" />
               <Text style={styles.label}>Doğum Saati (SS:DD)</Text>
-              <TextInput ref={timeInputRef} style={styles.input} value={timeStr} onChangeText={handleTimeChange} placeholder="Örn: 14:30" placeholderTextColor="#666" keyboardType="numeric" maxLength={5} returnKeyType="done" />
+              <TextInput ref={timeInputRef} style={styles.input} value={timeStr} onChangeText={handleTimeChange} placeholder="Örn: 12:12" placeholderTextColor="#666" keyboardType="numeric" maxLength={5} returnKeyType="done" />
               <Text style={styles.label}>Doğum Ülkesi</Text>
               <TouchableOpacity style={[styles.input, { justifyContent: 'center' }]} onPress={() => setShowCountryModal(true)}>
                 <Text style={{ color: '#000', fontSize: 15 }}>{country}</Text>
               </TouchableOpacity>
               <Text style={styles.label}>Doğum Şehri (Ara)</Text>
               <View style={{ zIndex: 99 }}>
-                <TextInput style={styles.input} value={searchQuery} onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} onFocus={() => { if (searchQuery === 'İstanbul') setSearchQuery(''); setShowSuggestions(true); }} placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} placeholderTextColor="#666" />
+                <TextInput style={styles.input} value={searchQuery} onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} onFocus={() => { setShowSuggestions(true); }} placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} placeholderTextColor="#666" />
                 {showSuggestions && searchQuery.length > 0 && (
                   <View style={styles.suggestionsContainer}>
                     {filteredCities.length > 0 ? filteredCities.map((c, i) => (

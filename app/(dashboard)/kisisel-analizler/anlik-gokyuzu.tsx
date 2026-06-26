@@ -95,23 +95,14 @@ export default function AnlikGokyuzuScreen() {
   // Natal (Birth) Inputs
   const [natalDateStr, setNatalDateStr] = useState('');
   const [natalTimeStr, setNatalTimeStr] = useState('');
-  const [searchQuery, setSearchQuery] = useState('İstanbul');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [selectedCityData, setSelectedCityData] = useState<any>({
-    name: 'İstanbul',
-    lat: 41.0082,
-    lon: 28.9784,
-    tz: 'Europe/Istanbul',
-    country: 'Türkiye'
-  });
+  const [selectedCityData, setSelectedCityData] = useState<any>(null);
 
   // Transit Inputs
-  const today = new Date();
-  const defaultTDate = today.toISOString().split('T')[0];
-  const defaultTTime = today.toTimeString().slice(0, 5);
-  const [transitDateStr, setTransitDateStr] = useState(defaultTDate);
-  const [transitTimeStr, setTransitTimeStr] = useState(defaultTTime);
+  const [transitDateStr, setTransitDateStr] = useState('');
+  const [transitTimeStr, setTransitTimeStr] = useState('');
 
   // States
   const [isLoading, setIsLoading] = useState(false);
@@ -553,7 +544,7 @@ export default function AnlikGokyuzuScreen() {
                 style={styles.input}
                 value={natalDateStr}
                 onChangeText={handleNatalDateChange}
-                placeholder="Örn: 1995-03-17"
+                placeholder="Örn: 2012-12-22"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
                 maxLength={10}
@@ -565,7 +556,7 @@ export default function AnlikGokyuzuScreen() {
                 style={styles.input}
                 value={natalTimeStr}
                 onChangeText={handleNatalTimeChange}
-                placeholder="Örn: 18:05"
+                placeholder="Örn: 12:12"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
                 maxLength={5}
@@ -581,7 +572,6 @@ export default function AnlikGokyuzuScreen() {
                     setShowSuggestions(true);
                   }}
                   onFocus={() => {
-                    if (searchQuery === 'İstanbul') setSearchQuery('');
                     setShowSuggestions(true);
                   }}
                   placeholder="Şehir adı yazın..."
@@ -623,7 +613,7 @@ export default function AnlikGokyuzuScreen() {
                 style={styles.input}
                 value={transitDateStr}
                 onChangeText={handleTransitDateChange}
-                placeholder="Örn: 2026-06-15"
+                placeholder="Örn: 2012-12-22"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
                 maxLength={10}
@@ -635,7 +625,7 @@ export default function AnlikGokyuzuScreen() {
                 style={styles.input}
                 value={transitTimeStr}
                 onChangeText={handleTransitTimeChange}
-                placeholder="Örn: 17:05"
+                placeholder="Örn: 12:12"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
                 maxLength={5}
