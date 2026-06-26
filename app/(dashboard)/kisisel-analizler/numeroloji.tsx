@@ -669,6 +669,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: 50,
     textAlign: 'center',
+    minWidth: 0,
   },
   calcBtn: {
     backgroundColor: COLORS.primary,
