@@ -47,7 +47,7 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#32ADE6',
     badge: '1. Aşama Derecesi',
     accessList: [
-      'Tüm derslerin çıraklık derecesindeki içerikleri',
+      'Her dersin çıraklık seviyesi',
       'Çıraklık dersi sınavları',
       'Arayış derecesi içeriklerinin tamamı'
     ]
