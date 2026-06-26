@@ -25,13 +25,16 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#8E8E93',
     badge: 'Arayış Derecesi',
     accessList: [
-      'Astrolojik Doğum Haritası Analizi',
-      'Anlık Gökyüzü (Transit) Etkileşimleri',
-      'Numeroloji Analizi (Doğum Tarihi ve İsim ile)',
-      'Çakra Analizi, Haritası ve Blokaj Tespiti',
-      'Günlük Çakra Rehberi ve Olumlamalar',
-      'Nefes Egzersizleri ve Frekans Odası',
-      'Keşfet (Mağaza) Bölümü ve Önemli Hususlar'
+      'Gezegen saatleri',
+      'Yıllık ay döngüleri',
+      'Doğum haritası analizi',
+      'Anlık gökyüzü etkileşimleri',
+      'Numeroloji analizi',
+      'Çakra analizi',
+      'Çakra bilgileri ve meditasyonları',
+      'Çakra ve organ şifalandırma frekansları',
+      'Nefes egzersizleri',
+      'İnsan tasarımı haritası'
     ]
   },
   {
