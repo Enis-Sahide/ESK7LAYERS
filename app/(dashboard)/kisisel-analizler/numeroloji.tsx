@@ -348,7 +348,7 @@ export default function NumerolojiKisiselAnalizScreen() {
           <View style={styles.dateInputRow}>
             <TextInput
               ref={dayRef}
-              style={[styles.input, { flex: 1, paddingHorizontal: 5, textAlign: 'center' }]}
+              style={[styles.dateInput, { flex: 1 }]}
               placeholder="GG"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"
@@ -359,10 +359,10 @@ export default function NumerolojiKisiselAnalizScreen() {
                 if (text.length === 2) monthRef.current?.focus();
               }}
             />
-            <Text style={{ color: COLORS.textMuted, fontSize: 20 }}> / </Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 18, marginHorizontal: 8 }}>/</Text>
             <TextInput
               ref={monthRef}
-              style={[styles.input, { flex: 1, paddingHorizontal: 5, textAlign: 'center' }]}
+              style={[styles.dateInput, { flex: 1 }]}
               placeholder="AA"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"
@@ -373,10 +373,10 @@ export default function NumerolojiKisiselAnalizScreen() {
                 if (text.length === 2) yearRef.current?.focus();
               }}
             />
-            <Text style={{ color: COLORS.textMuted, fontSize: 20 }}> / </Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 18, marginHorizontal: 8 }}>/</Text>
             <TextInput
               ref={yearRef}
-              style={[styles.input, { flex: 1.5, paddingHorizontal: 5, textAlign: 'center' }]}
+              style={[styles.dateInput, { flex: 1.5 }]}
               placeholder="YYYY"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"
@@ -659,6 +659,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 25,
+  },
+  dateInput: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderRadius: 8,
+    color: COLORS.text,
+    fontSize: 16,
+    height: 50,
+    textAlign: 'center',
   },
   calcBtn: {
     backgroundColor: COLORS.primary,
