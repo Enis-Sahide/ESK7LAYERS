@@ -46,7 +46,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   },
   { 
     id: 'astroloji', 
-    title: 'Astrolojik Doğum Haritası', 
+    title: 'Doğum Haritası', 
     description: 'Gezegenlerin doğum anınızdaki konumlarıyla ruhunuzun kozmik planını analiz edin.',
     icon: 'planet-outline', 
     route: '/(dashboard)/kisisel-analizler/astroloji',
