@@ -30,11 +30,11 @@ const LEVELS_DATA: LevelDetail[] = [
       'Doğum haritası analizi',
       'Anlık gökyüzü etkileşimleri',
       'Numeroloji analizi',
+      'İnsan tasarımı haritası',
       'Çakra analizi',
       'Çakra bilgileri ve meditasyonları',
       'Çakra ve organ şifalandırma frekansları',
       'Nefes egzersizleri',
-      'İnsan tasarımı haritası',
       'Hastalıkların duygusal nedenleri dersi',
       'Aura çakra sınavı',
       'Hastalıkların duygusal nedenleri sınavı'
