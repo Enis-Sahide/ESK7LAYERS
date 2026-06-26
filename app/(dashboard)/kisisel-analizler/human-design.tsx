@@ -75,16 +75,10 @@ export default function HumanDesignScreen() {
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
   
-  const [searchQuery, setSearchQuery] = useState('İstanbul');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [selectedCityData, setSelectedCityData] = useState<any>({
-    name: 'İstanbul',
-    lat: 41.0082,
-    lon: 28.9784,
-    tz: 'Europe/Istanbul',
-    country: 'Türkiye'
-  });
+  const [selectedCityData, setSelectedCityData] = useState<any>(null);
   
   const [chart, setChart] = useState<HumanDesignChart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -180,6 +174,11 @@ export default function HumanDesignScreen() {
   const handleCalculate = async () => {
     try {
       setIsLoading(true);
+      if (!selectedCityData) {
+        Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
+        setIsLoading(false);
+        return;
+      }
       if (dateStr.length !== 10 || timeStr.length !== 5) {
         Alert.alert("Hata", "Lütfen tarihi (YYYY-AA-GG) ve saati (SS:DD) tam formatında girin.");
         setIsLoading(false);
@@ -419,7 +418,7 @@ export default function HumanDesignScreen() {
                 style={styles.input} 
                 value={dateStr} 
                 onChangeText={handleDateChange} 
-                placeholder="Örn: 1990-05-15" 
+                placeholder="Örn: 2012-12-22" 
                 placeholderTextColor="#666" 
                 keyboardType="numeric" 
                 maxLength={10}
@@ -432,7 +431,7 @@ export default function HumanDesignScreen() {
                 style={styles.input} 
                 value={timeStr} 
                 onChangeText={handleTimeChange} 
-                placeholder="Örn: 14:30" 
+                placeholder="Örn: 12:12" 
                 placeholderTextColor="#666" 
                 keyboardType="numeric" 
                 maxLength={5}
@@ -449,7 +448,6 @@ export default function HumanDesignScreen() {
                     setShowSuggestions(true);
                   }}
                   onFocus={() => {
-                    if (searchQuery === 'İstanbul') setSearchQuery('');
                     setShowSuggestions(true);
                   }}
                   placeholder="Örn: İstanbul"

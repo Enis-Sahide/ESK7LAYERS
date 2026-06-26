@@ -333,7 +333,7 @@ export default function NumerolojiKisiselAnalizScreen() {
               <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Örn: Meryem Yılmaz"
+                placeholder="Örn: Fatma Yılmaz"
                 placeholderTextColor="rgba(255,255,255,0.3)"
                 value={name}
                 onChangeText={setName}
@@ -348,7 +348,7 @@ export default function NumerolojiKisiselAnalizScreen() {
           <View style={styles.dateInputRow}>
             <TextInput
               ref={dayRef}
-              style={[styles.input, { flex: 1 }]}
+              style={[styles.input, { flex: 1, paddingHorizontal: 5, textAlign: 'center' }]}
               placeholder="GG"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"
@@ -362,7 +362,7 @@ export default function NumerolojiKisiselAnalizScreen() {
             <Text style={{ color: COLORS.textMuted, fontSize: 20 }}> / </Text>
             <TextInput
               ref={monthRef}
-              style={[styles.input, { flex: 1 }]}
+              style={[styles.input, { flex: 1, paddingHorizontal: 5, textAlign: 'center' }]}
               placeholder="AA"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"
@@ -376,7 +376,7 @@ export default function NumerolojiKisiselAnalizScreen() {
             <Text style={{ color: COLORS.textMuted, fontSize: 20 }}> / </Text>
             <TextInput
               ref={yearRef}
-              style={[styles.input, { flex: 1.5 }]}
+              style={[styles.input, { flex: 1.5, paddingHorizontal: 5, textAlign: 'center' }]}
               placeholder="YYYY"
               placeholderTextColor="rgba(255,255,255,0.3)"
               keyboardType="number-pad"

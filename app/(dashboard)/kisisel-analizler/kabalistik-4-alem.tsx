@@ -60,10 +60,10 @@ export default function KabbalahAnalysisScreen() {
   const router = useRouter();
 
   const [dateStr, setDateStr] = useState('');
-  const [timeStr, setTimeStr] = useState('12:00');
+  const [timeStr, setTimeStr] = useState('');
   const [country, setCountry] = useState('Türkiye');
   const [showCountryModal, setShowCountryModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('İstanbul');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -260,7 +260,7 @@ export default function KabbalahAnalysisScreen() {
                 style={styles.input} 
                 value={dateStr} 
                 onChangeText={handleDateChange} 
-                placeholder="Örn: 1990-05-15" 
+                placeholder="Örn: 2012-12-22" 
                 placeholderTextColor="#666" 
                 keyboardType="numeric" 
                 maxLength={10} 
@@ -273,7 +273,7 @@ export default function KabbalahAnalysisScreen() {
                 style={styles.input} 
                 value={timeStr} 
                 onChangeText={handleTimeChange} 
-                placeholder="Örn: 14:30" 
+                placeholder="Örn: 12:12" 
                 placeholderTextColor="#666" 
                 keyboardType="numeric" 
                 maxLength={5} 
@@ -292,7 +292,7 @@ export default function KabbalahAnalysisScreen() {
                   style={styles.input} 
                   value={searchQuery} 
                   onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} 
-                  onFocus={() => { if (searchQuery === 'İstanbul') setSearchQuery(''); setShowSuggestions(true); }} 
+                  onFocus={() => { setShowSuggestions(true); }} 
                   placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} 
                   placeholderTextColor="#666" 
                 />
