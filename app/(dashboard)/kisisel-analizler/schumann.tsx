@@ -158,13 +158,14 @@ export default function SchumannScreen() {
   return (
     <SacredBackground>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
         </TouchableOpacity>
-        <View style={{ alignItems: 'center', flex: 1, marginRight: 40 }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headerTitle}>Schumann Rezonansı</Text>
           <Text style={styles.headerSubtitle}>Canlı Jeomanyetik Kp ve Kozmik Akış</Text>
         </View>
+        <View style={{ width: 44 }} />
       </View>
 
       {loading ? (
