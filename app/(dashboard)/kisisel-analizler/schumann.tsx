@@ -205,7 +205,7 @@ export default function SchumannScreen() {
               {data?.history?.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
-                const isForecast = item.predicted;
+                const isForecast = new Date(item.time).getTime() > Date.now();
 
                 return (
                   <TouchableOpacity
