@@ -16,7 +16,7 @@ const getBackendUrl = (): string => {
   return (
     (process.env.EXPO_PUBLIC_API_URL as string) ||
     ((Constants.expoConfig?.extra as any)?.apiBaseUrl as string) ||
-    'http://localhost:3000'
+    'https://www.7layers.tr'
   );
 };
 
