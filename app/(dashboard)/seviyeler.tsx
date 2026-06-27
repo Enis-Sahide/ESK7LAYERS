@@ -126,7 +126,7 @@ export default function LevelsScreen() {
   }
 
   const handleOpenWeb = () => {
-    Linking.openURL('http://localhost:3000/membership').catch((err) => {
+    Linking.openURL('https://www.7layers.tr/membership').catch((err) => {
       console.error("Web sitesi açılamadı:", err);
     });
   };
