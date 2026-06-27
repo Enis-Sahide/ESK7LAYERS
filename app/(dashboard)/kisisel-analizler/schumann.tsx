@@ -130,6 +130,27 @@ export default function SchumannScreen() {
     }
   };
 
+  const formatTimeRange = (timeStr: string) => {
+    try {
+      const dStart = new Date(timeStr);
+      const dEnd = new Date(dStart.getTime() + 3 * 60 * 60 * 1000);
+      const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+      
+      const startDay = dayNames[dStart.getDay()];
+      const startHours = String(dStart.getHours()).padStart(2, '0');
+      
+      const endDay = dayNames[dEnd.getDay()];
+      const endHours = String(dEnd.getHours()).padStart(2, '0');
+      
+      if (startDay !== endDay) {
+        return `${startDay} ${startHours}:00 - ${endDay} ${endHours}:00`;
+      }
+      return `${startDay} ${startHours}:00 - ${endHours}:00`;
+    } catch (e) {
+      return timeStr;
+    }
+  };
+
   // Find index of the first forecast block to draw "ŞİMDİ" divider line
   const nowMs = Date.now();
   const firstForecastIndex = data?.history.findIndex(item => new Date(item.time).getTime() > nowMs) ?? -1;
@@ -192,7 +213,7 @@ export default function SchumannScreen() {
               {hoveredSpectrogramBar ? (
                 <View style={styles.spectrogramTooltip}>
                   <Text style={styles.spectrogramTooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTime(hoveredSpectrogramBar.time)}</Text>  |  
+                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>  |  
                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
                     {new Date(hoveredSpectrogramBar.time).getTime() > Date.now() ? ' (Tahmin)' : ' (Ölçüm)'}  |  
                     <Text style={{ fontStyle: 'italic', color: '#00E5FF' }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
@@ -295,7 +316,7 @@ export default function SchumannScreen() {
               {hoveredBar ? (
                 <View style={styles.barTooltip}>
                   <Text style={styles.tooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTime(hoveredBar.time)}</Text>  |  
+                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
                     {hoveredBar.predicted ? ' (Tahmin)' : ''}
                   </Text>
