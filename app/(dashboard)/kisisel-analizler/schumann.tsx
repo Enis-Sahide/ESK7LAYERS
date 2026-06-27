@@ -159,7 +159,7 @@ export default function SchumannScreen() {
             <View style={styles.radialContainer}>
               <View style={[styles.outerGlowRing, { borderColor: getKpColor(data?.current_kp ?? 0) }]}>
                 <Text style={[styles.radialVal, { color: getKpColor(data?.current_kp ?? 0) }]}>
-                  {data?.current_kp.toFixed(2)}
+                  {(data?.current_kp ?? 0).toFixed(2)}
                 </Text>
                 <Text style={styles.radialUnit}>Kp</Text>
               </View>
@@ -202,7 +202,7 @@ export default function SchumannScreen() {
 
             {/* Bar Chart Canvas Area */}
             <View style={styles.chartContainer}>
-              {data?.history.map((item, idx) => {
+              {data?.history?.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
                 const isForecast = item.predicted;
