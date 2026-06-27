@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -175,6 +176,84 @@ export default function SchumannScreen() {
               <Text style={styles.updatedAtText}>
                 Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
               </Text>
+            </View>
+          </BlurView>
+
+          {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
+          <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
+            <Text style={styles.chartTitle}>Schumann Rezonans Spektrogramı</Text>
+            <Text style={styles.chartSubtitle}>
+              Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti (Koyu yeşilden kırmızıya geçişler ve beyaz dikey patlamalar)
+            </Text>
+
+            <View style={styles.spectrogramWrapper}>
+              {/* Sabit Hz etiketleri (Sol Taraf) */}
+              <View style={styles.hzScale}>
+                <Text style={styles.hzText}>32 Hz</Text>
+                <Text style={styles.hzText}>26 Hz</Text>
+                <Text style={styles.hzText}>20 Hz</Text>
+                <Text style={styles.hzText}>14 Hz</Text>
+                <Text style={styles.hzText}>7.8 Hz</Text>
+              </View>
+
+              {/* Kaydırılabilir Şelale Alanı (Sağ Taraf) */}
+              <ScrollView 
+                horizontal={true} 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.spectrogramScrollContent}
+              >
+                {data?.history?.map((item, idx) => {
+                  const kp = item.kp;
+                  const color = getKpColor(kp);
+                  const isForecast = new Date(item.time).getTime() > Date.now();
+                  const showLightning = kp >= 4.0 && !isForecast;
+
+                  // Kp değerine bağlı renk ve opaklık hesapla
+                  const glowColor = color;
+
+                  return (
+                    <View key={idx} style={styles.spectrogramCol}>
+                      <LinearGradient
+                        colors={[
+                          'rgba(0,0,0,0.95)', 
+                          glowColor + (isForecast ? '10' : '25'), // 32 Hz
+                          'rgba(0,0,0,0.95)', 
+                          glowColor + (isForecast ? '15' : '40'), // 26 Hz
+                          'rgba(0,0,0,0.95)', 
+                          glowColor + (isForecast ? '20' : '60'), // 20 Hz
+                          'rgba(0,0,0,0.95)', 
+                          glowColor + (isForecast ? '30' : '80'), // 14 Hz
+                          'rgba(0,0,0,0.95)', 
+                          glowColor + (isForecast ? '40' : 'e0'), // 7.8 Hz
+                          'rgba(0,0,0,0.95)'
+                        ]}
+                        locations={[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.85, 0.92, 0.96, 0.98, 1.0]}
+                        style={styles.gradientCol}
+                      />
+
+                      {/* Dikey Manyetik Patlama Çizgileri */}
+                      {showLightning && (
+                        <View style={[styles.lightningLine, { opacity: (kp / 9) * 0.4 + 0.15 }]} />
+                      )}
+
+                      {/* Zaman Etiketi */}
+                      {idx % 4 === 0 && (
+                        <Text style={styles.spectrogramTimeText}>
+                          {new Date(item.time).getHours().toString().padStart(2, '0')}:00
+                        </Text>
+                      )}
+
+                      {/* ŞİMDİ Çizgisi */}
+                      {idx === firstForecastIndex && (
+                        <View style={styles.spectrogramNowLineContainer}>
+                          <View style={styles.spectrogramNowLine} />
+                          <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
+                        </View>
+                      )}
+                    </View>
+                  );
+                })}
+              </ScrollView>
             </View>
           </BlurView>
 
@@ -632,6 +711,102 @@ const styles = StyleSheet.create({
   toggleBtnLocked: {
     backgroundColor: 'rgba(212, 175, 55, 0.1)',
     borderColor: 'rgba(212, 175, 55, 0.5)',
+  },
+  spectrogramCard: {
+    padding: 20,
+    borderRadius: SIZES.radius * 1.5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  spectrogramWrapper: {
+    flexDirection: 'row',
+    height: 160,
+    marginTop: 10,
+    backgroundColor: '#050505',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  hzScale: {
+    width: 45,
+    height: '100%',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#0a0a0a',
+    borderRightWidth: 1,
+    borderRightColor: 'rgba(255,255,255,0.08)',
+    zIndex: 10,
+  },
+  hzText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    fontFamily: Platform.OS === 'ios' ? 'Courier-Bold' : 'monospace',
+  },
+  spectrogramScrollContent: {
+    paddingRight: 20,
+  },
+  spectrogramCol: {
+    width: 42,
+    height: '100%',
+    position: 'relative',
+    justifyContent: 'flex-end',
+    paddingBottom: 22,
+  },
+  gradientCol: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 20,
+  },
+  lightningLine: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    bottom: 20,
+    width: 1.5,
+    backgroundColor: '#ffffff',
+  },
+  spectrogramTimeText: {
+    fontSize: 8,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    position: 'absolute',
+    bottom: 4,
+    left: 0,
+    right: 0,
+  },
+  spectrogramNowLineContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 20,
+    width: 1,
+    alignItems: 'center',
+    zIndex: 5,
+    pointerEvents: 'none',
+  },
+  spectrogramNowLine: {
+    flex: 1,
+    borderLeftWidth: 1.5,
+    borderLeftColor: '#00E5FF',
+    borderStyle: 'dashed',
+  },
+  spectrogramNowText: {
+    fontSize: 7,
+    color: '#00E5FF',
+    fontWeight: 'bold',
+    backgroundColor: '#000',
+    paddingHorizontal: 2,
+    marginTop: 2,
+    position: 'absolute',
+    bottom: 2,
   },
   guideCard: {
     borderRadius: SIZES.radius * 1.5,
