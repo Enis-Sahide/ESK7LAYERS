@@ -8,6 +8,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { useProgress } from '@/src/context/ProgressContext';
 
 interface KpHistoryItem {
   time: string;
@@ -25,6 +26,8 @@ interface KpData {
 
 export default function SchumannScreen() {
   const router = useRouter();
+  const { role, isAdmin } = useProgress();
+  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
   const [data, setData] = useState<KpData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -65,6 +68,13 @@ export default function SchumannScreen() {
   }, []);
 
   const toggleNotifications = async () => {
+    if (!isApprenticeOrAbove) {
+      Alert.alert(
+        "Çıraklık Derecesi Gerekli",
+        "Kozmik Rezonans bildirimlerini aktif edebilmek için en az Çırak (Seviye 1) seviyesinde olmalısınız. Seviye atlamak için lütfen derslerinizi ve sınavlarınızı tamamlayın."
+      );
+      return;
+    }
     const newState = !notificationsEnabled;
     setNotificationsEnabled(newState);
     await AsyncStorage.setItem('schumann_notifications', String(newState));
@@ -256,24 +266,35 @@ export default function SchumannScreen() {
             <View style={styles.notificationRow}>
               <View style={styles.notificationLeft}>
                 <Ionicons 
-                  name={notificationsEnabled ? "notifications-outline" : "notifications-off-outline"} 
+                  name={!isApprenticeOrAbove ? "lock-closed-outline" : (notificationsEnabled ? "notifications-outline" : "notifications-off-outline")} 
                   size={24} 
-                  color={COLORS.primary} 
+                  color={!isApprenticeOrAbove ? '#FFD700' : COLORS.primary} 
                 />
-                <View style={{ marginLeft: 15 }}>
-                  <Text style={styles.notificationTitle}>Kozmik Rezonans Bildirimleri</Text>
-                  <Text style={styles.notificationDesc}>Manyetik fırtınalarda anlık uyanış kapısı uyarıları</Text>
+                <View style={{ marginLeft: 15, flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    <Text style={styles.notificationTitle}>Kozmik Rezonans Bildirimleri</Text>
+                    {!isApprenticeOrAbove && (
+                      <View style={{ backgroundColor: 'rgba(212, 175, 55, 0.15)', borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.4)', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 }}>
+                        <Text style={{ color: '#FFD700', fontSize: 9, fontWeight: 'bold', textTransform: 'uppercase' }}>Çırak Seviyesi</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.notificationDesc}>
+                    {!isApprenticeOrAbove 
+                      ? 'Bu özellik Çırak seviyesi ve üzeri üyelerimiz içindir. Seviyenizi yükselterek bildirimleri aktif edebilirsiniz.' 
+                      : 'Manyetik fırtınalarda anlık uyanış kapısı uyarıları'}
+                  </Text>
                 </View>
               </View>
               <TouchableOpacity 
                 style={[
                   styles.toggleBtn, 
-                  notificationsEnabled ? styles.toggleBtnActive : styles.toggleBtnInactive
+                  !isApprenticeOrAbove ? styles.toggleBtnLocked : (notificationsEnabled ? styles.toggleBtnActive : styles.toggleBtnInactive)
                 ]}
                 onPress={toggleNotifications}
               >
-                <Text style={[styles.toggleBtnText, { color: notificationsEnabled ? '#000' : COLORS.primary }]}>
-                  {notificationsEnabled ? 'Açık' : 'Kapalı'}
+                <Text style={[styles.toggleBtnText, { color: !isApprenticeOrAbove ? '#FFD700' : (notificationsEnabled ? '#000' : COLORS.primary) }]}>
+                  {!isApprenticeOrAbove ? 'Kilitli' : (notificationsEnabled ? 'Açık' : 'Kapalı')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -607,6 +628,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#fff',
     lineHeight: 20,
+  },
+  toggleBtnLocked: {
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.5)',
   },
   guideCard: {
     borderRadius: SIZES.radius * 1.5,
