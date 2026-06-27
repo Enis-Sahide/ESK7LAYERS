@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground, ActivityIndicator } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getMe, logout as apiLogout } from '@/src/core/api/client';
+import { getMe, logout as apiLogout, apiFetch } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
@@ -130,6 +130,100 @@ const PlanetaryHourWidget = () => {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
           <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Tüm Saatler</Text>
           <Ionicons name="chevron-forward" size={12} color={COLORS.textMuted} />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const SchumannMiniWidget = () => {
+  const router = useRouter();
+  const [data, setData] = useState<{ current_kp: number; status_label: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      const fetchSchumann = async () => {
+        try {
+          const res = await apiFetch('/api/schumann');
+          if (res && isActive) {
+            setData(res);
+          }
+        } catch (e) {
+          console.error('Error fetching Schumann in mobile widget:', e);
+        } finally {
+          if (isActive) setLoading(false);
+        }
+      };
+
+      fetchSchumann();
+      const interval = setInterval(fetchSchumann, 5 * 60 * 1000); // 5 mins
+      return () => {
+        isActive = false;
+        clearInterval(interval);
+      };
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={[styles.schumannWidget, { opacity: 0.6, justifyContent: 'center', alignItems: 'center', minHeight: 90 }]}>
+        <ActivityIndicator size="small" color={COLORS.primary} />
+      </View>
+    );
+  }
+
+  const kpVal = data?.current_kp ?? 0;
+
+  const getKpColor = (kp: number) => {
+    if (kp < 3) return '#10B981'; // emerald
+    if (kp < 4) return '#F59E0B'; // amber
+    if (kp < 5) return '#F97316'; // orange
+    return '#EF4444'; // red
+  };
+
+  const getIndicatorText = (kp: number) => {
+    if (kp >= 5.0) return '🧬 Işık Portalı: DNA Aktivasyonu';
+    if (kp >= 4.0) return '👁️ Yüksek Sezgi ve Farkındalık';
+    return '🧘 Dengeli ve Dingin Akış';
+  };
+
+  const kpColor = getKpColor(kpVal);
+
+  return (
+    <TouchableOpacity 
+      style={[styles.schumannWidget, { borderLeftColor: kpColor }]} 
+      onPress={() => router.push('/(dashboard)/kisisel-analizler/schumann')}
+      activeOpacity={0.7}
+    >
+      <View style={styles.schumannRow}>
+        <View style={[styles.planetIconWrapper, { backgroundColor: kpColor + '20', borderColor: kpColor }]}>
+          <Ionicons name="flash-outline" size={18} color={kpColor} />
+        </View>
+        
+        <View style={{ flex: 1, marginLeft: 15 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.schumannTitle}>Schumann Rezonansı</Text>
+            <View style={[styles.glowingDot, { backgroundColor: kpColor }]} />
+          </View>
+          <Text style={[styles.schumannStatusName, { color: kpColor }]}>
+            {data?.status_label.split(' ')[0]}
+          </Text>
+        </View>
+
+        <View style={styles.kpBadgeContainer}>
+          <Text style={[styles.kpBadgeText, { color: kpColor }]}>
+            {kpVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>Kp</Text>
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.schumannFooter}>
+        <Text style={styles.schumannFooterText}>{getIndicatorText(kpVal)}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 10, color: COLORS.primary }}>Canlı İzle</Text>
+          <Ionicons name="chevron-forward" size={12} color={COLORS.primary} style={{ marginLeft: 2 }} />
         </View>
       </View>
     </TouchableOpacity>
@@ -280,6 +374,7 @@ export default function DashboardScreen() {
           )}
         </BlurView>
 
+        <SchumannMiniWidget />
         <PlanetaryHourWidget />
 
         {/* Modüller: Anatomik Çakra Haritası */}
@@ -404,6 +499,12 @@ export default function DashboardScreen() {
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler'); setIsToolsExpanded(false); }}>
                <Ionicons name="analytics" size={20} color="#FF9500" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Analizler</Text>
+             </TouchableOpacity>
+
+             {/* Schumann Rezonansı */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/schumann'); setIsToolsExpanded(false); }}>
+               <Ionicons name="flash-outline" size={20} color="#00E5FF" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Schumann Rezonansı</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
@@ -855,5 +956,64 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: COLORS.text,
+  },
+  schumannWidget: {
+    backgroundColor: 'rgba(10, 10, 10, 0.7)',
+    borderRadius: SIZES.radius,
+    padding: 15,
+    marginBottom: 25,
+    borderLeftWidth: 4,
+    borderWidth: 1,
+    borderTopColor: 'rgba(212, 175, 55, 0.2)',
+    borderBottomColor: 'rgba(212, 175, 55, 0.2)',
+    borderRightColor: 'rgba(212, 175, 55, 0.2)',
+  },
+  schumannRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  schumannTitle: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+    marginBottom: 2,
+  },
+  glowingDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  schumannStatusName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  kpBadgeContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  kpBadgeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  schumannFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+  },
+  schumannFooterText: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    fontStyle: 'italic',
   }
 });
