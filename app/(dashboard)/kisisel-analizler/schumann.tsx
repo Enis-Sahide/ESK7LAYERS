@@ -34,6 +34,7 @@ export default function SchumannScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<KpHistoryItem | null>(null);
+  const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   const fetchData = async (showPulse = true) => {
@@ -186,6 +187,22 @@ export default function SchumannScreen() {
               Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti (Koyu yeşilden kırmızıya geçişler ve beyaz dikey patlamalar)
             </Text>
 
+            {/* Spectrogram Tooltip */}
+            <View style={styles.spectrogramTooltipContainer}>
+              {hoveredSpectrogramBar ? (
+                <View style={styles.spectrogramTooltip}>
+                  <Text style={styles.spectrogramTooltipText}>
+                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTime(hoveredSpectrogramBar.time)}</Text>  |  
+                    Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
+                    {new Date(hoveredSpectrogramBar.time).getTime() > Date.now() ? ' (Tahmin)' : ' (Ölçüm)'}  |  
+                    <Text style={{ fontStyle: 'italic', color: '#00E5FF' }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.tooltipPlaceholder}>Detayları görmek için dalgaların üzerine dokunun</Text>
+              )}
+            </View>
+
             <View style={styles.spectrogramWrapper}>
               {/* Sabit Hz etiketleri (Sol Taraf) */}
               <View style={styles.hzScale}>
@@ -212,7 +229,12 @@ export default function SchumannScreen() {
                   const glowColor = color;
 
                   return (
-                    <View key={idx} style={styles.spectrogramCol}>
+                    <TouchableOpacity 
+                      key={idx} 
+                      style={styles.spectrogramCol}
+                      activeOpacity={0.8}
+                      onPress={() => setHoveredSpectrogramBar(item)}
+                    >
                       <LinearGradient
                         colors={[
                           'rgba(0,0,0,0.95)', 
@@ -237,11 +259,15 @@ export default function SchumannScreen() {
                       )}
 
                       {/* Zaman Etiketi */}
-                      {idx % 4 === 0 && (
-                        <Text style={styles.spectrogramTimeText}>
-                          {new Date(item.time).getHours().toString().padStart(2, '0')}:00
-                        </Text>
-                      )}
+                      {idx % 4 === 0 && (() => {
+                        const d = new Date(item.time);
+                        const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                        return (
+                          <Text style={styles.spectrogramTimeText}>
+                            {dayNames[d.getDay()]} {d.getHours().toString().padStart(2, '0')}:00
+                          </Text>
+                        );
+                      })()}
 
                       {/* ŞİMDİ Çizgisi */}
                       {idx === firstForecastIndex && (
@@ -250,7 +276,7 @@ export default function SchumannScreen() {
                           <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
                         </View>
                       )}
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </ScrollView>
@@ -719,6 +745,24 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.08)',
     marginBottom: 20,
     overflow: 'hidden',
+  },
+  spectrogramTooltipContainer: {
+    height: 30,
+    justifyContent: 'center',
+    marginBottom: 5,
+  },
+  spectrogramTooltip: {
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    alignSelf: 'center',
+  },
+  spectrogramTooltipText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
   },
   spectrogramWrapper: {
     flexDirection: 'row',
