@@ -63,7 +63,7 @@
       "eas": {
         "projectId": "21961b5e-d684-42f7-b931-1ad7ca4f372a"
       },
-      "apiBaseUrl": "http://localhost:3000"
+      "apiBaseUrl": "https://www.7layers.tr"
     }
   }
 }
