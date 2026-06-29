@@ -488,9 +488,17 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/breathwork'); }}>
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/breathwork'); setIsToolsExpanded(false); }}>
                <Ionicons name="water" size={20} color="#FF9500" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Nefes Egzersizi</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
+             {/* Bilgi Kütüphanesi */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/blog'); setIsToolsExpanded(false); }}>
+               <Ionicons name="book-outline" size={20} color="#E0A96D" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Bilgi Kütüphanesi</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
