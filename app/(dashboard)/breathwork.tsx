@@ -146,7 +146,7 @@ export default function BreathworkScreen() {
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="information-circle-outline" size={20} color="#FF9500" style={{ marginRight: 8 }} />
-                <Text style={styles.guideTitle}>Nefes Çalışması Kuralları</Text>
+                <Text style={styles.guideTitle}>Nefes Çalışması Hatırlatmaları</Text>
               </View>
               <Ionicons 
                 name={isGuideOpen ? "chevron-up" : "chevron-down"} 
