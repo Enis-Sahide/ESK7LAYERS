@@ -119,7 +119,7 @@ export default function SchumannScreen() {
 
   const formatTime = (timeStr: string) => {
     try {
-      const d = new Date(timeStr);
+      const d = new Date(timeStr.endsWith('Z') ? timeStr : timeStr + 'Z');
       const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
       const day = dayNames[d.getDay()];
       const hours = String(d.getHours()).padStart(2, '0');
@@ -132,7 +132,7 @@ export default function SchumannScreen() {
 
   const formatTimeRange = (timeStr: string) => {
     try {
-      const dStart = new Date(timeStr);
+      const dStart = new Date(timeStr.endsWith('Z') ? timeStr : timeStr + 'Z');
       const dEnd = new Date(dStart.getTime() + 3 * 60 * 60 * 1000);
       const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
       
@@ -153,7 +153,7 @@ export default function SchumannScreen() {
 
   // Find index of the first forecast block to draw "ŞİMDİ" divider line
   const nowMs = Date.now();
-  const firstForecastIndex = data?.history.findIndex(item => new Date(item.time).getTime() > nowMs) ?? -1;
+  const firstForecastIndex = data?.history.findIndex(item => new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > nowMs) ?? -1;
 
   return (
     <SacredBackground>
@@ -244,7 +244,7 @@ export default function SchumannScreen() {
                 {data?.history?.map((item, idx) => {
                   const kp = item.kp;
                   const color = getKpColor(kp);
-                  const isForecast = new Date(item.time).getTime() > Date.now();
+                  const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
                   const showLightning = kp >= 4.0 && !isForecast;
 
                   // Kp değerine bağlı renk ve opaklık hesapla
@@ -282,7 +282,7 @@ export default function SchumannScreen() {
 
                       {/* Zaman Etiketi */}
                       {idx % 4 === 0 && (() => {
-                        const d = new Date(item.time);
+                        const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
                         const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
                         return (
                           <Text style={styles.spectrogramTimeText}>
@@ -332,7 +332,7 @@ export default function SchumannScreen() {
               {data?.history?.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
-                const isForecast = new Date(item.time).getTime() > Date.now();
+                const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
 
                 return (
                   <TouchableOpacity
