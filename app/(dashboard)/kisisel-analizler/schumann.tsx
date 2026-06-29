@@ -214,10 +214,12 @@ export default function SchumannScreen() {
               {hoveredSpectrogramBar ? (
                 <View style={styles.spectrogramTooltip}>
                   <Text style={styles.spectrogramTooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>  |  
-                    Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
-                    {new Date(hoveredSpectrogramBar.time).getTime() > Date.now() ? ' (Tahmin)' : ' (Ölçüm)'}  |  
-                    <Text style={{ fontStyle: 'italic', color: '#00E5FF' }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
+                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>  |  
+                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
+                     {new Date(hoveredSpectrogramBar.time.endsWith('Z') ? hoveredSpectrogramBar.time : hoveredSpectrogramBar.time + 'Z').getTime() > Date.now() 
+                       ? ' (⚠️ Tahmin - Değişebilir)' 
+                       : ' (✅ Kesinleşmiş Ölçüm)'}  |  
+                     <Text style={{ fontStyle: 'italic', color: '#00E5FF' }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
                   </Text>
                 </View>
               ) : (
@@ -317,9 +319,9 @@ export default function SchumannScreen() {
               {hoveredBar ? (
                 <View style={styles.barTooltip}>
                   <Text style={styles.tooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
-                    Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
-                    {hoveredBar.predicted ? ' (Tahmin)' : ''}
+                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
+                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
+                     {hoveredBar.predicted ? ' (⚠️ Tahmin - Değişebilir)' : ' (✅ Kesinleşmiş Ölçüm)'}
                   </Text>
                 </View>
               ) : (
