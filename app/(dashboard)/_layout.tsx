@@ -28,7 +28,7 @@ export default function DashboardLayout() {
     (async () => {
       const isAdminDashboard = pathname.includes('admin-dashboard');
       // 1) Giriş kontrolü (misafir kilitli bölüme giremez)
-      if (AUTH_REQUIRED.some((s) => pathname.includes(s)) || isAdminDashboard) {
+      if (AUTH_REQUIRED.some((s) => pathname.includes(s)) || isAdminDashboard || pathname.includes('blog')) {
         if (!(await isAuthenticated())) {
           if (active) router.replace('/(auth)/login');
           return;
@@ -36,7 +36,7 @@ export default function DashboardLayout() {
       }
       // 2) Rol/seviye kontrolü
       if (role === 'admin') return;
-      if (isAdminDashboard && role !== 'admin') {
+      if ((isAdminDashboard || pathname.includes('blog')) && role !== 'admin') {
         if (active) router.replace('/(dashboard)');
         return;
       }
