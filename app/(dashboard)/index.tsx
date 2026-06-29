@@ -532,14 +532,6 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             {/* Sınavlar Merkezi Linki */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/tests'); }}>
-               <Ionicons name="school" size={20} color="#FFCC00" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Sınavlar</Text>
-             </TouchableOpacity>
-
-             <View style={styles.fabMenuDivider} />
-
              {/* Seviyeler Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/seviyeler'); setIsToolsExpanded(false); }}>
                <Ionicons name="shield-outline" size={20} color="#D4AF37" style={{ marginRight: 10 }} />

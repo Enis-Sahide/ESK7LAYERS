@@ -96,7 +96,24 @@ export default function LessonsHubScreen() {
           );
         })}
 
-        <View style={{height: 100}} />
+        <TouchableOpacity 
+          style={styles.examsBanner} 
+          onPress={() => router.push('/(dashboard)/tests')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.examsBannerLeft}>
+            <View style={styles.examsIconContainer}>
+              <Ionicons name="trophy" size={22} color="#000" />
+            </View>
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.examsTitle}>Sınavlar</Text>
+              <Text style={styles.examsSubtitle}>Derece Değerlendirmeleri</Text>
+            </View>
+          </View>
+          <Ionicons name="arrow-forward" size={24} color={COLORS.primary} />
+        </TouchableOpacity>
+
+        <View style={{height: 80}} />
       </ScrollView>
 
 
@@ -195,5 +212,38 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
     fontWeight: '600',
+  },
+  examsBanner: {
+    marginTop: 20,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderRadius: SIZES.radius,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  examsBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  examsIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  examsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  examsSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
   },
 });
