@@ -22,6 +22,7 @@ export default function BreathworkScreen() {
   const [phase, setPhase] = useState('DURUYOR');
   const [timeLeft, setTimeLeft] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   
   // Animasyon Değerleri
   const scaleValue = useRef(new Animated.Value(1)).current;
@@ -136,6 +137,36 @@ export default function BreathworkScreen() {
       </View>
 
       <View style={styles.content}>
+        {!isActive && (
+          <BlurView intensity={30} tint="dark" style={styles.guideContainer}>
+            <TouchableOpacity 
+              style={styles.guideHeader} 
+              onPress={() => setIsGuideOpen(!isGuideOpen)}
+              activeOpacity={0.8}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="information-circle-outline" size={20} color="#FF9500" style={{ marginRight: 8 }} />
+                <Text style={styles.guideTitle}>Nefes Çalışması Kuralları</Text>
+              </View>
+              <Ionicons 
+                name={isGuideOpen ? "chevron-up" : "chevron-down"} 
+                size={18} 
+                color={COLORS.textMuted} 
+              />
+            </TouchableOpacity>
+
+            {isGuideOpen && (
+              <View style={styles.guideContent}>
+                <Text style={styles.guideText}>• <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Ortam:</Text> Sessiz, temiz ve havalandırılmış bir oda seçin.</Text>
+                <Text style={styles.guideText}>• <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Duruş:</Text> Enerji akışı için omurganız mutlaka dik olmalıdır.</Text>
+                <Text style={styles.guideText}>• <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Zorlama:</Text> Nefesinizi tutarken kendinizi asla aşırı zorlamayın.</Text>
+                <Text style={styles.guideText}>• <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Açlık:</Text> Egzersizleri aç karnına veya hafif yemekten 2 saat sonra yapın.</Text>
+                <Text style={styles.guideText}>• <Text style={{ fontWeight: 'bold', color: '#FFF' }}>Tepkiler:</Text> Aşırı baş dönmesi hissettiğinizde normal nefese dönün.</Text>
+              </View>
+            )}
+          </BlurView>
+        )}
+
         {!isActive && (
           <View style={styles.techSelectionContainer}>
             <Text style={styles.subtitle}>Uygulamak istediğiniz tekniği seçin:</Text>
@@ -362,5 +393,36 @@ const styles = StyleSheet.create({
     color: '#FF9500',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  guideContainer: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    overflow: 'hidden',
+  },
+  guideHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 12,
+  },
+  guideTitle: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  guideContent: {
+    padding: 12,
+    paddingTop: 0,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.05)',
+  },
+  guideText: {
+    color: COLORS.textMuted,
+    fontSize: 11,
+    lineHeight: 16,
+    marginTop: 6,
   }
 });
