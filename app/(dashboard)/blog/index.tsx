@@ -38,7 +38,7 @@ export default function BlogListScreen() {
         ) : (
           <View style={styles.placeholderImage}>
             <Ionicons name="book-outline" size={32} color="rgba(255, 149, 0, 0.3)" />
-            <Text style={styles.placeholderImageText}>7Layers Kütüphanesi</Text>
+            <Text style={styles.placeholderImageText}>7Layers Blog</Text>
           </View>
         )}
         <View style={styles.categoryBadge}>
@@ -72,7 +72,7 @@ export default function BlogListScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Bilgi Kütüphanesi</Text>
+        <Text style={styles.title}>Blog</Text>
       </View>
 
       <View style={styles.container}>
@@ -109,7 +109,7 @@ export default function BlogListScreen() {
         {loading ? (
           <View style={styles.loadingContainer}>
             <Ionicons name="sync" size={32} color="#FF9500" className="animate-spin" />
-            <Text style={styles.loadingText}>Kütüphane yükleniyor...</Text>
+            <Text style={styles.loadingText}>Blog yazıları yükleniyor...</Text>
           </View>
         ) : filteredPosts.length === 0 ? (
           <View style={styles.emptyContainer}>

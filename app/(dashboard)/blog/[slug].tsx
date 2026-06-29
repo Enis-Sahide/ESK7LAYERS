@@ -37,7 +37,7 @@ export default function BlogDetailScreen() {
             <Text style={styles.errorTitle}>Yazı Bulunamadı</Text>
             <Text style={styles.errorSubtitle}>Ulaşmaya çalıştığınız içerik mevcut değil veya kaldırılmış olabilir.</Text>
             <TouchableOpacity style={styles.errorBtn} onPress={() => router.back()}>
-              <Text style={styles.errorBtnText}>Kütüphaneye Dön</Text>
+              <Text style={styles.errorBtnText}>Geri Dön</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -49,7 +49,7 @@ export default function BlogDetailScreen() {
               ) : (
                 <View style={styles.placeholderImage}>
                   <Ionicons name="book" size={48} color="rgba(255, 149, 0, 0.2)" />
-                  <Text style={styles.placeholderImageText}>7Layers Bilgelik Kütüphanesi</Text>
+                  <Text style={styles.placeholderImageText}>7Layers Blog</Text>
                 </View>
               )}
               <View style={styles.imageOverlay} />

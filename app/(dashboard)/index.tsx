@@ -495,10 +495,10 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             {/* Bilgi Kütüphanesi */}
+             {/* Blog */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/blog'); setIsToolsExpanded(false); }}>
                <Ionicons name="book-outline" size={20} color="#E0A96D" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Bilgi Kütüphanesi</Text>
+               <Text style={styles.fabMenuText}>Blog</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
