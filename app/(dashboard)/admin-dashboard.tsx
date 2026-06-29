@@ -9,7 +9,9 @@ import {
   ActivityIndicator, 
   Alert, 
   Platform, 
-  Modal 
+  Modal,
+  Switch,
+  Image
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -47,7 +49,7 @@ const getUserStore = (profile: any) => {
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'stores' | 'members'>('stores');
+  const [activeTab, setActiveTab] = useState<'stores' | 'members' | 'blog'>('stores');
   
   // Stores (vendors) from marketplace content API
   const { vendors: VENDORS, loading: isLoadingVendors } = useMarketplace();
@@ -63,6 +65,23 @@ export default function AdminDashboardScreen() {
   const [profiles, setProfiles] = useState<any[]>([]);
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const [profilesError, setProfilesError] = useState<string | null>(null);
+
+  // Blog states
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [isLoadingBlogs, setIsLoadingBlogs] = useState(false);
+  const [blogError, setBlogError] = useState<string | null>(null);
+
+  const [showBlogModal, setShowBlogModal] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<any>(null);
+  const [blogForm, setBlogForm] = useState({
+    title: '',
+    slug: '',
+    content: '',
+    category: 'Astroloji',
+    imageUrl: '',
+    published: true
+  });
+  const [isSavingBlog, setIsSavingBlog] = useState(false);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,6 +110,113 @@ export default function AdminDashboardScreen() {
   useEffect(() => {
     fetchProfiles();
   }, []);
+
+  const fetchBlogs = async () => {
+    setIsLoadingBlogs(true);
+    setBlogError(null);
+    try {
+      const data = await apiFetch<any[]>('/api/admin/blog');
+      setBlogs(data || []);
+    } catch (err: any) {
+      console.error("Blogs fetch error:", err);
+      setBlogError(err.message || 'Yazılar yüklenirken hata oluştu.');
+    } finally {
+      setIsLoadingBlogs(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'blog') {
+      fetchBlogs();
+    }
+  }, [activeTab]);
+
+  const handleOpenCreateBlog = () => {
+    setEditingBlog(null);
+    setBlogForm({
+      title: '',
+      slug: '',
+      content: '',
+      category: 'Astroloji',
+      imageUrl: '',
+      published: true
+    });
+    setShowBlogModal(true);
+  };
+
+  const handleOpenEditBlog = (blog: any) => {
+    setEditingBlog(blog);
+    setBlogForm({
+      title: blog.title || '',
+      slug: blog.slug || '',
+      content: blog.content || '',
+      category: blog.category || 'Astroloji',
+      imageUrl: blog.imageUrl || '',
+      published: blog.published !== undefined ? blog.published : true
+    });
+    setShowBlogModal(true);
+  };
+
+  const handleSaveBlog = async () => {
+    if (!blogForm.title || !blogForm.slug || !blogForm.content || !blogForm.category) {
+      if (Platform.OS === 'web') window.alert('Lütfen tüm zorunlu alanları doldurun.');
+      else Alert.alert('Hata', 'Lütfen tüm zorunlu alanları doldurun.');
+      return;
+    }
+    setIsSavingBlog(true);
+    try {
+      if (editingBlog) {
+        // Update
+        const updated = await apiFetch<any>(`/api/admin/blog/${editingBlog.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(blogForm)
+        });
+        setBlogs(prev => prev.map(b => b.id === editingBlog.id ? updated : b));
+      } else {
+        // Create
+        const created = await apiFetch<any>('/api/admin/blog', {
+          method: 'POST',
+          body: JSON.stringify(blogForm)
+        });
+        setBlogs(prev => [created, ...prev]);
+      }
+      setShowBlogModal(false);
+    } catch (err: any) {
+      if (Platform.OS === 'web') window.alert("Hata: " + err.message);
+      else Alert.alert("Hata", err.message);
+    } finally {
+      setIsSavingBlog(false);
+    }
+  };
+
+  const handleDeleteBlog = async (id: string, title: string) => {
+    const executeDelete = async () => {
+      try {
+        await apiFetch(`/api/admin/blog/${id}`, {
+          method: 'DELETE'
+        });
+        setBlogs(prev => prev.filter(b => b.id !== id));
+      } catch (err: any) {
+        if (Platform.OS === 'web') window.alert("Hata: " + err.message);
+        else Alert.alert("Hata", err.message);
+      }
+    };
+
+    const confirmMessage = `"${title}" isimli blog yazısını silmek istediğinize emin misiniz?`;
+    if (Platform.OS === 'web') {
+      const ok = window.confirm(confirmMessage);
+      if (ok) executeDelete();
+    } else {
+      Alert.alert(
+        "Yazıyı Sil",
+        confirmMessage,
+        [
+          { text: 'İptal', style: 'cancel' },
+          { text: 'Sil', style: 'destructive', onPress: executeDelete }
+        ]
+      );
+    }
+  };
 
   const handleToggleStoreStatus = (id: string) => {
     const vendor = vendors.find(v => v.id === id);
@@ -223,7 +349,7 @@ export default function AdminDashboardScreen() {
           onPress={() => setActiveTab('stores')}
         >
           <Ionicons name="storefront-outline" size={16} color={activeTab === 'stores' ? COLORS.primary : COLORS.textMuted} />
-          <Text style={[styles.tabText, activeTab === 'stores' && styles.tabTextActive]}>Mağaza Yönetimi</Text>
+          <Text style={[styles.tabText, activeTab === 'stores' && styles.tabTextActive]}>Mağaza</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tabButton, activeTab === 'members' && styles.tabActive]}
@@ -231,7 +357,16 @@ export default function AdminDashboardScreen() {
         >
           <Ionicons name="people-outline" size={16} color={activeTab === 'members' ? COLORS.primary : COLORS.textMuted} />
           <Text style={[styles.tabText, activeTab === 'members' && styles.tabTextActive]}>
-            Üye Yönetimi {!isLoadingProfiles && `(${profiles.length})`}
+            Üye {!isLoadingProfiles && `(${profiles.length})`}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tabButton, activeTab === 'blog' && styles.tabActive]}
+          onPress={() => setActiveTab('blog')}
+        >
+          <Ionicons name="book-outline" size={16} color={activeTab === 'blog' ? COLORS.primary : COLORS.textMuted} />
+          <Text style={[styles.tabText, activeTab === 'blog' && styles.tabTextActive]}>
+            Blog {!isLoadingBlogs && `(${blogs.length})`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -437,6 +572,64 @@ export default function AdminDashboardScreen() {
           </View>
         )}
 
+        {/* Tab Content 3: Blog */}
+        {activeTab === 'blog' && (
+          <View style={styles.contentSection}>
+            <TouchableOpacity 
+              style={styles.blogAddBtn} 
+              onPress={handleOpenCreateBlog}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="add-circle" size={20} color="#000" />
+              <Text style={styles.blogAddBtnText}>Yeni Yazı Ekle</Text>
+            </TouchableOpacity>
+
+            {isLoadingBlogs ? (
+              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 30 }} />
+            ) : blogError ? (
+              <Text style={styles.errorText}>{blogError}</Text>
+            ) : blogs.length === 0 ? (
+              <Text style={styles.emptyText}>Kütüphanede henüz yazı bulunmamaktadır.</Text>
+            ) : (
+              blogs.map(blog => (
+                <BlurView intensity={20} tint="dark" key={blog.id} style={styles.blogCard}>
+                  <View style={styles.blogCardHeader}>
+                    {blog.imageUrl ? (
+                      <Image source={{ uri: blog.imageUrl }} style={styles.blogCardImage} />
+                    ) : (
+                      <View style={styles.blogCardNoImage}>
+                        <Ionicons name="book-outline" size={18} color={COLORS.textMuted} />
+                      </View>
+                    )}
+                    <View style={styles.blogCardMeta}>
+                      <Text style={styles.blogCardTitle} numberOfLines={1}>{blog.title}</Text>
+                      <Text style={styles.blogCardSub}>Kategori: {blog.category} | {blog.published ? 'Yayınlandı' : 'Taslak'}</Text>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.blogCardFooter}>
+                    <Text style={styles.memberId}>URL: {blog.slug}</Text>
+                    <View style={styles.blogCardActions}>
+                      <TouchableOpacity 
+                        style={styles.blogCardBtn}
+                        onPress={() => handleOpenEditBlog(blog)}
+                      >
+                        <Ionicons name="create-outline" size={16} color="#3B82F6" />
+                      </TouchableOpacity>
+                      <TouchableOpacity 
+                        style={styles.blogCardBtn}
+                        onPress={() => handleDeleteBlog(blog.id, blog.title)}
+                      >
+                        <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </BlurView>
+              ))
+            )}
+          </View>
+        )}
+
       </ScrollView>
 
       {/* Role Picker Bottom Sheet Modal */}
@@ -494,6 +687,127 @@ export default function AdminDashboardScreen() {
               }}
             >
               <Text style={styles.modalCloseText}>Kapat</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Blog Create/Edit Modal */}
+      <Modal
+        visible={showBlogModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowBlogModal(false);
+          setEditingBlog(null);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => { setShowBlogModal(false); setEditingBlog(null); }} />
+          <View style={[styles.modalCard, { maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{editingBlog ? 'Yazıyı Düzenle' : 'Yeni Yazı Ekle'}</Text>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 15, paddingBottom: 20 }}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Başlık *</Text>
+                <TextInput 
+                  style={styles.formInput}
+                  value={blogForm.title}
+                  onChangeText={(val) => {
+                    const slugVal = val.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+                    setBlogForm({ ...blogForm, title: val, slug: slugVal });
+                  }}
+                  placeholder="Örn: Diyafram Nefesi..."
+                  placeholderTextColor={COLORS.textMuted}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>URL Yolu (Slug) *</Text>
+                <TextInput 
+                  style={styles.formInput}
+                  value={blogForm.slug}
+                  onChangeText={(val) => setBlogForm({ ...blogForm, slug: val })}
+                  placeholder="diyagram-nefesi"
+                  placeholderTextColor={COLORS.textMuted}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Kategori *</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
+                  {['Astroloji', 'Nefes', 'Ritüeller', 'Kişisel Gelişim', 'Çakra Dengeleme'].map(cat => (
+                    <TouchableOpacity
+                      key={cat}
+                      style={[
+                        styles.filterChip,
+                        blogForm.category === cat && styles.filterChipActive
+                      ]}
+                      onPress={() => setBlogForm({ ...blogForm, category: cat })}
+                    >
+                      <Text style={[styles.filterChipText, blogForm.category === cat && styles.filterChipTextActive]}>{cat}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>Görsel URL'si</Text>
+                <TextInput 
+                  style={styles.formInput}
+                  value={blogForm.imageUrl}
+                  onChangeText={(val) => setBlogForm({ ...blogForm, imageUrl: val })}
+                  placeholder="https://example.com/image.jpg"
+                  placeholderTextColor={COLORS.textMuted}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>İçerik *</Text>
+                <TextInput 
+                  style={[styles.formInput, styles.formTextArea]}
+                  value={blogForm.content}
+                  onChangeText={(val) => setBlogForm({ ...blogForm, content: val })}
+                  placeholder="Yazı içeriği..."
+                  placeholderTextColor={COLORS.textMuted}
+                  multiline
+                  numberOfLines={6}
+                />
+              </View>
+
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Yayınla (Ziyaretçilere Göster)</Text>
+                <Switch 
+                  value={blogForm.published}
+                  onValueChange={(val) => setBlogForm({ ...blogForm, published: val })}
+                  trackColor={{ false: '#767577', true: COLORS.primary }}
+                  thumbColor={blogForm.published ? '#FFF' : '#f4f3f4'}
+                />
+              </View>
+
+              <TouchableOpacity 
+                style={styles.formSubmitBtn}
+                disabled={isSavingBlog}
+                onPress={handleSaveBlog}
+              >
+                {isSavingBlog ? (
+                  <ActivityIndicator size="small" color="#000" />
+                ) : (
+                  <Text style={styles.formSubmitText}>Yazıyı Kaydet</Text>
+                )}
+              </TouchableOpacity>
+            </ScrollView>
+
+            <TouchableOpacity 
+              style={[styles.modalCloseBtn, { marginTop: 10, backgroundColor: 'rgba(255,59,48,0.1)' }]}
+              onPress={() => {
+                setShowBlogModal(false);
+                setEditingBlog(null);
+              }}
+            >
+              <Text style={[styles.modalCloseText, { color: '#EF4444' }]}>Kapat / Vazgeç</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -951,5 +1265,128 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 13,
     fontWeight: '600',
+  },
+  blogAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: SIZES.radius,
+    marginBottom: 20,
+    gap: 8,
+  },
+  blogAddBtnText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  blogCard: {
+    padding: 15,
+    borderRadius: SIZES.radius,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    marginBottom: 15,
+  },
+  blogCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
+  blogCardImage: {
+    width: 60,
+    height: 45,
+    borderRadius: 8,
+    resizeMode: 'cover',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  blogCardNoImage: {
+    width: 60,
+    height: 45,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blogCardMeta: {
+    flex: 1,
+  },
+  blogCardTitle: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    lineHeight: 18,
+  },
+  blogCardSub: {
+    color: COLORS.textMuted,
+    fontSize: 10,
+    marginTop: 4,
+  },
+  blogCardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  blogCardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  blogCardBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  inputLabel: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  formInput: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: '#FFF',
+    fontSize: 13,
+  },
+  formTextArea: {
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  switchLabel: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  formSubmitBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  formSubmitText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: 'bold',
   }
 });
