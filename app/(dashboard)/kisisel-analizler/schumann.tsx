@@ -104,8 +104,8 @@ export default function SchumannScreen() {
       let baseG = 3;
       let baseB = 10;
 
-      if (kp >= 4.5) {
-        const stormGlowFactor = Math.min(1, (kp - 4.5) / 0.7);
+      if (kp >= 5.0) {
+        const stormGlowFactor = Math.min(1, (kp - 5.0) / 0.5); // Reaches 100% white at Kp = 5.5
         const glowIntensity = stormGlowFactor * 252;
         baseR += glowIntensity;
         baseG += glowIntensity;
@@ -143,7 +143,7 @@ export default function SchumannScreen() {
           b += resColor.b * strength;
         }
 
-        if (kp >= 4.0) {
+        if (kp >= 5.0) {
           const scanPattern = Math.sin(y * 0.1) * Math.cos(x * 0.05);
           if (scanPattern > 0.4) {
             const scanStrength = (kp / 9) * 20;
@@ -494,7 +494,7 @@ export default function SchumannScreen() {
                       {data.history.map((item, idx) => {
                         const kp = item.kp;
                         const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
-                        const showLightning = kp >= 4.0 && !isForecast;
+                        const showLightning = kp >= 5.0 && !isForecast;
                         const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
                         return (
