@@ -928,7 +928,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   barTooltipContainer: {
-    height: 30,
+    minHeight: 30,
     justifyContent: 'center',
     marginBottom: 15,
   },
@@ -1128,9 +1128,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   spectrogramTooltipContainer: {
-    height: 30,
+    minHeight: 30,
     justifyContent: 'center',
     marginBottom: 5,
+    paddingVertical: 2,
   },
   spectrogramTooltip: {
     backgroundColor: 'rgba(255,255,255,0.06)',
