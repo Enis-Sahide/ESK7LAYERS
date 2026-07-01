@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '@/src/context/ProgressContext';
 import { ROLE_LEVELS } from '@/src/core/auth/roles';
+import { useContent } from '@/src/core/content/useContent';
 
 interface LessonCategory {
   id: string;
@@ -32,6 +33,10 @@ export default function LessonsHubScreen() {
   const router = useRouter();
   const { hasAccess, role, isAdmin } = useProgress();
   const hasFullAccess = hasAccess('kadim_dersler_access') && hasAccess('duygusal_hastaliklar_access');
+  
+  const { data: resourcesData } = useContent<any[]>('/api/content/resources');
+  const userLvl = ROLE_LEVELS[role] ?? 0;
+  const filteredResources = (resourcesData ?? []).filter((r: any) => r.level <= userLvl);
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -112,6 +117,90 @@ export default function LessonsHubScreen() {
           </View>
           <Ionicons name="arrow-forward" size={24} color={COLORS.primary} />
         </TouchableOpacity>
+
+        {/* Seviyeye Uygun Kaynaklar */}
+        <View style={styles.resourcesSection}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionHeaderLeft}>
+              <View style={styles.sectionIconContainer}>
+                <Ionicons name="book-outline" size={20} color={COLORS.primary} />
+              </View>
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.sectionTitle}>Seviyeye Uygun Kaynaklar</Text>
+                <Text style={styles.sectionSubtitle}>Tekamül derecenize göre açılan rehberler</Text>
+              </View>
+            </View>
+          </View>
+
+          {filteredResources.length === 0 ? (
+            <Text style={styles.noResourcesText}>Henüz bu seviyeye uygun kaynak bulunmuyor.</Text>
+          ) : (
+            filteredResources.map((res: any) => {
+              const isPdf = res.type === 'pdf';
+              const isBook = res.type === 'book';
+              
+              const handleOpenResource = () => {
+                if (res.fileUrl) {
+                  if (Platform.OS === 'web') {
+                    window.open(res.fileUrl, '_blank');
+                  } else {
+                    Alert.alert(
+                      "Kaynağı Aç",
+                      `${res.title} dosyasını açmak istiyor musunuz?`,
+                      [
+                        { text: "İptal", style: "cancel" },
+                        { text: "Aç", onPress: () => {
+                          import('react-native').then(rn => {
+                            rn.Linking.openURL(res.fileUrl);
+                          });
+                        }}
+                      ]
+                    );
+                  }
+                } else {
+                  Alert.alert("Bilgi", "Bu önerilen fiziksel bir kitaptır. Kütüphanelerden veya kitapçılardan edinebilirsiniz.");
+                }
+              };
+
+              return (
+                <TouchableOpacity 
+                  key={res.id} 
+                  style={styles.resourceCard} 
+                  activeOpacity={0.8}
+                  onPress={handleOpenResource}
+                >
+                  <View style={styles.resourceCardTop}>
+                    <View style={[styles.badge, { 
+                      backgroundColor: isPdf ? 'rgba(239, 68, 68, 0.15)' : isBook ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                      borderColor: isPdf ? 'rgba(239, 68, 68, 0.3)' : isBook ? 'rgba(59, 130, 246, 0.3)' : 'rgba(16, 185, 129, 0.3)'
+                    }]}>
+                      <Text style={[styles.badgeText, { 
+                        color: isPdf ? '#EF4444' : isBook ? '#3B82F6' : '#10B981'
+                      }]}>
+                        {res.type === 'pdf' ? 'PDF' : res.type === 'book' ? 'KİTAP' : 'ARAŞTIRMA'}
+                      </Text>
+                    </View>
+                    <Text style={styles.resourceLevelText}>Seviye: {res.level}</Text>
+                  </View>
+                  
+                  <Text style={styles.resourceTitle}>{res.title}</Text>
+                  {res.description ? <Text style={styles.resourceDesc}>{res.description}</Text> : null}
+
+                  {res.fileUrl ? (
+                    <View style={styles.resourceLinkBtn}>
+                      <Text style={styles.resourceLinkText}>
+                        {isPdf ? 'Dosyayı İndir' : 'Kaynağa Git'}
+                      </Text>
+                      <Ionicons name="open-outline" size={14} color={COLORS.primary} style={{marginLeft: 4}} />
+                    </View>
+                  ) : (
+                    <Text style={styles.resourcePhysicalText}>Fiziksel Öneri Kaynak</Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </View>
 
         <View style={{height: 80}} />
       </ScrollView>
@@ -245,5 +334,97 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textMuted,
     marginTop: 2,
+  },
+  resourcesSection: {
+    marginTop: 25,
+  },
+  sectionHeader: {
+    marginBottom: 15,
+  },
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  sectionSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 1,
+  },
+  noResourcesText: {
+    color: COLORS.textMuted,
+    fontSize: 13,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  resourceCard: {
+    backgroundColor: 'rgba(20, 20, 20, 0.6)',
+    borderRadius: SIZES.radius,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 15,
+    marginBottom: 12,
+  },
+  resourceCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  resourceLevelText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+  },
+  resourceTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginBottom: 6,
+  },
+  resourceDesc: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+    lineHeight: 18,
+    marginBottom: 8,
+  },
+  resourceLinkBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  resourceLinkText: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  resourcePhysicalText: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    fontStyle: 'italic',
+    marginTop: 4,
   },
 });
