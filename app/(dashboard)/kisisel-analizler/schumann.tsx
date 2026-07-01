@@ -383,7 +383,7 @@ export default function SchumannScreen() {
                 <Text style={[styles.radialVal, { color: getKpColor(data?.current_kp ?? 0) }]}>
                   {(data?.current_kp ?? 0).toFixed(2)}
                 </Text>
-                <Text style={styles.radialUnit}>Kp</Text>
+                <Text style={styles.radialUnit}>Genlik</Text>
               </View>
             </View>
 
@@ -601,7 +601,7 @@ export default function SchumannScreen() {
 
           {/* 2. Jeomanyetik Kp Eğilim Grafiği */}
           <BlurView intensity={30} tint="dark" style={styles.chartCard}>
-            <Text style={styles.chartTitle}>Jeomanyetik Kp Eğilimi (Son 72 Saat)</Text>
+            <Text style={styles.chartTitle}>Jeomanyetik Genlik Eğilimi (Son 72 Saat)</Text>
             <Text style={styles.chartSubtitle}>
               Ölçülen jeomanyetik fırtına değerlerinin saatlik blokları (Kesikli sütunlar 24 saatlik tahmindir)
             </Text>
@@ -612,7 +612,7 @@ export default function SchumannScreen() {
                 <View style={styles.barTooltip}>
                   <Text style={styles.tooltipText}>
                      Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
-                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
+                     Genlik: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
                      {hoveredBar.predicted ? ' (⚠️ Tahmin - Değişebilir)' : ' (✅ Kesinleşmiş Ölçüm)'}
                   </Text>
                 </View>
