@@ -364,26 +364,35 @@ export default function SchumannScreen() {
         >
           {/* 1. Güncel Durum Paneli */}
           <BlurView intensity={40} tint="dark" style={styles.statusCard}>
-            <View style={styles.radialContainer}>
-              <View style={[styles.outerGlowRing, { borderColor: getKpColor(data?.current_kp ?? 0) }]}>
-                <Text style={[styles.radialVal, { color: getKpColor(data?.current_kp ?? 0) }]}>
-                  {(data?.current_kp ?? 0).toFixed(2)}
+            <View style={styles.statusCardTop}>
+              <View style={styles.radialContainer}>
+                <View style={[styles.outerGlowRing, { borderColor: getKpColor(data?.current_kp ?? 0) }]}>
+                  <Text style={[styles.radialVal, { color: getKpColor(data?.current_kp ?? 0) }]}>
+                    {(data?.current_kp ?? 0).toFixed(2)}
+                  </Text>
+                  <Text style={styles.radialUnit}>Genlik</Text>
+                </View>
+              </View>
+
+              <View style={styles.statusInfoContainer}>
+                <Text style={styles.statusLabelText}>
+                  {data?.status_label}
                 </Text>
-                <Text style={styles.radialUnit}>Genlik</Text>
+                <Text style={styles.statusSpiritualText}>
+                  {getSpiritualLabel(data?.current_kp ?? 0)}
+                </Text>
+                <Text style={styles.updatedAtText}>
+                  Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
+                </Text>
               </View>
             </View>
 
-            <View style={styles.statusInfoContainer}>
-              <Text style={styles.statusLabelText}>
-                {data?.status_label}
-              </Text>
-              <Text style={styles.statusSpiritualText}>
-                {getSpiritualLabel(data?.current_kp ?? 0)}
-              </Text>
-              <Text style={styles.updatedAtText}>
-                Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
-              </Text>
-            </View>
+            {data?.status_desc ? (
+              <View style={styles.statusCardBottom}>
+                <View style={styles.statusCardDivider} />
+                <Text style={styles.statusAnalysisText}>{data.status_desc}</Text>
+              </View>
+            ) : null}
           </BlurView>
 
           {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
@@ -759,13 +768,7 @@ export default function SchumannScreen() {
             </View>
           </BlurView>
 
-          {/* 4. Enerji Analizi Durum Kartı */}
-          {data?.status_desc && (
-            <BlurView intensity={40} tint="dark" style={styles.analysisCard}>
-              <Text style={styles.analysisTitle}>Jeomanyetik Enerji Analizi</Text>
-              <Text style={styles.analysisBodyText}>{data.status_desc}</Text>
-            </BlurView>
-          )}
+
 
           {/* 5. Bilgilendirme Bölümü (Açılır/Kapanır) */}
           <BlurView intensity={25} tint="dark" style={styles.guideCard}>
@@ -857,14 +860,32 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   statusCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 20,
     borderRadius: SIZES.radius * 1.5,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
     marginBottom: 20,
     overflow: 'hidden',
+  },
+  statusCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  statusCardBottom: {
+    width: '100%',
+    marginTop: 15,
+  },
+  statusCardDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    width: '100%',
+    marginBottom: 12,
+  },
+  statusAnalysisText: {
+    fontSize: 11.5,
+    color: 'rgba(255, 255, 255, 0.85)',
+    lineHeight: 18,
   },
   radialContainer: {
     alignItems: 'center',
