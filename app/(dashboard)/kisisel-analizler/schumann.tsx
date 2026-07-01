@@ -107,7 +107,7 @@ export default function SchumannScreen() {
       const resColor = getResonanceColor(kp);
 
       for (let y = 0; y < height; y++) {
-        const freqPct = (height - y) / height;
+        const freqPct = y / height;
         const freqHz = freqPct * 40;
 
         const resonances = [7.83, 14.1, 20.3, 26.4, 32.4];
