@@ -220,20 +220,6 @@ export default function SchumannScreen() {
       if (res) {
         if (res.history) {
           res.history = res.history.slice(-24); // Last 24 items (72 hours)
-          // TEST: mock storm values (Kp >= 5.0) at indexes 12, 13, 20 and 21 for testing
-          if (res.history.length > 22) {
-            // Measurements (Ölçüm)
-            res.history[12].kp = 5.2; // Moderate storm
-            res.history[12].predicted = false;
-            res.history[13].kp = 6.8; // High storm
-            res.history[13].predicted = false;
-            
-            // Forecasts (Tahmin)
-            res.history[20].kp = 5.8; // Moderate storm forecast
-            res.history[20].predicted = true;
-            res.history[21].kp = 7.1; // High storm forecast
-            res.history[21].predicted = true;
-          }
         }
         setData(res);
         if (res.history && res.history.length > 0) {
