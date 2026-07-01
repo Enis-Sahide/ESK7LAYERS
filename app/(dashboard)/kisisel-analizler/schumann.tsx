@@ -36,8 +36,6 @@ export default function SchumannScreen() {
   const [hoveredBar, setHoveredBar] = useState<KpHistoryItem | null>(null);
   const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const canvasRef = useRef<any>(null);
-
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
@@ -69,113 +67,6 @@ export default function SchumannScreen() {
     };
   };
 
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    if (!canvasRef.current || !data || !data.history || data.history.length === 0) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = canvas.width;
-    const height = canvas.height;
-
-    // Draw background
-    ctx.fillStyle = '#050505';
-    ctx.fillRect(0, 0, width, height);
-
-    const cols = data.history;
-    const currentMs = Date.now();
-
-    for (let x = 0; x < width; x++) {
-      const pct = x / width;
-      const indexFloat = pct * (cols.length - 1);
-      const indexLow = Math.floor(indexFloat);
-      const indexHigh = Math.min(indexLow + 1, cols.length - 1);
-      const weight = indexFloat - indexLow;
-
-      const kpLow = cols[indexLow].kp;
-      const kpHigh = cols[indexHigh].kp;
-      const kp = kpLow + (kpHigh - kpLow) * weight;
-
-      const isPredicted = new Date(cols[Math.min(indexHigh, cols.length - 1)].time.endsWith('Z') ? cols[Math.min(indexHigh, cols.length - 1)].time : cols[Math.min(indexHigh, cols.length - 1)].time + 'Z').getTime() > currentMs;
-
-      let baseR = 3;
-      let baseG = 3;
-      let baseB = 10;
-
-      const resColor = getResonanceColor(kp);
-
-      for (let y = 0; y < height; y++) {
-        const freqPct = y / height;
-        const freqHz = freqPct * 40;
-
-        const resonances = [7.83, 14.1, 20.3, 26.4, 32.4];
-        let onResonance = false;
-        let resonanceDist = 999;
-
-        resonances.forEach(res => {
-          const dist = Math.abs(freqHz - res);
-          if (dist < 2.0) {
-            onResonance = true;
-            resonanceDist = Math.min(resonanceDist, dist);
-          }
-        });
-
-        const sensorNoise = (Math.random() - 0.5) * 8;
-
-        let r = baseR;
-        let g = baseG;
-        let b = baseB;
-
-        // Apply storm background glow centered at 7.83 Hz
-        if (kp >= 5.0) {
-          const stormGlowFactor = Math.min(1, (kp - 5.0) / 0.5);
-          const dist = Math.abs(freqHz - 7.83);
-          const decay = Math.max(0, 1 - dist / 22.0); // Fades out over 22 Hz range
-          const glowIntensity = stormGlowFactor * 240 * Math.pow(decay, 1.8);
-          r += glowIntensity;
-          g += glowIntensity;
-          b += glowIntensity * 0.95;
-        }
-
-        if (onResonance) {
-          const strength = Math.pow(Math.max(0, 1 - resonanceDist / 2.0), 2.2);
-          r += resColor.r * strength;
-          g += resColor.g * strength;
-          b += resColor.b * strength;
-        }
-
-        if (kp >= 5.0) {
-          const scanPattern = Math.cos(x * 0.15);
-          if (scanPattern > 0.6) {
-            const scanStrength = (kp / 9) * 15;
-            r += scanStrength;
-            g += scanStrength;
-            b += scanStrength;
-          }
-        }
-
-        r += sensorNoise;
-        g += sensorNoise;
-        b += sensorNoise;
-
-        if (isPredicted) {
-          r *= 0.65;
-          g *= 0.65;
-          b *= 0.70;
-        }
-
-        r = Math.min(255, Math.max(0, r));
-        g = Math.min(255, Math.max(0, g));
-        b = Math.min(255, Math.max(0, b));
-
-        ctx.fillStyle = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
-        ctx.fillRect(x, y, 1, 1);
-      }
-    }
-  }, [data]);
-
   const getRowColor = (hz: number, kp: number, isForecast: boolean) => {
     const getAlphaHex = (alpha: number) => {
       const val = Math.min(255, Math.max(0, Math.round(alpha * 255)));
@@ -183,27 +74,21 @@ export default function SchumannScreen() {
     };
 
     const intensity = kp / 9.0; // 0.0 to 1.0
-    let baseColor = '#00D4FF';
+    let baseColor = '#00E5FF'; // All bands are light blue
     let baseAlpha = 0.35;
 
     if (hz === 0) {
-      baseColor = '#00E5FF';
       baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
     } else if (hz === 8) {
-      baseColor = '#FFA500'; // Amber/Gold (Constant color!)
-      baseAlpha = 0.25 + intensity * 0.65; // Dynamic opacity
+      baseAlpha = 0.30 + intensity * 0.65; // 8Hz (low transparency, very bright)
     } else if (hz === 16) {
-      baseColor = '#00E676'; // Neon Green (Constant color!)
-      baseAlpha = 0.15 + intensity * 0.55;
+      baseAlpha = 0.12 + intensity * 0.35; // 14Hz (higher transparency)
     } else if (hz === 24) {
-      baseColor = '#00E5FF'; // Cyan (Constant color!)
-      baseAlpha = 0.10 + intensity * 0.45;
+      baseAlpha = 0.06 + intensity * 0.20; // 20Hz (higher transparency)
     } else if (hz === 32) {
-      baseColor = '#007AFF'; // Blue (Constant color!)
-      baseAlpha = 0.08 + intensity * 0.35;
+      baseAlpha = 0.03 + intensity * 0.10; // 26Hz (higher transparency)
     } else if (hz === 40) {
-      baseColor = '#7B1FA2'; // Purple/Indigo (Constant color!)
-      baseAlpha = 0.05 + intensity * 0.25;
+      baseAlpha = 0.01 + intensity * 0.05; // 32Hz (almost transparent)
     }
 
     if (isForecast) {
@@ -211,6 +96,36 @@ export default function SchumannScreen() {
     }
 
     return baseColor + getAlphaHex(baseAlpha);
+  };
+
+  const getColumnGradientColors = (item: KpHistoryItem) => {
+    const kp = item.kp;
+    const isForecast = !!item.predicted;
+    
+    // Hex colors for the 5 resonance bands based on Kp
+    const c1 = getRowColor(8, kp, isForecast);  // 7.83 Hz
+    const c2 = getRowColor(16, kp, isForecast); // 14.1 Hz
+    const c3 = getRowColor(24, kp, isForecast); // 20.3 Hz
+    const c4 = getRowColor(32, kp, isForecast); // 26.4 Hz
+    const c5 = getRowColor(40, kp, isForecast); // 32.4 Hz
+    
+    const baseColor = isForecast ? 'rgba(5, 5, 10, 0.2)' : 'rgba(5, 5, 10, 0.9)';
+    
+    return [
+      baseColor,        // 0%
+      baseColor,        // 10%
+      c1,               // 19.6% (7.83 Hz)
+      baseColor,        // 28%
+      c2,               // 35.3% (14.1 Hz)
+      baseColor,        // 43%
+      c3,               // 50.8% (20.3 Hz)
+      baseColor,        // 58%
+      c4,               // 66.0% (26.4 Hz)
+      baseColor,        // 74%
+      c5,               // 81.0% (32.4 Hz)
+      baseColor,        // 90%
+      baseColor,        // 100%
+    ];
   };
 
   const fetchData = async (showPulse = true) => {
@@ -441,64 +356,23 @@ export default function SchumannScreen() {
               >
                 {data?.history && data.history.length >= 2 ? (
                   <View style={{ width: data.history.length * 42, height: '100%', position: 'relative' }}>
-                    {Platform.OS === 'web' ? (
-                      <canvas
-                        ref={canvasRef}
-                        width={data.history.length * 42}
-                        height={140}
+                    {data.history.map((item, idx) => (
+                      <LinearGradient
+                        key={idx}
+                        colors={getColumnGradientColors(item)}
+                        locations={[0.0, 0.10, 0.196, 0.28, 0.353, 0.43, 0.508, 0.58, 0.660, 0.74, 0.810, 0.90, 1.0]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
                         style={{
-                          position: 'absolute',
-                          left: 0,
-                          top: 0,
-                          width: data.history.length * 42,
+                          width: 42,
                           height: 140,
-                          backgroundColor: '#050505',
+                          position: 'absolute',
+                          left: idx * 42,
+                          top: 0,
+                          opacity: item.predicted ? 0.65 : 1,
                         }}
                       />
-                    ) : (
-                      <>
-                        {/* 1. Background: 6 Horizontal Gradients */}
-                        <View style={styles.horizontalGradientsContainer}>
-                          {[0, 8, 16, 24, 32, 40].map((hz) => (
-                            <LinearGradient
-                              key={hz}
-                              start={{ x: 0, y: 0 }}
-                              end={{ x: 1, y: 0 }}
-                              colors={data.history.map(item => getRowColor(hz, item.kp, !!item.predicted))}
-                              style={[
-                                styles.horizontalGradientRow,
-                                {
-                                  top: hz === 0 ? '8%' : hz === 8 ? '24%' : hz === 16 ? '46%' : hz === 24 ? '66%' : hz === 32 ? '84%' : '97%',
-                                  marginTop: -8,
-                                }
-                              ]}
-                            />
-                          ))}
-                        </View>
-
-                        {/* 2. Middle: Vertical Mask Overlay */}
-                        <LinearGradient
-                          colors={[
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)', 
-                            'rgba(5,5,5,0.0)', 
-                            'rgba(5,5,5,0.98)'
-                          ]}
-                          locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
-                          style={styles.verticalMask}
-                          pointerEvents="none"
-                        />
-                      </>
-                    )}
+                    ))}
 
                     {/* 3. Foreground: Interactive columns */}
                     <View style={styles.interactiveColumnsContainer}>
@@ -508,6 +382,12 @@ export default function SchumannScreen() {
                         const showLightning = kp >= 5.0 && !isForecast;
                         const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
+                        const getOverlayColor = (kpVal: number, isFc: boolean) => {
+                          if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.03)' : 'rgba(16, 185, 129, 0.08)';
+                          if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.03)' : 'rgba(245, 158, 11, 0.08)';
+                          return isFc ? 'rgba(239, 68, 68, 0.03)' : 'rgba(239, 68, 68, 0.08)';
+                        };
+
                         return (
                           <TouchableOpacity 
                             key={idx} 
@@ -515,9 +395,33 @@ export default function SchumannScreen() {
                             activeOpacity={0.8}
                             onPress={() => setHoveredSpectrogramBar(item)}
                           >
-                            {/* Dikey Manyetik Patlama Çizgileri */}
-                            {showLightning && (
-                              <View style={[styles.lightningLine, { opacity: (kp / 9) * 0.5 + 0.15 }]} />
+                            {/* Kp Seviyesine Göre Yarı Şeffaf Sütun Arka Planı */}
+                            <View 
+                              style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                bottom: 20,
+                                backgroundColor: getOverlayColor(kp, isForecast),
+                              }}
+                            />
+
+                            {/* Dikey Beyaz Işıma (Kp >= 5.0 Fırtına Durumu İçin) */}
+                            {kp >= 5.0 && (
+                              <LinearGradient
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                colors={['transparent', 'rgba(255, 255, 255, 0.3)', '#FFFFFF', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                                style={{
+                                  position: 'absolute',
+                                  left: 12,
+                                  right: 12,
+                                  top: 0,
+                                  bottom: 20,
+                                  opacity: isForecast ? 0.35 : 0.75,
+                                }}
+                              />
                             )}
 
                             {/* Seçim Vurgusu (Sarı Çizgi ve 6 Nokta) */}
