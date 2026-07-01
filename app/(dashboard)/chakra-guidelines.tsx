@@ -25,6 +25,7 @@ const ICON_MAP: Record<string, any> = {
   'shield-check': 'shield-checkmark-outline',
   utensils: 'restaurant-outline',
   smartphone: 'phone-portrait-outline',
+  sync: 'sync-outline',
 };
 
 export default function ChakraGuidelinesScreen() {
