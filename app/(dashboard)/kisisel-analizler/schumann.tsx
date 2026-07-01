@@ -351,8 +351,7 @@ export default function SchumannScreen() {
   };
 
   // Find index of the first forecast block to draw "ŞİMDİ" divider line
-  const nowMs = Date.now();
-  const firstForecastIndex = data?.history.findIndex(item => new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > nowMs) ?? -1;
+  const firstForecastIndex = data?.history?.findIndex(item => item.predicted) ?? -1;
 
   return (
     <SacredBackground>
@@ -470,7 +469,7 @@ export default function SchumannScreen() {
                               key={hz}
                               start={{ x: 0, y: 0 }}
                               end={{ x: 1, y: 0 }}
-                              colors={data.history.map(item => getRowColor(hz, item.kp, new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now()))}
+                              colors={data.history.map(item => getRowColor(hz, item.kp, !!item.predicted))}
                               style={[
                                 styles.horizontalGradientRow,
                                 {
@@ -510,7 +509,7 @@ export default function SchumannScreen() {
                     <View style={styles.interactiveColumnsContainer}>
                       {data.history.map((item, idx) => {
                         const kp = item.kp;
-                        const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
+                        const isForecast = !!item.predicted;
                         const showLightning = kp >= 5.0 && !isForecast;
                         const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
@@ -604,7 +603,7 @@ export default function SchumannScreen() {
               {data?.history?.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
-                const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
+                const isForecast = !!item.predicted;
 
                 return (
                   <TouchableOpacity
