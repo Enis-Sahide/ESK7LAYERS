@@ -379,14 +379,13 @@ export default function SchumannScreen() {
                       {data.history.map((item, idx) => {
                         const kp = item.kp;
                         const isForecast = !!item.predicted;
-                        const showLightning = kp >= 5.0 && !isForecast;
-                        const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
-
                         const getOverlayColor = (kpVal: number, isFc: boolean) => {
-                          if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.03)' : 'rgba(16, 185, 129, 0.08)';
-                          if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.03)' : 'rgba(245, 158, 11, 0.08)';
-                          return isFc ? 'rgba(239, 68, 68, 0.03)' : 'rgba(239, 68, 68, 0.08)';
+                          if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.10)' : 'rgba(16, 185, 129, 0.22)';
+                          if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.10)' : 'rgba(245, 158, 11, 0.22)';
+                          return isFc ? 'rgba(239, 68, 68, 0.10)' : 'rgba(239, 68, 68, 0.22)';
                         };
+
+                        const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
                         return (
                           <TouchableOpacity 
@@ -395,15 +394,22 @@ export default function SchumannScreen() {
                             activeOpacity={0.8}
                             onPress={() => setHoveredSpectrogramBar(item)}
                           >
-                            {/* Kp Seviyesine Göre Yarı Şeffaf Sütun Arka Planı */}
-                            <View 
+                            {/* Kp Seviyesine Göre Yarı Şeffaf Sütun Arka Planı (8Hz Merkezli Dikey Gradyan) */}
+                            <LinearGradient
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 0, y: 1 }}
+                              colors={[
+                                'transparent',
+                                getOverlayColor(kp, isForecast),
+                                'transparent',
+                              ]}
+                              locations={[0.0, 0.196, 1.0]}
                               style={{
                                 position: 'absolute',
                                 left: 0,
                                 right: 0,
                                 top: 0,
                                 bottom: 20,
-                                backgroundColor: getOverlayColor(kp, isForecast),
                               }}
                             />
 
