@@ -539,12 +539,29 @@ export default function SchumannScreen() {
                             )}
 
                             {/* Zaman Etiketi */}
-                            {idx % 4 === 0 && (() => {
+                            {(() => {
                               const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
-                              const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                              const hours = d.getHours().toString().padStart(2, '0');
+                              const isDayTransition = hours === '00';
+                              
+                              let hourLabel = hours;
+                              let labelColor = 'rgba(255, 255, 255, 0.45)';
+                              let fontWeight: 'normal' | 'bold' = 'normal';
+                              
+                              if (isDayTransition) {
+                                const dayNamesShort = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                                const dayName = dayNamesShort[d.getDay()];
+                                hourLabel = `${dayName} ${hours}`;
+                                labelColor = item.predicted ? '#00e5ff80' : '#00E5FF';
+                                fontWeight = 'bold';
+                              }
+                              
                               return (
-                                <Text style={styles.spectrogramTimeText}>
-                                  {dayNames[d.getDay()]} {d.getHours().toString().padStart(2, '0')}:00
+                                <Text style={[
+                                  styles.spectrogramTimeText, 
+                                  { color: labelColor, fontWeight: fontWeight }
+                                ]}>
+                                  {hourLabel}
                                 </Text>
                               );
                             })()}
@@ -606,6 +623,14 @@ export default function SchumannScreen() {
 
             {/* Bar Chart Canvas Area */}
             <View style={styles.chartContainer}>
+              {/* Horizontal Grid lines */}
+              <View style={styles.chartGridLines}>
+                <View style={styles.chartGridLine} />
+                <View style={styles.chartGridLine} />
+                <View style={styles.chartGridLine} />
+                <View style={styles.chartGridLine} />
+              </View>
+
               {data?.history?.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
@@ -652,6 +677,40 @@ export default function SchumannScreen() {
                 />
                 <Text style={styles.watermarkText}>7LAYERS</Text>
               </View>
+            </View>
+
+            {/* X Axis Time Labels */}
+            <View style={styles.chartXAxisContainer}>
+              {data?.history?.map((item, idx) => {
+                const isLabel = idx % 4 === 0;
+                return (
+                  <View key={idx} style={styles.chartXAxisSlot}>
+                    {isLabel && (() => {
+                      const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
+                      const hours = d.getHours().toString().padStart(2, '0');
+                      const isDayTransition = hours === '00';
+                      
+                      let label = hours;
+                      let labelColor = 'rgba(255, 255, 255, 0.45)';
+                      let fontWeight: 'normal' | 'bold' = 'normal';
+                      
+                      if (isDayTransition) {
+                        const dayNamesShort = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                        const dayName = dayNamesShort[d.getDay()];
+                        label = `${dayName} ${hours}`;
+                        labelColor = '#00E5FF';
+                        fontWeight = 'bold';
+                      }
+                      
+                      return (
+                        <Text style={[styles.chartXAxisLabel, { color: labelColor, fontWeight: fontWeight }]}>
+                          {label}
+                        </Text>
+                      );
+                    })()}
+                  </View>
+                );
+              })}
             </View>
 
             {/* Chart Legend */}
@@ -922,6 +981,40 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.1)',
     position: 'relative',
+  },
+  chartGridLines: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 10,
+    bottom: 10,
+    justifyContent: 'space-between',
+    pointerEvents: 'none',
+    zIndex: 1,
+  },
+  chartGridLine: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    width: '100%',
+    height: 1,
+  },
+  chartXAxisContainer: {
+    flexDirection: 'row',
+    height: 20,
+    marginTop: 6,
+  },
+  chartXAxisSlot: {
+    flex: 1,
+    alignItems: 'flex-start',
+    marginHorizontal: 1.5,
+  },
+  chartXAxisLabel: {
+    fontSize: 8,
+    fontFamily: Platform.OS === 'ios' ? 'Courier-Bold' : 'monospace',
+    position: 'absolute',
+    left: -10,
+    width: 40,
+    textAlign: 'center',
   },
   barWrapper: {
     flex: 1,
