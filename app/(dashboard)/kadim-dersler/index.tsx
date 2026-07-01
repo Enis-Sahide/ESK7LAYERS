@@ -194,7 +194,7 @@ export default function LessonsHubScreen() {
                       <Ionicons name="open-outline" size={14} color={COLORS.primary} style={{marginLeft: 4}} />
                     </View>
                   ) : (
-                    <Text style={styles.resourcePhysicalText}>Fiziksel Öneri Kaynak</Text>
+                    <Text style={styles.resourcePhysicalText}>Arayış ve Keşif Kaynağı (Bireysel Araştırma)</Text>
                   )}
                 </TouchableOpacity>
               );
