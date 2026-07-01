@@ -77,18 +77,36 @@ export default function SchumannScreen() {
     let baseColor = '#00E5FF'; // All bands are light blue
     let baseAlpha = 0.35;
 
-    if (hz === 0) {
-      baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
-    } else if (hz === 8) {
-      baseAlpha = 0.30 + intensity * 0.65; // 8Hz (low transparency, very bright)
-    } else if (hz === 16) {
-      baseAlpha = 0.12 + intensity * 0.35; // 14Hz (higher transparency)
-    } else if (hz === 24) {
-      baseAlpha = 0.06 + intensity * 0.20; // 20Hz (higher transparency)
-    } else if (hz === 32) {
-      baseAlpha = 0.03 + intensity * 0.10; // 26Hz (higher transparency)
-    } else if (hz === 40) {
-      baseAlpha = 0.01 + intensity * 0.05; // 32Hz (almost transparent)
+    // Şeffaflaştırma (sönüm) eğrisini sadece Genlik (Kp) 3 ve üzeri olduğunda uygula
+    if (kp >= 3.0) {
+      if (hz === 0) {
+        baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
+      } else if (hz === 8) {
+        baseAlpha = 0.30 + intensity * 0.65; // 8Hz (low transparency, very bright)
+      } else if (hz === 16) {
+        baseAlpha = 0.12 + intensity * 0.35; // 14Hz (higher transparency)
+      } else if (hz === 24) {
+        baseAlpha = 0.06 + intensity * 0.20; // 20Hz (higher transparency)
+      } else if (hz === 32) {
+        baseAlpha = 0.03 + intensity * 0.10; // 26Hz (higher transparency)
+      } else if (hz === 40) {
+        baseAlpha = 0.01 + intensity * 0.05; // 32Hz (almost transparent)
+      }
+    } else {
+      // Sakin durumlarda (Kp < 3) tüm Hz satırları dengeli ve görünür kalsın
+      if (hz === 0) {
+        baseAlpha = 0.03 + intensity * 0.12;
+      } else if (hz === 8) {
+        baseAlpha = 0.25 + intensity * 0.40;
+      } else if (hz === 16) {
+        baseAlpha = 0.18 + intensity * 0.30;
+      } else if (hz === 24) {
+        baseAlpha = 0.14 + intensity * 0.25;
+      } else if (hz === 32) {
+        baseAlpha = 0.10 + intensity * 0.20;
+      } else if (hz === 40) {
+        baseAlpha = 0.07 + intensity * 0.15;
+      }
     }
 
     if (isForecast) {
@@ -348,149 +366,113 @@ export default function SchumannScreen() {
                 <Text style={styles.hzText}>40 Hz</Text>
               </View>
 
-              {/* Kaydırılabilir Şelale Alanı (Sağ Taraf) */}
-              <ScrollView 
-                horizontal={true} 
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.spectrogramScrollContent}
-              >
+              {/* Fluid Şelale Alanı (Tüm Ekran Genişliğine Sığacak Şekilde) */}
+              <View style={styles.spectrogramMainContainer}>
                 {data?.history && data.history.length >= 2 ? (
-                  <View style={{ width: data.history.length * 42, height: '100%', position: 'relative' }}>
-                    {data.history.map((item, idx) => (
-                      <LinearGradient
-                        key={idx}
-                        colors={getColumnGradientColors(item)}
-                        locations={[0.0, 0.10, 0.196, 0.28, 0.353, 0.43, 0.508, 0.58, 0.660, 0.74, 0.810, 0.90, 1.0]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 0, y: 1 }}
-                        style={{
-                          width: 42,
-                          height: 140,
-                          position: 'absolute',
-                          left: idx * 42,
-                          top: 0,
-                          opacity: item.predicted ? 0.65 : 1,
-                        }}
-                      />
-                    ))}
+                  <View style={{ flex: 1, height: '100%', flexDirection: 'row', position: 'relative' }}>
+                    {data.history.map((item, idx) => {
+                      const kp = item.kp;
+                      const isForecast = !!item.predicted;
+                      const getOverlayColor = (kpVal: number, isFc: boolean) => {
+                        if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.10)' : 'rgba(16, 185, 129, 0.22)';
+                        if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.10)' : 'rgba(245, 158, 11, 0.22)';
+                        return isFc ? 'rgba(239, 68, 68, 0.10)' : 'rgba(239, 68, 68, 0.22)';
+                      };
 
-                    {/* 3. Foreground: Interactive columns */}
-                    <View style={styles.interactiveColumnsContainer}>
-                      {data.history.map((item, idx) => {
-                        const kp = item.kp;
-                        const isForecast = !!item.predicted;
-                        const getOverlayColor = (kpVal: number, isFc: boolean) => {
-                          if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.10)' : 'rgba(16, 185, 129, 0.22)';
-                          if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.10)' : 'rgba(245, 158, 11, 0.22)';
-                          return isFc ? 'rgba(239, 68, 68, 0.10)' : 'rgba(239, 68, 68, 0.22)';
-                        };
+                      const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
-                        const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
+                      return (
+                        <TouchableOpacity 
+                          key={idx} 
+                          style={styles.spectrogramColFluid}
+                          activeOpacity={0.8}
+                          onPress={() => setHoveredSpectrogramBar(item)}
+                        >
+                          {/* 1. Frekans Spektrumu Gradyan Sütunu */}
+                          <LinearGradient
+                            colors={getColumnGradientColors(item)}
+                            locations={[0.0, 0.10, 0.196, 0.28, 0.353, 0.43, 0.508, 0.58, 0.660, 0.74, 0.810, 0.90, 1.0]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            style={[styles.colBgGradient, { opacity: item.predicted ? 0.65 : 1 }]}
+                          />
 
-                        return (
-                          <TouchableOpacity 
-                            key={idx} 
-                            style={styles.spectrogramCol}
-                            activeOpacity={0.8}
-                            onPress={() => setHoveredSpectrogramBar(item)}
-                          >
-                            {/* Kp Seviyesine Göre Yarı Şeffaf Sütun Arka Planı (8Hz Merkezli Dikey Gradyan) */}
+                          {/* 2. Kp Durum Maskesi (8Hz Merkezli) */}
+                          <LinearGradient
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            colors={[
+                              'transparent',
+                              getOverlayColor(kp, isForecast),
+                              'transparent',
+                            ]}
+                            locations={[0.0, 0.196, 1.0]}
+                            style={styles.colOverlayGradient}
+                          />
+
+                          {/* 3. Dikey Beyaz Işıma (Kp >= 5.0 Fırtına Durumu) */}
+                          {kp >= 5.0 && (
                             <LinearGradient
                               start={{ x: 0, y: 0 }}
-                              end={{ x: 0, y: 1 }}
-                              colors={[
-                                'transparent',
-                                getOverlayColor(kp, isForecast),
-                                'transparent',
-                              ]}
-                              locations={[0.0, 0.196, 1.0]}
-                              style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                bottom: 20,
-                              }}
+                              end={{ x: 1, y: 0 }}
+                              colors={['transparent', 'rgba(255, 255, 255, 0.3)', '#FFFFFF', 'rgba(255, 255, 255, 0.3)', 'transparent']}
+                              style={styles.colWhiteGlow}
                             />
+                          )}
 
-                            {/* Dikey Beyaz Işıma (Kp >= 5.0 Fırtına Durumu İçin) */}
-                            {kp >= 5.0 && (
-                              <LinearGradient
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                colors={['transparent', 'rgba(255, 255, 255, 0.3)', '#FFFFFF', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                                style={{
-                                  position: 'absolute',
-                                  left: 12,
-                                  right: 12,
-                                  top: 0,
-                                  bottom: 20,
-                                  opacity: isForecast ? 0.35 : 0.75,
-                                }}
-                              />
-                            )}
+                          {/* 4. Seçim Vurgusu (Ortalanmış Sarı Çizgi ve Noktalar) */}
+                          {isHovered && (
+                            <View style={styles.fluidSelectorContainer}>
+                              <View style={styles.selectorLine} />
+                              <View style={[styles.selectorDot, { top: '8%' }]} />
+                              <View style={[styles.selectorDot, { top: '24%' }]} />
+                              <View style={[styles.selectorDot, { top: '46%' }]} />
+                              <View style={[styles.selectorDot, { top: '66%' }]} />
+                              <View style={[styles.selectorDot, { top: '84%' }]} />
+                              <View style={[styles.selectorDot, { top: '97%' }]} />
+                            </View>
+                          )}
 
-                            {/* Seçim Vurgusu (Sarı Çizgi ve 6 Nokta) */}
-                            {isHovered && (
-                              <View style={styles.selectorLineContainer}>
-                                <View style={styles.selectorLine} />
-                                <View style={[styles.selectorDot, { top: '8%' }]} />
-                                <View style={[styles.selectorDot, { top: '24%' }]} />
-                                <View style={[styles.selectorDot, { top: '46%' }]} />
-                                <View style={[styles.selectorDot, { top: '66%' }]} />
-                                <View style={[styles.selectorDot, { top: '84%' }]} />
-                                <View style={[styles.selectorDot, { top: '97%' }]} />
-                              </View>
-                            )}
+                          {/* 5. Zaman Etiketi (Sadece 4 sütunda bir sığması için gösterilir) */}
+                          {idx % 4 === 0 && (() => {
+                            const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
+                            const hours = d.getHours().toString().padStart(2, '0');
+                            const isDayTransition = hours === '00';
+                            
+                            let hourLabel = hours;
+                            let labelColor = 'rgba(255, 255, 255, 0.45)';
+                            let fontWeight: 'normal' | 'bold' = 'normal';
+                            
+                            if (isDayTransition) {
+                              const dayNamesShort = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                              const dayName = dayNamesShort[d.getDay()];
+                              hourLabel = `${dayName} ${hours}`;
+                              labelColor = item.predicted ? '#00e5ff80' : '#00E5FF';
+                              fontWeight = 'bold';
+                            }
+                            
+                            return (
+                              <Text style={[
+                                styles.spectrogramTimeText, 
+                                { color: labelColor, fontWeight: fontWeight }
+                              ]} numberOfLines={1}>
+                                {hourLabel}
+                              </Text>
+                            );
+                          })()}
 
-                            {/* Zaman Etiketi */}
-                            {(() => {
-                              const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
-                              const hours = d.getHours().toString().padStart(2, '0');
-                              const isDayTransition = hours === '00';
-                              
-                              let hourLabel = hours;
-                              let labelColor = 'rgba(255, 255, 255, 0.45)';
-                              let fontWeight: 'normal' | 'bold' = 'normal';
-                              
-                              if (isDayTransition) {
-                                const dayNamesShort = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
-                                const dayName = dayNamesShort[d.getDay()];
-                                hourLabel = `${dayName} ${hours}`;
-                                labelColor = item.predicted ? '#00e5ff80' : '#00E5FF';
-                                fontWeight = 'bold';
-                              }
-                              
-                              return (
-                                <Text style={[
-                                  styles.spectrogramTimeText, 
-                                  { color: labelColor, fontWeight: fontWeight }
-                                ]}>
-                                  {hourLabel}
-                                </Text>
-                              );
-                            })()}
-
-                            {/* ŞİMDİ Çizgisi */}
-                            {idx === firstForecastIndex && (() => {
-                              const blockStartMs = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime();
-                              const currentMs = Date.now();
-                              const elapsedMs = currentMs - blockStartMs;
-                              const progress = Math.max(0, Math.min(1, elapsedMs / (3 * 60 * 60 * 1000)));
-                              return (
-                                <View style={[styles.spectrogramNowLineContainer, { left: progress * 42 }]}>
-                                  <View style={styles.spectrogramNowLine} />
-                                  <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
-                                </View>
-                              );
-                            })()}
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
+                          {/* 6. ŞİMDİ Sınırı (İlk Tahmin Sütununun Sol Kenarında Çizilir) */}
+                          {idx === firstForecastIndex && (
+                            <View style={styles.spectrogramNowLineFluid}>
+                              <Text style={styles.spectrogramNowTextFluid}>ŞİMDİ</Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 ) : null}
-              </ScrollView>
+              </View>
 
               {/* Watermark Logo & Text */}
               <View style={styles.watermarkContainer}>
@@ -1105,18 +1087,52 @@ const styles = StyleSheet.create({
     borderRightColor: 'rgba(255,255,255,0.08)',
     zIndex: 10,
   },
-  selectorLineContainer: {
+  spectrogramMainContainer: {
+    flex: 1,
+    height: 140,
+  },
+  spectrogramColFluid: {
+    flex: 1,
+    height: '100%',
+    position: 'relative',
+    justifyContent: 'flex-end',
+    paddingBottom: 22,
+  },
+  colBgGradient: {
     position: 'absolute',
     left: 0,
-    top: 0,
     right: 0,
+    top: 0,
+    bottom: 20,
+  },
+  colOverlayGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 20,
+  },
+  colWhiteGlow: {
+    position: 'absolute',
+    left: '20%',
+    right: '20%',
+    top: 0,
+    bottom: 20,
+    opacity: 0.75,
+  },
+  fluidSelectorContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
     bottom: 20,
     pointerEvents: 'none',
     zIndex: 8,
   },
   selectorLine: {
     position: 'absolute',
-    left: 20,
+    left: '50%',
+    marginLeft: -0.75,
     top: 0,
     bottom: 0,
     width: 1.5,
@@ -1131,7 +1147,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD700', // Gold dot
     borderWidth: 1,
     borderColor: '#000',
-    left: 18,
+    left: '50%',
+    marginLeft: -3,
     transform: [{ translateY: -3 }],
   },
   hzText: {
@@ -1140,89 +1157,38 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: Platform.OS === 'ios' ? 'Courier-Bold' : 'monospace',
   },
-  spectrogramScrollContent: {
-    paddingRight: 20,
-  },
-  spectrogramCol: {
-    width: 42,
-    height: '100%',
-    position: 'relative',
-    justifyContent: 'flex-end',
-    paddingBottom: 22,
-  },
-  horizontalGradientsContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 20,
-    backgroundColor: '#050505',
-  },
-  horizontalGradientRow: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 16,
-  },
-  verticalMask: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 20,
-  },
-  interactiveColumnsContainer: {
-    flexDirection: 'row',
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-  },
-  lightningLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
   spectrogramTimeText: {
     fontSize: 8,
     color: COLORS.textMuted,
-    textAlign: 'left',
+    textAlign: 'center',
     position: 'absolute',
     bottom: 4,
-    left: 2,
+    left: -15,
+    right: -15,
   },
-  spectrogramNowLineContainer: {
+  spectrogramNowLineFluid: {
     position: 'absolute',
     left: 0,
     top: 0,
     bottom: 20,
-    width: 1,
-    alignItems: 'center',
-    zIndex: 5,
-    pointerEvents: 'none',
-  },
-  spectrogramNowLine: {
-    flex: 1,
+    width: 0,
     borderLeftWidth: 1.5,
     borderLeftColor: '#00E5FF',
     borderStyle: 'dashed',
+    zIndex: 5,
+    alignItems: 'center',
   },
-  spectrogramNowText: {
+  spectrogramNowTextFluid: {
     fontSize: 7,
     color: '#00E5FF',
     fontWeight: 'bold',
     backgroundColor: '#000',
     paddingHorizontal: 2,
-    marginTop: 2,
     position: 'absolute',
-    bottom: 2,
+    bottom: -14,
+    left: -12,
+    width: 24,
+    textAlign: 'center',
   },
   guideCard: {
     borderRadius: SIZES.radius * 1.5,
