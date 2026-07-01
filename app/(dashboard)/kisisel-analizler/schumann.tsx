@@ -292,78 +292,106 @@ export default function SchumannScreen() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.spectrogramScrollContent}
               >
-                {data?.history?.map((item, idx) => {
-                  const kp = item.kp;
-                  const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
-                  const showLightning = kp >= 4.0 && !isForecast;
-                  const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
+                {data?.history && data.history.length >= 2 ? (
+                  <View style={{ width: data.history.length * 42, height: '100%', position: 'relative' }}>
+                    {/* 1. Background: 6 Horizontal Gradients */}
+                    <View style={styles.horizontalGradientsContainer}>
+                      {[0, 8, 16, 24, 32, 40].map((hz) => (
+                        <LinearGradient
+                          key={hz}
+                          start={{ x: 0, y: 0 }}
+                          end={{ x: 1, y: 0 }}
+                          colors={data.history.map(item => getRowColor(hz, item.kp, new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now()))}
+                          style={[
+                            styles.horizontalGradientRow,
+                            {
+                              top: hz === 0 ? '8%' : hz === 8 ? '24%' : hz === 16 ? '46%' : hz === 24 ? '66%' : hz === 32 ? '84%' : '97%',
+                              marginTop: -8,
+                            }
+                          ]}
+                        />
+                      ))}
+                    </View>
 
-                  return (
-                    <TouchableOpacity 
-                      key={idx} 
-                      style={styles.spectrogramCol}
-                      activeOpacity={0.8}
-                      onPress={() => setHoveredSpectrogramBar(item)}
-                    >
-                      <LinearGradient
-                        colors={[
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(0, kp, isForecast),
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(8, kp, isForecast),
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(16, kp, isForecast),
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(24, kp, isForecast),
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(32, kp, isForecast),
-                          'rgba(0,0,0,0.95)',
-                          getRowColor(40, kp, isForecast),
-                          'rgba(0,0,0,0.95)'
-                        ]}
-                        locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
-                        style={styles.gradientCol}
-                      />
+                    {/* 2. Middle: Vertical Mask Overlay */}
+                    <LinearGradient
+                      colors={[
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)', 
+                        'rgba(5,5,5,0.0)', 
+                        'rgba(5,5,5,0.98)'
+                      ]}
+                      locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
+                      style={styles.verticalMask}
+                      pointerEvents="none"
+                    />
 
-                      {/* Dikey Manyetik Patlama Çizgileri */}
-                      {showLightning && (
-                        <View style={[styles.lightningLine, { opacity: (kp / 9) * 0.4 + 0.15 }]} />
-                      )}
+                    {/* 3. Foreground: Interactive columns */}
+                    <View style={styles.interactiveColumnsContainer}>
+                      {data.history.map((item, idx) => {
+                        const kp = item.kp;
+                        const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
+                        const showLightning = kp >= 4.0 && !isForecast;
+                        const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
-                      {/* Seçim Vurgusu (Sarı Çizgi ve 6 Nokta) */}
-                      {isHovered && (
-                        <View style={styles.selectorLineContainer}>
-                          <View style={styles.selectorLine} />
-                          <View style={[styles.selectorDot, { top: '8%' }]} />
-                          <View style={[styles.selectorDot, { top: '24%' }]} />
-                          <View style={[styles.selectorDot, { top: '46%' }]} />
-                          <View style={[styles.selectorDot, { top: '66%' }]} />
-                          <View style={[styles.selectorDot, { top: '84%' }]} />
-                          <View style={[styles.selectorDot, { top: '97%' }]} />
-                        </View>
-                      )}
-
-                      {/* Zaman Etiketi */}
-                      {idx % 4 === 0 && (() => {
-                        const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
-                        const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
                         return (
-                          <Text style={styles.spectrogramTimeText}>
-                            {dayNames[d.getDay()]} {d.getHours().toString().padStart(2, '0')}:00
-                          </Text>
-                        );
-                      })()}
+                          <TouchableOpacity 
+                            key={idx} 
+                            style={styles.spectrogramCol}
+                            activeOpacity={0.8}
+                            onPress={() => setHoveredSpectrogramBar(item)}
+                          >
+                            {/* Dikey Manyetik Patlama Çizgileri */}
+                            {showLightning && (
+                              <View style={[styles.lightningLine, { opacity: (kp / 9) * 0.5 + 0.15 }]} />
+                            )}
 
-                      {/* ŞİMDİ Çizgisi */}
-                      {idx === firstForecastIndex && (
-                        <View style={styles.spectrogramNowLineContainer}>
-                          <View style={styles.spectrogramNowLine} />
-                          <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })}
+                            {/* Seçim Vurgusu (Sarı Çizgi ve 6 Nokta) */}
+                            {isHovered && (
+                              <View style={styles.selectorLineContainer}>
+                                <View style={styles.selectorLine} />
+                                <View style={[styles.selectorDot, { top: '8%' }]} />
+                                <View style={[styles.selectorDot, { top: '24%' }]} />
+                                <View style={[styles.selectorDot, { top: '46%' }]} />
+                                <View style={[styles.selectorDot, { top: '66%' }]} />
+                                <View style={[styles.selectorDot, { top: '84%' }]} />
+                                <View style={[styles.selectorDot, { top: '97%' }]} />
+                              </View>
+                            )}
+
+                            {/* Zaman Etiketi */}
+                            {idx % 4 === 0 && (() => {
+                              const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
+                              const dayNames = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+                              return (
+                                <Text style={styles.spectrogramTimeText}>
+                                  {dayNames[d.getDay()]} {d.getHours().toString().padStart(2, '0')}:00
+                                </Text>
+                              );
+                            })()}
+
+                            {/* ŞİMDİ Çizgisi */}
+                            {idx === firstForecastIndex && (
+                              <View style={styles.spectrogramNowLineContainer}>
+                                <View style={styles.spectrogramNowLine} />
+                                <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
+                              </View>
+                            )}
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                ) : null}
               </ScrollView>
             </View>
           </BlurView>
@@ -916,12 +944,34 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingBottom: 22,
   },
-  gradientCol: {
+  horizontalGradientsContainer: {
     position: 'absolute',
     left: 0,
     top: 0,
     right: 0,
     bottom: 20,
+    backgroundColor: '#050505',
+  },
+  horizontalGradientRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 16,
+  },
+  verticalMask: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 20,
+  },
+  interactiveColumnsContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
   },
   lightningLine: {
     position: 'absolute',
