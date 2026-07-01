@@ -10,6 +10,7 @@ import { apiFetch } from '@/src/core/api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useProgress } from '@/src/context/ProgressContext';
+import Slider from '@react-native-community/slider';
 
 interface KpHistoryItem {
   time: string;
@@ -30,6 +31,7 @@ export default function SchumannScreen() {
   const { role, isAdmin } = useProgress();
   const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
   const [data, setData] = useState<KpData | null>(null);
+  const [simulatedKp, setSimulatedKp] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -67,64 +69,77 @@ export default function SchumannScreen() {
     };
   };
 
-  const getRowColor = (hz: number, kp: number, isForecast: boolean) => {
-    const getAlphaHex = (alpha: number) => {
-      const val = Math.min(255, Math.max(0, Math.round(alpha * 255)));
+  const RESONANCE_LOCATIONS = [
+    0.0,
+    0.17, 0.196, 0.22, // 7.83 Hz
+    0.33, 0.353, 0.38, // 14.1 Hz
+    0.48, 0.508, 0.53, // 20.3 Hz
+    0.64, 0.660, 0.68, // 26.4 Hz
+    0.79, 0.810, 0.83, // 32.4 Hz
+    1.0
+  ];
+
+  const getBaseCyanColors = (isForecast: boolean) => {
+    const baseColor = isForecast ? 'rgba(5, 5, 10, 0.2)' : 'rgba(0, 15, 45, 0.9)';
+    const alpha = isForecast ? 0.35 * 0.35 : 0.35;
+    const getAlphaHex = (a: number) => {
+      const val = Math.min(255, Math.max(0, Math.round(a * 255)));
       return val.toString(16).padStart(2, '0');
     };
-
-    const intensity = kp / 9.0; // 0.0 to 1.0
-    let baseColor = '#00E5FF'; // All bands are light blue
-    let baseAlpha = 0.35;
-
-    if (hz === 0) {
-      baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
-    } else if (hz === 8) {
-      baseAlpha = 0.25 + intensity * 0.65; // Dynamic opacity
-    } else if (hz === 16) {
-      baseAlpha = 0.15 + intensity * 0.55;
-    } else if (hz === 24) {
-      baseAlpha = 0.10 + intensity * 0.45;
-    } else if (hz === 32) {
-      baseAlpha = 0.08 + intensity * 0.35;
-    } else if (hz === 40) {
-      baseAlpha = 0.05 + intensity * 0.25;
-    }
-
-    if (isForecast) {
-      baseAlpha *= 0.35;
-    }
-
-    return baseColor + getAlphaHex(baseAlpha);
+    const c = '#006E8C' + getAlphaHex(alpha);
+    return [
+      baseColor, // 0.0
+      baseColor, // 0.17
+      c,         // 0.196 (7.83 Hz)
+      baseColor, // 0.22
+      baseColor, // 0.33
+      c,         // 0.353 (14.1 Hz)
+      baseColor, // 0.38
+      baseColor, // 0.48
+      c,         // 0.508 (20.3 Hz)
+      baseColor, // 0.53
+      baseColor, // 0.64
+      c,         // 0.660 (26.4 Hz)
+      baseColor, // 0.68
+      baseColor, // 0.79
+      c,         // 0.810 (32.4 Hz)
+      baseColor, // 0.83
+      baseColor, // 1.0
+    ];
   };
 
-  const getColumnGradientColors = (item: KpHistoryItem) => {
-    const kp = item.kp;
-    const isForecast = !!item.predicted;
+  const getKpColors = (kp: number, isForecast: boolean) => {
+    const resColor = getResonanceColor(kp);
+    const getRgba = (alpha: number) => {
+      return `rgba(${Math.round(resColor.r)}, ${Math.round(resColor.g)}, ${Math.round(resColor.b)}, ${alpha})`;
+    };
     
-    // Hex colors for the 5 resonance bands based on Kp
-    const c1 = getRowColor(8, kp, isForecast);  // 7.83 Hz
-    const c2 = getRowColor(16, kp, isForecast); // 14.1 Hz
-    const c3 = getRowColor(24, kp, isForecast); // 20.3 Hz
-    const c4 = getRowColor(32, kp, isForecast); // 26.4 Hz
-    const c5 = getRowColor(40, kp, isForecast); // 32.4 Hz
+    const a1 = 1.0;
+    const a2 = 0.8;
+    const a3 = 0.6;
+    const a4 = 0.4;
+    const a5 = 0.2;
     
-    const baseColor = isForecast ? 'rgba(5, 5, 10, 0.2)' : 'rgba(5, 5, 10, 0.9)';
+    const fFactor = isForecast ? 0.35 : 1.0;
     
     return [
-      baseColor,        // 0%
-      baseColor,        // 10%
-      c1,               // 19.6% (7.83 Hz)
-      baseColor,        // 28%
-      c2,               // 35.3% (14.1 Hz)
-      baseColor,        // 43%
-      c3,               // 50.8% (20.3 Hz)
-      baseColor,        // 58%
-      c4,               // 66.0% (26.4 Hz)
-      baseColor,        // 74%
-      c5,               // 81.0% (32.4 Hz)
-      baseColor,        // 90%
-      baseColor,        // 100%
+      'transparent', // 0.0
+      'transparent', // 0.17
+      getRgba(a1 * fFactor), // 0.196 (7.83 Hz)
+      'transparent', // 0.22
+      'transparent', // 0.33
+      getRgba(a2 * fFactor), // 0.353 (14.1 Hz)
+      'transparent', // 0.38
+      'transparent', // 0.48
+      getRgba(a3 * fFactor), // 0.508 (20.3 Hz)
+      'transparent', // 0.53
+      'transparent', // 0.64
+      getRgba(a4 * fFactor), // 0.660 (26.4 Hz)
+      'transparent', // 0.68
+      'transparent', // 0.79
+      getRgba(a5 * fFactor), // 0.810 (32.4 Hz)
+      'transparent', // 0.83
+      'transparent', // 1.0
     ];
   };
 
@@ -251,8 +266,47 @@ export default function SchumannScreen() {
     }
   };
 
+  const getSimulatedStatus = (kpVal: number) => {
+    if (kpVal < 3.0) {
+      return {
+        label: 'Sakin Jeomanyetik Alan',
+        desc: 'Manyetik alan sakin. Enerji akışları dengeli ve entegrasyon için elverişli. İçsel huzur ve meditasyon çalışmaları için uygun bir zaman.'
+      };
+    } else if (kpVal < 4.0) {
+      return {
+        label: 'Aktif Kozmik Enerji',
+        desc: 'Manyetik alanda aktif kıpırdanmalar var. Hücrelerde hafif bir uyarım, rüyalarda canlanma veya geçici uykusuzluk hissedilebilir.'
+      };
+    } else if (kpVal < 5.0) {
+      return {
+        label: 'Yoğun Jeomanyetik Hareketlilik',
+        desc: 'Jeomanyetik hareketlilik yoğunlaşıyor. Baş ağrısı, sezgilerde artış ve enerjisel hassasiyet gözlemlenebilir. Topraklanmaya önem verin.'
+      };
+    } else {
+      return {
+        label: 'JEOMANYETİK FIRTINA AKTİF!',
+        desc: 'Güçlü kozmik enerji fırtınası devrede! Hücresel uyanış portalları açık. Fiziksel yorgunluk, yoğun rüyalar ve yüksek enerjisel titreşim dalgaları olasıdır.'
+      };
+    }
+  };
+
+  const historyToRender = data?.history ? data.history.map((item, idx) => {
+    // Son ölçüm indeksini bul (tahmin/predicted olmayan en son eleman)
+    const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
+      if (!currItem.predicted) {
+        return currIdx;
+      }
+      return lastIdx;
+    }, -1);
+
+    if (simulatedKp !== null && idx === lastMeasuredIdx) {
+      return { ...item, kp: simulatedKp };
+    }
+    return item;
+  }) : [];
+
   // Find index of the first forecast block to draw "ŞİMDİ" divider line
-  const firstForecastIndex = data?.history?.findIndex(item => item.predicted) ?? -1;
+  const firstForecastIndex = historyToRender.findIndex(item => item.predicted) ?? -1;
 
   return (
     <SacredBackground>
@@ -278,36 +332,88 @@ export default function SchumannScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* 1. Güncel Durum Paneli */}
-          <BlurView intensity={40} tint="dark" style={styles.statusCard}>
-            <View style={styles.statusCardTop}>
-              <View style={styles.radialContainer}>
-                <View style={[styles.outerGlowRing, { borderColor: getKpColor(data?.current_kp ?? 0) }]}>
-                  <Text style={[styles.radialVal, { color: getKpColor(data?.current_kp ?? 0) }]}>
-                    {(data?.current_kp ?? 0).toFixed(2)}
-                  </Text>
-                  <Text style={styles.radialUnit}>Genlik</Text>
-                </View>
-              </View>
+          {(() => {
+            const activeKp = simulatedKp !== null ? simulatedKp : (data?.current_kp ?? 0);
+            const activeLabel = simulatedKp !== null ? getSimulatedStatus(simulatedKp).label : data?.status_label;
+            const activeDesc = simulatedKp !== null ? getSimulatedStatus(simulatedKp).desc : data?.status_desc;
+            return (
+              <BlurView intensity={40} tint="dark" style={styles.statusCard}>
+                <View style={styles.statusCardTop}>
+                  <View style={styles.radialContainer}>
+                    <View style={[styles.outerGlowRing, { borderColor: getKpColor(activeKp) }]}>
+                      <Text style={[styles.radialVal, { color: getKpColor(activeKp) }]}>
+                        {activeKp.toFixed(2)}
+                      </Text>
+                      <Text style={styles.radialUnit}>Genlik</Text>
+                    </View>
+                  </View>
 
-              <View style={styles.statusInfoContainer}>
-                <Text style={styles.statusLabelText}>
-                  {data?.status_label}
-                </Text>
-                <Text style={styles.statusSpiritualText}>
-                  {getSpiritualLabel(data?.current_kp ?? 0)}
-                </Text>
-                <Text style={styles.updatedAtText}>
-                  Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
-                </Text>
+                  <View style={styles.statusInfoContainer}>
+                    <Text style={styles.statusLabelText}>
+                      {activeLabel}
+                    </Text>
+                    <Text style={styles.statusSpiritualText}>
+                      {getSpiritualLabel(activeKp)}
+                    </Text>
+                    <Text style={styles.updatedAtText}>
+                      Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
+                    </Text>
+                  </View>
+                </View>
+
+                {activeDesc ? (
+                  <View style={styles.statusCardBottom}>
+                    <View style={styles.statusCardDivider} />
+                    <Text style={styles.statusAnalysisText}>{activeDesc}</Text>
+                  </View>
+                ) : null}
+              </BlurView>
+            );
+          })()}
+
+          {/* Kozmik Enerji Simülatörü */}
+          <BlurView intensity={30} tint="dark" style={styles.simulatorCard}>
+            <View style={styles.simulatorHeader}>
+              <Text style={styles.simulatorTitle}>Kozmik Enerji Simülatörü</Text>
+              <View style={styles.badgeContainer}>
+                <Text style={styles.badgeText}>TEST PANELİ</Text>
               </View>
             </View>
+            <Text style={styles.simulatorSubtitle}>
+              Farklı Genlik seviyelerinin etkilerini ve renk değişimlerini test edin
+            </Text>
+            
+            <View style={styles.sliderWrapper}>
+              <Text style={styles.sliderLabel}>Genlik 0</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={9}
+                step={0.1}
+                value={simulatedKp !== null ? simulatedKp : 0}
+                onValueChange={(val) => setSimulatedKp(val)}
+                minimumTrackTintColor={COLORS.primary}
+                maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                thumbTintColor={COLORS.primary}
+              />
+              <Text style={styles.sliderLabel}>Genlik 9</Text>
+            </View>
 
-            {data?.status_desc ? (
-              <View style={styles.statusCardBottom}>
-                <View style={styles.statusCardDivider} />
-                <Text style={styles.statusAnalysisText}>{data.status_desc}</Text>
-              </View>
-            ) : null}
+            <View style={styles.simulatorFooter}>
+              <Text style={styles.simulatorFooterText}>
+                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
+                  {simulatedKp !== null ? `${simulatedKp.toFixed(1)} (Test)` : 'Canlı Akış'}
+                </Text>
+              </Text>
+              {simulatedKp !== null && (
+                <TouchableOpacity 
+                  style={styles.resetBtn} 
+                  onPress={() => setSimulatedKp(null)}
+                >
+                  <Text style={styles.resetBtnText}>Sıfırla</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </BlurView>
 
           {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
@@ -350,17 +456,11 @@ export default function SchumannScreen() {
 
               {/* Fluid Şelale Alanı (Tüm Ekran Genişliğine Sığacak Şekilde) */}
               <View style={styles.spectrogramMainContainer}>
-                {data?.history && data.history.length >= 2 ? (
+                {historyToRender && historyToRender.length >= 2 ? (
                   <View style={{ flex: 1, height: '100%', flexDirection: 'row', position: 'relative' }}>
-                    {data.history.map((item, idx) => {
+                    {historyToRender.map((item, idx) => {
                       const kp = item.kp;
                       const isForecast = !!item.predicted;
-                      const getOverlayColor = (kpVal: number, isFc: boolean) => {
-                        if (kpVal < 3.0) return isFc ? 'rgba(16, 185, 129, 0.10)' : 'rgba(16, 185, 129, 0.22)';
-                        if (kpVal < 5.0) return isFc ? 'rgba(245, 158, 11, 0.10)' : 'rgba(245, 158, 11, 0.22)';
-                        return isFc ? 'rgba(239, 68, 68, 0.10)' : 'rgba(239, 68, 68, 0.22)';
-                      };
-
                       const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
                       return (
@@ -370,27 +470,25 @@ export default function SchumannScreen() {
                           activeOpacity={0.8}
                           onPress={() => setHoveredSpectrogramBar(item)}
                         >
-                          {/* 1. Frekans Spektrumu Gradyan Sütunu */}
+                          {/* 1. Frekans Spektrumu Gradyan Sütunu (Her zaman görünür Cyan Çizgiler) */}
                           <LinearGradient
-                            colors={getColumnGradientColors(item)}
-                            locations={[0.0, 0.10, 0.196, 0.28, 0.353, 0.43, 0.508, 0.58, 0.660, 0.74, 0.810, 0.90, 1.0]}
+                            colors={getBaseCyanColors(isForecast)}
+                            locations={RESONANCE_LOCATIONS}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 0, y: 1 }}
                             style={[styles.colBgGradient, { opacity: item.predicted ? 0.65 : 1 }]}
                           />
 
-                          {/* 2. Kp Durum Maskesi (8Hz Merkezli) */}
-                          <LinearGradient
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 0, y: 1 }}
-                            colors={[
-                              'transparent',
-                              getOverlayColor(kp, isForecast),
-                              'transparent',
-                            ]}
-                            locations={[0.0, 0.196, 1.0]}
-                            style={styles.colOverlayGradient}
-                          />
+                          {/* 2. Ekstra Genlik (Kp) 0.1 ve üzeri olduğunda üzerine yarı şeffaf genlik rengi ekle */}
+                          {kp >= 0.1 && (
+                            <LinearGradient
+                              colors={getKpColors(kp, isForecast)}
+                              locations={RESONANCE_LOCATIONS}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 0, y: 1 }}
+                              style={styles.colOverlayGradient}
+                            />
+                          )}
 
                           {/* 3. Dikey Beyaz Işıma (Kp >= 5.0 Fırtına Durumu) */}
                           {kp >= 5.0 && (
@@ -406,12 +504,12 @@ export default function SchumannScreen() {
                           {isHovered && (
                             <View style={styles.fluidSelectorContainer}>
                               <View style={styles.selectorLine} />
-                              <View style={[styles.selectorDot, { top: '8%' }]} />
-                              <View style={[styles.selectorDot, { top: '24%' }]} />
-                              <View style={[styles.selectorDot, { top: '46%' }]} />
-                              <View style={[styles.selectorDot, { top: '66%' }]} />
-                              <View style={[styles.selectorDot, { top: '84%' }]} />
-                              <View style={[styles.selectorDot, { top: '97%' }]} />
+                              <View style={[styles.selectorDot, { top: '0%' }]} />
+                              <View style={[styles.selectorDot, { top: '19.6%' }]} />
+                              <View style={[styles.selectorDot, { top: '35.3%' }]} />
+                              <View style={[styles.selectorDot, { top: '50.8%' }]} />
+                              <View style={[styles.selectorDot, { top: '66.0%' }]} />
+                              <View style={[styles.selectorDot, { top: '81.0%' }]} />
                             </View>
                           )}
 
@@ -500,7 +598,7 @@ export default function SchumannScreen() {
                 <View style={styles.chartGridLine} />
               </View>
 
-              {data?.history?.map((item, idx) => {
+              {historyToRender.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
                 const isForecast = !!item.predicted;
@@ -550,7 +648,7 @@ export default function SchumannScreen() {
 
             {/* X Axis Time Labels */}
             <View style={styles.chartXAxisContainer}>
-              {data?.history?.map((item, idx) => {
+              {historyToRender.map((item, idx) => {
                 const isLabel = idx % 4 === 0;
                 return (
                   <View key={idx} style={styles.chartXAxisSlot}>
@@ -1060,7 +1158,7 @@ const styles = StyleSheet.create({
   },
   hzScale: {
     width: 45,
-    height: 140, // Match the gradient height (160 - 20)
+    height: 120, // Match the gradient height (140 - 20)
     justifyContent: 'space-between',
     paddingVertical: 4, // Small padding to center texts inside the rows
     alignItems: 'center',
@@ -1234,5 +1332,88 @@ const styles = StyleSheet.create({
     color: '#fff',
     letterSpacing: 1,
     fontFamily: Platform.OS === 'ios' ? 'HelveticaNeue-Bold' : 'sans-serif-condensed',
+  },
+  simulatorCard: {
+    padding: 20,
+    borderRadius: SIZES.radius * 1.5,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  simulatorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  simulatorTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  badgeContainer: {
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 229, 255, 0.4)',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    color: '#00E5FF',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  simulatorSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    lineHeight: 15,
+    marginBottom: 15,
+  },
+  sliderWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  sliderLabel: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    width: 55,
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  simulatorFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  simulatorFooterText: {
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  simulatorValueText: {
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  resetBtn: {
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  resetBtnText: {
+    color: COLORS.primary,
+    fontSize: 11,
+    fontWeight: 'bold',
   },
 });
