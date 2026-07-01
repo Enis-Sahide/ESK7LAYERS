@@ -43,43 +43,28 @@ export default function SchumannScreen() {
       return val.toString(16).padStart(2, '0');
     };
 
-    let baseColor = '#00D4FF'; // Cyan
+    const intensity = kp / 9.0; // 0.0 to 1.0
+    let baseColor = '#00D4FF';
     let baseAlpha = 0.35;
 
     if (hz === 0) {
-      baseColor = '#005577';
-      baseAlpha = 0.15 + (kp / 9) * 0.15;
-    } else if (hz === 8) {
-      if (kp >= 5) {
-        baseColor = '#FFFFFF';
-        baseAlpha = 0.95;
-      } else if (kp >= 3.5) {
-        baseColor = '#FFA500';
-        baseAlpha = 0.90;
-      } else if (kp >= 2.0) {
-        baseColor = '#FFC000';
-        baseAlpha = 0.80;
-      } else {
-        baseColor = '#FFD700'; // Golden/Yellow
-        baseAlpha = 0.65;
-      }
-    } else if (hz === 16) {
-      if (kp >= 4) {
-        baseColor = '#FFA500';
-        baseAlpha = 0.70;
-      } else {
-        baseColor = '#10B981';
-        baseAlpha = 0.50;
-      }
-    } else if (hz === 24) {
       baseColor = '#00E5FF';
-      baseAlpha = 0.40;
+      baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
+    } else if (hz === 8) {
+      baseColor = '#FFA500'; // Amber/Gold (Constant color!)
+      baseAlpha = 0.25 + intensity * 0.65; // Dynamic opacity
+    } else if (hz === 16) {
+      baseColor = '#00E676'; // Neon Green (Constant color!)
+      baseAlpha = 0.15 + intensity * 0.55;
+    } else if (hz === 24) {
+      baseColor = '#00E5FF'; // Cyan (Constant color!)
+      baseAlpha = 0.10 + intensity * 0.45;
     } else if (hz === 32) {
-      baseColor = '#007AFF';
-      baseAlpha = 0.30;
+      baseColor = '#007AFF'; // Blue (Constant color!)
+      baseAlpha = 0.08 + intensity * 0.35;
     } else if (hz === 40) {
-      baseColor = '#5856D6';
-      baseAlpha = 0.20;
+      baseColor = '#7B1FA2'; // Purple/Indigo (Constant color!)
+      baseAlpha = 0.05 + intensity * 0.25;
     }
 
     if (isForecast) {
@@ -940,11 +925,14 @@ const styles = StyleSheet.create({
   },
   lightningLine: {
     position: 'absolute',
-    left: 20,
+    left: 0,
+    right: 0,
     top: 0,
     bottom: 20,
-    width: 1.5,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   spectrogramTimeText: {
     fontSize: 8,
