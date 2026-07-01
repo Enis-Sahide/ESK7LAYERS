@@ -1,5 +1,5 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,6 +36,142 @@ export default function SchumannScreen() {
   const [hoveredBar, setHoveredBar] = useState<KpHistoryItem | null>(null);
   const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const canvasRef = useRef<any>(null);
+
+  const getResonanceColor = (kp: number) => {
+    const stops = [
+      { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
+      { kp: 2.0, r: 16, g: 185, b: 129 },  // Emerald green (normal)
+      { kp: 3.5, r: 245, g: 158, b: 11 },  // Amber/yellow (unsettled)
+      { kp: 4.3, r: 249, g: 115, b: 22 },  // Orange (active)
+      { kp: 4.8, r: 239, g: 68, b: 68 },   // Red (high)
+      { kp: 5.2, r: 255, g: 255, b: 255 }  // Solid white (storm)
+    ];
+
+    let low = stops[0];
+    let high = stops[stops.length - 1];
+
+    for (let i = 0; i < stops.length - 1; i++) {
+      if (kp >= stops[i].kp && kp <= stops[i + 1].kp) {
+        low = stops[i];
+        high = stops[i + 1];
+        break;
+      }
+    }
+
+    const range = high.kp - low.kp;
+    const factor = range === 0 ? 0 : (kp - low.kp) / range;
+
+    return {
+      r: low.r + (high.r - low.r) * factor,
+      g: low.g + (high.g - low.g) * factor,
+      b: low.b + (high.b - low.b) * factor
+    };
+  };
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    if (!canvasRef.current || !data || !data.history || data.history.length === 0) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Draw background
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, width, height);
+
+    const cols = data.history;
+    const currentMs = Date.now();
+
+    for (let x = 0; x < width; x++) {
+      const pct = x / width;
+      const indexFloat = pct * (cols.length - 1);
+      const indexLow = Math.floor(indexFloat);
+      const indexHigh = Math.min(indexLow + 1, cols.length - 1);
+      const weight = indexFloat - indexLow;
+
+      const kpLow = cols[indexLow].kp;
+      const kpHigh = cols[indexHigh].kp;
+      const kp = kpLow + (kpHigh - kpLow) * weight;
+
+      const isPredicted = new Date(cols[Math.min(indexHigh, cols.length - 1)].time.endsWith('Z') ? cols[Math.min(indexHigh, cols.length - 1)].time : cols[Math.min(indexHigh, cols.length - 1)].time + 'Z').getTime() > currentMs;
+
+      let baseR = 3;
+      let baseG = 3;
+      let baseB = 10;
+
+      if (kp >= 4.5) {
+        const stormGlowFactor = Math.min(1, (kp - 4.5) / 0.7);
+        const glowIntensity = stormGlowFactor * 252;
+        baseR += glowIntensity;
+        baseG += glowIntensity;
+        baseB += glowIntensity * 0.95;
+      }
+
+      const resColor = getResonanceColor(kp);
+
+      for (let y = 0; y < height; y++) {
+        const freqPct = (height - y) / height;
+        const freqHz = freqPct * 40;
+
+        const resonances = [7.83, 14.1, 20.3, 26.4, 32.4];
+        let onResonance = false;
+        let resonanceDist = 999;
+
+        resonances.forEach(res => {
+          const dist = Math.abs(freqHz - res);
+          if (dist < 2.0) {
+            onResonance = true;
+            resonanceDist = Math.min(resonanceDist, dist);
+          }
+        });
+
+        const sensorNoise = (Math.random() - 0.5) * 8;
+
+        let r = baseR;
+        let g = baseG;
+        let b = baseB;
+
+        if (onResonance) {
+          const strength = Math.pow(Math.max(0, 1 - resonanceDist / 2.0), 2.2);
+          r += resColor.r * strength;
+          g += resColor.g * strength;
+          b += resColor.b * strength;
+        }
+
+        if (kp >= 4.0) {
+          const scanPattern = Math.sin(y * 0.1) * Math.cos(x * 0.05);
+          if (scanPattern > 0.4) {
+            const scanStrength = (kp / 9) * 20;
+            r += scanStrength;
+            g += scanStrength;
+            b += scanStrength;
+          }
+        }
+
+        r += sensorNoise;
+        g += sensorNoise;
+        b += sensorNoise;
+
+        if (isPredicted) {
+          r *= 0.65;
+          g *= 0.65;
+          b *= 0.70;
+        }
+
+        r = Math.min(255, Math.max(0, r));
+        g = Math.min(255, Math.max(0, g));
+        b = Math.min(255, Math.max(0, b));
+
+        ctx.fillStyle = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+    }
+  }, [data]);
 
   const getRowColor = (hz: number, kp: number, isForecast: boolean) => {
     const getAlphaHex = (alpha: number) => {
@@ -294,46 +430,64 @@ export default function SchumannScreen() {
               >
                 {data?.history && data.history.length >= 2 ? (
                   <View style={{ width: data.history.length * 42, height: '100%', position: 'relative' }}>
-                    {/* 1. Background: 6 Horizontal Gradients */}
-                    <View style={styles.horizontalGradientsContainer}>
-                      {[0, 8, 16, 24, 32, 40].map((hz) => (
-                        <LinearGradient
-                          key={hz}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                          colors={data.history.map(item => getRowColor(hz, item.kp, new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now()))}
-                          style={[
-                            styles.horizontalGradientRow,
-                            {
-                              top: hz === 0 ? '8%' : hz === 8 ? '24%' : hz === 16 ? '46%' : hz === 24 ? '66%' : hz === 32 ? '84%' : '97%',
-                              marginTop: -8,
-                            }
-                          ]}
-                        />
-                      ))}
-                    </View>
+                    {Platform.OS === 'web' ? (
+                      <canvas
+                        ref={canvasRef}
+                        width={data.history.length * 42}
+                        height={140}
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          width: data.history.length * 42,
+                          height: 140,
+                          backgroundColor: '#050505',
+                        }}
+                      />
+                    ) : (
+                      <>
+                        {/* 1. Background: 6 Horizontal Gradients */}
+                        <View style={styles.horizontalGradientsContainer}>
+                          {[0, 8, 16, 24, 32, 40].map((hz) => (
+                            <LinearGradient
+                              key={hz}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              colors={data.history.map(item => getRowColor(hz, item.kp, new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now()))}
+                              style={[
+                                styles.horizontalGradientRow,
+                                {
+                                  top: hz === 0 ? '8%' : hz === 8 ? '24%' : hz === 16 ? '46%' : hz === 24 ? '66%' : hz === 32 ? '84%' : '97%',
+                                  marginTop: -8,
+                                }
+                              ]}
+                            />
+                          ))}
+                        </View>
 
-                    {/* 2. Middle: Vertical Mask Overlay */}
-                    <LinearGradient
-                      colors={[
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)', 
-                        'rgba(5,5,5,0.0)', 
-                        'rgba(5,5,5,0.98)'
-                      ]}
-                      locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
-                      style={styles.verticalMask}
-                      pointerEvents="none"
-                    />
+                        {/* 2. Middle: Vertical Mask Overlay */}
+                        <LinearGradient
+                          colors={[
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)', 
+                            'rgba(5,5,5,0.0)', 
+                            'rgba(5,5,5,0.98)'
+                          ]}
+                          locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
+                          style={styles.verticalMask}
+                          pointerEvents="none"
+                        />
+                      </>
+                    )}
 
                     {/* 3. Foreground: Interactive columns */}
                     <View style={styles.interactiveColumnsContainer}>
