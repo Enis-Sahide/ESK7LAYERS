@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Platform, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -547,6 +547,16 @@ export default function SchumannScreen() {
                   </View>
                 ) : null}
               </ScrollView>
+
+              {/* Watermark Logo & Text */}
+              <View style={styles.watermarkContainer}>
+                <Image 
+                  source={require('../../../assets/images/icon.png')} 
+                  style={styles.watermarkLogo} 
+                  resizeMode="contain"
+                />
+                <Text style={styles.watermarkText}>7LAYERS</Text>
+              </View>
             </View>
           </BlurView>
 
@@ -610,6 +620,16 @@ export default function SchumannScreen() {
                   </TouchableOpacity>
                 );
               })}
+
+              {/* Watermark Logo & Text */}
+              <View style={styles.watermarkContainer}>
+                <Image 
+                  source={require('../../../assets/images/icon.png')} 
+                  style={styles.watermarkLogo} 
+                  resizeMode="contain"
+                />
+                <Text style={styles.watermarkText}>7LAYERS</Text>
+              </View>
             </View>
 
             {/* Chart Legend */}
@@ -1207,5 +1227,33 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textMuted,
     lineHeight: 16,
+  },
+  watermarkContainer: {
+    position: 'absolute',
+    right: 12,
+    top: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    zIndex: 20,
+    pointerEvents: 'none',
+  },
+  watermarkLogo: {
+    width: 14,
+    height: 14,
+    marginRight: 6,
+    borderRadius: 7,
+  },
+  watermarkText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#fff',
+    letterSpacing: 1,
+    fontFamily: Platform.OS === 'ios' ? 'HelveticaNeue-Bold' : 'sans-serif-condensed',
   },
 });
