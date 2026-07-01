@@ -144,9 +144,9 @@ export default function SchumannScreen() {
         }
 
         if (kp >= 5.0) {
-          const scanPattern = Math.sin(y * 0.1) * Math.cos(x * 0.05);
-          if (scanPattern > 0.4) {
-            const scanStrength = (kp / 9) * 20;
+          const scanPattern = Math.cos(x * 0.15);
+          if (scanPattern > 0.6) {
+            const scanStrength = (kp / 9) * 15;
             r += scanStrength;
             g += scanStrength;
             b += scanStrength;
