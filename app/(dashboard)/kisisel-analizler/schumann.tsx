@@ -550,12 +550,18 @@ export default function SchumannScreen() {
                             })()}
 
                             {/* ŞİMDİ Çizgisi */}
-                            {idx === firstForecastIndex && (
-                              <View style={styles.spectrogramNowLineContainer}>
-                                <View style={styles.spectrogramNowLine} />
-                                <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
-                              </View>
-                            )}
+                            {idx === firstForecastIndex && (() => {
+                              const blockStartMs = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime();
+                              const currentMs = Date.now();
+                              const elapsedMs = currentMs - blockStartMs;
+                              const progress = Math.max(0, Math.min(1, elapsedMs / (3 * 60 * 60 * 1000)));
+                              return (
+                                <View style={[styles.spectrogramNowLineContainer, { left: progress * 42 }]}>
+                                  <View style={styles.spectrogramNowLine} />
+                                  <Text style={styles.spectrogramNowText}>ŞİMDİ</Text>
+                                </View>
+                              );
+                            })()}
                           </TouchableOpacity>
                         );
                       })}
@@ -1177,11 +1183,10 @@ const styles = StyleSheet.create({
   spectrogramTimeText: {
     fontSize: 8,
     color: COLORS.textMuted,
-    textAlign: 'center',
+    textAlign: 'left',
     position: 'absolute',
     bottom: 4,
-    left: 0,
-    right: 0,
+    left: 2,
   },
   spectrogramNowLineContainer: {
     position: 'absolute',
