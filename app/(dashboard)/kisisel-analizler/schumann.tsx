@@ -37,6 +37,58 @@ export default function SchumannScreen() {
   const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
+  const getRowColor = (hz: number, kp: number, isForecast: boolean) => {
+    const getAlphaHex = (alpha: number) => {
+      const val = Math.min(255, Math.max(0, Math.round(alpha * 255)));
+      return val.toString(16).padStart(2, '0');
+    };
+
+    let baseColor = '#00D4FF'; // Cyan
+    let baseAlpha = 0.35;
+
+    if (hz === 0) {
+      baseColor = '#005577';
+      baseAlpha = 0.15 + (kp / 9) * 0.15;
+    } else if (hz === 8) {
+      if (kp >= 5) {
+        baseColor = '#FFFFFF';
+        baseAlpha = 0.95;
+      } else if (kp >= 3.5) {
+        baseColor = '#FFA500';
+        baseAlpha = 0.90;
+      } else if (kp >= 2.0) {
+        baseColor = '#FFC000';
+        baseAlpha = 0.80;
+      } else {
+        baseColor = '#FFD700'; // Golden/Yellow
+        baseAlpha = 0.65;
+      }
+    } else if (hz === 16) {
+      if (kp >= 4) {
+        baseColor = '#FFA500';
+        baseAlpha = 0.70;
+      } else {
+        baseColor = '#10B981';
+        baseAlpha = 0.50;
+      }
+    } else if (hz === 24) {
+      baseColor = '#00E5FF';
+      baseAlpha = 0.40;
+    } else if (hz === 32) {
+      baseColor = '#007AFF';
+      baseAlpha = 0.30;
+    } else if (hz === 40) {
+      baseColor = '#5856D6';
+      baseAlpha = 0.20;
+    }
+
+    if (isForecast) {
+      baseAlpha *= 0.35;
+    }
+
+    return baseColor + getAlphaHex(baseAlpha);
+  };
+
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
     try {
@@ -46,6 +98,15 @@ export default function SchumannScreen() {
           res.history = res.history.slice(-24); // Last 24 items (72 hours)
         }
         setData(res);
+        if (res.history && res.history.length > 0) {
+          const nowMs = Date.now();
+          const lastRealIndex = res.history.reduce((lastIdx: number, item: KpHistoryItem, idx: number) => {
+            const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > nowMs;
+            return !isForecast ? idx : lastIdx;
+          }, res.history.length - 1);
+          setHoveredSpectrogramBar(prev => prev || res.history[lastRealIndex]);
+          setHoveredBar(prev => prev || res.history[lastRealIndex]);
+        }
       }
     } catch (e) {
       console.error('Error fetching Kp in mobile:', e);
@@ -214,12 +275,14 @@ export default function SchumannScreen() {
               {hoveredSpectrogramBar ? (
                 <View style={styles.spectrogramTooltip}>
                   <Text style={styles.spectrogramTooltipText}>
-                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>  |  
-                     Kp: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
-                     {new Date(hoveredSpectrogramBar.time.endsWith('Z') ? hoveredSpectrogramBar.time : hoveredSpectrogramBar.time + 'Z').getTime() > Date.now() 
-                       ? ' (⚠️ Tahmin - Değişebilir)' 
-                       : ' (✅ Kesinleşmiş Ölçüm)'}  |  
-                     <Text style={{ fontStyle: 'italic', color: '#00E5FF' }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
+                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>
+                    {new Date(hoveredSpectrogramBar.time.endsWith('Z') ? hoveredSpectrogramBar.time : hoveredSpectrogramBar.time + 'Z').getTime() > Date.now() 
+                      ? ' (Tahmin)' 
+                      : ' (Ölçüm)'}
+                    {' | '}
+                    Genlik: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
+                    {' | '}
+                    <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
                   </Text>
                 </View>
               ) : (
@@ -230,11 +293,12 @@ export default function SchumannScreen() {
             <View style={styles.spectrogramWrapper}>
               {/* Sabit Hz etiketleri (Sol Taraf) */}
               <View style={styles.hzScale}>
+                <Text style={styles.hzText}>0 Hz</Text>
+                <Text style={styles.hzText}>8 Hz</Text>
+                <Text style={styles.hzText}>16 Hz</Text>
+                <Text style={styles.hzText}>24 Hz</Text>
                 <Text style={styles.hzText}>32 Hz</Text>
-                <Text style={styles.hzText}>26 Hz</Text>
-                <Text style={styles.hzText}>20 Hz</Text>
-                <Text style={styles.hzText}>14 Hz</Text>
-                <Text style={styles.hzText}>7.8 Hz</Text>
+                <Text style={styles.hzText}>40 Hz</Text>
               </View>
 
               {/* Kaydırılabilir Şelale Alanı (Sağ Taraf) */}
@@ -245,12 +309,9 @@ export default function SchumannScreen() {
               >
                 {data?.history?.map((item, idx) => {
                   const kp = item.kp;
-                  const color = getKpColor(kp);
                   const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > Date.now();
                   const showLightning = kp >= 4.0 && !isForecast;
-
-                  // Kp değerine bağlı renk ve opaklık hesapla
-                  const glowColor = color;
+                  const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
 
                   return (
                     <TouchableOpacity 
@@ -261,25 +322,40 @@ export default function SchumannScreen() {
                     >
                       <LinearGradient
                         colors={[
-                          'rgba(0,0,0,0.95)', 
-                          glowColor + (isForecast ? '10' : '25'), // 32 Hz
-                          'rgba(0,0,0,0.95)', 
-                          glowColor + (isForecast ? '15' : '40'), // 26 Hz
-                          'rgba(0,0,0,0.95)', 
-                          glowColor + (isForecast ? '20' : '60'), // 20 Hz
-                          'rgba(0,0,0,0.95)', 
-                          glowColor + (isForecast ? '30' : '80'), // 14 Hz
-                          'rgba(0,0,0,0.95)', 
-                          glowColor + (isForecast ? '40' : 'e0'), // 7.8 Hz
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(0, kp, isForecast),
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(8, kp, isForecast),
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(16, kp, isForecast),
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(24, kp, isForecast),
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(32, kp, isForecast),
+                          'rgba(0,0,0,0.95)',
+                          getRowColor(40, kp, isForecast),
                           'rgba(0,0,0,0.95)'
                         ]}
-                        locations={[0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.85, 0.92, 0.96, 0.98, 1.0]}
+                        locations={[0.0, 0.08, 0.16, 0.24, 0.36, 0.46, 0.56, 0.66, 0.76, 0.84, 0.92, 0.97, 1.0]}
                         style={styles.gradientCol}
                       />
 
                       {/* Dikey Manyetik Patlama Çizgileri */}
                       {showLightning && (
                         <View style={[styles.lightningLine, { opacity: (kp / 9) * 0.4 + 0.15 }]} />
+                      )}
+
+                      {/* Seçim Vurgusu (Sarı Çizgi ve 6 Nokta) */}
+                      {isHovered && (
+                        <View style={styles.selectorLineContainer}>
+                          <View style={styles.selectorLine} />
+                          <View style={[styles.selectorDot, { top: '8%' }]} />
+                          <View style={[styles.selectorDot, { top: '24%' }]} />
+                          <View style={[styles.selectorDot, { top: '46%' }]} />
+                          <View style={[styles.selectorDot, { top: '66%' }]} />
+                          <View style={[styles.selectorDot, { top: '84%' }]} />
+                          <View style={[styles.selectorDot, { top: '97%' }]} />
+                        </View>
                       )}
 
                       {/* Zaman Etiketi */}
@@ -801,14 +877,43 @@ const styles = StyleSheet.create({
   },
   hzScale: {
     width: 45,
-    height: '100%',
+    height: 140, // Match the gradient height (160 - 20)
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 4, // Small padding to center texts inside the rows
     alignItems: 'center',
     backgroundColor: '#0a0a0a',
     borderRightWidth: 1,
     borderRightColor: 'rgba(255,255,255,0.08)',
     zIndex: 10,
+  },
+  selectorLineContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 20,
+    pointerEvents: 'none',
+    zIndex: 8,
+  },
+  selectorLine: {
+    position: 'absolute',
+    left: 20,
+    top: 0,
+    bottom: 0,
+    width: 1.5,
+    backgroundColor: '#FFD700', // Gold line
+    opacity: 0.8,
+  },
+  selectorDot: {
+    position: 'absolute',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FFD700', // Gold dot
+    borderWidth: 1,
+    borderColor: '#000',
+    left: 18,
+    transform: [{ translateY: -3 }],
   },
   hzText: {
     fontSize: 9,
