@@ -77,36 +77,18 @@ export default function SchumannScreen() {
     let baseColor = '#00E5FF'; // All bands are light blue
     let baseAlpha = 0.35;
 
-    // Şeffaflaştırma (sönüm) eğrisini sadece Genlik (Kp) 3 ve üzeri olduğunda uygula
-    if (kp >= 3.0) {
-      if (hz === 0) {
-        baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
-      } else if (hz === 8) {
-        baseAlpha = 0.30 + intensity * 0.65; // 8Hz (low transparency, very bright)
-      } else if (hz === 16) {
-        baseAlpha = 0.12 + intensity * 0.35; // 14Hz (higher transparency)
-      } else if (hz === 24) {
-        baseAlpha = 0.06 + intensity * 0.20; // 20Hz (higher transparency)
-      } else if (hz === 32) {
-        baseAlpha = 0.03 + intensity * 0.10; // 26Hz (higher transparency)
-      } else if (hz === 40) {
-        baseAlpha = 0.01 + intensity * 0.05; // 32Hz (almost transparent)
-      }
-    } else {
-      // Sakin durumlarda (Kp < 3) tüm Hz satırları dengeli ve görünür kalsın
-      if (hz === 0) {
-        baseAlpha = 0.03 + intensity * 0.12;
-      } else if (hz === 8) {
-        baseAlpha = 0.25 + intensity * 0.40;
-      } else if (hz === 16) {
-        baseAlpha = 0.18 + intensity * 0.30;
-      } else if (hz === 24) {
-        baseAlpha = 0.14 + intensity * 0.25;
-      } else if (hz === 32) {
-        baseAlpha = 0.10 + intensity * 0.20;
-      } else if (hz === 40) {
-        baseAlpha = 0.07 + intensity * 0.15;
-      }
+    if (hz === 0) {
+      baseAlpha = 0.03 + intensity * 0.12; // Very faint cyan
+    } else if (hz === 8) {
+      baseAlpha = 0.25 + intensity * 0.65; // Dynamic opacity
+    } else if (hz === 16) {
+      baseAlpha = 0.15 + intensity * 0.55;
+    } else if (hz === 24) {
+      baseAlpha = 0.10 + intensity * 0.45;
+    } else if (hz === 32) {
+      baseAlpha = 0.08 + intensity * 0.35;
+    } else if (hz === 40) {
+      baseAlpha = 0.05 + intensity * 0.25;
     }
 
     if (isForecast) {
