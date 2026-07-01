@@ -104,14 +104,6 @@ export default function SchumannScreen() {
       let baseG = 3;
       let baseB = 10;
 
-      if (kp >= 5.0) {
-        const stormGlowFactor = Math.min(1, (kp - 5.0) / 0.5); // Reaches 100% white at Kp = 5.5
-        const glowIntensity = stormGlowFactor * 252;
-        baseR += glowIntensity;
-        baseG += glowIntensity;
-        baseB += glowIntensity * 0.95;
-      }
-
       const resColor = getResonanceColor(kp);
 
       for (let y = 0; y < height; y++) {
@@ -135,6 +127,17 @@ export default function SchumannScreen() {
         let r = baseR;
         let g = baseG;
         let b = baseB;
+
+        // Apply storm background glow centered at 7.83 Hz
+        if (kp >= 5.0) {
+          const stormGlowFactor = Math.min(1, (kp - 5.0) / 0.5);
+          const dist = Math.abs(freqHz - 7.83);
+          const decay = Math.max(0, 1 - dist / 22.0); // Fades out over 22 Hz range
+          const glowIntensity = stormGlowFactor * 240 * Math.pow(decay, 1.8);
+          r += glowIntensity;
+          g += glowIntensity;
+          b += glowIntensity * 0.95;
+        }
 
         if (onResonance) {
           const strength = Math.pow(Math.max(0, 1 - resonanceDist / 2.0), 2.2);
@@ -214,6 +217,7 @@ export default function SchumannScreen() {
     if (showPulse) setLoading(true);
     try {
       const res = await apiFetch('/api/schumann');
+      if (res) {
         if (res.history) {
           res.history = res.history.slice(-24); // Last 24 items (72 hours)
           // TEST: mock storm values (Kp >= 5.0) at indexes 12, 13, 20 and 21 for testing
