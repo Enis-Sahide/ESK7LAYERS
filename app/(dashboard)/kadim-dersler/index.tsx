@@ -119,88 +119,90 @@ export default function LessonsHubScreen() {
         </TouchableOpacity>
 
         {/* Seviyeye Uygun Kaynaklar */}
-        <View style={styles.resourcesSection}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionHeaderLeft}>
-              <View style={styles.sectionIconContainer}>
-                <Ionicons name="book-outline" size={20} color={COLORS.primary} />
-              </View>
-              <View style={{ marginLeft: 12 }}>
-                <Text style={styles.sectionTitle}>Seviyeye Uygun Kaynaklar</Text>
-                <Text style={styles.sectionSubtitle}>Tekamül derecenize göre açılan rehberler</Text>
+        {isAdmin && (
+          <View style={styles.resourcesSection}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionHeaderLeft}>
+                <View style={styles.sectionIconContainer}>
+                  <Ionicons name="book-outline" size={20} color={COLORS.primary} />
+                </View>
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.sectionTitle}>Seviyeye Uygun Kaynaklar</Text>
+                  <Text style={styles.sectionSubtitle}>Tekamül derecenize göre açılan rehberler</Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {filteredResources.length === 0 ? (
-            <Text style={styles.noResourcesText}>Henüz bu seviyeye uygun kaynak bulunmuyor.</Text>
-          ) : (
-            filteredResources.map((res: any) => {
-              const isPdf = res.type === 'pdf';
-              const isBook = res.type === 'book';
-              
-              const handleOpenResource = () => {
-                if (res.fileUrl) {
-                  if (Platform.OS === 'web') {
-                    window.open(res.fileUrl, '_blank');
+            {filteredResources.length === 0 ? (
+              <Text style={styles.noResourcesText}>Henüz bu seviyeye uygun kaynak bulunmuyor.</Text>
+            ) : (
+              filteredResources.map((res: any) => {
+                const isPdf = res.type === 'pdf';
+                const isBook = res.type === 'book';
+                
+                const handleOpenResource = () => {
+                  if (res.fileUrl) {
+                    if (Platform.OS === 'web') {
+                      window.open(res.fileUrl, '_blank');
+                    } else {
+                      Alert.alert(
+                        "Kaynağı Aç",
+                        `${res.title} dosyasını açmak istiyor musunuz?`,
+                        [
+                          { text: "İptal", style: "cancel" },
+                          { text: "Aç", onPress: () => {
+                            import('react-native').then(rn => {
+                              rn.Linking.openURL(res.fileUrl);
+                            });
+                          }}
+                        ]
+                      );
+                    }
                   } else {
-                    Alert.alert(
-                      "Kaynağı Aç",
-                      `${res.title} dosyasını açmak istiyor musunuz?`,
-                      [
-                        { text: "İptal", style: "cancel" },
-                        { text: "Aç", onPress: () => {
-                          import('react-native').then(rn => {
-                            rn.Linking.openURL(res.fileUrl);
-                          });
-                        }}
-                      ]
-                    );
+                    Alert.alert("Bilgi", "Bu önerilen fiziksel bir kitaptır. Kütüphanelerden veya kitapçılardan edinebilirsiniz.");
                   }
-                } else {
-                  Alert.alert("Bilgi", "Bu önerilen fiziksel bir kitaptır. Kütüphanelerden veya kitapçılardan edinebilirsiniz.");
-                }
-              };
+                };
 
-              return (
-                <TouchableOpacity 
-                  key={res.id} 
-                  style={styles.resourceCard} 
-                  activeOpacity={0.8}
-                  onPress={handleOpenResource}
-                >
-                  <View style={styles.resourceCardTop}>
-                    <View style={[styles.badge, { 
-                      backgroundColor: isPdf ? 'rgba(239, 68, 68, 0.15)' : isBook ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                      borderColor: isPdf ? 'rgba(239, 68, 68, 0.3)' : isBook ? 'rgba(59, 130, 246, 0.3)' : 'rgba(16, 185, 129, 0.3)'
-                    }]}>
-                      <Text style={[styles.badgeText, { 
-                        color: isPdf ? '#EF4444' : isBook ? '#3B82F6' : '#10B981'
+                return (
+                  <TouchableOpacity 
+                    key={res.id} 
+                    style={styles.resourceCard} 
+                    activeOpacity={0.8}
+                    onPress={handleOpenResource}
+                  >
+                    <View style={styles.resourceCardTop}>
+                      <View style={[styles.badge, { 
+                        backgroundColor: isPdf ? 'rgba(239, 68, 68, 0.15)' : isBook ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                        borderColor: isPdf ? 'rgba(239, 68, 68, 0.3)' : isBook ? 'rgba(59, 130, 246, 0.3)' : 'rgba(16, 185, 129, 0.3)'
                       }]}>
-                        {res.type === 'pdf' ? 'PDF' : res.type === 'book' ? 'KİTAP' : 'ARAŞTIRMA'}
-                      </Text>
+                        <Text style={[styles.badgeText, { 
+                          color: isPdf ? '#EF4444' : isBook ? '#3B82F6' : '#10B981'
+                        }]}>
+                          {res.type === 'pdf' ? 'PDF' : res.type === 'book' ? 'KİTAP' : 'ARAŞTIRMA'}
+                        </Text>
+                      </View>
+                      <Text style={styles.resourceLevelText}>Seviye: {res.level}</Text>
                     </View>
-                    <Text style={styles.resourceLevelText}>Seviye: {res.level}</Text>
-                  </View>
-                  
-                  <Text style={styles.resourceTitle}>{res.title}</Text>
-                  {res.description ? <Text style={styles.resourceDesc}>{res.description}</Text> : null}
+                    
+                    <Text style={styles.resourceTitle}>{res.title}</Text>
+                    {res.description ? <Text style={styles.resourceDesc}>{res.description}</Text> : null}
 
-                  {res.fileUrl ? (
-                    <View style={styles.resourceLinkBtn}>
-                      <Text style={styles.resourceLinkText}>
-                        {isPdf ? 'Dosyayı İndir' : 'Kaynağa Git'}
-                      </Text>
-                      <Ionicons name="open-outline" size={14} color={COLORS.primary} style={{marginLeft: 4}} />
-                    </View>
-                  ) : (
-                    <Text style={styles.resourcePhysicalText}>Arayış ve Keşif Kaynağı (Bireysel Araştırma)</Text>
-                  )}
-                </TouchableOpacity>
-              );
-            })
-          )}
-        </View>
+                    {res.fileUrl ? (
+                      <View style={styles.resourceLinkBtn}>
+                        <Text style={styles.resourceLinkText}>
+                          {isPdf ? 'Dosyayı İndir' : 'Kaynağa Git'}
+                        </Text>
+                        <Ionicons name="open-outline" size={14} color={COLORS.primary} style={{marginLeft: 4}} />
+                      </View>
+                    ) : (
+                      <Text style={styles.resourcePhysicalText}>Arayış ve Keşif Kaynağı (Bireysel Araştırma)</Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              })
+            )}
+          </View>
+        )}
 
         <View style={{height: 80}} />
       </ScrollView>
