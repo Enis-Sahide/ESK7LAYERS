@@ -46,3 +46,4 @@ app-example
 scratch/
 *.log
 *.apk
+*.aab
