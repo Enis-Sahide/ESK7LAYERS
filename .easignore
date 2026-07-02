@@ -24,3 +24,5 @@ assets/images/runes
 assets/audio
 android
 ios
+*.apk
+*.aab
