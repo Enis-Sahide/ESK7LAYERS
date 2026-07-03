@@ -155,7 +155,7 @@ export default function SchumannScreen() {
         if (res.history && res.history.length > 0) {
           const nowMs = Date.now();
           const lastRealIndex = res.history.reduce((lastIdx: number, item: KpHistoryItem, idx: number) => {
-            const isForecast = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z').getTime() > nowMs;
+            const isForecast = !!item.predicted;
             return !isForecast ? idx : lastIdx;
           }, res.history.length - 1);
           setHoveredSpectrogramBar(prev => prev || res.history[lastRealIndex]);
@@ -429,7 +429,7 @@ export default function SchumannScreen() {
                 <View style={styles.spectrogramTooltip}>
                   <Text style={styles.spectrogramTooltipText}>
                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>
-                    {new Date(hoveredSpectrogramBar.time.endsWith('Z') ? hoveredSpectrogramBar.time : hoveredSpectrogramBar.time + 'Z').getTime() > Date.now() 
+                    {hoveredSpectrogramBar.predicted 
                       ? ' (Tahmin)' 
                       : ' (Ölçüm)'}
                     {' | '}
