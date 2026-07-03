@@ -418,7 +418,7 @@ export default function SchumannScreen() {
 
           {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
           <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
-            <Text style={styles.chartTitle}>Schumann Rezonans Spektrogramı</Text>
+            <Text style={styles.chartTitle}>Schumann Rezonansı</Text>
             <Text style={styles.chartSubtitle}>
               Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti (Koyu yeşilden kırmızıya geçişler ve beyaz dikey patlamalar)
             </Text>
