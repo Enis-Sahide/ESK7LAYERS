@@ -16,13 +16,11 @@ export default function Index() {
         if (await isAuthenticated()) {
           if (mounted) router.replace('/(dashboard)');
         } else {
-          // Misafir: public bölümleri gezebilsin (giriş zorunlu değil).
-          // Kilitli bölümler (Dersler/Sınavlar/Keşfet/Profil) ayrıca login ister.
-          if (mounted) router.replace('/(dashboard)');
+          // Giriş zorunlu: Giriş ekranına yönlendir.
+          if (mounted) router.replace('/(auth)/login');
         }
       } catch {
-        // Hata olursa da dashboard'u dene (misafir görünümü)
-        if (mounted) router.replace('/(dashboard)');
+        if (mounted) router.replace('/(auth)/login');
       } finally {
         if (mounted) setLoading(false);
       }
