@@ -138,7 +138,7 @@ const PlanetaryHourWidget = () => {
 
 const SchumannMiniWidget = () => {
   const router = useRouter();
-  const [data, setData] = useState<{ current_kp: number; status_label: string } | null>(null);
+  const [data, setData] = useState<{ current_kp: number; status_label: string; cosmic_impact_score?: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -175,52 +175,54 @@ const SchumannMiniWidget = () => {
   }
 
   const kpVal = data?.current_kp ?? 0;
+  const scoreVal = data?.cosmic_impact_score ?? kpVal;
 
-  const getKpColor = (kp: number) => {
-    if (kp < 3) return '#10B981'; // emerald
-    if (kp < 4) return '#F59E0B'; // amber
-    if (kp < 5) return '#F97316'; // orange
+  const getScoreColor = (score: number) => {
+    if (score < 3.0) return '#10B981'; // emerald
+    if (score < 5.0) return '#F59E0B'; // amber
+    if (score < 7.0) return '#F97316'; // orange
     return '#EF4444'; // red
   };
 
-  const getIndicatorText = (kp: number) => {
-    if (kp >= 5.0) return '🧬 Işık Portalı: DNA Aktivasyonu';
-    if (kp >= 4.0) return '👁️ Yüksek Sezgi ve Farkındalık';
+  const getIndicatorText = (score: number) => {
+    if (score >= 7.0) return '🧬 Işık Portalı: DNA Aktivasyonu';
+    if (score >= 5.0) return '👁️ Yüksek Sezgi ve Farkındalık';
+    if (score >= 3.0) return '⚡ Enerjisel Kıpırdanma & Yenilenme';
     return '🧘 Dengeli ve Dingin Akış';
   };
 
-  const kpColor = getKpColor(kpVal);
+  const cardColor = getScoreColor(scoreVal);
 
   return (
     <TouchableOpacity 
-      style={[styles.schumannWidget, { borderLeftColor: kpColor }]} 
+      style={[styles.schumannWidget, { borderLeftColor: cardColor }]} 
       onPress={() => router.push('/(dashboard)/kisisel-analizler/schumann')}
       activeOpacity={0.7}
     >
       <View style={styles.schumannRow}>
-        <View style={[styles.planetIconWrapper, { backgroundColor: kpColor + '20', borderColor: kpColor }]}>
-          <Ionicons name="flash-outline" size={18} color={kpColor} />
+        <View style={[styles.planetIconWrapper, { backgroundColor: cardColor + '20', borderColor: cardColor }]}>
+          <Ionicons name="flash-outline" size={18} color={cardColor} />
         </View>
         
         <View style={{ flex: 1, marginLeft: 15 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={styles.schumannTitle}>Schumann Rezonansı</Text>
-            <View style={[styles.glowingDot, { backgroundColor: kpColor }]} />
+            <View style={[styles.glowingDot, { backgroundColor: cardColor }]} />
           </View>
-          <Text style={[styles.schumannStatusName, { color: kpColor }]}>
-            {data?.status_label.split(' ')[0]}
+          <Text style={[styles.schumannStatusName, { color: cardColor }]}>
+            {data?.status_label.split(' ')[0]} (Kp {kpVal.toFixed(1)})
           </Text>
         </View>
 
         <View style={styles.kpBadgeContainer}>
-          <Text style={[styles.kpBadgeText, { color: kpColor }]}>
-            {kpVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>Kp</Text>
+          <Text style={[styles.kpBadgeText, { color: cardColor }]}>
+            {scoreVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>SR</Text>
           </Text>
         </View>
       </View>
 
       <View style={styles.schumannFooter}>
-        <Text style={styles.schumannFooterText}>{getIndicatorText(kpVal)}</Text>
+        <Text style={styles.schumannFooterText}>{getIndicatorText(scoreVal)}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ fontSize: 10, color: COLORS.primary }}>Canlı İzle</Text>
           <Ionicons name="chevron-forward" size={12} color={COLORS.primary} style={{ marginLeft: 2 }} />

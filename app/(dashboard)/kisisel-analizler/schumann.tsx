@@ -735,8 +735,8 @@ export default function SchumannScreen() {
                           {/* 2. Ekstra Genlik (Kp) 0.1 ve üzeri olduğunda üzerine yarı şeffaf genlik rengi ekle */}
                           {kp >= 0.1 && (
                             <LinearGradient
-                              colors={getKpColors(kp, isForecast)}
-                              locations={RESONANCE_LOCATIONS}
+                               colors={getKpColors(kp, isForecast) as any}
+                               locations={RESONANCE_LOCATIONS as any}
                               start={{ x: 0, y: 0 }}
                               end={{ x: 0, y: 1 }}
                               style={styles.colOverlayGradient}
