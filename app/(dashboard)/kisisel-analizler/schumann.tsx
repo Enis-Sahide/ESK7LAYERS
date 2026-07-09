@@ -321,21 +321,67 @@ export default function SchumannScreen() {
         desc: 'Jeomanyetik hareketlilik yoğunlaşıyor. Baş ağrısı, sezgilerde artış ve enerjisel hassasiyet gözlemlenebilir. Topraklanmaya önem verin.'
       };
     } else {
+      let gLevel = 'G1';
+      let gDesc = 'Küçük';
+      if (kpVal >= 9.0) { gLevel = 'G5'; gDesc = 'Sıra Dışı'; }
+      else if (kpVal >= 8.0) { gLevel = 'G4'; gDesc = 'Şiddetli'; }
+      else if (kpVal >= 7.0) { gLevel = 'G3'; gDesc = 'Güçlü'; }
+      else if (kpVal >= 6.0) { gLevel = 'G2'; gDesc = 'Orta'; }
+      else { gLevel = 'G1'; gDesc = 'Küçük'; }
+
       return {
-        label: 'JEOMANYETİK FIRTINA AKTİF!',
-        desc: 'Güçlü kozmik enerji fırtınası devrede! Hücresel uyanış portalları açık. Fiziksel yorgunluk, yoğun rüyalar ve yüksek enerjisel titreşim dalgaları olasıdır.'
+        label: `JEOMANYETİK FIRTINA: ${gLevel} (${gDesc})`,
+        desc: `Güçlü kozmik enerji fırtınası devrede! NOAA G-Skalasına göre ${gLevel} seviyesinde ${gDesc.toLowerCase()} jeomanyetik fırtına yaşanmaktadır. Hücresel uyanış portalları açık. Fiziksel yorgunluk, yoğun rüyalar ve yüksek enerjisel titreşim dalgaları olasıdır.`
       };
     }
   };
 
-  const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number) => {
-    // 1. Zirve Jeomanyetik Fırtına
-    if (score >= 7.0) {
+  const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number, kp: number) => {
+    // 1. Zirve Jeomanyetik Fırtına (G1-G5 Seviyeleri)
+    if (kp >= 5.0 || score >= 7.0) {
+      let gLevel = 'G1';
+      let gDesc = 'Küçük (Minor)';
+      let science = '';
+      let symptoms = '';
+      let spiritual = '';
+
+      if (kp >= 9.0) {
+        gLevel = 'G5';
+        gDesc = 'Sıra Dışı (Extreme)';
+        science = `Kp ${kp.toFixed(1)} seviyesinde tarihi bir G5 fırtınası yaşanıyor. Güneş'ten gelen devasa plazma bombardımanı Dünya'nın koruyucu kalkanını tamamen sarmış durumda. İyonosfer aşırı yüklenmiş ve elektrik fırtınası fazındadır.`;
+        symptoms = 'Bedensel trans benzeri durumlar, aşırı enerjik hassasiyet veya tam aksine derin fiziksel yorgunluk, kulaklarda yoğun çınlama ve zamansızlık hissi.';
+        spiritual = 'Kolektif uyanış ve küresel enerjisel vites değişimi en üst düzeydedir. Sadece dinlenin, derin nefes meditasyonları yapın ve akan ışık portalına direnmeden kendinizi akışa bırakın.';
+      } else if (kp >= 8.0) {
+        gLevel = 'G4';
+        gDesc = 'Şiddetli (Severe)';
+        science = `Kp ${kp.toFixed(1)} seviyesinde G4 sınıfı şiddetli jeomanyetik fırtına devrede. Atmosfere aşırı yüksek plazma girişi iyonosferi aşırı uyararak küresel radyo sinyallerinde kesintilere yol açıyor. Schumann rezonansı maksimum titreşim düzeyinde.`;
+        symptoms = 'Yoğun yorgunluk ve halsizlik, kalp atışlarında dalgalanmalar, aşırı zihinsel gerginlik, uykusuzluk ve kas seğirmeleri.';
+        spiritual = 'DNA aktivasyonu ve hücresel arınma zirve fazındadır. Ağır fiziksel aktiviteleri tamamen durdurun. Bol alkali su için, hafif gıdalar tüketin ve zihni dinginleştirin.';
+      } else if (kp >= 7.0) {
+        gLevel = 'G3';
+        gDesc = 'Güçlü (Strong)';
+        science = `Kp ${kp.toFixed(1)} seviyesinde G3 sınıfı güçlü jeomanyetik fırtına yaşanıyor. Manyetosferde belirgin dalgalanmalar ve kutup ışıklarında (Aurora) artış var. Schumann frekanslarında dikey sıçramalar tetikleniyor.`;
+        symptoms = 'Kulaklarda tiz frekans sesleri (çınlama), baş ve ense bölgesinde yoğun basınç, odaklanma güçlüğü (beyin sisi) ve çok yoğun, sembolik rüyalar.';
+        spiritual = 'Kalp ve taç çakralarınızda yoğun bir portal açılışı var. Statik elektriği atmak için çıplak ayakla toprağa basın. Meditasyonda mor ışık koruma kalkanını imgeleyin.';
+      } else if (kp >= 6.0) {
+        gLevel = 'G2';
+        gDesc = 'Orta (Moderate)';
+        science = `Kp ${kp.toFixed(1)} seviyesinde G2 sınıfı jeomanyetik fırtına aktif. Manyetik kalkanımızda belirgin sıkışmalar mevcut. İyonosferik titreşimler güçleniyor.`;
+        symptoms = 'Eklem sızıları, baş ağrısı, gün içinde dalgalı enerji seviyeleri, sabırsızlık hissi ve uykudan sık sık uyanma.';
+        spiritual = 'Enerji bedeniniz genişliyor. Aşırı zihinsel yorgunluğu önlemek için doğada vakit geçirin, tuzlu su banyosu yapın ve topraklanın.';
+      } else {
+        gLevel = 'G1';
+        gDesc = 'Küçük (Minor)';
+        science = `Kp ${kp.toFixed(1)} seviyesinde G1 sınıfı jeomanyetik fırtına devrede. Güneş'ten gelen plazma dalgaları Dünya manyetik alanını uyararak iyonosferde hafif elektrik yüklenmesine yol açıyor.`;
+        symptoms = 'Hafif baş ağrısı, ense gerginliği, normalden biraz daha canlı rüyalar ve uykuya geçişte hafif gecikme.';
+        spiritual = 'G1 seviyesi enerjiler hafif bir hücresel uyarım başlatır. Meditasyon, ılık duş ve hafif esneme hareketleriyle akışı dengeleyebilirsiniz.';
+      }
+
       return {
-        title: 'Zirve Schumann Rezonans Uyarılması (Fırtına)',
-        science: `Güneş'ten fırlayan son derece yüksek enerjili plazma rüzgarları (CME) manyetosferimizi doğrudan vuruyor. Dünya'nın koruyucu kalkanı (Bz) güneye doğru geniş bir açıyla kapı araladı. İyonosfer tabakası maksimum seviyede elektrik yüküyle titreşiyor.`,
-        symptoms: 'Sinir sisteminde aşırı uyarılma, uyku düzeninde derin kaymalar (yoğun uykusuzluk ya da derin trans benzeri uyku), baş ve ense bölgesinde yoğun basınç, kulaklarda kesintisiz tiz titreşim çınlamaları ve son derece canlı, rehber niteliğinde rüyalar.',
-        spiritual: 'Taç ve kalp çakralarınızda aşırı aktifleşme devrededir. Bugün kendinizi zorlayacak fiziksel işlerden kaçının. Bol alkali su tüketin ve çıplak ayakla toprağa basın. Taç çakranızdan giren ışığın bedeninizi yıkayarak yere aktığını imgeleyerek nefes meditasyonları yapın.'
+        title: `Zirve Jeomanyetik Fırtına (${gLevel} - ${gDesc})`,
+        science,
+        symptoms,
+        spiritual
       };
     }
     
@@ -429,7 +475,7 @@ export default function SchumannScreen() {
             const temp = simulatedKp !== null ? (100000 + (simulatedKp / 9) * 400000) : (data?.solar_wind?.temperature ?? 150000);
             const score = simulatedKp !== null ? getCalculatedImpact(simulatedKp) : (data?.cosmic_impact_score ?? activeKp);
 
-            const analysis = generateRulesAnalysis(score, speed, density, bz, bt);
+            const analysis = generateRulesAnalysis(score, speed, density, bz, bt, activeKp);
 
             return (
               <View style={styles.oracleCard}>
