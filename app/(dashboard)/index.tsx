@@ -206,7 +206,7 @@ const SchumannMiniWidget = () => {
         
         <View style={{ flex: 1, marginLeft: 15 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={styles.schumannTitle}>Schumann Rezonansı • Kp {kpVal.toFixed(1)}</Text>
+            <Text style={styles.schumannTitle}>Schumann Rezonansı • SR {scoreVal.toFixed(1)}</Text>
             <View style={[styles.glowingDot, { backgroundColor: cardColor }]} />
           </View>
           <Text style={[styles.schumannStatusName, { color: cardColor }]}>
@@ -216,7 +216,7 @@ const SchumannMiniWidget = () => {
 
         <View style={styles.kpBadgeContainer}>
           <Text style={[styles.kpBadgeText, { color: cardColor }]}>
-            {scoreVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>SR</Text>
+            {kpVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>Kp</Text>
           </Text>
         </View>
       </View>
