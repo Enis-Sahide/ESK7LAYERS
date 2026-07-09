@@ -12,6 +12,22 @@ import * as Notifications from 'expo-notifications';
 import { useProgress } from '@/src/context/ProgressContext';
 import Slider from '@react-native-community/slider';
 
+interface SolarWindData {
+  speed: number;
+  density: number;
+  temperature: number;
+  bz: number;
+  bt: number;
+  time: string;
+}
+
+interface NOAADiscussion {
+  solar_activity_tr: string;
+  geomagnetic_field_tr: string;
+  solar_wind_tr: string;
+  raw_date: string;
+}
+
 interface KpHistoryItem {
   time: string;
   kp: number;
@@ -24,6 +40,11 @@ interface KpData {
   status_desc: string;
   updated_at: string;
   history: KpHistoryItem[];
+  solar_wind?: SolarWindData;
+  noaa_discussion?: NOAADiscussion;
+  cosmic_impact_score?: number;
+  cosmic_status_label?: string;
+  cosmic_status_desc?: string;
 }
 
 export default function SchumannScreen() {
@@ -67,6 +88,23 @@ export default function SchumannScreen() {
       g: low.g + (high.g - low.g) * factor,
       b: low.b + (high.b - low.b) * factor
     };
+  };
+
+  const getCalculatedImpact = (kpVal: number) => {
+    const speedVal = 300 + (kpVal / 9) * 500;
+    const densityVal = 3 + (kpVal / 9) * 15;
+    const btVal = 5 + (kpVal / 9) * 15;
+    const bzVal = 5 - (kpVal / 9) * 15;
+    
+    const kpWeight = (kpVal / 9) * 4.0;
+    const speedWeight = Math.max(0, Math.min(2.5, ((speedVal - 300) / 500) * 2.5));
+    const densityWeight = Math.max(0, Math.min(2.0, ((densityVal - 2) / 15) * 2.0));
+    const btWeight = Math.max(0, Math.min(1.5, ((btVal - 5) / 15) * 1.5));
+    
+    const bzMultiplier = bzVal < 0 ? (1.0 + Math.min(0.25, (Math.abs(bzVal) / 20) * 0.25)) : 1.0;
+    
+    const rawImpact = kpWeight + speedWeight + densityWeight + btWeight;
+    return parseFloat(Math.min(10.0, rawImpact * bzMultiplier).toFixed(2));
   };
 
   const RESONANCE_LOCATIONS = [
@@ -290,6 +328,56 @@ export default function SchumannScreen() {
     }
   };
 
+  const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number) => {
+    // 1. Zirve Jeomanyetik Fırtına
+    if (score >= 7.0) {
+      return {
+        title: 'Zirve Schumann Rezonans Uyarılması (Fırtına)',
+        science: `Güneş'ten fırlayan son derece yüksek enerjili plazma rüzgarları (CME) manyetosferimizi doğrudan vuruyor. Dünya'nın koruyucu kalkanı (Bz) güneye doğru geniş bir açıyla kapı araladı. İyonosfer tabakası maksimum seviyede elektrik yüküyle titreşiyor.`,
+        symptoms: 'Sinir sisteminde aşırı uyarılma, uyku düzeninde derin kaymalar (yoğun uykusuzluk ya da derin trans benzeri uyku), baş ve ense bölgesinde yoğun basınç, kulaklarda kesintisiz tiz titreşim çınlamaları ve son derece canlı, rehber niteliğinde rüyalar.',
+        spiritual: 'Taç ve kalp çakralarınızda aşırı aktifleşme devrededir. Bugün kendinizi zorlayacak fiziksel işlerden kaçının. Bol alkali su tüketin ve çıplak ayakla toprağa basın. Taç çakranızdan giren ışığın bedeninizi yıkayarak yere aktığını imgeleyerek nefes meditasyonları yapın.'
+      };
+    }
+    
+    // 2. Güneş Rüzgarı Hızı Sıçraması
+    if (speed >= 500) {
+      return {
+        title: 'Kozmik Plazma Rüzgarı Dalgası (Hızlı Akış)',
+        science: `Güneş yüzeyindeki koronal deliklerden kopan yüksek hızlı plazma akışı saniyede ${Math.round(speed)} km hıza ulaşarak manyetik kalkanımızı sıkıştırıyor. Bu yüksek hız, iyonosferik Schumann rezonans katmanlarındaki titreşim genliğini uyararak yükseltiyor.`,
+        symptoms: 'Fiziksel bedende ani bir enerjik uyarılma, sabırsızlık/huzursuzluk hissi, kalp atışlarında hızlanma dalgaları, hafif sersemlik ve kulaklarda dalgalı frekans sesleri.',
+        spiritual: 'Artan plazma akışı, aura alanınızı temizlemek ve eski hücresel kalıpları salıvermek için çalışır. Birikmiş statik elektriği nötrlemek için ılık/tuzlu bir duş alın. Kalp merkezli nefes pratikleri (4 saniye al, 4 saniye ver) yaparak akışı bedende dengeleyin.'
+      };
+    }
+    
+    // 3. Kalkan Açılması (Bz Güney)
+    if (bz <= -3.0) {
+      return {
+        title: 'Manyetik Kalkan Geçiş Portalı (Bz Güney Yönlü)',
+        science: `Dünya'nın koruyucu manyetik kalkanının yönünü belirleyen Bz parametresi güneye yönelerek ${bz.toFixed(1)} nT seviyesine ulaştı. Kalkanımızda açılan bu elektromanyetik kapı, Güneş rüzgarı parçacıklarının doğrudan atmosfere sızmasını kolaylaştırıyor.`,
+        symptoms: 'Yüksek duygusal duyarlılık, empati yeteneğinde aşırı artış, başkalarının enerjilerini hissetme, hafif şakak ağrıları ve rüyalarda yoğun astral semboller.',
+        spiritual: 'Kalkanın açık olması ruhsal olarak alıcı (reseptif) modda olduğumuzu gösterir. Negatif enerjilerden korunmak için kendinizi mor bir ışık küresi içinde hayal edin. Adaçayı veya üzerlik otu yakarak yaşam alanınızı arındırın.'
+      };
+    }
+    
+    // 4. Parçacık Yoğunluğu Sıçraması
+    if (density >= 10.0) {
+      return {
+        title: 'Yoğun Parçacık Bombardımanı (Proton Yoğunluğu)',
+        science: `Güneş rüzgarındaki parçacık (proton) yoğunluğu cm³ başına ${density.toFixed(1)} seviyesine ulaşarak normalin çok üzerine çıktı. Bu yoğun parçacık dalgası iyonosfer tabakasına çarparak Schumann rezonansını aktifleştiriyor.`,
+        symptoms: 'Eklem ağrıları, kas seğirmeleri, aşırı fiziksel yorgunluk ve uykuya geçişte zorlanma, göz arkesinde hafif sızlama veya basınç.',
+        spiritual: 'Artan proton akışı, hücresel şablonumuzda ve DNA yapımızda yoğun bir elektromanyetik dönüşüm tetikler. Ağır yiyeceklerden kaçının, hafif beslenin ve bol su için. Vücuttaki iletkenliği ve topraklanmayı artırmak için magnezyum takviyesi alabilirsiniz.'
+      };
+    }
+    
+    // 5. Sakin ve Dengeli Durum
+    return {
+      title: 'Dingin Elektromanyetik Akış (Sakin Faz)',
+      science: `Güneş rüzgarı hızı (${Math.round(speed)} km/s) ve parçacık yoğunluğu (${density.toFixed(1)} p/cm³) normal sınırlarında seyrediyor. Dünya'nın manyetik kalkanı (Bz: ${bz.toFixed(1)} nT) kapalı ve tam koruyucu fazda. İyonosferik Schumann rezonansı dengeli temel titreşiminde (7.83 Hz ve çevresi).`,
+      symptoms: 'Zihinsel netlik, dengeli enerji seviyeleri, sakin uyku düzeni ve bedensel rahatlık. Olağanüstü bir uyarılma belirtisi beklenmez.',
+      spiritual: 'Zihnin gürültüsünü yatıştırmak, yeni bilgiler öğrenmek, kadim dersleri çalışmak ve kök çakra meditasyonları yapmak için en ideal dönemdir. Enerjinizin merkezlendiği bu dingin zamanı tefekkür ile değerlendirebilirsiniz.'
+    };
+  };
+
   const historyToRender = data?.history ? data.history.map((item, idx) => {
     // Son ölçüm indeksini bul (tahmin/predicted olmayan en son eleman)
     const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
@@ -331,45 +419,210 @@ export default function SchumannScreen() {
           contentContainerStyle={styles.scrollContent} 
           showsVerticalScrollIndicator={false}
         >
-          {/* 1. Güncel Durum Paneli */}
+          {/* 1. Kozmik Oracle / Durum Raporu */}
           {(() => {
             const activeKp = simulatedKp !== null ? simulatedKp : (data?.current_kp ?? 0);
-            const activeLabel = simulatedKp !== null ? getSimulatedStatus(simulatedKp).label : data?.status_label;
-            const activeDesc = simulatedKp !== null ? getSimulatedStatus(simulatedKp).desc : data?.status_desc;
-            return (
-              <BlurView intensity={40} tint="dark" style={styles.statusCard}>
-                <View style={styles.statusCardTop}>
-                  <View style={styles.radialContainer}>
-                    <View style={[styles.outerGlowRing, { borderColor: getKpColor(activeKp) }]}>
-                      <Text style={[styles.radialVal, { color: getKpColor(activeKp) }]}>
-                        {activeKp.toFixed(2)}
-                      </Text>
-                      <Text style={styles.radialUnit}>Genlik</Text>
-                    </View>
-                  </View>
+            const speed = simulatedKp !== null ? (300 + (simulatedKp / 9) * 500) : (data?.solar_wind?.speed ?? 350);
+            const density = simulatedKp !== null ? (3 + (simulatedKp / 9) * 15) : (data?.solar_wind?.density ?? 4);
+            const bz = simulatedKp !== null ? (5 - (simulatedKp / 9) * 15) : (data?.solar_wind?.bz ?? 0);
+            const bt = simulatedKp !== null ? (5 + (simulatedKp / 9) * 15) : (data?.solar_wind?.bt ?? 5);
+            const temp = simulatedKp !== null ? (100000 + (simulatedKp / 9) * 400000) : (data?.solar_wind?.temperature ?? 150000);
+            const score = simulatedKp !== null ? getCalculatedImpact(simulatedKp) : (data?.cosmic_impact_score ?? activeKp);
 
-                  <View style={styles.statusInfoContainer}>
-                    <Text style={styles.statusLabelText}>
-                      {activeLabel}
+            const analysis = generateRulesAnalysis(score, speed, density, bz, bt);
+
+            return (
+              <View style={styles.oracleCard}>
+                <View style={styles.oracleHeader}>
+                  <View style={[styles.oracleScoreBadge, { borderColor: getKpColor(activeKp) }]}>
+                    <Text style={styles.oracleScoreLabel}>Tahmin</Text>
+                    <Text style={[styles.oracleScoreVal, { color: getKpColor(activeKp) }]}>
+                      {score.toFixed(1)}
                     </Text>
-                    <Text style={styles.statusSpiritualText}>
-                      {getSpiritualLabel(activeKp)}
-                    </Text>
-                    <Text style={styles.updatedAtText}>
-                      Son Ölçüm Zamanı: {data ? formatTime(data.updated_at) : ''}
-                    </Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu</Text>
+                    <Text style={styles.oracleTitle}>{analysis.title}</Text>
                   </View>
                 </View>
 
-                {activeDesc ? (
-                  <View style={styles.statusCardBottom}>
-                    <View style={styles.statusCardDivider} />
-                    <Text style={styles.statusAnalysisText}>{activeDesc}</Text>
+                {/* Teşhis Paragrafları Stacked */}
+                <View style={styles.oracleSegment}>
+                  <View style={styles.oracleSegmentHeader}>
+                    <Ionicons name="medical-outline" size={14} color="#00E5FF" />
+                    <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>🔬 Bilimsel Teşhis</Text>
                   </View>
-                ) : null}
-              </BlurView>
+                  <Text style={styles.oracleSegmentBody}>{analysis.science}</Text>
+                </View>
+
+                <View style={styles.oracleSegment}>
+                  <View style={styles.oracleSegmentHeader}>
+                    <Ionicons name="flash-outline" size={14} color="pink" />
+                    <Text style={[styles.oracleSegmentTitle, { color: 'pink' }]}>⚡ Beden Reaksiyonları</Text>
+                  </View>
+                  <Text style={styles.oracleSegmentBody}>{analysis.symptoms}</Text>
+                </View>
+
+                <View style={styles.oracleSegment}>
+                  <View style={styles.oracleSegmentHeader}>
+                    <Ionicons name="body-outline" size={14} color="#D4AF37" />
+                    <Text style={[styles.oracleSegmentTitle, { color: '#D4AF37' }]}>🧘 Ruhsal Rehberlik</Text>
+                  </View>
+                  <Text style={styles.oracleSegmentBody}>{analysis.spiritual}</Text>
+                </View>
+              </View>
             );
           })()}
+
+          {/* 2. Güneş Rüzgarı & Manyetik Alan İstasyonu (2x3 Grid) */}
+          {!loading && data?.solar_wind && (
+            (() => {
+              const activeKp = simulatedKp !== null ? simulatedKp : (data.current_kp ?? 0);
+              const speed = simulatedKp !== null ? (300 + (simulatedKp / 9) * 500) : (data.solar_wind.speed ?? 350);
+              const density = simulatedKp !== null ? (3 + (simulatedKp / 9) * 15) : (data.solar_wind.density ?? 4);
+              const bz = simulatedKp !== null ? (5 - (simulatedKp / 9) * 15) : (data.solar_wind.bz ?? 0);
+              const bt = simulatedKp !== null ? (5 + (simulatedKp / 9) * 15) : (data.solar_wind.bt ?? 5);
+              const temp = simulatedKp !== null ? (100000 + (simulatedKp / 9) * 400000) : (data.solar_wind.temperature ?? 150000);
+
+              const showInfoAlert = (title: string, desc: string) => {
+                Alert.alert(title, desc, [{ text: "Tamam" }]);
+              };
+
+              return (
+                <BlurView intensity={30} tint="dark" style={styles.stationCard}>
+                  <View style={styles.stationHeaderContainer}>
+                    <Ionicons name="sunny-outline" size={18} color="#00E5FF" style={{ marginRight: 6 }} />
+                    <Text style={styles.stationTitle}>Kozmik Hava Durumu & Güneş Rüzgarı</Text>
+                  </View>
+                  <Text style={styles.stationSubtitle}>
+                    Uydularla L1 noktasında ölçülen anlık uzay havası verileri (Açıklama için kartlara dokunun).
+                  </Text>
+
+                  <View style={styles.stationGrid}>
+                    {/* 1. Kp Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Kp Endeksi Nedir?", 
+                        "Dünya genelindeki manyetometre ölçüm istasyonlarından gelen verilerin birleştirilmesiyle oluşturulan küresel jeomanyetik aktivite derecesidir (0-9 arası). Değer yükseldikçe manyetik fırtına olasılığı artar."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Kp Endeksi ⓘ</Text>
+                        <Ionicons name="pulse-outline" size={14} color="#F59E0B" />
+                      </View>
+                      <View>
+                        <Text style={styles.stationItemValue}>Kp {activeKp.toFixed(1)}</Text>
+                        <Text style={[styles.stationItemSubtext, { color: activeKp >= 5 ? '#EF4444' : activeKp >= 3 ? '#F59E0B' : '#10B981' }]}>
+                          {activeKp >= 5 ? 'Fırtına' : activeKp >= 3 ? 'Uyarılmış' : 'Sakin'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* 2. Rüzgar Hızı Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Güneş Rüzgarı Hızı Nedir?", 
+                        "Güneş'ten fırlayan plazmanın saniyedeki hızıdır. Yüksek rüzgar hızları manyetik kalkanı sıkıştırarak iyonosferi uyarır."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Güneş Hızı ⓘ</Text>
+                        <Ionicons name="speedometer-outline" size={14} color="#00E5FF" />
+                      </View>
+                      <View>
+                        <Text style={styles.stationItemValue}>{Math.round(speed)} km/s</Text>
+                        <Text style={[styles.stationItemSubtext, { color: speed >= 600 ? '#EF4444' : speed >= 450 ? '#F59E0B' : '#10B981' }]}>
+                          {speed >= 600 ? 'Çok Hızlı' : speed >= 450 ? 'Hızlı' : 'Sakin'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* 3. Proton Yoğunluğu Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Proton Yoğunluğu Nedir?", 
+                        "Güneş rüzgarı içindeki santimetreküp başına düşen proton miktarıdır. Yoğun parçacık bombardımanı atmosferdeki elektriksel yükü artırır."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Yoğunluk ⓘ</Text>
+                        <Ionicons name="apps-outline" size={14} color="#A78BFA" />
+                      </View>
+                      <View>
+                        <Text style={styles.stationItemValue}>{density.toFixed(1)} p/cm³</Text>
+                        <Text style={[styles.stationItemSubtext, { color: COLORS.textMuted }]}>Parçacık</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* 4. Bz Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Bz Değeri (Yön) Nedir?", 
+                        "Manyetik alanın kuzey-güney doğrultusudur. Değerin güneye doğru (-) gitmesi, Dünya kalkanında geçici kapılar açarak enerjinin atmosfere sızmasına sebep olur."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Bz Değeri ⓘ</Text>
+                        <Ionicons name="shield-outline" size={14} color={bz < 0 ? '#EF4444' : '#10B981'} />
+                      </View>
+                      <View>
+                        <Text style={[styles.stationItemValue, { color: bz < 0 ? '#EF4444' : '#10B981' }]}>{bz.toFixed(1)} nT</Text>
+                        <Text style={[styles.stationItemSubtext, { color: bz < 0 ? '#EF4444' : '#10B981' }]}>
+                          {bz < 0 ? 'Kalkan Açık' : 'Kalkan Kapalı'}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* 5. Bt Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Toplam Alan (Bt) Nedir?", 
+                        "Güneşler arası manyetik alanın toplam gücünü gösterir. Bt gücü ne kadar yüksekse manyetik uyarımın şiddeti o kadar fazla olur."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Toplam Bt ⓘ</Text>
+                        <Ionicons name="magnet-outline" size={14} color="#F59E0B" />
+                      </View>
+                      <View>
+                        <Text style={styles.stationItemValue}>{bt.toFixed(1)} nT</Text>
+                        <Text style={[styles.stationItemSubtext, { color: COLORS.textMuted }]}>Alan Gücü</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    {/* 6. Sıcaklık Kartı */}
+                    <TouchableOpacity 
+                      style={styles.stationGridItem} 
+                      activeOpacity={0.7}
+                      onPress={() => showInfoAlert(
+                        "Plazma Sıcaklığı Nedir?", 
+                        "Güneş rüzgarı plazmasının termal sıcaklığıdır. Yüksek değerler koronal delik veya patlama kaynaklı sıcak akışları gösterir."
+                      )}
+                    >
+                      <View style={styles.stationItemHeader}>
+                        <Text style={styles.stationItemLabel}>Sıcaklık ⓘ</Text>
+                        <Ionicons name="thermometer-outline" size={14} color="#FB923C" />
+                      </View>
+                      <View>
+                        <Text style={styles.stationItemValue}>{(temp / 1000).toFixed(0)}k K</Text>
+                        <Text style={[styles.stationItemSubtext, { color: COLORS.textMuted }]}>Kelvin</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                </BlurView>
+              );
+            })()
+          )}
 
           {/* Kozmik Enerji Simülatörü */}
           <BlurView intensity={30} tint="dark" style={styles.simulatorCard}>
@@ -380,11 +633,11 @@ export default function SchumannScreen() {
               </View>
             </View>
             <Text style={styles.simulatorSubtitle}>
-              Farklı Genlik seviyelerinin etkilerini ve renk değişimlerini test edin
+              Farklı Kp endeksi seviyelerinin etkilerini ve renk değişimlerini test edin
             </Text>
             
             <View style={styles.sliderWrapper}>
-              <Text style={styles.sliderLabel}>Genlik 0</Text>
+              <Text style={styles.sliderLabel}>Kp 0</Text>
               <Slider
                 style={styles.slider}
                 minimumValue={0}
@@ -396,12 +649,12 @@ export default function SchumannScreen() {
                 maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
                 thumbTintColor={COLORS.primary}
               />
-              <Text style={styles.sliderLabel}>Genlik 9</Text>
+              <Text style={styles.sliderLabel}>Kp 9</Text>
             </View>
 
             <View style={styles.simulatorFooter}>
               <Text style={styles.simulatorFooterText}>
-                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
+                Simüle Edilen Kp: <Text style={styles.simulatorValueText}>
                   {simulatedKp !== null ? `${simulatedKp.toFixed(1)} (Test)` : 'Canlı Akış'}
                 </Text>
               </Text>
@@ -433,7 +686,7 @@ export default function SchumannScreen() {
                       ? ' (Tahmin)' 
                       : ' (Ölçüm)'}
                     {' | '}
-                    Genlik: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
+                    Kp Değeri: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
                     {' | '}
                     <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
                   </Text>
@@ -451,7 +704,7 @@ export default function SchumannScreen() {
                 <Text style={styles.hzText}>16 Hz</Text>
                 <Text style={styles.hzText}>24 Hz</Text>
                 <Text style={styles.hzText}>32 Hz</Text>
-                <Text style={styles.hzText}>40 Hz</Text>
+                        <Text style={styles.hzText}>40 Hz</Text>
               </View>
 
               {/* Fluid Şelale Alanı (Tüm Ekran Genişliğine Sığacak Şekilde) */}
@@ -472,8 +725,8 @@ export default function SchumannScreen() {
                         >
                           {/* 1. Frekans Spektrumu Gradyan Sütunu (Her zaman görünür Cyan Çizgiler) */}
                           <LinearGradient
-                            colors={getBaseCyanColors(isForecast)}
-                            locations={RESONANCE_LOCATIONS}
+                            colors={getBaseCyanColors(isForecast) as any}
+                            locations={RESONANCE_LOCATIONS as any}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 0, y: 1 }}
                             style={[styles.colBgGradient, { opacity: item.predicted ? 0.65 : 1 }]}
@@ -568,7 +821,7 @@ export default function SchumannScreen() {
 
           {/* 2. Jeomanyetik Kp Eğilim Grafiği */}
           <BlurView intensity={30} tint="dark" style={styles.chartCard}>
-            <Text style={styles.chartTitle}>Jeomanyetik Genlik Eğilimi (Son 72 Saat)</Text>
+            <Text style={styles.chartTitle}>Jeomanyetik Kp Eğilimi (Son 72 Saat)</Text>
             <Text style={styles.chartSubtitle}>
               Ölçülen jeomanyetik fırtına değerlerinin saatlik blokları (Kesikli sütunlar 24 saatlik tahmindir)
             </Text>
@@ -579,7 +832,7 @@ export default function SchumannScreen() {
                 <View style={styles.barTooltip}>
                   <Text style={styles.tooltipText}>
                      Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
-                     Genlik: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
+                     Kp Değeri: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
                      {hoveredBar.predicted ? ' (⚠️ Tahmin - Değişebilir)' : ' (✅ Kesinleşmiş Ölçüm)'}
                   </Text>
                 </View>
@@ -762,19 +1015,47 @@ export default function SchumannScreen() {
 
             {isGuideOpen && (
               <View style={styles.guideContent}>
-                <Text style={styles.guideSectionTitle}>Planetary K-Index (Kp Endeksi) Nedir?</Text>
+                <Text style={styles.guideSectionTitle}>Grafiklerin Yapısı ve Okunması:</Text>
                 <Text style={styles.guideParagraph}>
-                  Dünya genelindeki manyetometre ölçüm istasyonlarından gelen verilerin birleştirilmesiyle oluşturulan ve gezegenimizin manyetik alanındaki düzensizlikleri 0 ile 9 arasında ölçen resmi bir küresel endekstir. Kp değerinin 5 ve üzeri olması, küresel çapta bir Jeomanyetik Fırtına (Geomagnetic Storm) durumunu gösterir.
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Schumann Rezonans Spektrogramı:</Text> Elektromanyetik alanın dikey eksende frekans (0 - 40 Hz), yatay eksende ise zaman bazlı yoğunluğunu gösterir. Yatay renkli bantlar (7.83, 14, 20 Hz vb.) ana rezonans frekanslarını temsil eder. Grafik üzerindeki dikey kesikli ŞİMDİ çizgisi ise anlık zamanı belirtir; bu çizginin sol tarafı kesinleşmiş geçmiş ölçümleri, sağ tarafı ise gelecek 24 saatlik tahmin bloklarını birbirinden ayırır.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Jeomanyetik Kp Eğilimi:</Text> 72 saatlik zaman diliminde ölçülen ve tahmin edilen jeomanyetik fırtına derecelerini (Kp) gösterir. Düz sütunlar kesinleşmiş geçmiş ölçümleri, kesikli sınırları olan sütunlar ise gelecek 24 saatlik tahmini temsil eder.
                 </Text>
 
-                <Text style={styles.guideSectionTitle}>Küresel Fırtına vs. Yerel Atmosferik Gürültü:</Text>
+                <Text style={styles.guideSectionTitle}>Kozmik Oracle / Durum Raporu Nedir?</Text>
                 <Text style={styles.guideParagraph}>
-                  Bölgesel tekil anten grafikleri (Sibirya vb.), o bölgedeki yerel yıldırımlar veya elektrik gürültüleri sebebiyle yüksek beyaz patlamalar gösterebilir. Ancak bu yerel olaylar küresel insan biyolojisini etkilemez. Sistemimizdeki küresel Kp endeksi ise yerel gürültüleri filtreleyerek sadece Dünya'yı ve insan biyo-alanını doğrudan etkileyen gerçek jeomanyetik güneş fırtınası hareketlerini gösterir.
+                  Güneş rüzgarı uydularından alınan 6 farklı elektromanyetik parametreyi (Kp Endeksi, Hız, Yoğunluk, Bz kalkan durumu, Bt alan gücü ve Sıcaklık) anlık olarak inceleyen yerel kural motorudur. Bu motor, uzay havasındaki dalgalanmaları yorumlayarak size üç alanda bilgi verir:
+                  {"\n\n"}
+                  🔬 <Text style={{ color: '#fff', fontWeight: 'bold' }}>Bilimsel Teşhis:</Text> İyonosfer ve manyetosferde gerçekleşen fiziksel olayların bilimsel açıklaması.
+                  {"\n\n"}
+                  ⚡ <Text style={{ color: '#fff', fontWeight: 'bold' }}>Beden Reaksiyonları:</Text> Artan kozmik plazmanın sinir sistemi, uyku düzeni ve baş bölgesi üzerindeki olası fiziksel etkileri.
+                  {"\n\n"}
+                  🧘 <Text style={{ color: '#fff', fontWeight: 'bold' }}>Ruhsal Rehberlik:</Text> Enerjiyi topraklamak, aura alanını korumak ve uyanış kapılarından faydalanmak için önerilen meditasyon ve nefes pratikleri.
                 </Text>
 
-                <Text style={styles.guideSectionTitle}>Güneş Fırtınası ve Biyolojik Etkiler:</Text>
+                <Text style={styles.guideSectionTitle}>Kozmik Enerji Simülatörü (Test Paneli):</Text>
                 <Text style={styles.guideParagraph}>
-                  Dünya'nın manyetik alanı ile insan kalp ritmi, sinir sistemi dengesi ve melatonin salgısı doğrudan senkronizedir. Kp endeksinin yükseldiği günlerde baş ağrısı, yorgunluk, rüyalarda berraklık veya uyku bozuklukları gibi kozmik adaptasyon semptomları yaşanması oldukça yaygındır.
+                  Uygulamadaki test sürgüsü yardımıyla Kp endeksini (0-9 arası) manuel olarak değiştirebilirsiniz. Sürgüyü oynattığınızda, tüm güneş rüzgarı parametreleri ve Kozmik Oracle teşhisi senkronize bir şekilde güncellenerek olası jeomanyetik fırtınaların ve yüksek enerjisel geçişlerin iyonosfer üzerindeki etkilerini test etmenizi sağlar. "Canlı Veriye Dön" butonuyla gerçek verilere dönebilirsiniz.
+                </Text>
+
+                <Text style={styles.guideSectionTitle}>Güneş Rüzgarı Sözlüğü:</Text>
+                <Text style={styles.guideParagraph}>
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Kp Endeksi:</Text> Dünya genelindeki manyetometrelerden alınan verilerle hesaplanan 0-9 arası jeomanyetik aktivite derecesidir. 5 ve üzeri küresel fırtınayı ifade eder.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Güneş Rüzgarı Hızı:</Text> Güneş yüzeyinden kopup saniyede süzülen plazma hızıdır. Hız arttıkça Dünya'nın koruyucu kalkanı daha çok sıkışır.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Proton Yoğunluğu:</Text> Plazmakadi santimetreküp başına düşen parçacık miktarıdır. Yoğunluk yükseldikçe atmosferle girilen enerjisel etkileşim artar.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Bz Değeri (Yön):</Text> Manyetik kalkanın kuzey-güney yönüdür. Bz'nin eksiye (-) yani güneye yönelmesi, Dünya'nın kalkanında kapılar açarak plazmanın içeri sızmasını kolaylaştırır.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Toplam Alan (Bt):</Text> Gezegenler arası manyetik alanın toplam gücünü nT cinsinden gösterir.
+                  {"\n\n"}
+                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Sıcaklık:</Text> Güneş plazmasının termal sıcaklığıdır. Yüksek termal değerler taç küre kütle atılımlarını (CME) işaret eder.
+                </Text>
+
+                <Text style={styles.guideSectionTitle}>Saat Dilimi ve Yerel Saat Dönüşümü:</Text>
+                <Text style={styles.guideParagraph}>
+                  Bölgesel gözlemevi grafikleri genellikle istasyonun kurulu olduğu ülkenin yerel saat dilimine göre çizilir (örneğin Asya/Sibirya gözlemevleri kendi yerel saatini kullanır). Bu gösterge paneli ise uluslararası uzay havası verilerini tamamen sizin cihazınızın yerel saat dilimine dönüştürerek gösterir. Bu nedenle yabancı grafiklerle aranızda saat farkı bulunması tamamen normaldir; buradaki saatler doğrudan kendi gününüzdeki anı temsil eder.
                 </Text>
 
                 <Text style={styles.guideSectionTitle}>Kozmik Hava Tahmini: Gelecek 24 Saat Nasıl Hesaplanır?</Text>
@@ -831,7 +1112,87 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
   },
-  statusCard: {
+  oracleCard: {
+    padding: 20,
+    borderRadius: SIZES.radius * 1.5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    marginBottom: 20,
+  },
+  oracleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+    paddingBottom: 12,
+    marginBottom: 12,
+    gap: 12,
+  },
+  oracleBadge: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#00E5FF',
+    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,229,255,0.25)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 4,
+  },
+  oracleTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  oracleScoreBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  oracleScoreLabel: {
+    fontSize: 8,
+    color: COLORS.textMuted,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  oracleScoreVal: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: -2,
+  },
+  oracleSegment: {
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.04)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+  },
+  oracleSegmentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  oracleSegmentTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginLeft: 6,
+    textTransform: 'uppercase',
+  },
+  oracleSegmentBody: {
+    fontSize: 11.5,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 17,
+  },
+  stationCard: {
     padding: 20,
     borderRadius: SIZES.radius * 1.5,
     borderWidth: 1,
@@ -839,73 +1200,61 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
   },
-  statusCardTop: {
+  stationHeaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
+    marginBottom: 4,
   },
-  statusCardBottom: {
-    width: '100%',
-    marginTop: 15,
+  stationTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#fff',
   },
-  statusCardDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    width: '100%',
+  stationSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    lineHeight: 15,
+    marginBottom: 15,
+  },
+  stationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  stationGridItem: {
+    width: '48%',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 12,
+    minHeight: 90,
+    justifyContent: 'space-between',
   },
-  statusAnalysisText: {
-    fontSize: 11.5,
-    color: 'rgba(255, 255, 255, 0.85)',
-    lineHeight: 18,
-  },
-  radialContainer: {
+  stationItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 20,
+    marginBottom: 6,
   },
-  outerGlowRing: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  radialVal: {
-    fontSize: 22,
-    fontWeight: '900',
-    fontFamily: Platform.OS === 'ios' ? 'Courier-Bold' : 'monospace',
-  },
-  radialUnit: {
+  stationItemLabel: {
     fontSize: 10,
     color: COLORS.textMuted,
-    marginTop: -2,
     fontWeight: '600',
-  },
-  statusInfoContainer: {
     flex: 1,
+    flexWrap: 'wrap',
+    marginRight: 4,
   },
-  statusLabelText: {
+  stationItemValue: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 4,
   },
-  statusSpiritualText: {
-    fontSize: 13,
-    color: COLORS.primary,
+  stationItemSubtext: {
+    fontSize: 9,
     fontWeight: '600',
-    marginBottom: 8,
-  },
-  updatedAtText: {
-    fontSize: 10,
-    color: COLORS.textMuted,
+    marginTop: 2,
   },
   chartCard: {
     padding: 20,
