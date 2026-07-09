@@ -206,11 +206,11 @@ const SchumannMiniWidget = () => {
         
         <View style={{ flex: 1, marginLeft: 15 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={styles.schumannTitle}>Schumann Rezonansı</Text>
+            <Text style={styles.schumannTitle}>Schumann Rezonansı • Kp {kpVal.toFixed(1)}</Text>
             <View style={[styles.glowingDot, { backgroundColor: cardColor }]} />
           </View>
           <Text style={[styles.schumannStatusName, { color: cardColor }]}>
-            {data?.status_label.split(' ')[0]} (Kp {kpVal.toFixed(1)})
+            {data?.status_label.split(' ')[0]}
           </Text>
         </View>
 
