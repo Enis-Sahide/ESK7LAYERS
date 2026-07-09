@@ -90,7 +90,7 @@ export default function SchumannScreen() {
     };
   };
 
-  const getCalculatedImpact = (kpVal: number) => {
+  const getEstimatedImpact = (kpVal: number) => {
     const speedVal = 300 + (kpVal / 9) * 500;
     const densityVal = 3 + (kpVal / 9) * 15;
     const btVal = 5 + (kpVal / 9) * 15;
@@ -105,6 +105,33 @@ export default function SchumannScreen() {
     
     const rawImpact = kpWeight + speedWeight + densityWeight + btWeight;
     return parseFloat(Math.min(10.0, rawImpact * bzMultiplier).toFixed(2));
+  };
+
+  const getCalculatedImpactForData = (currentData: KpData | null, kpVal: number) => {
+    if (!currentData?.solar_wind) {
+      return getEstimatedImpact(kpVal);
+    }
+    
+    const kpWeight = (kpVal / 9) * 4.0;
+    
+    const speedVal = currentData.solar_wind.speed || 350;
+    const speedWeight = Math.max(0, Math.min(2.5, ((speedVal - 300) / 500) * 2.5));
+    
+    const densityVal = currentData.solar_wind.density || 4;
+    const densityWeight = Math.max(0, Math.min(2.0, ((densityVal - 2) / 15) * 2.0));
+    
+    const btVal = currentData.solar_wind.bt || 5;
+    const btWeight = Math.max(0, Math.min(1.5, ((btVal - 5) / 15) * 1.5));
+    
+    const bzVal = currentData.solar_wind.bz || 0;
+    const bzMultiplier = bzVal < 0 ? (1.0 + Math.min(0.25, (Math.abs(bzVal) / 20) * 0.25)) : 1.0;
+    
+    const rawImpact = kpWeight + speedWeight + densityWeight + btWeight;
+    return parseFloat(Math.min(10.0, rawImpact * bzMultiplier).toFixed(2));
+  };
+
+  const getCalculatedImpact = (kpVal: number) => {
+    return getCalculatedImpactForData(data, kpVal);
   };
 
   const RESONANCE_LOCATIONS = [
@@ -191,13 +218,39 @@ export default function SchumannScreen() {
         }
         setData(res);
         if (res.history && res.history.length > 0) {
-          const nowMs = Date.now();
           const lastRealIndex = res.history.reduce((lastIdx: number, item: KpHistoryItem, idx: number) => {
             const isForecast = !!item.predicted;
             return !isForecast ? idx : lastIdx;
           }, res.history.length - 1);
-          setHoveredSpectrogramBar(prev => prev || res.history[lastRealIndex]);
-          setHoveredBar(prev => prev || res.history[lastRealIndex]);
+
+          const mappedHistory = res.history.map((item: any, idx: number) => {
+            const isLastReal = idx === lastRealIndex;
+            if (isLastReal) {
+              const activeKp = simulatedKp !== null ? simulatedKp : item.kp;
+              const activeImpact = getCalculatedImpactForData(res, activeKp);
+              return { ...item, kp: activeImpact };
+            }
+            const estimatedImpact = getEstimatedImpact(item.kp);
+            return { ...item, kp: estimatedImpact };
+          });
+
+          setHoveredSpectrogramBar(prev => {
+            if (!prev) return mappedHistory[lastRealIndex];
+            const found = mappedHistory.find((h: any) => h.time === prev.time);
+            return found || mappedHistory[lastRealIndex];
+          });
+
+          setHoveredBar(prev => {
+            const kpHistory = res.history.map((h: any, idx: number) => {
+              if (simulatedKp !== null && idx === lastRealIndex) {
+                return { ...h, kp: simulatedKp };
+              }
+              return h;
+            });
+            if (!prev) return kpHistory[lastRealIndex];
+            const found = kpHistory.find((h: any) => h.time === prev.time);
+            return found || kpHistory[lastRealIndex];
+          });
         }
       }
     } catch (e) {
@@ -263,11 +316,20 @@ export default function SchumannScreen() {
     return '#EF4444'; // Fırtına (Kırmızı)
   };
 
-  const getSpiritualLabel = (kp: number) => {
-    if (kp >= 5.0) return 'DNA Aktivasyonu & Işık Portalı';
-    if (kp >= 4.0) return 'Yüksek Sezgi ve Hücresel Uyanış';
-    if (kp >= 3.0) return 'Enerjisel Kıpırdanma ve Yenilenme';
-    return 'Dengeli Enerji Akışı';
+  const getScoreColor = (score: number) => {
+    if (score < 3.0) return '#10B981'; // Sakin (Yeşil)
+    if (score < 5.0) return '#F59E0B'; // Uyarılmış (Sarı)
+    if (score < 7.0) return '#F97316'; // Aktif (Turuncu)
+    if (score < 8.5) return '#EF4444'; // Yoğun (Kırmızı)
+    return '#FFD700'; // Ekstrem (Altın)
+  };
+
+  const getSpiritualLabel = (score: number) => {
+    if (score >= 8.5) return 'Zirve Hücresel Uyanış (Zirve Portal)';
+    if (score >= 7.0) return 'Yoğun Enerji Portalı (Giriş Aktif)';
+    if (score >= 5.0) return 'Yüksek Kozmik Uyarılma (Aktif)';
+    if (score >= 3.0) return 'Hafif Enerjisel Dalgalanma (Uyarılmış)';
+    return 'Dengeli & Dingin Akış (Sakin)';
   };
 
   const formatTime = (timeStr: string) => {
@@ -425,7 +487,24 @@ export default function SchumannScreen() {
   };
 
   const historyToRender = data?.history ? data.history.map((item, idx) => {
-    // Son ölçüm indeksini bul (tahmin/predicted olmayan en son eleman)
+    const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
+      if (!currItem.predicted) {
+        return currIdx;
+      }
+      return lastIdx;
+    }, -1);
+
+    if (idx === lastMeasuredIdx) {
+      const activeKp = simulatedKp !== null ? simulatedKp : item.kp;
+      const activeImpact = getCalculatedImpact(activeKp);
+      return { ...item, kp: activeImpact };
+    }
+    
+    const estimatedImpact = getEstimatedImpact(item.kp);
+    return { ...item, kp: estimatedImpact };
+  }) : [];
+
+  const kpHistoryToRender = data?.history ? data.history.map((item, idx) => {
     const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
       if (!currItem.predicted) {
         return currIdx;
@@ -441,6 +520,14 @@ export default function SchumannScreen() {
 
   // Find index of the first forecast block to draw "ŞİMDİ" divider line
   const firstForecastIndex = historyToRender.findIndex(item => item.predicted) ?? -1;
+
+  const activeSpectrogramBar = hoveredSpectrogramBar 
+    ? (historyToRender.find(item => item.time === hoveredSpectrogramBar.time) || hoveredSpectrogramBar) 
+    : null;
+
+  const activeKpBar = hoveredBar 
+    ? (kpHistoryToRender.find(item => item.time === hoveredBar.time) || hoveredBar) 
+    : null;
 
   return (
     <SacredBackground>
@@ -724,17 +811,17 @@ export default function SchumannScreen() {
 
             {/* Spectrogram Tooltip */}
             <View style={styles.spectrogramTooltipContainer}>
-              {hoveredSpectrogramBar ? (
+              {activeSpectrogramBar ? (
                 <View style={styles.spectrogramTooltip}>
                   <Text style={styles.spectrogramTooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredSpectrogramBar.time)}</Text>
-                    {hoveredSpectrogramBar.predicted 
+                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(activeSpectrogramBar.time)}</Text>
+                    {activeSpectrogramBar.predicted 
                       ? ' (Tahmin)' 
                       : ' (Ölçüm)'}
                     {' | '}
-                    Kp Değeri: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredSpectrogramBar.kp) }}>{hoveredSpectrogramBar.kp.toFixed(2)}</Text>
+                    Schumann Tahmini: <Text style={{ fontWeight: 'bold', color: getScoreColor(activeSpectrogramBar.kp) }}>{activeSpectrogramBar.kp.toFixed(2)}</Text>
                     {' | '}
-                    <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>{getSpiritualLabel(hoveredSpectrogramBar.kp)}</Text>
+                    <Text style={{ fontWeight: 'bold', color: getScoreColor(activeSpectrogramBar.kp) }}>{getSpiritualLabel(activeSpectrogramBar.kp)}</Text>
                   </Text>
                 </View>
               ) : (
@@ -874,12 +961,12 @@ export default function SchumannScreen() {
 
             {/* Custom Tap Tooltip Display */}
             <View style={styles.barTooltipContainer}>
-              {hoveredBar ? (
+              {activeKpBar ? (
                 <View style={styles.barTooltip}>
                   <Text style={styles.tooltipText}>
-                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(hoveredBar.time)}</Text>  |  
-                     Kp Değeri: <Text style={{ fontWeight: 'bold', color: getKpColor(hoveredBar.kp) }}>{hoveredBar.kp.toFixed(2)}</Text>
-                     {hoveredBar.predicted ? ' (⚠️ Tahmin - Değişebilir)' : ' (✅ Kesinleşmiş Ölçüm)'}
+                     Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(activeKpBar.time)}</Text>  |  
+                     Kp Değeri: <Text style={{ fontWeight: 'bold', color: getKpColor(activeKpBar.kp) }}>{activeKpBar.kp.toFixed(2)}</Text>
+                     {activeKpBar.predicted ? ' (⚠️ Tahmin - Değişebilir)' : ' (✅ Kesinleşmiş Ölçüm)'}
                   </Text>
                 </View>
               ) : (
@@ -897,7 +984,7 @@ export default function SchumannScreen() {
                 <View style={styles.chartGridLine} />
               </View>
 
-              {historyToRender.map((item, idx) => {
+              {kpHistoryToRender.map((item, idx) => {
                 const barHeight = Math.max(12, (item.kp / 9) * 120);
                 const barColor = getKpColor(item.kp);
                 const isForecast = !!item.predicted;
@@ -947,7 +1034,7 @@ export default function SchumannScreen() {
 
             {/* X Axis Time Labels */}
             <View style={styles.chartXAxisContainer}>
-              {historyToRender.map((item, idx) => {
+              {kpHistoryToRender.map((item, idx) => {
                 const isLabel = idx % 4 === 0;
                 return (
                   <View key={idx} style={styles.chartXAxisSlot}>
