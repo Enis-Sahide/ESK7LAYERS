@@ -191,7 +191,15 @@ const SchumannMiniWidget = () => {
     return '🧘 Dengeli ve Dingin Akış';
   };
 
+  const getKpColor = (kp: number) => {
+    if (kp < 3.0) return '#10B981';
+    if (kp < 4.0) return '#F59E0B';
+    if (kp < 5.0) return '#F97316';
+    return '#EF4444';
+  };
+
   const cardColor = getScoreColor(scoreVal);
+  const kpColor = getKpColor(kpVal);
 
   return (
     <TouchableOpacity 
@@ -214,8 +222,8 @@ const SchumannMiniWidget = () => {
           </Text>
         </View>
 
-        <View style={styles.kpBadgeContainer}>
-          <Text style={[styles.kpBadgeText, { color: cardColor }]}>
+        <View style={[styles.kpBadgeContainer, { borderColor: kpColor + '30' }]}>
+          <Text style={[styles.kpBadgeText, { color: kpColor }]}>
             {kpVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>Kp</Text>
           </Text>
         </View>
