@@ -1323,9 +1323,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   oracleSegmentBody: {
-    fontSize: 11.5,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
-    lineHeight: 17,
+    lineHeight: 19,
   },
   stationCard: {
     padding: 20,
