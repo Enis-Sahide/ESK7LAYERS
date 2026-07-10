@@ -590,16 +590,16 @@ export default function SchumannScreen() {
 
                 <View style={styles.oracleSegment}>
                   <View style={styles.oracleSegmentHeader}>
-                    <Ionicons name="flash-outline" size={14} color="pink" />
-                    <Text style={[styles.oracleSegmentTitle, { color: 'pink' }]}>⚡ Beden Reaksiyonları</Text>
+                    <Ionicons name="flash-outline" size={14} color="#D4AF37" />
+                    <Text style={[styles.oracleSegmentTitle, { color: '#D4AF37' }]}>⚡ Beden Reaksiyonları</Text>
                   </View>
                   <Text style={styles.oracleSegmentBody}>{analysis.symptoms}</Text>
                 </View>
 
                 <View style={styles.oracleSegment}>
                   <View style={styles.oracleSegmentHeader}>
-                    <Ionicons name="body-outline" size={14} color="#D4AF37" />
-                    <Text style={[styles.oracleSegmentTitle, { color: '#D4AF37' }]}>🧘 Ruhsal Rehberlik</Text>
+                    <Ionicons name="body-outline" size={14} color="pink" />
+                    <Text style={[styles.oracleSegmentTitle, { color: 'pink' }]}>🧘 Ruhsal Rehberlik</Text>
                   </View>
                   <Text style={styles.oracleSegmentBody}>{analysis.spiritual}</Text>
                 </View>
