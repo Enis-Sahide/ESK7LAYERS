@@ -1,11 +1,13 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, ActivityIndicator } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, ActivityIndicator, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
+// @ts-ignore
+import tzlookup from 'tz-lookup';
 import { ASTRO_CITIES, AstroCity, ZodiacSign, NatalChartData } from '@/src/features/astrology/api/astrologyClient';
 // Interpretations are fetched from the backend API.
 import { apiFetch } from '@/src/core/api/client';
@@ -76,10 +78,61 @@ export default function KabbalahAnalysisScreen() {
   const dateInputRef = useRef<TextInput>(null);
   const timeInputRef = useRef<TextInput>(null);
 
-  const filteredCities = ASTRO_CITIES.filter(c => 
-    c.country === country &&
-    c.name.toLocaleLowerCase('tr-TR').startsWith(searchQuery.toLocaleLowerCase('tr-TR'))
-  ).map(c => c.name).slice(0, 4);
+  const [selectedCityData, setSelectedCityData] = useState<AstroCity | null>(null);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+
+  // Geocoding city search
+  useEffect(() => {
+    if (searchQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchCities = async () => {
+      try {
+        const query = searchQuery + (country ? `, ${country}` : '');
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}`, {
+          headers: {
+            'User-Agent': '7LayersApp/1.0 (Contact: admin@7layers.com)',
+            'Accept-Language': 'tr-TR'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data)) {
+            const mapped = data.map((item: any) => {
+              const parts = item.display_name.split(',').map((s: string) => s.trim());
+              const name = item.name || parts[0];
+              const countryName = parts[parts.length - 1] || '';
+              const admin1 = parts.length > 2 ? parts[1] : '';
+              const latNum = parseFloat(item.lat);
+              const lonNum = parseFloat(item.lon);
+              let tz = 'Europe/Istanbul';
+              try {
+                tz = tzlookup(latNum, lonNum);
+              } catch (e) {
+                console.error("tzlookup error:", e);
+              }
+              return {
+                name,
+                lat: latNum,
+                lon: lonNum,
+                tz,
+                country: countryName,
+                admin1
+              };
+            });
+            setSuggestions(mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Geocoding Error in Kabbalah chart:", error);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchCities, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, country]);
 
   const handleDateChange = (text: string) => {
     let cleaned = text.replace(/\D/g, '');
@@ -100,12 +153,14 @@ export default function KabbalahAnalysisScreen() {
   };
 
   const handleCalculate = async () => {
+    if (!selectedCityData) {
+      Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
+      return;
+    }
     if (!dateStr || !timeStr) {
       Alert.alert("Eksik Bilgi", "Lütfen doğum tarihi ve saatini doldurunuz.");
       return;
     }
-
-    const matchedCity = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === searchQuery.trim().toLocaleLowerCase('tr-TR')) || ASTRO_CITIES[0];
 
     setIsLoading(true);
     try {
@@ -114,7 +169,7 @@ export default function KabbalahAnalysisScreen() {
         body: JSON.stringify({
           localDate: dateStr,
           localTime: timeStr,
-          cityData: matchedCity
+          cityData: selectedCityData
         })
       });
 
@@ -287,22 +342,37 @@ export default function KabbalahAnalysisScreen() {
               </TouchableOpacity>
 
               <Text style={styles.label}>Doğum Şehri (Ara)</Text>
-              <View style={{ zIndex: 99 }}>
+              <View style={{ zIndex: 99, position: 'relative' }}>
                 <TextInput 
                   style={styles.input} 
                   value={searchQuery} 
                   onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} 
                   onFocus={() => { setShowSuggestions(true); }} 
-                  placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} 
+                  placeholder="Şehir adı yazıp arayın..." 
                   placeholderTextColor="#666" 
                 />
-                {showSuggestions && searchQuery.length > 0 && (
+                {showSuggestions && searchQuery.length >= 3 && (
                   <View style={styles.suggestionsContainer}>
-                    {filteredCities.map((c, i) => (
-                      <TouchableOpacity key={i} style={styles.suggestionItem} onPress={() => { setSearchQuery(c); setShowSuggestions(false); }}>
-                        <Text style={styles.suggestionText}>{c}</Text>
-                      </TouchableOpacity>
-                    ))}
+                    <ScrollView keyboardShouldPersistTaps="always" style={{ maxHeight: 150 }}>
+                      {suggestions.length > 0 ? suggestions.map((item, i) => (
+                        <TouchableOpacity 
+                          key={i} 
+                          style={styles.suggestionItem} 
+                          onPress={() => { 
+                            setSelectedCityData(item); 
+                            setSearchQuery(`${item.name}, ${item.admin1 || ''} ${item.country}`.replace(/, \s*/g, ', ').trim()); 
+                            setShowSuggestions(false); 
+                            Keyboard.dismiss();
+                          }}
+                        >
+                          <Text style={styles.suggestionText}>{item.name}, {item.admin1 ? `${item.admin1}, ` : ''}{item.country}</Text>
+                        </TouchableOpacity>
+                      )) : (
+                        <View style={styles.suggestionItem}>
+                          <Text style={styles.suggestionText}>Sonuç bulunamadı</Text>
+                        </View>
+                      )}
+                    </ScrollView>
                   </View>
                 )}
               </View>

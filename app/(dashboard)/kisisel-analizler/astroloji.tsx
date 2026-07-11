@@ -1,12 +1,14 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as moment from 'moment-timezone';
-import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign } from '@/src/features/astrology/api/astrologyClient';
+// @ts-ignore
+import tzlookup from 'tz-lookup';
+import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign, AstroCity } from '@/src/features/astrology/api/astrologyClient';
 import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '@/src/features/astrology/engine/AstrologyInterpretations';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -89,10 +91,61 @@ export default function AstrolojiAnalysisScreen() {
     else if (section === 'houses') setExpandedHouses(!expandedHouses);
   };
 
-  const filteredCities = ASTRO_CITIES.filter(c => 
-    c.country === country &&
-    c.name.toLocaleLowerCase('tr-TR').startsWith(searchQuery.toLocaleLowerCase('tr-TR'))
-  ).map(c => c.name).slice(0, 4);
+  const [selectedCityData, setSelectedCityData] = useState<AstroCity | null>(null);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+
+  // Geocoding city search
+  useEffect(() => {
+    if (searchQuery.trim().length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchCities = async () => {
+      try {
+        const query = searchQuery + (country ? `, ${country}` : '');
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}`, {
+          headers: {
+            'User-Agent': '7LayersApp/1.0 (Contact: admin@7layers.com)',
+            'Accept-Language': 'tr-TR'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data)) {
+            const mapped = data.map((item: any) => {
+              const parts = item.display_name.split(',').map((s: string) => s.trim());
+              const name = item.name || parts[0];
+              const countryName = parts[parts.length - 1] || '';
+              const admin1 = parts.length > 2 ? parts[1] : '';
+              const latNum = parseFloat(item.lat);
+              const lonNum = parseFloat(item.lon);
+              let tz = 'Europe/Istanbul';
+              try {
+                tz = tzlookup(latNum, lonNum);
+              } catch (e) {
+                console.error("tzlookup error:", e);
+              }
+              return {
+                name,
+                lat: latNum,
+                lon: lonNum,
+                tz,
+                country: countryName,
+                admin1
+              };
+            });
+            setSuggestions(mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Geocoding Error in birth chart:", error);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchCities, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, country]);
 
   const dateInputRef = useRef<TextInput>(null);
   const timeInputRef = useRef<TextInput>(null);
@@ -116,7 +169,7 @@ export default function AstrolojiAnalysisScreen() {
   };
 
   const handleCalculate = async () => {
-    if (!searchQuery.trim()) {
+    if (!selectedCityData) {
       Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
       return;
     }
@@ -135,23 +188,18 @@ export default function AstrolojiAnalysisScreen() {
     setIsLoading(true);
     try {
       let birthDate;
-      let finalCity = cityKey;
-      
       const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
       
-      const matchedCity = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === searchQuery.trim().toLocaleLowerCase('tr-TR'));
-      if (matchedCity) {
-        finalCity = matchedCity.name;
-      }
+      const tz = selectedCityData.tz || 'Europe/Istanbul';
 
       if (moment && typeof moment.tz === 'function') {
-        const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", "Europe/Istanbul");
+        const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", tz);
         birthDate = m.toDate();
       } else {
         birthDate = new Date(year, month - 1, day, hour, minute);
       }
       
-      const result = await fetchAstrologyChart(birthDate, finalCity);
+      const result = await fetchAstrologyChart(birthDate, selectedCityData);
       setChart(result);
     } catch (error) {
       Alert.alert("Hesaplama Hatası", "Harita sunucudan alınırken bir sorun oluştu.");
@@ -400,17 +448,37 @@ export default function AstrolojiAnalysisScreen() {
                 <Text style={{ color: '#000', fontSize: 15 }}>{country}</Text>
               </TouchableOpacity>
               <Text style={styles.label}>Doğum Şehri (Ara)</Text>
-              <View style={{ zIndex: 99 }}>
-                <TextInput style={styles.input} value={searchQuery} onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} onFocus={() => { setShowSuggestions(true); }} placeholder={`Örn: ${country === 'Türkiye' ? 'İstan...' : 'Berlin...'}`} placeholderTextColor="#666" />
-                {showSuggestions && searchQuery.length > 0 && (
+              <View style={{ zIndex: 99, position: 'relative' }}>
+                <TextInput 
+                  style={styles.input} 
+                  value={searchQuery} 
+                  onChangeText={(t) => { setSearchQuery(t); setShowSuggestions(true); }} 
+                  onFocus={() => { setShowSuggestions(true); }} 
+                  placeholder="Şehir adı yazıp arayın..." 
+                  placeholderTextColor="#666" 
+                />
+                {showSuggestions && searchQuery.length >= 3 && (
                   <View style={styles.suggestionsContainer}>
-                    {filteredCities.length > 0 ? filteredCities.map((c, i) => (
-                      <TouchableOpacity key={i} style={styles.suggestionItem} onPress={() => { setCityKey(c); setSearchQuery(c); setShowSuggestions(false); }}>
-                        <Text style={styles.suggestionText}>{c}</Text>
-                      </TouchableOpacity>
-                    )) : (
-                      <View style={styles.suggestionItem}><Text style={styles.suggestionText}>{country !== 'Türkiye' ? 'Yurtdışı lokasyonları için merkez seçilir' : 'Sonuç bulunamadı'}</Text></View>
-                    )}
+                    <ScrollView keyboardShouldPersistTaps="always" style={{ maxHeight: 150 }}>
+                      {suggestions.length > 0 ? suggestions.map((item, i) => (
+                        <TouchableOpacity 
+                          key={i} 
+                          style={styles.suggestionItem} 
+                          onPress={() => { 
+                            setSelectedCityData(item); 
+                            setSearchQuery(`${item.name}, ${item.admin1 || ''} ${item.country}`.replace(/, \s*/g, ', ').trim()); 
+                            setShowSuggestions(false); 
+                            Keyboard.dismiss();
+                          }}
+                        >
+                          <Text style={styles.suggestionText}>{item.name}, {item.admin1 ? `${item.admin1}, ` : ''}{item.country}</Text>
+                        </TouchableOpacity>
+                      )) : (
+                        <View style={styles.suggestionItem}>
+                          <Text style={styles.suggestionText}>Sonuç bulunamadı</Text>
+                        </View>
+                      )}
+                    </ScrollView>
                   </View>
                 )}
               </View>

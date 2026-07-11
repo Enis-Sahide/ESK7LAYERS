@@ -56,9 +56,11 @@ export const ASTRO_CITIES: AstroCity[] = [
 // 'localhost' yerine bilgisayarınızın yerel IP adresini kullanmalısınız.
 import { API_BASE_URL } from '@/src/core/config';
 
-export async function fetchAstrologyChart(birthDate: Date, cityKey: string = 'İstanbul'): Promise<NatalChartData> {
+export async function fetchAstrologyChart(birthDate: Date, cityInput: string | AstroCity = 'İstanbul'): Promise<NatalChartData> {
   try {
-    const cityData = ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === cityKey.trim().toLocaleLowerCase('tr-TR')) || ASTRO_CITIES[0];
+    const cityData = typeof cityInput === 'string'
+      ? (ASTRO_CITIES.find(c => c.name.toLocaleLowerCase('tr-TR') === cityInput.trim().toLocaleLowerCase('tr-TR')) || ASTRO_CITIES[0])
+      : cityInput;
     const moment = require('moment-timezone');
     const m = moment.tz(birthDate, cityData.tz);
     const localDate = m.format('YYYY-MM-DD');
