@@ -6,6 +6,11 @@ import { Platform } from 'react-native';
 // Gerçek cihaz/emülatörde localhost çalışmaz; app.json > expo.extra.apiBaseUrl
 // alanına dağıtılmış web API adresini (örn https://api.example.com) yazın.
 const getBackendUrl = (): string => {
+  // Eğer env ile API adresi tanımlanmışsa (örn: canlı siteye bağlanmak için), onu öncelikli kullan.
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
   // Eğer tarayıcıda yerel çalışıyorsak (localhost:8081), istekleri yerel backend'e (localhost:3000) yönlendir.
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -14,7 +19,6 @@ const getBackendUrl = (): string => {
   }
 
   return (
-    (process.env.EXPO_PUBLIC_API_URL as string) ||
     ((Constants.expoConfig?.extra as any)?.apiBaseUrl as string) ||
     'https://www.7layers.tr'
   );
