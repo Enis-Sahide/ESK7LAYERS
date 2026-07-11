@@ -100,6 +100,12 @@ export default function AnlikGokyuzuScreen() {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [selectedCityData, setSelectedCityData] = useState<any>(null);
 
+  // Transit City Inputs
+  const [transitSearchQuery, setTransitSearchQuery] = useState('');
+  const [showTransitSuggestions, setShowTransitSuggestions] = useState(false);
+  const [transitSuggestions, setTransitSuggestions] = useState<any[]>([]);
+  const [selectedTransitCityData, setSelectedTransitCityData] = useState<any>(null);
+
   // Transit Inputs
   const today = new Date();
   const defaultTDate = today.toISOString().split('T')[0];
@@ -171,6 +177,58 @@ export default function AnlikGokyuzuScreen() {
     return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
 
+  // Geocoding transit city search
+  useEffect(() => {
+    if (transitSearchQuery.trim().length < 3) {
+      setTransitSuggestions([]);
+      return;
+    }
+
+    const fetchTransitCities = async () => {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(transitSearchQuery)}`, {
+          headers: {
+            'User-Agent': '7LayersApp/1.0 (Contact: admin@7layers.com)',
+            'Accept-Language': 'tr-TR'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data && Array.isArray(data)) {
+            const mapped = data.map((item: any) => {
+              const parts = item.display_name.split(',').map((s: string) => s.trim());
+              const name = item.name || parts[0];
+              const country = parts[parts.length - 1] || '';
+              const admin1 = parts.length > 2 ? parts[1] : '';
+              const latNum = parseFloat(item.lat);
+              const lonNum = parseFloat(item.lon);
+              let tz = 'Europe/Istanbul';
+              try {
+                tz = tzlookup(latNum, lonNum);
+              } catch (e) {
+                console.error("tzlookup error:", e);
+              }
+              return {
+                name,
+                latitude: latNum,
+                longitude: lonNum,
+                timezone: tz,
+                country,
+                admin1
+              };
+            });
+            setTransitSuggestions(mapped);
+          }
+        }
+      } catch (error) {
+        console.error("Geocoding Error:", error);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchTransitCities, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [transitSearchQuery]);
+
   const handleNatalDateChange = (text: string) => {
     let cleaned = text.replace(/\D/g, '');
     let formatted = '';
@@ -236,7 +294,8 @@ export default function AnlikGokyuzuScreen() {
           natalTime: natalTimeStr,
           transitDate: transitDateStr,
           transitTime: transitTimeStr,
-          cityData: selectedCityData
+          cityData: selectedCityData,
+          transitCityData: selectedTransitCityData
         }),
       });
 
@@ -634,6 +693,49 @@ export default function AnlikGokyuzuScreen() {
                 maxLength={5}
               />
 
+              <Text style={styles.label}>Transit Şehri (Opsiyonel)</Text>
+              <View style={{ zIndex: 999, position: 'relative' }}>
+                <TextInput
+                  style={styles.input}
+                  value={transitSearchQuery}
+                  onChangeText={(t) => {
+                    setTransitSearchQuery(t);
+                    setShowTransitSuggestions(true);
+                  }}
+                  onFocus={() => {
+                    setShowTransitSuggestions(true);
+                  }}
+                  placeholder="Arama yapmazsanız doğum şehri kullanılacaktır..."
+                  placeholderTextColor="#666"
+                />
+                {showTransitSuggestions && transitSearchQuery.length >= 3 && transitSuggestions.length > 0 && (
+                  <View style={styles.suggestionsContainer}>
+                    <ScrollView keyboardShouldPersistTaps="always" style={{ maxHeight: 150 }}>
+                      {transitSuggestions.map((item, index) => (
+                        <TouchableOpacity 
+                          key={index} 
+                          style={styles.suggestionItem}
+                          onPress={() => {
+                            setSelectedTransitCityData({
+                              name: item.name,
+                              lat: item.latitude,
+                              lon: item.longitude,
+                              tz: item.timezone || 'Europe/Istanbul',
+                              country: item.country
+                            });
+                            setTransitSearchQuery(`${item.name}, ${item.admin1 || ''} ${item.country}`.replace(/, \s*/g, ', ').trim());
+                            setShowTransitSuggestions(false);
+                            Keyboard.dismiss();
+                          }}
+                        >
+                          <Text style={styles.suggestionText}>{item.name}, {item.admin1 ? `${item.admin1}, ` : ''}{item.country}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+
               <TouchableOpacity style={styles.button} onPress={handleCalculate} disabled={isLoading}>
                 {isLoading ? (
                   <ActivityIndicator size="small" color="#0F172A" />
@@ -645,7 +747,11 @@ export default function AnlikGokyuzuScreen() {
           ) : (
             <View>
               {/* Reset/Back Button */}
-              <TouchableOpacity style={styles.resetBtn} onPress={() => setTransitData(null)}>
+              <TouchableOpacity style={styles.resetBtn} onPress={() => {
+                setTransitData(null);
+                setTransitSearchQuery('');
+                setSelectedTransitCityData(null);
+              }}>
                 <Ionicons name="arrow-back" size={18} color={COLORS.primary} style={{ marginRight: 6 }} />
                 <Text style={styles.resetBtnText}>Yeni Sorgulama</Text>
               </TouchableOpacity>
@@ -658,7 +764,7 @@ export default function AnlikGokyuzuScreen() {
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <View style={[styles.colorDot, { backgroundColor: COLORS.secondary }]} />
-                  <Text style={styles.infoText}>Transit: {transitDateStr.split('-').reverse().join('.')} {transitTimeStr}</Text>
+                  <Text style={styles.infoText}>Transit: {selectedTransitCityData ? `${selectedTransitCityData.name} • ` : ''}{transitDateStr.split('-').reverse().join('.')} {transitTimeStr}</Text>
                 </View>
               </View>
 
