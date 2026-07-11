@@ -59,6 +59,7 @@ export default function SchumannScreen() {
   const [hoveredBar, setHoveredBar] = useState<KpHistoryItem | null>(null);
   const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isNoaaReportOpen, setIsNoaaReportOpen] = useState(false);
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
@@ -1126,7 +1127,88 @@ export default function SchumannScreen() {
             </View>
           </BlurView>
 
+          {/* 4. NOAA Günlük Uzay Havası Raporu (Açılır/Kapanır) */}
+          {data?.noaa_discussion && (data.noaa_discussion.solar_activity_tr || data.noaa_discussion.geomagnetic_field_tr || data.noaa_discussion.solar_wind_tr) && (
+            <BlurView intensity={25} tint="dark" style={[styles.guideCard, { marginBottom: 20 }]}>
+              <TouchableOpacity 
+                style={styles.guideHeader} 
+                onPress={() => setIsNoaaReportOpen(!isNoaaReportOpen)}
+                activeOpacity={0.8}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 }}>
+                  <Ionicons name="book-outline" size={24} color="#00E5FF" style={{ marginRight: 10 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.guideHeaderTitle}>NOAA Günlük Uzay Havası Raporu</Text>
+                  </View>
+                </View>
+                <Ionicons 
+                  name={isNoaaReportOpen ? "chevron-up" : "chevron-down"} 
+                  size={20} 
+                  color={COLORS.textMuted} 
+                />
+              </TouchableOpacity>
 
+              {isNoaaReportOpen && (
+                <View style={styles.guideContent}>
+                  <Text style={[styles.guideParagraph, { marginTop: 10, marginBottom: 15 }]}>
+                    U.S. SWPC Uzay Tahmin Merkezi tarafından hazırlanan günlük bilimsel raporun Türkçe çevirisi.
+                  </Text>
+
+                  {data.noaa_discussion.raw_date && (
+                    <View style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: 12,
+                      padding: 10,
+                      marginBottom: 15,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: 'bold', fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' }}>
+                        Yayınlanma: {data.noaa_discussion.raw_date}
+                      </Text>
+                    </View>
+                  )}
+
+                  {data.noaa_discussion.solar_activity_tr && (
+                    <View style={styles.oracleSegment}>
+                      <View style={styles.oracleSegmentHeader}>
+                        <Ionicons name="sunny-outline" size={14} color="#00E5FF" />
+                        <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>Güneş Aktivitesi Özet & Tahmini</Text>
+                      </View>
+                      <Text style={styles.oracleSegmentBody}>
+                        {data.noaa_discussion.solar_activity_tr}
+                      </Text>
+                    </View>
+                  )}
+
+                  {data.noaa_discussion.solar_wind_tr && (
+                    <View style={styles.oracleSegment}>
+                      <View style={styles.oracleSegmentHeader}>
+                        <Ionicons name="pulse-outline" size={14} color="cyan" />
+                        <Text style={[styles.oracleSegmentTitle, { color: 'cyan' }]}>Güneş Rüzgarı Analizi</Text>
+                      </View>
+                      <Text style={styles.oracleSegmentBody}>
+                        {data.noaa_discussion.solar_wind_tr}
+                      </Text>
+                    </View>
+                  )}
+
+                  {data.noaa_discussion.geomagnetic_field_tr && (
+                    <View style={styles.oracleSegment}>
+                      <View style={styles.oracleSegmentHeader}>
+                        <Ionicons name="flash-outline" size={14} color="#F59E0B" />
+                        <Text style={[styles.oracleSegmentTitle, { color: '#F59E0B' }]}>Jeomanyetik Alan & Fırtına Tahmini</Text>
+                      </View>
+                      <Text style={styles.oracleSegmentBody}>
+                        {data.noaa_discussion.geomagnetic_field_tr}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </BlurView>
+          )}
 
           {/* 5. Bilgilendirme Bölümü (Açılır/Kapanır) */}
           <BlurView intensity={25} tint="dark" style={styles.guideCard}>
