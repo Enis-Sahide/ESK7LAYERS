@@ -71,7 +71,7 @@ export default function SchumannScreen() {
   const { role, isAdmin } = useProgress();
   const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
   const [data, setData] = useState<KpData | null>(null);
-  const [simulatedKp, setSimulatedKp] = useState<number | null>(null);
+  const [simulatedA1, setSimulatedA1] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -109,6 +109,18 @@ export default function SchumannScreen() {
       g: low.g + (high.g - low.g) * factor,
       b: low.b + (high.b - low.b) * factor
     };
+  };
+
+  const getSchumannScoreFromA1 = (a1: number) => {
+    if (a1 < 8) {
+      return parseFloat((0.5 + ((a1 - 4) / 4) * 2.5).toFixed(2));
+    } else if (a1 < 15) {
+      return parseFloat((3.0 + ((a1 - 8) / 7) * 3.0).toFixed(2));
+    } else if (a1 < 25) {
+      return parseFloat((6.0 + ((a1 - 15) / 10) * 2.5).toFixed(2));
+    } else {
+      return parseFloat(Math.min(10.0, 8.5 + ((a1 - 25) / 25) * 1.5).toFixed(2));
+    }
   };
 
   const getEstimatedImpact = (kpVal: number) => {
@@ -248,7 +260,10 @@ export default function SchumannScreen() {
           const mappedHistory = res.history.map((item: any, idx: number) => {
             const isLastReal = idx === lastRealIndex;
             if (isLastReal) {
-              const activeKp = simulatedKp !== null ? simulatedKp : item.kp;
+              if (simulatedA1 !== null) {
+                return { ...item, kp: getSchumannScoreFromA1(simulatedA1) };
+              }
+              const activeKp = item.kp;
               const activeImpact = getCalculatedImpactForData(res, activeKp);
               return { ...item, kp: activeImpact };
             }
@@ -264,8 +279,9 @@ export default function SchumannScreen() {
 
           setHoveredBar(prev => {
             const kpHistory = res.history.map((h: any, idx: number) => {
-              if (simulatedKp !== null && idx === lastRealIndex) {
-                return { ...h, kp: simulatedKp };
+              if (simulatedA1 !== null && idx === lastRealIndex) {
+                const activeKp = Math.min(9.0, (simulatedA1 / 75.0) * 9.0);
+                return { ...h, kp: activeKp };
               }
               return h;
             });
@@ -492,7 +508,10 @@ export default function SchumannScreen() {
     }, -1);
 
     if (idx === lastMeasuredIdx) {
-      const activeKp = simulatedKp !== null ? simulatedKp : item.kp;
+      if (simulatedA1 !== null) {
+        return { ...item, kp: getSchumannScoreFromA1(simulatedA1) };
+      }
+      const activeKp = item.kp;
       const activeImpact = getCalculatedImpact(activeKp);
       return { ...item, kp: activeImpact };
     }
@@ -509,8 +528,9 @@ export default function SchumannScreen() {
       return lastIdx;
     }, -1);
 
-    if (simulatedKp !== null && idx === lastMeasuredIdx) {
-      return { ...item, kp: simulatedKp };
+    if (simulatedA1 !== null && idx === lastMeasuredIdx) {
+      const activeKp = Math.min(9.0, (simulatedA1 / 75.0) * 9.0);
+      return { ...item, kp: activeKp };
     }
     return item;
   }) : [];
@@ -552,33 +572,20 @@ export default function SchumannScreen() {
           {/* 1. Kozmik Oracle / Durum Raporu */}
           {(() => {
             // Determine active metrics (simulated or live)
-            const activeKp = simulatedKp !== null ? simulatedKp : (data?.current_kp ?? 0);
-            const speed = simulatedKp !== null ? (300 + (simulatedKp / 9) * 500) : (data?.solar_wind?.speed ?? 350);
-            const density = simulatedKp !== null ? (3 + (simulatedKp / 9) * 15) : (data?.solar_wind?.density ?? 4);
-            const bz = simulatedKp !== null ? (5 - (simulatedKp / 9) * 15) : (data?.solar_wind?.bz ?? 0);
-            const bt = simulatedKp !== null ? (5 + (simulatedKp / 9) * 15) : (data?.solar_wind?.bt ?? 5);
-            const temp = simulatedKp !== null ? (100000 + (simulatedKp / 9) * 400000) : (data?.solar_wind?.temperature ?? 150000);
-            const score = simulatedKp !== null ? getCalculatedImpact(simulatedKp) : (data?.cosmic_impact_score ?? activeKp);
-
-            // Calculate simulated A1 and F1 based on Kp index or use live data
-            let a1 = 6.0;
-            let f1 = 7.83;
-            if (simulatedKp !== null) {
-              const simScore = getCalculatedImpact(simulatedKp);
-              if (simScore < 3.0) {
-                a1 = 4.0 + (simScore / 3.0) * 4.0;
-              } else if (simScore < 6.0) {
-                a1 = 8.0 + ((simScore - 3.0) / 3.0) * 7.0;
-              } else if (simScore < 8.5) {
-                a1 = 15.0 + ((simScore - 6.0) / 2.5) * 10.0;
-              } else {
-                a1 = 25.0 + ((simScore - 8.5) / 1.5) * 25.0;
-              }
-              f1 = 7.83 - 0.2 + (simulatedKp / 9.0) * 0.4;
-            } else if (data?.schumann_real) {
-              a1 = data.schumann_real.a1;
-              f1 = data.schumann_real.f1;
+            let a1 = data?.schumann_real?.a1 ?? 6.0;
+            let f1 = data?.schumann_real?.f1 ?? 7.83;
+            
+            if (simulatedA1 !== null) {
+              a1 = simulatedA1;
+              f1 = 7.83 + (simulatedA1 / 75.0) * 0.5;
             }
+
+            const score = simulatedA1 !== null ? getSchumannScoreFromA1(simulatedA1) : (data?.cosmic_impact_score ?? 0.5);
+            const activeKp = simulatedA1 !== null ? Math.min(9.0, (simulatedA1 / 75.0) * 9.0) : (data?.current_kp ?? 0);
+            const speed = simulatedA1 !== null ? (300 + (activeKp / 9) * 500) : (data?.solar_wind?.speed ?? 350);
+            const density = simulatedA1 !== null ? (3 + (activeKp / 9) * 15) : (data?.solar_wind?.density ?? 4);
+            const bz = simulatedA1 !== null ? (5 - (activeKp / 9) * 15) : (data?.solar_wind?.bz ?? 0);
+            const bt = simulatedA1 !== null ? (5 + (activeKp / 9) * 15) : (data?.solar_wind?.bt ?? 5);
 
             const analysis = generateRulesAnalysis(score, speed, density, bz, bt, activeKp, a1, f1);
 
@@ -628,12 +635,13 @@ export default function SchumannScreen() {
           {/* 2. Güneş Rüzgarı & Manyetik Alan İstasyonu (2x3 Grid) */}
           {!loading && data?.solar_wind && (
             (() => {
-              const activeKp = simulatedKp !== null ? simulatedKp : (data.current_kp ?? 0);
-              const speed = simulatedKp !== null ? (300 + (simulatedKp / 9) * 500) : (data.solar_wind.speed ?? 350);
-              const density = simulatedKp !== null ? (3 + (simulatedKp / 9) * 15) : (data.solar_wind.density ?? 4);
-              const bz = simulatedKp !== null ? (5 - (simulatedKp / 9) * 15) : (data.solar_wind.bz ?? 0);
-              const bt = simulatedKp !== null ? (5 + (simulatedKp / 9) * 15) : (data.solar_wind.bt ?? 5);
-              const temp = simulatedKp !== null ? (100000 + (simulatedKp / 9) * 400000) : (data.solar_wind.temperature ?? 150000);
+              const a1 = simulatedA1 !== null ? simulatedA1 : (data.schumann_real?.a1 ?? 6.0);
+              const activeKp = simulatedA1 !== null ? Math.min(9.0, (a1 / 75.0) * 9.0) : (data.current_kp ?? 0);
+              const speed = simulatedA1 !== null ? (300 + (activeKp / 9) * 500) : (data.solar_wind.speed ?? 350);
+              const density = simulatedA1 !== null ? (3 + (activeKp / 9) * 15) : (data.solar_wind.density ?? 4);
+              const bz = simulatedA1 !== null ? (5 - (activeKp / 9) * 15) : (data.solar_wind.bz ?? 0);
+              const bt = simulatedA1 !== null ? (5 + (activeKp / 9) * 15) : (data.solar_wind.bt ?? 5);
+              const temp = simulatedA1 !== null ? (100000 + (activeKp / 9) * 400000) : (data.solar_wind.temperature ?? 150000);
 
               const showInfoAlert = (title: string, desc: string) => {
                 Alert.alert(title, desc, [{ text: "Tamam" }]);
@@ -784,35 +792,35 @@ export default function SchumannScreen() {
               </View>
             </View>
             <Text style={styles.simulatorSubtitle}>
-              Farklı Kp endeksi seviyelerinin etkilerini ve renk değişimlerini test edin
+              Farklı Schumann A1 genliği seviyelerinin iyonosferik etkilerini ve renk değişimlerini test edin
             </Text>
             
             <View style={styles.sliderWrapper}>
-              <Text style={styles.sliderLabel}>Kp 0</Text>
+              <Text style={styles.sliderLabel}>A1 4.0</Text>
               <Slider
                 style={styles.slider}
-                minimumValue={0}
-                maximumValue={9}
-                step={0.1}
-                value={simulatedKp !== null ? simulatedKp : 0}
-                onValueChange={(val) => setSimulatedKp(val)}
+                minimumValue={4.0}
+                maximumValue={75.0}
+                step={0.5}
+                value={simulatedA1 !== null ? simulatedA1 : (data?.schumann_real?.a1 ?? 6.0)}
+                onValueChange={(val) => setSimulatedA1(val)}
                 minimumTrackTintColor={COLORS.primary}
                 maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
                 thumbTintColor={COLORS.primary}
               />
-              <Text style={styles.sliderLabel}>Kp 9</Text>
+              <Text style={styles.sliderLabel}>A1 75.0</Text>
             </View>
 
             <View style={styles.simulatorFooter}>
               <Text style={styles.simulatorFooterText}>
-                Simüle Edilen Kp: <Text style={styles.simulatorValueText}>
-                  {simulatedKp !== null ? `${simulatedKp.toFixed(1)} (Test)` : 'Canlı Akış'}
+                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
+                  {simulatedA1 !== null ? `A1 Genliği ${simulatedA1.toFixed(1)}` : 'Canlı Akış'}
                 </Text>
               </Text>
-              {simulatedKp !== null && (
+              {simulatedA1 !== null && (
                 <TouchableOpacity 
                   style={styles.resetBtn} 
-                  onPress={() => setSimulatedKp(null)}
+                  onPress={() => setSimulatedA1(null)}
                 >
                   <Text style={styles.resetBtnText}>Sıfırla</Text>
                 </TouchableOpacity>
@@ -1156,7 +1164,7 @@ export default function SchumannScreen() {
 
                 <Text style={styles.guideSectionTitle}>Kozmik Enerji Simülatörü (Test Paneli):</Text>
                 <Text style={styles.guideParagraph}>
-                  Uygulamadaki test sürgüsü yardımıyla Kp endeksini (0-9 arası) manuel olarak değiştirebilirsiniz. Sürgüyü oynattığınızda, tüm güneş rüzgarı parametreleri ve Kozmik Oracle teşhisi senkronize bir şekilde güncellenerek olası jeomanyetik fırtınaların ve yüksek enerjisel geçişlerin iyonosfer üzerindeki etkilerini test etmenizi sağlar. "Canlı Veriye Dön" butonuyla gerçek verilere dönebilirsiniz.
+                  Uygulamadaki test sürgüsü yardımıyla Schumann A1 genliğini (4.0 - 75.0 arası) manuel olarak değiştirebilirsiniz. Sürgüyü oynattığınızda, tüm güneş rüzgarı parametreleri ve Kozmik Oracle teşhisi senkronize bir şekilde güncellenerek olası jeomanyetik fırtınaların ve yüksek enerjisel geçişlerin iyonosfer üzerindeki etkilerini test etmenizi sağlar. "Canlı Veriye Dön" butonuyla gerçek verilere dönebilirsiniz.
                 </Text>
 
                 <Text style={styles.guideSectionTitle}>Güneş Rüzgarı Sözlüğü:</Text>
