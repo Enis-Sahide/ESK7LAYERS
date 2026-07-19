@@ -711,21 +711,31 @@ export default function SchumannScreen() {
                     <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>🔬 Bilimsel Teşhis</Text>
                   </View>
                   <Text style={styles.oracleSegmentBody}>{analysis.science}</Text>
-                  <View style={{
-                    marginTop: 10,
-                    paddingTop: 8,
-                    borderTopWidth: 1,
-                    borderTopColor: 'rgba(255, 255, 255, 0.05)'
-                  }}>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => Alert.alert(
+                      "Rasathane Ölçüm Notu",
+                      "Spektrogram verileri Tomsk (Rusya) Rasathanesi'nden alınmaktadır. Schumann Rezonansı küresel bir fenomen olsa da, ölçülen genlik seviyeleri ve anlık beyaz parlamalar istasyon çevresindeki yerel yıldırım fırtınalarından da etkilenebilmektedir.",
+                      [{ text: "Anladım" }]
+                    )}
+                    style={{
+                      marginTop: 10,
+                      paddingTop: 8,
+                      borderTopWidth: 1,
+                      borderTopColor: 'rgba(255, 255, 255, 0.05)',
+                      flexDirection: 'row',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Ionicons name="globe-outline" size={12} color="#00E5FF" style={{ marginRight: 4 }} />
                     <Text style={{
                       fontSize: 10,
-                      color: 'rgba(255, 255, 255, 0.4)',
-                      fontStyle: 'italic',
-                      lineHeight: 14
+                      color: '#00E5FF',
+                      fontWeight: 'bold'
                     }}>
-                      ※ Önemli Gözlem Notu: Ölçümler Tomsk (Rusya) gözlemevinde yapıldığından, grafikte görülen genlik sıçramaları ve beyaz parlamalar küresel rezonansın yanı sıra istasyon yakınlarındaki yerel yıldırım aktivitelerini de yansıtabilir.
+                      Rasathane Ölçüm Notu ⓘ
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 </View>
 
                 <View style={styles.oracleSegment}>
