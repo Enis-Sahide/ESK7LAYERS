@@ -581,11 +581,13 @@ export default function SchumannScreen() {
             }
 
             const score = simulatedA1 !== null ? getSchumannScoreFromA1(simulatedA1) : (data?.cosmic_impact_score ?? 0.5);
-            const activeKp = simulatedA1 !== null ? Math.min(9.0, (simulatedA1 / 75.0) * 9.0) : (data?.current_kp ?? 0);
-            const speed = simulatedA1 !== null ? (300 + (activeKp / 9) * 500) : (data?.solar_wind?.speed ?? 350);
-            const density = simulatedA1 !== null ? (3 + (activeKp / 9) * 15) : (data?.solar_wind?.density ?? 4);
-            const bz = simulatedA1 !== null ? (5 - (activeKp / 9) * 15) : (data?.solar_wind?.bz ?? 0);
-            const bt = simulatedA1 !== null ? (5 + (activeKp / 9) * 15) : (data?.solar_wind?.bt ?? 5);
+            
+            // Keep solar wind and Kp index strictly at their live values (do not simulate)
+            const activeKp = data?.current_kp ?? 0;
+            const speed = data?.solar_wind?.speed ?? 350;
+            const density = data?.solar_wind?.density ?? 4;
+            const bz = data?.solar_wind?.bz ?? 0;
+            const bt = data?.solar_wind?.bt ?? 5;
 
             const analysis = generateRulesAnalysis(score, speed, density, bz, bt, activeKp, a1, f1);
 
@@ -635,13 +637,13 @@ export default function SchumannScreen() {
           {/* 2. Güneş Rüzgarı & Manyetik Alan İstasyonu (2x3 Grid) */}
           {!loading && data?.solar_wind && (
             (() => {
-              const a1 = simulatedA1 !== null ? simulatedA1 : (data.schumann_real?.a1 ?? 6.0);
-              const activeKp = simulatedA1 !== null ? Math.min(9.0, (a1 / 75.0) * 9.0) : (data.current_kp ?? 0);
-              const speed = simulatedA1 !== null ? (300 + (activeKp / 9) * 500) : (data.solar_wind.speed ?? 350);
-              const density = simulatedA1 !== null ? (3 + (activeKp / 9) * 15) : (data.solar_wind.density ?? 4);
-              const bz = simulatedA1 !== null ? (5 - (activeKp / 9) * 15) : (data.solar_wind.bz ?? 0);
-              const bt = simulatedA1 !== null ? (5 + (activeKp / 9) * 15) : (data.solar_wind.bt ?? 5);
-              const temp = simulatedA1 !== null ? (100000 + (activeKp / 9) * 400000) : (data.solar_wind.temperature ?? 150000);
+              // Keep solar wind and Kp index strictly at their live values (do not simulate)
+              const activeKp = data.current_kp ?? 0;
+              const speed = data.solar_wind.speed ?? 350;
+              const density = data.solar_wind.density ?? 4;
+              const bz = data.solar_wind.bz ?? 0;
+              const bt = data.solar_wind.bt ?? 5;
+              const temp = data.solar_wind.temperature ?? 150000;
 
               const showInfoAlert = (title: string, desc: string) => {
                 Alert.alert(title, desc, [{ text: "Tamam" }]);
