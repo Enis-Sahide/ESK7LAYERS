@@ -7,6 +7,7 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
+import { API_BASE_URL } from '@/src/core/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useProgress } from '@/src/context/ProgressContext';
@@ -60,6 +61,7 @@ export default function SchumannScreen() {
   const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isNoaaReportOpen, setIsNoaaReportOpen] = useState(false);
+  const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
@@ -211,6 +213,7 @@ export default function SchumannScreen() {
 
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
+    setImageTimestamp(Date.now());
     try {
       const res = await apiFetch('/api/schumann');
       if (res) {
@@ -807,149 +810,38 @@ export default function SchumannScreen() {
           <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
             <Text style={styles.chartTitle}>Schumann Rezonansı</Text>
             <Text style={styles.chartSubtitle}>
-              Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti (Koyu yeşilden kırmızıya geçişler ve beyaz dikey patlamalar)
+              Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti. Bu veriler Space Observing System 70 (Tomsk, Rusya) rasathanesinden canlı olarak alınmaktadır.
             </Text>
 
             {/* Spectrogram Tooltip */}
             <View style={styles.spectrogramTooltipContainer}>
-              {activeSpectrogramBar ? (
-                <View style={styles.spectrogramTooltip}>
-                  <Text style={styles.spectrogramTooltipText}>
-                    Zaman: <Text style={{ fontWeight: 'bold', color: '#fff' }}>{formatTimeRange(activeSpectrogramBar.time)}</Text>
-                    {activeSpectrogramBar.predicted 
-                      ? ' (Tahmin)' 
-                      : ' (Ölçüm)'}
-                    {' | '}
-                    Schumann Tahmini: <Text style={{ fontWeight: 'bold', color: getScoreColor(activeSpectrogramBar.kp) }}>{activeSpectrogramBar.kp.toFixed(2)}</Text>
-                    {' | '}
-                    <Text style={{ fontWeight: 'bold', color: getScoreColor(activeSpectrogramBar.kp) }}>{getSpiritualLabel(activeSpectrogramBar.kp)}</Text>
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.tooltipPlaceholder}>Detayları görmek için dalgaların üzerine dokunun</Text>
-              )}
+              <Text style={styles.spectrogramTooltipText}>
+                Space Observing System 70 rasathanesinden her saat güncellenir.
+              </Text>
             </View>
 
             <View style={styles.spectrogramWrapper}>
-              {/* Sabit Hz etiketleri (Sol Taraf) */}
-              <View style={styles.hzScale}>
-                <Text style={styles.hzText}>0 Hz</Text>
-                <Text style={styles.hzText}>8 Hz</Text>
-                <Text style={styles.hzText}>16 Hz</Text>
-                <Text style={styles.hzText}>24 Hz</Text>
-                <Text style={styles.hzText}>32 Hz</Text>
-                        <Text style={styles.hzText}>40 Hz</Text>
-              </View>
-
-              {/* Fluid Şelale Alanı (Tüm Ekran Genişliğine Sığacak Şekilde) */}
-              <View style={styles.spectrogramMainContainer}>
-                {historyToRender && historyToRender.length >= 2 ? (
-                  <View style={{ flex: 1, height: '100%', flexDirection: 'row', position: 'relative' }}>
-                    {historyToRender.map((item, idx) => {
-                      const kp = item.kp;
-                      const isForecast = !!item.predicted;
-                      const isHovered = hoveredSpectrogramBar && hoveredSpectrogramBar.time === item.time;
-
-                      return (
-                        <TouchableOpacity 
-                          key={idx} 
-                          style={styles.spectrogramColFluid}
-                          activeOpacity={0.8}
-                          onPress={() => setHoveredSpectrogramBar(item)}
-                        >
-                          {/* 1. Frekans Spektrumu Gradyan Sütunu (Her zaman görünür Cyan Çizgiler) */}
-                          <LinearGradient
-                            colors={getBaseCyanColors(isForecast) as any}
-                            locations={RESONANCE_LOCATIONS as any}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 0, y: 1 }}
-                            style={[styles.colBgGradient, { opacity: item.predicted ? 0.65 : 1 }]}
-                          />
-
-                          {/* 2. Ekstra Genlik (Kp) 0.1 ve üzeri olduğunda üzerine yarı şeffaf genlik rengi ekle */}
-                          {kp >= 0.1 && (
-                            <LinearGradient
-                               colors={getKpColors(kp, isForecast) as any}
-                               locations={RESONANCE_LOCATIONS as any}
-                              start={{ x: 0, y: 0 }}
-                              end={{ x: 0, y: 1 }}
-                              style={styles.colOverlayGradient}
-                            />
-                          )}
-
-                          {/* 3. Dikey Beyaz Işıma (Kp >= 5.0 Fırtına Durumu) */}
-                          {kp >= 5.0 && (
-                            <LinearGradient
-                              start={{ x: 0, y: 0 }}
-                              end={{ x: 1, y: 0 }}
-                              colors={['transparent', 'rgba(255, 255, 255, 0.3)', '#FFFFFF', 'rgba(255, 255, 255, 0.3)', 'transparent']}
-                              style={styles.colWhiteGlow}
-                            />
-                          )}
-
-                          {/* 4. Seçim Vurgusu (Ortalanmış Sarı Çizgi ve Noktalar) */}
-                          {isHovered && (
-                            <View style={styles.fluidSelectorContainer}>
-                              <View style={styles.selectorLine} />
-                              <View style={[styles.selectorDot, { top: '0%' }]} />
-                              <View style={[styles.selectorDot, { top: '19.6%' }]} />
-                              <View style={[styles.selectorDot, { top: '35.3%' }]} />
-                              <View style={[styles.selectorDot, { top: '50.8%' }]} />
-                              <View style={[styles.selectorDot, { top: '66.0%' }]} />
-                              <View style={[styles.selectorDot, { top: '81.0%' }]} />
-                            </View>
-                          )}
-
-                          {/* 5. Zaman Etiketi (Sadece 4 sütunda bir sığması için gösterilir) */}
-                          {idx % 4 === 0 && (() => {
-                            const d = new Date(item.time.endsWith('Z') ? item.time : item.time + 'Z');
-                            const hours = d.getHours().toString().padStart(2, '0');
-                            const isDayTransition = hours === '00';
-                            
-                            let hourLabel = hours;
-                            let labelColor = 'rgba(255, 255, 255, 0.45)';
-                            let fontWeight: 'normal' | 'bold' = 'normal';
-                            
-                            if (isDayTransition) {
-                              const dayNamesShort = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
-                              const dayName = dayNamesShort[d.getDay()];
-                              hourLabel = `${dayName} ${hours}`;
-                              labelColor = item.predicted ? '#00e5ff80' : '#00E5FF';
-                              fontWeight = 'bold';
-                            }
-                            
-                            return (
-                              <Text style={[
-                                styles.spectrogramTimeText, 
-                                { color: labelColor, fontWeight: fontWeight }
-                              ]} numberOfLines={1}>
-                                {hourLabel}
-                              </Text>
-                            );
-                          })()}
-
-                          {/* 6. ŞİMDİ Sınırı (İlk Tahmin Sütununun Sol Kenarında Çizilir) */}
-                          {idx === firstForecastIndex && (
-                            <View style={styles.spectrogramNowLineFluid}>
-                              <Text style={styles.spectrogramNowTextFluid}>ŞİMDİ</Text>
-                            </View>
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ) : null}
-              </View>
-
-              {/* Watermark Logo & Text */}
-              <View style={styles.watermarkContainer}>
+              {loading ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                </View>
+              ) : (
                 <Image 
-                  source={require('../../../assets/images/icon.png')} 
-                  style={styles.watermarkLogo} 
-                  resizeMode="contain"
+                  source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
+                  style={styles.spectrogramImage}
+                  resizeMode="stretch"
                 />
-                <Text style={styles.watermarkText}>7LAYERS</Text>
-              </View>
+              )}
+            </View>
+
+            {/* Watermark Logo & Text */}
+            <View style={styles.watermarkContainer}>
+              <Image 
+                source={require('../../../assets/images/icon.png')} 
+                style={styles.watermarkLogo} 
+                resizeMode="contain"
+              />
+              <Text style={styles.watermarkText}>7LAYERS</Text>
             </View>
           </BlurView>
 
@@ -1713,8 +1605,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
   },
   spectrogramWrapper: {
-    flexDirection: 'row',
-    height: 160,
+    height: 180,
     marginTop: 10,
     backgroundColor: '#050505',
     borderRadius: 8,
@@ -1722,6 +1613,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
     position: 'relative',
     overflow: 'hidden',
+  },
+  spectrogramImage: {
+    width: '100%',
+    height: '100%',
   },
   hzScale: {
     width: 45,
