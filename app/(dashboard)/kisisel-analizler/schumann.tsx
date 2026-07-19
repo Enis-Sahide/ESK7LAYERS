@@ -425,6 +425,21 @@ export default function SchumannScreen() {
     }
   };
 
+  const formatTomskTime = (utcTimeStr?: string) => {
+    if (!utcTimeStr) return '---';
+    try {
+      const d = new Date(utcTimeStr);
+      const tomskDate = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+      return tomskDate.toLocaleString('tr-TR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        timeZone: 'UTC'
+      });
+    } catch (e) {
+      return utcTimeStr;
+    }
+  };
+
   const formatTimeRange = (timeStr: string) => {
     try {
       const dStart = new Date(timeStr.endsWith('Z') ? timeStr : timeStr + 'Z');
@@ -478,29 +493,7 @@ export default function SchumannScreen() {
     }
   };
 
-  const getLocalTimelineTicks = (endTimeUtc: string) => {
-    if (!endTimeUtc) return [];
-    try {
-      const utcDate = new Date(endTimeUtc);
-      const tomskTime = new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
-      const day1Date = new Date(tomskTime.getTime() - 2 * 24 * 60 * 60 * 1000);
-      
-      const chartStartMs = Date.UTC(day1Date.getFullYear(), day1Date.getMonth(), day1Date.getDate(), 0, 0, 0) - 7 * 60 * 60 * 1000;
-      
-      const ticks = [];
-      for (let i = 0; i <= 6; i++) {
-        const tickTimeMs = chartStartMs + i * 12 * 60 * 60 * 1000;
-        const date = new Date(tickTimeMs);
-        ticks.push({
-          hour: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
-          day: `${date.getDate()} ${date.toLocaleDateString('tr-TR', { month: 'short' })}`
-        });
-      }
-      return ticks;
-    } catch (e) {
-      return [];
-    }
-  };
+
 
   const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number, kp: number, a1: number, f1: number) => {
     // 1. Zirve Ekstrem Schumann Fırtınası (Ekstrem G5 Fırtınası)
@@ -833,12 +826,35 @@ export default function SchumannScreen() {
               Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti. Bu veriler Space Observing System 70 (Tomsk, Rusya) rasathanesinden canlı olarak alınmaktadır.
             </Text>
 
-            {/* Spectrogram Tooltip */}
-            <View style={styles.spectrogramTooltipContainer}>
-              <Text style={styles.spectrogramTooltipText}>
-                Canlı Gözlemevi Ölçümü {data?.schumann_real && `(${formatRealTime(data.schumann_real.time_utc)})`}
-              </Text>
-            </View>
+            {/* Spectrogram Header with Local & Tomsk Times */}
+            {data?.schumann_real && (
+              <View style={{
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                marginBottom: 12,
+                gap: 8
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8 }}>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#00E5FF', marginRight: 6 }} />
+                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#00E5FF' }}>CANLI GÖZLEMEVİ</Text>
+                </View>
+                <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 'bold' }}>
+                  Yerel: <Text style={{ color: '#00E5FF' }}>{formatRealTime(data.schumann_real.time_utc)}</Text>
+                </Text>
+                <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>|</Text>
+                <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 'bold' }}>
+                  Tomsk: <Text style={{ color: '#A78BFA' }}>{formatTomskTime(data.schumann_real.time_utc)}</Text>
+                </Text>
+              </View>
+            )}
 
             <ScrollView 
               horizontal={true} 
@@ -852,45 +868,11 @@ export default function SchumannScreen() {
                     <ActivityIndicator size="small" color={COLORS.primary} />
                   </View>
                 ) : (
-                  <View>
-                    <Image 
-                      source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
-                      style={{ width: 750, height: 200 }}
-                      resizeMode="stretch"
-                    />
-                    {data?.schumann_real?.time_utc && (
-                      (() => {
-                        const ticks = getLocalTimelineTicks(data.schumann_real.time_utc);
-                        return (
-                          <View style={{ marginTop: 10, width: 750, position: 'relative' }}>
-                            {/* Left axis label */}
-                            <Text style={{ position: 'absolute', left: 4, bottom: 0, fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 'bold' }}>
-                              YEREL SAAT
-                            </Text>
-
-                            <View style={{ marginLeft: 51, width: 652.5, flexDirection: 'row', position: 'relative', height: 26 }}>
-                              {ticks.map((tick, index) => (
-                                <View 
-                                  key={index} 
-                                  style={{ 
-                                    position: 'absolute', 
-                                    left: (index / 6) * 652.5, 
-                                    alignItems: 'center', 
-                                    transform: [{ translateX: -20 }],
-                                    width: 40
-                                  }}
-                                >
-                                  <View style={{ width: 1.5, height: 6, backgroundColor: 'rgba(0, 229, 255, 0.4)', marginBottom: 2 }} />
-                                  <Text style={{ fontSize: 9, color: '#fff', fontWeight: 'bold', lineHeight: 10 }}>{tick.hour}</Text>
-                                  <Text style={{ fontSize: 8, color: '#00E5FF', fontWeight: 'bold', lineHeight: 9, marginTop: 1 }}>{tick.day}</Text>
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-                        );
-                      })()
-                    )}
-                  </View>
+                  <Image 
+                    source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
+                    style={{ width: 750, height: 200 }}
+                    resizeMode="stretch"
+                  />
                 )}
               </View>
             </ScrollView>
