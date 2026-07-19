@@ -355,11 +355,20 @@ export default function SchumannScreen() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score < 3.0) return '#10B981'; // Sakin (Yeşil)
-    if (score < 5.0) return '#F59E0B'; // Uyarılmış (Sarı)
-    if (score < 7.0) return '#F97316'; // Aktif (Turuncu)
-    if (score < 8.5) return '#EF4444'; // Yoğun (Kırmızı)
-    return '#FFD700'; // Ekstrem (Altın)
+    if (score < 3.0) return '#00E5FF'; // Mavi (Cyan)
+    if (score < 5.0) return '#10B981'; // Yeşil (Green)
+    if (score < 7.0) return '#EF4444'; // Kırmızı (Red)
+    return '#FFFFFF'; // Beyaz (Zirve Parlama / G3+)
+  };
+
+  const getSchumannLevelLabel = (score: number) => {
+    if (score < 3.0) return 'Düşük Seviye (Sakin / G0)';
+    if (score < 5.0) return 'Hafif Uyarım (Aktif / G0)';
+    if (score < 6.0) return 'Orta Fırtına (G1 Seviyesi)';
+    if (score < 7.0) return 'Güçlü Fırtına (G2 Seviyesi)';
+    if (score < 8.0) return 'Şiddetli Fırtına (G3 Seviyesi)';
+    if (score < 9.0) return 'Ağır Fırtına (G4 Seviyesi)';
+    return 'Zirve Patlama (Ekstrem G5 Fırtınası)';
   };
 
   const getSpiritualLabel = (score: number) => {
@@ -594,15 +603,33 @@ export default function SchumannScreen() {
             return (
               <View style={styles.oracleCard}>
                 <View style={styles.oracleHeader}>
-                  <View style={[styles.oracleScoreBadge, { borderColor: getKpColor(activeKp) }]}>
+                  <View style={[styles.oracleScoreBadge, { borderColor: getScoreColor(score) }]}>
                     <Text style={styles.oracleScoreLabel}>Tahmin</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getKpColor(activeKp) }]}>
+                    <Text style={[styles.oracleScoreVal, { color: getScoreColor(score) }]}>
                       {score.toFixed(1)}
                     </Text>
                   </View>
-                  <View style={{ flex: 1 }}>
+                  <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu {data?.schumann_real && `- GÖZLEM SAATİ: ${formatRealTime(data.schumann_real.time_utc)}`}</Text>
                     <Text style={styles.oracleTitle}>{analysis.title}</Text>
+                    <View style={{
+                      borderColor: getScoreColor(score) + '40',
+                      borderWidth: 1,
+                      backgroundColor: getScoreColor(score) + '15',
+                      borderRadius: 6,
+                      paddingHorizontal: 8,
+                      paddingVertical: 2,
+                      marginTop: 4,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <Text style={{
+                        color: getScoreColor(score) === '#FFFFFF' ? '#FFD700' : getScoreColor(score),
+                        fontSize: 9,
+                        fontWeight: 'bold'
+                      }}>
+                        {getSchumannLevelLabel(score)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
 
