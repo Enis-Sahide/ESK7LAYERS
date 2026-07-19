@@ -671,6 +671,21 @@ export default function SchumannScreen() {
                     <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>🔬 Bilimsel Teşhis</Text>
                   </View>
                   <Text style={styles.oracleSegmentBody}>{analysis.science}</Text>
+                  <View style={{
+                    marginTop: 10,
+                    paddingTop: 8,
+                    borderTopWidth: 1,
+                    borderTopColor: 'rgba(255, 255, 255, 0.05)'
+                  }}>
+                    <Text style={{
+                      fontSize: 10,
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      fontStyle: 'italic',
+                      lineHeight: 14
+                    }}>
+                      ※ Önemli Gözlem Notu: Ölçümler Tomsk (Rusya) gözlemevinde yapıldığından, grafikte görülen genlik sıçramaları ve beyaz parlamalar küresel rezonansın yanı sıra istasyon yakınlarındaki yerel yıldırım aktivitelerini de yansıtabilir.
+                    </Text>
+                  </View>
                 </View>
 
                 <View style={styles.oracleSegment}>
