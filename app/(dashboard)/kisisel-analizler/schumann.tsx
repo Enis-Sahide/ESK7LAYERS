@@ -478,6 +478,25 @@ export default function SchumannScreen() {
     }
   };
 
+  const getLocalTimelineTicks = (endTimeUtc: string) => {
+    if (!endTimeUtc) return [];
+    try {
+      const endTime = new Date(endTimeUtc).getTime();
+      const ticks = [];
+      for (let i = 6; i >= 0; i--) {
+        const timeMs = endTime - i * 12 * 60 * 60 * 1000;
+        const date = new Date(timeMs);
+        ticks.push({
+          hour: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+          day: `${date.getDate()} ${date.toLocaleDateString('tr-TR', { month: 'short' })}`
+        });
+      }
+      return ticks;
+    } catch (e) {
+      return [];
+    }
+  };
+
   const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number, kp: number, a1: number, f1: number) => {
     // 1. Zirve Ekstrem Schumann Fırtınası (Ekstrem G5 Fırtınası)
     if (score >= 9.0) {
@@ -816,19 +835,60 @@ export default function SchumannScreen() {
               </Text>
             </View>
 
-            <View style={styles.spectrogramWrapper}>
-              {loading ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color={COLORS.primary} />
-                </View>
-              ) : (
-                <Image 
-                  source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
-                  style={styles.spectrogramImage}
-                  resizeMode="stretch"
-                />
-              )}
-            </View>
+            <ScrollView 
+              horizontal={true} 
+              showsHorizontalScrollIndicator={true}
+              style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
+              contentContainerStyle={{ width: 750, paddingBottom: 15 }}
+            >
+              <View style={{ width: 750 }}>
+                {loading ? (
+                  <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                ) : (
+                  <View>
+                    <Image 
+                      source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
+                      style={{ width: 750, height: 200 }}
+                      resizeMode="stretch"
+                    />
+                    {data?.schumann_real?.time_utc && (
+                      (() => {
+                        const ticks = getLocalTimelineTicks(data.schumann_real.time_utc);
+                        return (
+                          <View style={{ marginTop: 10, width: 750, position: 'relative' }}>
+                            {/* Left axis label */}
+                            <Text style={{ position: 'absolute', left: 4, bottom: 0, fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 'bold' }}>
+                              YEREL SAAT
+                            </Text>
+
+                            <View style={{ marginLeft: 51, width: 652.5, flexDirection: 'row', position: 'relative', height: 26 }}>
+                              {ticks.map((tick, index) => (
+                                <View 
+                                  key={index} 
+                                  style={{ 
+                                    position: 'absolute', 
+                                    left: (index / 6) * 652.5, 
+                                    alignItems: 'center', 
+                                    transform: [{ translateX: -20 }],
+                                    width: 40
+                                  }}
+                                >
+                                  <View style={{ width: 1.5, height: 6, backgroundColor: 'rgba(0, 229, 255, 0.4)', marginBottom: 2 }} />
+                                  <Text style={{ fontSize: 9, color: '#fff', fontWeight: 'bold', lineHeight: 10 }}>{tick.hour}</Text>
+                                  <Text style={{ fontSize: 8, color: '#00E5FF', fontWeight: 'bold', lineHeight: 9, marginTop: 1 }}>{tick.day}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          </View>
+                        );
+                      })()
+                    )}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
 
             {/* Watermark Logo & Text */}
             <View style={styles.watermarkContainer}>
