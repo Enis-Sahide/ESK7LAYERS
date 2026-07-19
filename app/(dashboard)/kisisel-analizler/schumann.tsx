@@ -661,6 +661,90 @@ export default function SchumannScreen() {
             );
           })()}
 
+          {/* Kozmik Enerji Simülatörü */}
+          <BlurView intensity={30} tint="dark" style={styles.simulatorCard}>
+            <View style={styles.simulatorHeader}>
+              <Text style={styles.simulatorTitle}>Kozmik Enerji Simülatörü</Text>
+              <View style={styles.badgeContainer}>
+                <Text style={styles.badgeText}>TEST PANELİ</Text>
+              </View>
+            </View>
+            <Text style={styles.simulatorSubtitle}>
+              Farklı Schumann A1 genliği seviyelerinin iyonosferik etkilerini ve renk değişimlerini test edin
+            </Text>
+            
+            <View style={styles.sliderWrapper}>
+              <Text style={styles.sliderLabel}>A1 4.0</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={4.0}
+                maximumValue={75.0}
+                step={0.5}
+                value={simulatedA1 !== null ? simulatedA1 : (data?.schumann_real?.a1 ?? 6.0)}
+                onValueChange={(val) => setSimulatedA1(val)}
+                minimumTrackTintColor={COLORS.primary}
+                maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
+                thumbTintColor={COLORS.primary}
+              />
+              <Text style={styles.sliderLabel}>A1 75.0</Text>
+            </View>
+
+            <View style={styles.simulatorFooter}>
+              <Text style={styles.simulatorFooterText}>
+                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
+                  {simulatedA1 !== null ? `A1 Genliği ${simulatedA1.toFixed(1)}` : 'Canlı Akış'}
+                </Text>
+              </Text>
+              {simulatedA1 !== null && (
+                <TouchableOpacity 
+                  style={styles.resetBtn} 
+                  onPress={() => setSimulatedA1(null)}
+                >
+                  <Text style={styles.resetBtnText}>Sıfırla</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </BlurView>
+
+          {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
+          <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
+            <Text style={styles.chartTitle}>Schumann Rezonansı</Text>
+            <Text style={styles.chartSubtitle}>
+              Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti. Bu veriler Space Observing System 70 (Tomsk, Rusya) rasathanesinden canlı olarak alınmaktadır.
+            </Text>
+
+            {/* Spectrogram Tooltip */}
+            <View style={styles.spectrogramTooltipContainer}>
+              <Text style={styles.spectrogramTooltipText}>
+                Canlı Gözlemevi Ölçümü {data?.schumann_real && `(${formatRealTime(data.schumann_real.time_utc)})`}
+              </Text>
+            </View>
+
+            <View style={styles.spectrogramWrapper}>
+              {loading ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                </View>
+              ) : (
+                <Image 
+                  source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
+                  style={styles.spectrogramImage}
+                  resizeMode="stretch"
+                />
+              )}
+            </View>
+
+            {/* Watermark Logo & Text */}
+            <View style={styles.watermarkContainer}>
+              <Image 
+                source={require('../../../assets/images/icon.png')} 
+                style={styles.watermarkLogo} 
+                resizeMode="contain"
+              />
+              <Text style={styles.watermarkText}>7LAYERS</Text>
+            </View>
+          </BlurView>
+
           {/* 2. Güneş Rüzgarı & Manyetik Alan İstasyonu (2x3 Grid) */}
           {!loading && data?.solar_wind && (
             (() => {
@@ -811,90 +895,6 @@ export default function SchumannScreen() {
               );
             })()
           )}
-
-          {/* Kozmik Enerji Simülatörü */}
-          <BlurView intensity={30} tint="dark" style={styles.simulatorCard}>
-            <View style={styles.simulatorHeader}>
-              <Text style={styles.simulatorTitle}>Kozmik Enerji Simülatörü</Text>
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>TEST PANELİ</Text>
-              </View>
-            </View>
-            <Text style={styles.simulatorSubtitle}>
-              Farklı Schumann A1 genliği seviyelerinin iyonosferik etkilerini ve renk değişimlerini test edin
-            </Text>
-            
-            <View style={styles.sliderWrapper}>
-              <Text style={styles.sliderLabel}>A1 4.0</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={4.0}
-                maximumValue={75.0}
-                step={0.5}
-                value={simulatedA1 !== null ? simulatedA1 : (data?.schumann_real?.a1 ?? 6.0)}
-                onValueChange={(val) => setSimulatedA1(val)}
-                minimumTrackTintColor={COLORS.primary}
-                maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
-                thumbTintColor={COLORS.primary}
-              />
-              <Text style={styles.sliderLabel}>A1 75.0</Text>
-            </View>
-
-            <View style={styles.simulatorFooter}>
-              <Text style={styles.simulatorFooterText}>
-                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
-                  {simulatedA1 !== null ? `A1 Genliği ${simulatedA1.toFixed(1)}` : 'Canlı Akış'}
-                </Text>
-              </Text>
-              {simulatedA1 !== null && (
-                <TouchableOpacity 
-                  style={styles.resetBtn} 
-                  onPress={() => setSimulatedA1(null)}
-                >
-                  <Text style={styles.resetBtnText}>Sıfırla</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </BlurView>
-
-          {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
-          <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
-            <Text style={styles.chartTitle}>Schumann Rezonansı</Text>
-            <Text style={styles.chartSubtitle}>
-              Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti. Bu veriler Space Observing System 70 (Tomsk, Rusya) rasathanesinden canlı olarak alınmaktadır.
-            </Text>
-
-            {/* Spectrogram Tooltip */}
-            <View style={styles.spectrogramTooltipContainer}>
-              <Text style={styles.spectrogramTooltipText}>
-                Canlı Gözlemevi Ölçümü {data?.schumann_real && `(${formatRealTime(data.schumann_real.time_utc)})`}
-              </Text>
-            </View>
-
-            <View style={styles.spectrogramWrapper}>
-              {loading ? (
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color={COLORS.primary} />
-                </View>
-              ) : (
-                <Image 
-                  source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
-                  style={styles.spectrogramImage}
-                  resizeMode="stretch"
-                />
-              )}
-            </View>
-
-            {/* Watermark Logo & Text */}
-            <View style={styles.watermarkContainer}>
-              <Image 
-                source={require('../../../assets/images/icon.png')} 
-                style={styles.watermarkLogo} 
-                resizeMode="contain"
-              />
-              <Text style={styles.watermarkText}>7LAYERS</Text>
-            </View>
-          </BlurView>
 
           {/* 2. Jeomanyetik Kp Eğilim Grafiği */}
           <BlurView intensity={30} tint="dark" style={styles.chartCard}>
