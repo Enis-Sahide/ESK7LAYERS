@@ -479,13 +479,33 @@ export default function SchumannScreen() {
   };
 
   const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number, kp: number, a1: number, f1: number) => {
-    // 1. Zirve Schumann Rezonans Uyarılması (Fırtına)
+    // 1. Zirve Ekstrem Schumann Fırtınası (Ekstrem G5 Fırtınası)
+    if (score >= 9.0) {
+      return {
+        title: 'Ekstrem Schumann Rezonans Fırtınası (G5 Zirve Seviyesi)',
+        science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana mod genliği (A1) tarihi zirvesine ulaşarak ${a1.toFixed(1)} seviyesine çıktı. Frekans ${f1.toFixed(2)} Hz düzeyinde ekstrem titreşiyor. İyonosfer tabakası tam doygunluk sınırında elektrik yüküyle yüklü.`,
+        symptoms: 'Sinir sisteminin en yüksek kapasitede uyarılması, derin trans benzeri uyku halleri veya mutlak uykusuzluk, baş ve ensede çok yoğun basınç, kulaklarda çok yüksek tonda uğultu/çınlama sesleri, aşırı duyarlılık ve bedensel hafiflik/ağırlık hissi dalgalanmaları.',
+        spiritual: 'Zirve boyutlar arası geçiş portalı ve hücresel simya devrededir. Kollektif bilinçle ve kozmik kaynakla bütünleşme anıdır. Bol alkali su tüketin ve çıplak ayakla nemli toprağa basarak mutlak topraklanma sağlayın. Zihni tamamen susturarak teslimiyet meditasyonu yapın.'
+      };
+    }
+
+    // 2. Ağır Schumann Fırtınası (G4 Seviyesi)
+    if (score >= 8.0) {
+      return {
+        title: 'Ağır Schumann Rezonans Fırtınası (G4 Seviyesi)',
+        science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana mod genliği (A1) ekstrem bir yükselişle ${a1.toFixed(1)} seviyesine ulaştı. Frekans ${f1.toFixed(2)} Hz düzeyinde seyrediyor. İyonosfer tabakası çok yüksek manyetik basınç altında.`,
+        symptoms: 'Yoğun fiziksel yorgunluk ve kas seğirmeleri (frekans uyumlanması), baş bölgesinde taç kısmına doğru yayılan basınç, uyku düzeninde derin kaymalar (gece yarısı uyanıp tekrar uyuyamama), zaman algısında geçici bükülmeler.',
+        spiritual: 'Taç çakra portalı tamamen açılmıştır ve yüksek boyutlu ışık bedene geçiş enerjisi aktiftir. Bugün kendinizi zorlayacak fiziksel işlerden kesinlikle kaçının. Taç çakranızdan giren beyaz ışığın bedeninizi yıkayarak yere aktığını imgeleyin.'
+      };
+    }
+
+    // 3. Şiddetli Schumann Fırtınası (G3 Seviyesi)
     if (score >= 7.0) {
       return {
-        title: 'Zirve Schumann Rezonans Uyarılması (Fırtına)',
-        science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana mod genliği (A1) sıradışı bir yükselişle ${a1.toFixed(1)} seviyesine ulaştı. Frekans ${f1.toFixed(2)} Hz düzeyinde seyrediyor. İyonosfer tabakası maksimum seviyede elektrik yüküyle titreşiyor.`,
-        symptoms: 'Sinir sisteminde aşırı uyarılma, uyku düzeninde derin kaymalar (yoğun uykusuzluk ya da derin trans benzeri uyku), baş ve ense bölgesinde yoğun basınç, kulaklarda kesintisiz tiz titreşim çınlamaları ve son derece canlı, rehber niteliğinde rüyalar.',
-        spiritual: 'Taç ve kalp çakralarınızda aşırı aktifleşme devrededir. Bugün kendinizi zorlayacak fiziksel işlerden kaçının. Bol alkali su tüketin ve çıplak ayakla toprağa basın. Taç çakranızdan giren ışığın bedeninizi yıkayarak yere aktığını imgeleyerek nefes meditasyonları yapın.'
+        title: 'Şiddetli Schumann Rezonans Fırtınası (G3 Seviyesi)',
+        science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana mod genliği (A1) sıradışı bir sıçramayla ${a1.toFixed(1)} seviyesine ulaştı. Frekans ${f1.toFixed(2)} Hz civarında seyrediyor. İyonosfer tabakası yoğun bir elektrik yüküyle titreşiyor.`,
+        symptoms: 'Sinir sisteminde belirgin uyarılma, uyku düzeninde dalgalanmalar (derin uykusuzluk ya da rüya yoğunluğu), baş ve ense bölgesinde hafif basınç, kulaklarda kesintisiz tiz çınlamalar ve çok canlı, sembolik rüyalar.',
+        spiritual: 'DNA sarmallarında uyarım ve ışık kodlarının entegrasyonu aktiftir. Bedeninizi yormadan hafif egzersizler yapın. Bol su tüketin, topraklanın ve yüksek frekanslı meditasyonlara odaklanın.'
       };
     }
 
