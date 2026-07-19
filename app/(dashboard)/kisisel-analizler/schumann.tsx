@@ -371,6 +371,26 @@ export default function SchumannScreen() {
     return 'Zirve Patlama (Ekstrem G5 Fırtınası)';
   };
 
+  const getSchumannEsotericTitle = (score: number) => {
+    if (score < 3.0) return 'Topraklanma & Entegrasyon';
+    if (score < 5.0) return 'Hafif Uyarım & Uyanış Kapısı';
+    if (score < 6.0) return 'Kalp Çakrası Açılımı & Sezgi Sıçraması';
+    if (score < 7.0) return 'DNA Aktivasyonu & Astral Kapı';
+    if (score < 8.0) return 'Taç Çakra Portalı & Işık Gövde Geçişi';
+    if (score < 9.0) return 'Boyutlar Arası Geçiş & Hücresel Simya';
+    return 'Ekstrem Kozmik Bütünleşme & Hücresel Simya';
+  };
+
+  const getSchumannEsotericDesc = (score: number) => {
+    if (score < 3.0) return 'Enerji alanı dengelidir. Alınan kozmik bilgilerin entegrasyonu, meditasyon ve köklenmek için en uygun zamandır.';
+    if (score < 5.0) return 'Hafif uyarım fazı. Rüyalarda netleşme ve aurada temizlik başlar. Yeni frekanslara uyumlanmak için kapı açılmıştır.';
+    if (score < 6.0) return 'Kalp merkezinde genişleme, yüksek empati ve sezgisel yeteneklerde artış görülür. Bedenin elektromanyetik alanı genişler.';
+    if (score < 7.0) return 'Güçlü plazma akışı devrededir. Işık kodlarının DNA sarmallarına entegrasyonu başlar. Astral seyahat deneyimleri sıklaşabilir.';
+    if (score < 8.0) return 'Taç çakradan yüksek miktarda kozmik ışık girişi olur. Zaman algısında bükülmeler ve yüksek boyutlu rehberlik alımı gerçekleşir.';
+    if (score < 9.0) return 'Hücresel düzeyde simyasal dönüşüm dalgası. Kollektif bilinçte büyük uyanış tetiklemeleri, yüksek boyutlu portalların tam açılışı.';
+    return 'Zirve enerjisel portal devrede. Sinir sisteminin en yüksek kapasitede çalışması ve kozmik bilinçle bütünleşme anıdır. Bol dinlenme ve topraklanma gerekir.';
+  };
+
   const getSpiritualLabel = (score: number) => {
     if (score >= 8.5) return 'Zirve Hücresel Uyanış (Zirve Portal)';
     if (score >= 7.0) return 'Yoğun Enerji Portalı (Giriş Aktif)';
@@ -604,32 +624,43 @@ export default function SchumannScreen() {
               <View style={styles.oracleCard}>
                 <View style={styles.oracleHeader}>
                   <View style={[styles.oracleScoreBadge, { borderColor: getScoreColor(score) }]}>
-                    <Text style={styles.oracleScoreLabel}>Tahmin</Text>
+                    <Text style={styles.oracleScoreLabel}>SR İndeks</Text>
                     <Text style={[styles.oracleScoreVal, { color: getScoreColor(score) }]}>
                       {score.toFixed(1)}
+                    </Text>
+                    <Text style={styles.oracleScoreAmp}>
+                      A1: {a1.toFixed(1)}
                     </Text>
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu {data?.schumann_real && `- GÖZLEM SAATİ: ${formatRealTime(data.schumann_real.time_utc)}`}</Text>
                     <Text style={styles.oracleTitle}>{analysis.title}</Text>
-                    <View style={{
-                      borderColor: getScoreColor(score) + '40',
-                      borderWidth: 1,
-                      backgroundColor: getScoreColor(score) + '15',
-                      borderRadius: 6,
-                      paddingHorizontal: 8,
-                      paddingVertical: 2,
-                      marginTop: 4,
-                      alignSelf: 'flex-start'
-                    }}>
+                    <TouchableOpacity 
+                      activeOpacity={0.7}
+                      onPress={() => Alert.alert(
+                        `Fırtına Seviyesi: ${getSchumannLevelLabel(score)}`,
+                        `Ezoterik Anlam: ${getSchumannEsotericTitle(score)}\n\n${getSchumannEsotericDesc(score)}`,
+                        [{ text: "Anladım" }]
+                      )}
+                      style={{
+                        borderColor: getScoreColor(score) + '40',
+                        borderWidth: 1,
+                        backgroundColor: getScoreColor(score) + '15',
+                        borderRadius: 6,
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        marginTop: 6,
+                        alignSelf: 'flex-start'
+                      }}
+                    >
                       <Text style={{
                         color: getScoreColor(score) === '#FFFFFF' ? '#FFD700' : getScoreColor(score),
                         fontSize: 9,
                         fontWeight: 'bold'
                       }}>
-                        {getSchumannLevelLabel(score)}
+                        {getSchumannLevelLabel(score)} ⓘ
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   </View>
                 </View>
 
@@ -1308,9 +1339,9 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   oracleScoreBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 72,
+    height: 72,
+    borderRadius: 16,
     backgroundColor: 'rgba(0,0,0,0.4)',
     borderWidth: 2,
     justifyContent: 'center',
@@ -1318,15 +1349,21 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   oracleScoreLabel: {
-    fontSize: 8,
+    fontSize: 7,
     color: COLORS.textMuted,
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
   oracleScoreVal: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginTop: -2,
+    marginTop: 0,
+  },
+  oracleScoreAmp: {
+    fontSize: 8,
+    color: 'rgba(255,255,255,0.55)',
+    fontWeight: 'bold',
+    marginTop: 1,
   },
   oracleSegment: {
     backgroundColor: 'rgba(0,0,0,0.25)',
