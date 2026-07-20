@@ -114,7 +114,7 @@ export default function SchumannScreen() {
 
   const getScoreTextColor = (a1: number) => {
     if (a1 < 8.0) return '#000000'; // Black text on Cyan background
-    if (a1 >= 70.0) return '#000000'; // Black text on White background
+    if (a1 >= 40.0) return '#000000'; // Black text on White background
     return '#FFFFFF'; // White text on other backgrounds
   };
 
@@ -192,10 +192,8 @@ export default function SchumannScreen() {
   const getScoreColor = (a1: number) => {
     if (a1 < 8.0) return '#00E5FF'; // Mavi (Cyan)
     if (a1 < 15.0) return '#10B981'; // Yeşil (Green)
-    if (a1 < 40.0) return '#F97316'; // G1-G2: Turuncu (Orange)
-    if (a1 < 55.0) return '#EF4444'; // G3: Kırmızı (Red)
-    if (a1 < 70.0) return '#EC4899'; // G4: Pembe (Pink)
-    return '#FFFFFF'; // G5: Beyaz (White)
+    if (a1 < 40.0) return '#EF4444'; // G1-G2: Kırmızı (Red)
+    return '#FFFFFF'; // G3-G5: Beyaz (White)
   };
 
   const getSchumannLevelLabel = (a1: number) => {
