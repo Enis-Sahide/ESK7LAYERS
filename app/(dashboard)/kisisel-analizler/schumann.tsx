@@ -119,6 +119,22 @@ export default function SchumannScreen() {
     return '#FFFFFF'; // White text on other backgrounds
   };
 
+  const getNotificationBody = (a1: number) => {
+    if (a1 >= 70.0) {
+      return "Etkiler: Yoğun baş/ense basıncı, kulak uğultusu, derin trans hali. Öneri: Çıplak ayakla nemli toprağa basın ve alkali su tüketin.";
+    }
+    if (a1 >= 55.0) {
+      return "Etkiler: Yoğun yorgunluk, kas seğirmeleri, uyku kayması. Öneri: Fiziksel işlerden kaçının, beyaz ışık imgelemesi yapın.";
+    }
+    if (a1 >= 40.0) {
+      return "Etkiler: Uykusuzluk, baş/ense basıncı, kulak çınlaması. Öneri: Hafif egzersizler yapın ve bol su tüketin.";
+    }
+    if (a1 >= 15.0) {
+      return "Etkiler: Kalp merkezinde uyarılma, statik elektriklenme. Öneri: Tuzlu su banyosu yapın veya çıplak elle toprağa dokunun.";
+    }
+    return "Enerji alanı dengelidir. Meditasyon ve köklenmek için en uygun zamandır.";
+  };
+
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
     setImageTimestamp(Date.now());
@@ -133,26 +149,42 @@ export default function SchumannScreen() {
         
         if (savedNotifications && res.triggered_g_level && res.schumann_real) {
           const triggeredLevel = res.triggered_g_level;
-          const lastNotifTime = await AsyncStorage.getItem('schumann_last_notification_time');
-          const currentTimeStr = res.schumann_real.time_utc;
+          const lastNotifLevel = await AsyncStorage.getItem('schumann_last_notification_level');
+          const lastNotifTimeStr = await AsyncStorage.getItem('schumann_last_notification_time');
           
-          if (currentTimeStr && currentTimeStr !== lastNotifTime) {
-            const levels = ['G1', 'G2', 'G3', 'G4', 'G5'];
-            const userThresholdIdx = levels.indexOf(savedLevel);
-            const triggeredIdx = levels.indexOf(triggeredLevel);
-            
-            if (triggeredIdx >= userThresholdIdx) {
-              const levelLabel = getSchumannLevelLabel(res.schumann_real.a1);
-              await Notifications.scheduleNotificationAsync({
-                content: {
-                  title: `🚨 Schumann Rezonansı Yükseldi: ${triggeredLevel}`,
-                  body: `Anlık genlik değeri (A1) yüksek uyarım göstererek fırtına seviyesine ulaştı: ${levelLabel}`,
-                  sound: true,
-                },
-                trigger: null,
-              });
-              await AsyncStorage.setItem('schumann_last_notification_time', currentTimeStr);
+          let shouldNotify = false;
+          const currentTime = Date.now();
+          const lastTime = lastNotifTimeStr ? parseInt(lastNotifTimeStr) : 0;
+          
+          const levels = ['G1', 'G2', 'G3', 'G4', 'G5'];
+          const userThresholdIdx = levels.indexOf(savedLevel);
+          const triggeredIdx = levels.indexOf(triggeredLevel);
+          
+          if (triggeredIdx >= userThresholdIdx) {
+            if (currentTime - lastTime < 3 * 60 * 60 * 1000) {
+              // Within 3 hours, notify ONLY if the new level is higher than the last notified level
+              const lastNotifiedIdx = lastNotifLevel ? levels.indexOf(lastNotifLevel) : -1;
+              if (triggeredIdx > lastNotifiedIdx) {
+                shouldNotify = true;
+              }
+            } else {
+              // More than 3 hours have passed, notify anyway
+              shouldNotify = true;
             }
+          }
+          
+          if (shouldNotify) {
+            const bodyText = getNotificationBody(res.schumann_real.a1);
+            await Notifications.scheduleNotificationAsync({
+              content: {
+                title: `🚨 Schumann Rezonansı Yükseldi: ${triggeredLevel}`,
+                body: bodyText,
+                sound: true,
+              },
+              trigger: null,
+            });
+            await AsyncStorage.setItem('schumann_last_notification_level', triggeredLevel);
+            await AsyncStorage.setItem('schumann_last_notification_time', String(currentTime));
           }
         }
       }
