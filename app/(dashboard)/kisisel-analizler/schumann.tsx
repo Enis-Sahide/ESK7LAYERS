@@ -1358,7 +1358,7 @@ export default function SchumannScreen() {
 
                 <Text style={styles.guideSectionTitle}>Saat Dilimi ve Yerel Saat Dönüşümü:</Text>
                 <Text style={styles.guideParagraph}>
-                  Bölgesel gözlemevi grafikleri genellikle istasyonun kurulu olduğu ülkenin yerel saat dilimine göre çizilir (örneğin Asya/Sibirya gözlemevleri kendi yerel saatini kullanır). Bu gösterge paneli ise uluslararası uzay havası verilerini tamamen sizin cihazınızın yerel saat dilimine dönüştürerek gösterir. Bu nedenle yabancı grafiklerle aranızda saat farkı bulunması tamamen normaldir; buradaki saatler doğrudan kendi gününüzdeki anı temsil eder.
+                  Bölgesel gözlemevi grafikleri üzerinde (örneğin Tomsk ELF grafiğinin eksenlerinde) yazan saatler istasyonun yerel saatidir. Spektrogram görselinin hemen üzerine yerleştirdiğimiz çift zaman göstergeli panel ise, son ölçüm anını hem kendi cihazınızın yerel saat dilimine (örneğin Türkiye saati) dönüştürerek hem de Tomsk yerel saatiyle birlikte gösterir. Bu sayede grafik üzerindeki zaman dilimi farkını görselin hemen üstündeki zaman panelinden kolayca takip edebilirsiniz.
                 </Text>
 
                 <Text style={styles.guideSectionTitle}>Kozmik Hava Tahmini: Gelecek 24 Saat Nasıl Hesaplanır?</Text>
