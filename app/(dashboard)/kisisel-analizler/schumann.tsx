@@ -136,6 +136,26 @@ export default function SchumannScreen() {
     return "Enerji alanı dengelidir. Meditasyon ve köklenmek için en uygun zamandır.";
   };
 
+  const handleScrollToEnd = () => {
+    if (!scrollViewRef.current) return;
+    try {
+      if (Platform.OS === 'web') {
+        // @ts-ignore
+        const node = scrollViewRef.current.getScrollableNode?.() || scrollViewRef.current;
+        if (node) {
+          // Set scrollLeft to a huge number to force browser layout scrolling to end
+          node.scrollLeft = 99999;
+        }
+      } else {
+        scrollViewRef.current.scrollToEnd({ animated: false });
+      }
+    } catch (e) {
+      try {
+        scrollViewRef.current.scrollToEnd?.({ animated: false });
+      } catch (err) {}
+    }
+  };
+
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
     setImageTimestamp(Date.now());
@@ -197,7 +217,7 @@ export default function SchumannScreen() {
       setRefreshing(false);
       // Wait for layout to settle and scroll to the end
       setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: false });
+        handleScrollToEnd();
       }, 400);
     }
   };
@@ -679,7 +699,7 @@ export default function SchumannScreen() {
               style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
               contentContainerStyle={{ width: 750, paddingBottom: 15 }}
               onContentSizeChange={() => {
-                scrollViewRef.current?.scrollToEnd({ animated: false });
+                handleScrollToEnd();
               }}
             >
               <View style={{ width: 750 }}>
@@ -694,7 +714,7 @@ export default function SchumannScreen() {
                     resizeMode="stretch"
                     onLoad={() => {
                       setTimeout(() => {
-                        scrollViewRef.current?.scrollToEnd({ animated: false });
+                        handleScrollToEnd();
                       }, 100);
                     }}
                   />
