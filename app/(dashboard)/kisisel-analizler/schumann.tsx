@@ -56,6 +56,7 @@ export default function SchumannScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationLevel, setNotificationLevel] = useState<'G1' | 'G2' | 'G3'>('G1');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
   const getResonanceColor = (kp: number) => {
@@ -125,6 +126,35 @@ export default function SchumannScreen() {
       const res = await apiFetch('/api/schumann');
       if (res) {
         setData(res);
+
+        // Trigger local notification if enabled
+        const savedNotifications = await AsyncStorage.getItem('schumann_notifications') === 'true';
+        const savedLevel = (await AsyncStorage.getItem('schumann_notification_level') || 'G1') as 'G1' | 'G2' | 'G3';
+        
+        if (savedNotifications && res.triggered_g_level && res.schumann_real) {
+          const triggeredLevel = res.triggered_g_level;
+          const lastNotifTime = await AsyncStorage.getItem('schumann_last_notification_time');
+          const currentTimeStr = res.schumann_real.time_utc;
+          
+          if (currentTimeStr && currentTimeStr !== lastNotifTime) {
+            const levels = ['G1', 'G2', 'G3', 'G4', 'G5'];
+            const userThresholdIdx = levels.indexOf(savedLevel);
+            const triggeredIdx = levels.indexOf(triggeredLevel);
+            
+            if (triggeredIdx >= userThresholdIdx) {
+              const levelLabel = getSchumannLevelLabel(res.schumann_real.a1);
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: `🚨 Schumann Rezonansı Yükseldi: ${triggeredLevel}`,
+                  body: `Anlık genlik değeri (A1) yüksek uyarım göstererek fırtına seviyesine ulaştı: ${levelLabel}`,
+                  sound: true,
+                },
+                trigger: null,
+              });
+              await AsyncStorage.setItem('schumann_last_notification_time', currentTimeStr);
+            }
+          }
+        }
       }
     } catch (e) {
       console.error('Error fetching Schumann in mobile:', e);
@@ -141,6 +171,9 @@ export default function SchumannScreen() {
     // Check saved notification settings
     AsyncStorage.getItem('schumann_notifications').then(val => {
       if (val === 'true') setNotificationsEnabled(true);
+    });
+    AsyncStorage.getItem('schumann_notification_level').then(val => {
+      if (val) setNotificationLevel(val as any);
     });
 
     // Poll every 5 minutes
@@ -167,7 +200,7 @@ export default function SchumannScreen() {
           await Notifications.scheduleNotificationAsync({
             content: {
               title: 'Kozmik Rezonans Bildirimleri Aktif!',
-              body: 'Jeomanyetik fırtına (Kp ≥ 5) ve yoğun ışık kapısı geçişlerinde tarayıcınıza ve cihazınıza anlık bildirim gönderilecektir.',
+              body: `Fırtına uyarısı ${notificationLevel} ve üzeri seviyelerde tetiklenecek şekilde ayarlandı.`,
             },
             trigger: null,
           });
@@ -665,7 +698,7 @@ export default function SchumannScreen() {
                   <Text style={styles.notificationDesc}>
                     {!isApprenticeOrAbove 
                       ? 'Bu özellik Çırak seviyesi ve üzeri üyelerimiz içindir. Seviyenizi yükselterek bildirimleri aktif edebilirsiniz.' 
-                      : 'Manyetik fırtınalarda anlık uyanış kapısı uyarıları'}
+                      : 'Şık Kapısı fırtına uyarısı (G1, G2 veya G3 ve üzeri) anlık uyarılarda bildirim alırsınız.'}
                   </Text>
                 </View>
               </View>
@@ -681,6 +714,43 @@ export default function SchumannScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {notificationsEnabled && isApprenticeOrAbove && (
+              <View style={{ marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.05)' }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 10 }}>Hassasiyet Seviyesi</Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  {(['G1', 'G2', 'G3'] as const).map((level) => (
+                    <TouchableOpacity
+                      key={level}
+                      activeOpacity={0.7}
+                      onPress={async () => {
+                        setNotificationLevel(level);
+                        await AsyncStorage.setItem('schumann_notification_level', level);
+                        Alert.alert(
+                          "Bildirim Seviyesi Güncellendi",
+                          `Fırtına uyarısı ${level} ve üzeri seviyelerde tetiklenecek şekilde ayarlandı.`,
+                          [{ text: "Anladım" }]
+                        );
+                      }}
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 6,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: notificationLevel === level ? '#00E5FF' : 'rgba(255, 255, 255, 0.1)',
+                        backgroundColor: notificationLevel === level ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                      }}
+                    >
+                      <Text style={{
+                        color: notificationLevel === level ? '#00E5FF' : '#fff',
+                        fontSize: 11,
+                        fontWeight: 'bold',
+                      }}>{level} ve Üzeri</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
           </BlurView>
 
 

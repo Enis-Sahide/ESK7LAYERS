@@ -177,11 +177,30 @@ const SchumannMiniWidget = () => {
   const kpVal = data?.current_kp ?? 0;
   const scoreVal = data?.cosmic_impact_score ?? kpVal;
 
+  const getGLevelLabel = (score: number) => {
+    if (score < 5.0) return 'G0';
+    if (score < 6.0) return 'G1';
+    if (score < 7.0) return 'G2';
+    if (score < 8.0) return 'G3';
+    if (score < 9.0) return 'G4';
+    return 'G5';
+  };
+
+  const getGLevelText = (score: number) => {
+    if (score < 3.0) return 'G0 Sakin';
+    if (score < 5.0) return 'G0 Aktif';
+    if (score < 6.0) return 'G1 Orta';
+    if (score < 7.0) return 'G2 Güçlü';
+    if (score < 8.0) return 'G3 Şiddetli';
+    if (score < 9.0) return 'G4 Ağır';
+    return 'G5 Zirve';
+  };
+
   const getScoreColor = (score: number) => {
-    if (score < 3.0) return '#10B981'; // emerald
-    if (score < 5.0) return '#F59E0B'; // amber
-    if (score < 7.0) return '#F97316'; // orange
-    return '#EF4444'; // red
+    if (score < 3.0) return '#00E5FF'; // Mavi (Cyan)
+    if (score < 5.0) return '#10B981'; // Yeşil (Green)
+    if (score < 7.0) return '#EF4444'; // G1-G2: Kırmızı (Red)
+    return '#FFFFFF'; // G3-G5: Beyaz (White)
   };
 
   const getIndicatorText = (score: number) => {
@@ -210,13 +229,13 @@ const SchumannMiniWidget = () => {
             <View style={[styles.glowingDot, { backgroundColor: cardColor }]} />
           </View>
           <Text style={[styles.schumannStatusName, { color: cardColor }]}>
-            {data?.status_label.split(' ')[0]}
+            {getGLevelText(scoreVal)}
           </Text>
         </View>
 
         <View style={styles.kpBadgeContainer}>
           <Text style={[styles.kpBadgeText, { color: cardColor }]}>
-            {scoreVal.toFixed(2)} <Text style={{ fontSize: 9, opacity: 0.7 }}>SR</Text>
+            {getGLevelLabel(scoreVal)}
           </Text>
         </View>
       </View>
