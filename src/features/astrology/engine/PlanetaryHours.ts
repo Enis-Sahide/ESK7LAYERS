@@ -128,7 +128,7 @@ export const PLANET_DAY_GUIDELINES: Record<string, { name: string; symbol: strin
     name: 'Güneş',
     symbol: '☉',
     color: '#FFCC00',
-    do: 'Terfi istemek, yöneticilerle veya otorite figürleriyle önemli görüşmeler yapmak, sunum yapmak, sahneye çıkmak, dikkat çekmek istediğiniz bir işi yayınlamak, özgüven gerektiren projelere başlamak, kişisel gelişim çalışmaları yapmak.',
+    do: 'Terfi istemek, yöneticilerle veya otorite figürleriyle önemli görüşmeler yapmak, sunum yapmak, sahneye çıkmak, dikkat çekmek istediğiniz bir işi yayınlamak, özgüven gerektiren projelere başlamak, ruhsal çalışmalar ve kişisel gelişim çalışmaları yapmak.',
     avoid: 'Gizli kalmasını istediğiniz işler yürütmek (Güneş her şeyi aydınlatır, sırlar açığa çıkar), dinlenmek ve inzivaya çekilmek (aktif enerji uykuyu veya huzuru zorlaştırır).'
   },
   'Moon': {
