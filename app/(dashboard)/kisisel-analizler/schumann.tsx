@@ -59,7 +59,6 @@ export default function SchumannScreen() {
   const [notificationLevel, setNotificationLevel] = useState<'G1' | 'G2' | 'G3'>('G1');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
-  const scrollViewRef = useRef<ScrollView>(null);
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
@@ -136,25 +135,7 @@ export default function SchumannScreen() {
     return "Enerji alanı dengelidir. Meditasyon ve köklenmek için en uygun zamandır.";
   };
 
-  const handleScrollToEnd = () => {
-    if (!scrollViewRef.current) return;
-    try {
-      if (Platform.OS === 'web') {
-        // @ts-ignore
-        const node = scrollViewRef.current.getScrollableNode?.() || scrollViewRef.current;
-        if (node) {
-          // Set scrollLeft to a huge number to force browser layout scrolling to end
-          node.scrollLeft = 99999;
-        }
-      } else {
-        scrollViewRef.current.scrollToEnd({ animated: false });
-      }
-    } catch (e) {
-      try {
-        scrollViewRef.current.scrollToEnd?.({ animated: false });
-      } catch (err) {}
-    }
-  };
+
 
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
@@ -215,10 +196,6 @@ export default function SchumannScreen() {
     } finally {
       setLoading(false);
       setRefreshing(false);
-      // Wait for layout to settle and scroll to the end
-      setTimeout(() => {
-        handleScrollToEnd();
-      }, 400);
     }
   };
 
@@ -693,14 +670,10 @@ export default function SchumannScreen() {
             )}
 
             <ScrollView 
-              ref={scrollViewRef}
               horizontal={true} 
               showsHorizontalScrollIndicator={true}
               style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
               contentContainerStyle={{ width: 750, paddingBottom: 15 }}
-              onContentSizeChange={() => {
-                handleScrollToEnd();
-              }}
             >
               <View style={{ width: 750 }}>
                 {loading ? (
@@ -712,11 +685,6 @@ export default function SchumannScreen() {
                     source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
                     style={{ width: 750, height: 200 }}
                     resizeMode="stretch"
-                    onLoad={() => {
-                      setTimeout(() => {
-                        handleScrollToEnd();
-                      }, 100);
-                    }}
                   />
                 )}
               </View>
