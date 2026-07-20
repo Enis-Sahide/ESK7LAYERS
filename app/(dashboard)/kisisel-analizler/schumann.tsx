@@ -142,7 +142,7 @@ export default function SchumannScreen() {
     if (showPulse) setLoading(true);
     setImageTimestamp(Date.now());
     try {
-      const res = await apiFetch('/api/schumann');
+      const res = await apiFetch(`/api/schumann?t=${Date.now()}`);
       if (res) {
         setData(res);
 
@@ -389,18 +389,57 @@ export default function SchumannScreen() {
     }
   };
 
-  const generateRulesAnalysis = (score: number, a1: number, f1: number) => {
-    const rules = (data as any)?.schumann_rules || [];
-    if (rules.length > 0) {
-      const sortedRules = [...rules].sort((a, b) => parseFloat(a.minScore) - parseFloat(b.minScore));
-      let matchedRule = sortedRules[0];
-      for (const rule of sortedRules) {
-        if (score >= parseFloat(rule.minScore)) {
-          matchedRule = rule;
-        }
-      }
+  const FALLBACK_SCHUMANN_RULES = [
+    {
+      minScore: '0.0',
+      title: 'Dingin Elektromanyetik Akış (Sakin Faz)',
+      symptoms: 'Zihinsel netlik, dengeli enerji seviyeleri, sakin uyku düzeni ve bedensel rahatlık. Olağanüstü bir uyarılma belirtisi beklenmez.',
+      spiritual: 'Zihnin gürültüsünü yatıştırmak, yeni bilgiler öğrenmek, kadim dersleri çalışmak ve kök çakra meditasyonları yapmak için en ideal dönemdir. Enerjinizin merkezlendiği bu dingin zamanı tefekkür ile değerlendirebilirsiniz.'
+    },
+    {
+      minScore: '3.0',
+      title: 'Hafif Schumann Dalgalanması (Hafif Uyarım Seviyesi)',
+      symptoms: 'Rüyalarda belirgin netleşme ve sembolizm artışı, sezgisel uyanışlar, zihinde yaratıcı fikir patlamaları, kulaklarda hafif dalgalı uğultular ve hafif tatlı bir yorgunluk/esneme hali.',
+      spiritual: 'Uyanış kapıları hafifçe uyarılmaktadır. Meditasyon, günlük tutma, rüya analizleri yapma ve yaratıcı projelere odaklanma için harika bir akıştır. Üçüncü göz bölgesine mavi/mor bir ışık hayal ederek odaklanabilirsiniz.'
+    },
+    {
+      minScore: '5.0',
+      title: 'Aktif Schumann Manyetik Fırtınası (G1-G2 Seviyesi)',
+      symptoms: 'Kalp atışlarında ani hızlanma veya genişleme hissi, vücutta hafif statik elektrik birikimi (dokunulan yerlerin çarpması), hafif eklem ve şakak ağrıları, uykuya dalmakta gecikme ve içsel sabırsızlık.',
+      spiritual: 'Kalp çakrası ve aura alanı genişlemektedir. Bedendeki fazla elektriği boşaltmak için tuzlu su banyosu yapın veya çıplak elle toprağa dokunun. Kalp merkezli nefes pratikleri (4 saniye al, 4 saniye ver) yaparak kozmik akışı bedende dengeleyin.'
+    },
+    {
+      minScore: '7.0',
+      title: 'Şiddetli Schumann Fırtınası (G3 Seviyesi)',
+      symptoms: 'Sinir sisteminde belirgin uyarılma, uyku düzeninde dalgalanmalar (derin uykusuzluk ya da rüya yoğunluğu), baş ve ense bölgesinde hafif basınç, kulaklarda kesintisiz tiz çınlamalar ve çok canlı, sembolik rüyalar.',
+      spiritual: 'DNA sarmallarında uyarım ve ışık kodlarının entegrasyonu aktiftir. Bedeninizi yormadan hafif egzersizler yapın. Bol su tüketin, topraklanın ve yüksek frekanslı meditasyonlara odaklanın.'
+    },
+    {
+      minScore: '8.0',
+      title: 'Ağır Schumann Fırtınası (G4 Seviyesi)',
+      symptoms: 'Yoğun fiziksel yorgunluk ve kas seğirmeleri (frekans uyumlanması), baş bölgesinde taç kısmına doğru yayılan basınç, uyku düzeninde derin kaymalar (gece yarısı uyanıp tekrar uyuyamama), zaman algısında geçici bükülmeler.',
+      spiritual: 'Taç çakra portalı tamamen açılmıştır ve yüksek boyutlu ışık bedene geçiş enerjisi aktiftir. Bugün kendinizi zorlayacak fiziksel işlerden kesinlikle kaçının. Taç çakranızdan giren beyaz ışığın bedeninizi yıkayarak yere aktığını imgeleyin.'
+    },
+    {
+      minScore: '9.0',
+      title: 'Ekstrem Schumann Rezonans Fırtınası (G5 Zirve Seviyesi)',
+      symptoms: 'Sinir sisteminin en yüksek kapasitede uyarılması, derin trans benzeri uyku halleri veya mutlak uykusuzluk, baş ve ensede çok yoğun basınç, kulaklarda çok yüksek tonda uğultu/çınlama sesleri, aşırı duyarlılık ve bedensel hafiflik/ağırlık hissi dalgalanmaları.',
+      spiritual: 'Zirve boyutlar arası geçiş portalı ve hücresel simya devrededir. Kollektif bilinçle ve kozmik kaynakla bütünleşme anıdır. Bol alkali su tüketin ve çıplak ayakla nemli toprağa basarak mutlak topraklanma sağlayın. Zihni tamamen susturarak teslimiyet meditasyonu yapın.'
+    }
+  ];
 
-      let scienceText = matchedRule.science;
+  const generateRulesAnalysis = (score: number, a1: number, f1: number) => {
+    const rules = (data as any)?.schumann_rules || FALLBACK_SCHUMANN_RULES;
+    const sortedRules = [...rules].sort((a, b) => parseFloat(a.minScore) - parseFloat(b.minScore));
+    let matchedRule = sortedRules[0];
+    for (const rule of sortedRules) {
+      if (score >= parseFloat(rule.minScore)) {
+        matchedRule = rule;
+      }
+    }
+
+    let scienceText = matchedRule.science;
+    if (!scienceText) {
       if (parseFloat(matchedRule.minScore) >= 9.0) {
         scienceText = `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana mod genliği (A1) tarihi zirvesine ulaşarak ${a1.toFixed(1)} seviyesine çıktı. Frekans ${f1.toFixed(2)} Hz düzeyinde ekstrem titreşiyor. İyonosfer tabakası tam doygunluk sınırında elektrik yüküyle yüklü.`;
       } else if (parseFloat(matchedRule.minScore) >= 8.0) {
@@ -414,21 +453,13 @@ export default function SchumannScreen() {
       } else {
         scienceText = `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana frekansı ${f1.toFixed(2)} Hz (Genlik A1: ${a1.toFixed(1)}) seviyesinde dengeli ve doğal titreşiminde seyrediyor. İyonosfer tabakası sakin durumda.`;
       }
-
-      return {
-        title: matchedRule.title,
-        science: scienceText,
-        symptoms: matchedRule.symptoms,
-        spiritual: matchedRule.spiritual,
-      };
     }
 
-    // Fallback if DB rules not loaded yet
     return {
-      title: 'Dingin Elektromanyetik Akış (Sakin Faz)',
-      science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana frekansı ${f1.toFixed(2)} Hz (Genlik A1: ${a1.toFixed(1)}) seviyesinde dengeli ve doğal titreşiminde seyrediyor. İyonosfer tabakası sakin durumda.`,
-      symptoms: 'Zihinsel netlik, dengeli energy seviyeleri, sakin uyku düzeni ve bedensel rahatlık. Olağanüstü bir uyarılma belirtisi beklenmez.',
-      spiritual: 'Zihnin gürültüsünü yatıştırmak, yeni bilgiler öğrenmek, kadim dersleri çalışmak ve kök çakra meditasyonları yapmak için en ideal dönemdir. Enerjinizin merkezlendiği bu dingin zamanı tefekkür ile değerlendirebilirsiniz.'
+      title: matchedRule.title,
+      science: scienceText,
+      symptoms: matchedRule.symptoms,
+      spiritual: matchedRule.spiritual,
     };
   };
 
