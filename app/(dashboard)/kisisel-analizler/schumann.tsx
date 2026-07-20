@@ -59,6 +59,7 @@ export default function SchumannScreen() {
   const [notificationLevel, setNotificationLevel] = useState<'G1' | 'G2' | 'G3'>('G1');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
+  const [simulatedA1, setSimulatedA1] = useState<number | null>(null);
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
