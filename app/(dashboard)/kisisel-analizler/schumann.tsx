@@ -102,20 +102,20 @@ export default function SchumannScreen() {
     }
   };
 
-  const getSchumannGLevel = (score: number) => {
-    if (score < 3.0) return 'G0';
-    if (score < 5.0) return 'G0';
-    if (score < 6.0) return 'G1';
-    if (score < 7.0) return 'G2';
-    if (score < 8.0) return 'G3';
-    if (score < 9.0) return 'G4';
+  const getSchumannGLevel = (a1: number) => {
+    if (a1 < 8.0) return 'G0';
+    if (a1 < 15.0) return 'G0';
+    if (a1 < 25.0) return 'G1';
+    if (a1 < 40.0) return 'G2';
+    if (a1 < 55.0) return 'G3';
+    if (a1 < 70.0) return 'G4';
     return 'G5';
   };
 
-  const getScoreTextColor = (score: number) => {
-    if (score < 3.0) return '#000000'; // Black text on Cyan background
-    if (score >= 9.0) return '#000000'; // Black text on White background
-    return '#FFFFFF'; // White text on Green / Red background
+  const getScoreTextColor = (a1: number) => {
+    if (a1 < 8.0) return '#000000'; // Black text on Cyan background
+    if (a1 >= 70.0) return '#000000'; // Black text on White background
+    return '#FFFFFF'; // White text on other backgrounds
   };
 
   const fetchData = async (showPulse = true) => {
@@ -189,42 +189,42 @@ export default function SchumannScreen() {
     return '#EF4444'; // Fırtına (Kırmızı)
   };
 
-  const getScoreColor = (score: number) => {
-    if (score < 3.0) return '#00E5FF'; // Mavi (Cyan)
-    if (score < 5.0) return '#10B981'; // Yeşil (Green)
-    if (score < 7.0) return '#F97316'; // G1-G2: Turuncu (Orange)
-    if (score < 8.0) return '#EF4444'; // G3: Kırmızı (Red)
-    if (score < 9.0) return '#EC4899'; // G4: Pembe (Pink)
+  const getScoreColor = (a1: number) => {
+    if (a1 < 8.0) return '#00E5FF'; // Mavi (Cyan)
+    if (a1 < 15.0) return '#10B981'; // Yeşil (Green)
+    if (a1 < 40.0) return '#F97316'; // G1-G2: Turuncu (Orange)
+    if (a1 < 55.0) return '#EF4444'; // G3: Kırmızı (Red)
+    if (a1 < 70.0) return '#EC4899'; // G4: Pembe (Pink)
     return '#FFFFFF'; // G5: Beyaz (White)
   };
 
-  const getSchumannLevelLabel = (score: number) => {
-    if (score < 3.0) return 'Düşük Seviye (Sakin / G0)';
-    if (score < 5.0) return 'Hafif Uyarım (Aktif / G0)';
-    if (score < 6.0) return 'Orta Fırtına (G1 Seviyesi)';
-    if (score < 7.0) return 'Güçlü Fırtına (G2 Seviyesi)';
-    if (score < 8.0) return 'Şiddetli Fırtına (G3 Seviyesi)';
-    if (score < 9.0) return 'Ağır Fırtına (G4 Seviyesi)';
+  const getSchumannLevelLabel = (a1: number) => {
+    if (a1 < 8.0) return 'Düşük Seviye (Sakin / G0)';
+    if (a1 < 15.0) return 'Hafif Uyarım (Aktif / G0)';
+    if (a1 < 25.0) return 'Orta Fırtına (G1 Seviyesi)';
+    if (a1 < 40.0) return 'Güçlü Fırtına (G2 Seviyesi)';
+    if (a1 < 55.0) return 'Şiddetli Fırtına (G3 Seviyesi)';
+    if (a1 < 70.0) return 'Ağır Fırtına (G4 Seviyesi)';
     return 'Zirve Patlama (Ekstrem G5 Fırtınası)';
   };
 
-  const getSchumannEsotericTitle = (score: number) => {
-    if (score < 3.0) return 'Topraklanma & Entegrasyon';
-    if (score < 5.0) return 'Hafif Uyarım & Uyanış Kapısı';
-    if (score < 6.0) return 'Kalp Çakrası Açılımı & Sezgi Sıçraması';
-    if (score < 7.0) return 'DNA Aktivasyonu & Astral Kapı';
-    if (score < 8.0) return 'Taç Çakra Portalı & Işık Gövde Geçişi';
-    if (score < 9.0) return 'Boyutlar Arası Geçiş & Hücresel Simya';
+  const getSchumannEsotericTitle = (a1: number) => {
+    if (a1 < 8.0) return 'Topraklanma & Entegrasyon';
+    if (a1 < 15.0) return 'Hafif Uyarım & Uyanış Kapısı';
+    if (a1 < 25.0) return 'Kalp Çakrası Açılımı & Sezgi Sıçraması';
+    if (a1 < 40.0) return 'DNA Aktivasyonu & Astral Kapı';
+    if (a1 < 55.0) return 'Taç Çakra Portalı & Işık Gövde Geçişi';
+    if (a1 < 70.0) return 'Boyutlar Arası Geçiş & Hücresel Simya';
     return 'Ekstrem Kozmik Bütünleşme & Hücresel Simya';
   };
 
-  const getSchumannEsotericDesc = (score: number) => {
-    if (score < 3.0) return 'Enerji alanı dengelidir. Alınan kozmik bilgilerin entegrasyonu, meditasyon ve köklenmek için en uygun zamandır.';
-    if (score < 5.0) return 'Hafif uyarım fazı. Rüyalarda netleşme ve aurada temizlik başlar. Yeni frekanslara uyumlanmak için kapı açılmıştır.';
-    if (score < 6.0) return 'Kalp merkezinde genişleme, yüksek empati ve sezgisel yeteneklerde artış görülür. Bedenin elektromanyetik alanı genişler.';
-    if (score < 7.0) return 'Güçlü plazma akışı devrededir. Işık kodlarının DNA sarmallarına entegrasyonu başlar. Astral seyahat deneyimleri sıklaşabilir.';
-    if (score < 8.0) return 'Taç çakradan yüksek miktarda kozmik ışık girişi olur. Zaman algısında bükülmeler ve yüksek boyutlu rehberlik alımı gerçekleşir.';
-    if (score < 9.0) return 'Hücresel düzeyde simyasal dönüşüm dalgası. Kollektif bilinçte büyük uyanış tetiklemeleri, yüksek boyutlu portalların tam açılışı.';
+  const getSchumannEsotericDesc = (a1: number) => {
+    if (a1 < 8.0) return 'Enerji alanı dengelidir. Alınan kozmik bilgilerin entegrasyonu, meditasyon ve köklenmek için en uygun zamandır.';
+    if (a1 < 15.0) return 'Hafif uyarım fazı. Rüyalarda netleşme ve aurada temizlik başlar. Yeni frekanslara uyumlanmak için kapı açılmıştır.';
+    if (a1 < 25.0) return 'Kalp merkezinde genişleme, yüksek empati ve sezgisel yeteneklerde artış görülür. Bedenin elektromanyetik alanı genişler.';
+    if (a1 < 40.0) return 'Güçlü plazma akışı devrededir. Işık kodlarının DNA sarmallarına entegrasyonu başlar. Astral seyahat deneyimleri sıklaşabilir.';
+    if (a1 < 55.0) return 'Taç çakradan yüksek miktarda kozmik ışık girişi olur. Zaman algısında bükülmeler ve yüksek boyutlu rehberlik alımı gerçekleşir.';
+    if (a1 < 70.0) return 'Hücresel düzeyde simyasal dönüşüm dalgası. Kollektif bilinçte büyük uyanış tetiklemeleri, yüksek boyutlu portalların tam açılışı.';
     return 'Zirve enerjisel portal devrede. Sinir sisteminin en yüksek kapasitede çalışması ve kozmik bilinçle bütünleşme anıdır. Bol dinlenme ve topraklanma gerekir.';
   };
 
@@ -427,15 +427,15 @@ export default function SchumannScreen() {
                   <View style={[
                     styles.oracleScoreBadge, 
                     { 
-                      backgroundColor: getScoreColor(score),
-                      borderColor: getScoreColor(score)
+                      backgroundColor: getScoreColor(a1),
+                      borderColor: getScoreColor(a1)
                     }
                   ]}>
-                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(score) }]}>DURUM</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(score), fontSize: 22, fontWeight: '900' }]}>
-                      {getSchumannGLevel(score)}
+                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>DURUM</Text>
+                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 22, fontWeight: '900' }]}>
+                      {getSchumannGLevel(a1)}
                     </Text>
-                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(score) + 'B0' }]}>
+                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0' }]}>
                       A1: {a1.toFixed(1)}
                     </Text>
                   </View>
@@ -445,12 +445,12 @@ export default function SchumannScreen() {
                     <TouchableOpacity 
                       activeOpacity={0.7}
                       onPress={() => Alert.alert(
-                        `Fırtına Seviyesi: ${getSchumannLevelLabel(score)}`,
-                        `Ezoterik Anlam: ${getSchumannEsotericTitle(score)}\n\n${getSchumannEsotericDesc(score)}`,
+                        `Fırtına Seviyesi: ${getSchumannLevelLabel(a1)}`,
+                        `Ezoterik Anlam: ${getSchumannEsotericTitle(a1)}\n\n${getSchumannEsotericDesc(a1)}`,
                         [{ text: "Anladım" }]
                       )}
                       style={{
-                        backgroundColor: getScoreColor(score),
+                        backgroundColor: getScoreColor(a1),
                         borderRadius: 8,
                         paddingHorizontal: 10,
                         paddingVertical: 4,
@@ -459,11 +459,11 @@ export default function SchumannScreen() {
                       }}
                     >
                       <Text style={{
-                        color: getScoreTextColor(score),
+                        color: getScoreTextColor(a1),
                         fontSize: 10,
                         fontWeight: 'bold'
                       }}>
-                        {getSchumannLevelLabel(score)} ⓘ
+                        {getSchumannLevelLabel(a1)} ⓘ
                       </Text>
                     </TouchableOpacity>
                   </View>
