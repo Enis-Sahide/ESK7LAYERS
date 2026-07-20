@@ -195,6 +195,10 @@ export default function SchumannScreen() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      // Wait for layout to settle and scroll to the end
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: false });
+      }, 400);
     }
   };
 
@@ -688,6 +692,11 @@ export default function SchumannScreen() {
                     source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
                     style={{ width: 750, height: 200 }}
                     resizeMode="stretch"
+                    onLoad={() => {
+                      setTimeout(() => {
+                        scrollViewRef.current?.scrollToEnd({ animated: false });
+                      }, 100);
+                    }}
                   />
                 )}
               </View>
