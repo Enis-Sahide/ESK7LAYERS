@@ -13,22 +13,6 @@ import * as Notifications from 'expo-notifications';
 import { useProgress } from '@/src/context/ProgressContext';
 import Slider from '@react-native-community/slider';
 
-interface SolarWindData {
-  speed: number;
-  density: number;
-  temperature: number;
-  bz: number;
-  bt: number;
-  time: string;
-}
-
-interface NOAADiscussion {
-  solar_activity_tr: string;
-  geomagnetic_field_tr: string;
-  solar_wind_tr: string;
-  raw_date: string;
-}
-
 interface KpHistoryItem {
   time: string;
   kp: number;
@@ -58,8 +42,6 @@ interface KpData {
   status_desc: string;
   updated_at: string;
   history: KpHistoryItem[];
-  solar_wind?: SolarWindData;
-  noaa_discussion?: NOAADiscussion;
   cosmic_impact_score?: number;
   cosmic_status_label?: string;
   cosmic_status_desc?: string;
@@ -71,14 +53,10 @@ export default function SchumannScreen() {
   const { role, isAdmin } = useProgress();
   const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
   const [data, setData] = useState<KpData | null>(null);
-  const [simulatedA1, setSimulatedA1] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [hoveredBar, setHoveredBar] = useState<KpHistoryItem | null>(null);
-  const [hoveredSpectrogramBar, setHoveredSpectrogramBar] = useState<KpHistoryItem | null>(null);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isNoaaReportOpen, setIsNoaaReportOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
   const getResonanceColor = (kp: number) => {
     const stops = [
@@ -112,133 +90,32 @@ export default function SchumannScreen() {
   };
 
   const getSchumannScoreFromA1 = (a1: number) => {
-    if (a1 < 8) {
-      return parseFloat((0.5 + ((a1 - 4) / 4) * 2.5).toFixed(2));
-    } else if (a1 < 15) {
-      return parseFloat((3.0 + ((a1 - 8) / 7) * 3.0).toFixed(2));
-    } else if (a1 < 25) {
+    if (a1 < 4.0) return 0.5;
+    if (a1 < 10.0) {
+      return parseFloat((0.5 + ((a1 - 4) / 6) * 4.5).toFixed(2));
+    } else if (a1 < 15.0) {
+      return parseFloat((5.0 + ((a1 - 10) / 5) * 1.0).toFixed(2));
+    } else if (a1 < 25.0) {
       return parseFloat((6.0 + ((a1 - 15) / 10) * 2.5).toFixed(2));
     } else {
       return parseFloat(Math.min(10.0, 8.5 + ((a1 - 25) / 25) * 1.5).toFixed(2));
     }
   };
 
-  const getEstimatedImpact = (kpVal: number) => {
-    const speedVal = 300 + (kpVal / 9) * 500;
-    const densityVal = 3 + (kpVal / 9) * 15;
-    const btVal = 5 + (kpVal / 9) * 15;
-    const bzVal = 5 - (kpVal / 9) * 15;
-    
-    const kpWeight = (kpVal / 9) * 4.0;
-    const speedWeight = Math.max(0, Math.min(2.5, ((speedVal - 300) / 500) * 2.5));
-    const densityWeight = Math.max(0, Math.min(2.0, ((densityVal - 2) / 15) * 2.0));
-    const btWeight = Math.max(0, Math.min(1.5, ((btVal - 5) / 15) * 1.5));
-    
-    const bzMultiplier = bzVal < 0 ? (1.0 + Math.min(0.25, (Math.abs(bzVal) / 20) * 0.25)) : 1.0;
-    
-    const rawImpact = kpWeight + speedWeight + densityWeight + btWeight;
-    return parseFloat(Math.min(10.0, rawImpact * bzMultiplier).toFixed(2));
+  const getSchumannGLevel = (score: number) => {
+    if (score < 3.0) return 'G0';
+    if (score < 5.0) return 'G0';
+    if (score < 6.0) return 'G1';
+    if (score < 7.0) return 'G2';
+    if (score < 8.0) return 'G3';
+    if (score < 9.0) return 'G4';
+    return 'G5';
   };
 
-  const getCalculatedImpactForData = (currentData: KpData | null, kpVal: number) => {
-    if (!currentData?.solar_wind) {
-      return getEstimatedImpact(kpVal);
-    }
-    
-    const kpWeight = (kpVal / 9) * 4.0;
-    
-    const speedVal = currentData.solar_wind.speed || 350;
-    const speedWeight = Math.max(0, Math.min(2.5, ((speedVal - 300) / 500) * 2.5));
-    
-    const densityVal = currentData.solar_wind.density || 4;
-    const densityWeight = Math.max(0, Math.min(2.0, ((densityVal - 2) / 15) * 2.0));
-    
-    const btVal = currentData.solar_wind.bt || 5;
-    const btWeight = Math.max(0, Math.min(1.5, ((btVal - 5) / 15) * 1.5));
-    
-    const bzVal = currentData.solar_wind.bz || 0;
-    const bzMultiplier = bzVal < 0 ? (1.0 + Math.min(0.25, (Math.abs(bzVal) / 20) * 0.25)) : 1.0;
-    
-    const rawImpact = kpWeight + speedWeight + densityWeight + btWeight;
-    return parseFloat(Math.min(10.0, rawImpact * bzMultiplier).toFixed(2));
-  };
-
-  const getCalculatedImpact = (kpVal: number) => {
-    return getCalculatedImpactForData(data, kpVal);
-  };
-
-  const RESONANCE_LOCATIONS = [
-    0.0,
-    0.17, 0.196, 0.22, // 7.83 Hz
-    0.33, 0.353, 0.38, // 14.1 Hz
-    0.48, 0.508, 0.53, // 20.3 Hz
-    0.64, 0.660, 0.68, // 26.4 Hz
-    0.79, 0.810, 0.83, // 32.4 Hz
-    1.0
-  ];
-
-  const getBaseCyanColors = (isForecast: boolean) => {
-    const baseColor = isForecast ? 'rgba(5, 5, 10, 0.2)' : 'rgba(0, 15, 45, 0.9)';
-    const alpha = isForecast ? 0.35 * 0.35 : 0.35;
-    const getAlphaHex = (a: number) => {
-      const val = Math.min(255, Math.max(0, Math.round(a * 255)));
-      return val.toString(16).padStart(2, '0');
-    };
-    const c = '#006E8C' + getAlphaHex(alpha);
-    return [
-      baseColor, // 0.0
-      baseColor, // 0.17
-      c,         // 0.196 (7.83 Hz)
-      baseColor, // 0.22
-      baseColor, // 0.33
-      c,         // 0.353 (14.1 Hz)
-      baseColor, // 0.38
-      baseColor, // 0.48
-      c,         // 0.508 (20.3 Hz)
-      baseColor, // 0.53
-      baseColor, // 0.64
-      c,         // 0.660 (26.4 Hz)
-      baseColor, // 0.68
-      baseColor, // 0.79
-      c,         // 0.810 (32.4 Hz)
-      baseColor, // 0.83
-      baseColor, // 1.0
-    ];
-  };
-
-  const getKpColors = (kp: number, isForecast: boolean) => {
-    const resColor = getResonanceColor(kp);
-    const getRgba = (alpha: number) => {
-      return `rgba(${Math.round(resColor.r)}, ${Math.round(resColor.g)}, ${Math.round(resColor.b)}, ${alpha})`;
-    };
-    
-    const a1 = 1.0;
-    const a2 = 0.8;
-    const a3 = 0.6;
-    const a4 = 0.4;
-    const a5 = 0.2;
-    
-    const fFactor = isForecast ? 0.35 : 1.0;
-    
-    return [
-      'transparent', // 0.0
-      'transparent', // 0.17
-      getRgba(a1 * fFactor), // 0.196 (7.83 Hz)
-      'transparent', // 0.22
-      'transparent', // 0.33
-      getRgba(a2 * fFactor), // 0.353 (14.1 Hz)
-      'transparent', // 0.38
-      'transparent', // 0.48
-      getRgba(a3 * fFactor), // 0.508 (20.3 Hz)
-      'transparent', // 0.53
-      'transparent', // 0.64
-      getRgba(a4 * fFactor), // 0.660 (26.4 Hz)
-      'transparent', // 0.68
-      'transparent', // 0.79
-      getRgba(a5 * fFactor), // 0.810 (32.4 Hz)
-      'transparent', // 0.83
-      'transparent', // 1.0
-    ];
+  const getScoreTextColor = (score: number) => {
+    if (score < 3.0) return '#000000'; // Black text on Cyan background
+    if (score >= 9.0) return '#000000'; // Black text on White background
+    return '#FFFFFF'; // White text on Green / Red background
   };
 
   const fetchData = async (showPulse = true) => {
@@ -247,52 +124,10 @@ export default function SchumannScreen() {
     try {
       const res = await apiFetch('/api/schumann');
       if (res) {
-        if (res.history) {
-          res.history = res.history.slice(-24); // Last 24 items (72 hours)
-        }
         setData(res);
-        if (res.history && res.history.length > 0) {
-          const lastRealIndex = res.history.reduce((lastIdx: number, item: KpHistoryItem, idx: number) => {
-            const isForecast = !!item.predicted;
-            return !isForecast ? idx : lastIdx;
-          }, res.history.length - 1);
-
-          const mappedHistory = res.history.map((item: any, idx: number) => {
-            const isLastReal = idx === lastRealIndex;
-            if (isLastReal) {
-              if (simulatedA1 !== null) {
-                return { ...item, kp: getSchumannScoreFromA1(simulatedA1) };
-              }
-              const activeKp = item.kp;
-              const activeImpact = getCalculatedImpactForData(res, activeKp);
-              return { ...item, kp: activeImpact };
-            }
-            const estimatedImpact = getEstimatedImpact(item.kp);
-            return { ...item, kp: estimatedImpact };
-          });
-
-          setHoveredSpectrogramBar(prev => {
-            if (!prev) return mappedHistory[lastRealIndex];
-            const found = mappedHistory.find((h: any) => h.time === prev.time);
-            return found || mappedHistory[lastRealIndex];
-          });
-
-          setHoveredBar(prev => {
-            const kpHistory = res.history.map((h: any, idx: number) => {
-              if (simulatedA1 !== null && idx === lastRealIndex) {
-                const activeKp = Math.min(9.0, (simulatedA1 / 75.0) * 9.0);
-                return { ...h, kp: activeKp };
-              }
-              return h;
-            });
-            if (!prev) return kpHistory[lastRealIndex];
-            const found = kpHistory.find((h: any) => h.time === prev.time);
-            return found || kpHistory[lastRealIndex];
-          });
-        }
       }
     } catch (e) {
-      console.error('Error fetching Kp in mobile:', e);
+      console.error('Error fetching Schumann in mobile:', e);
       Alert.alert('Hata', 'Rezonans verileri alınamadı. Lütfen internet bağlantınızı kontrol edin.');
     } finally {
       setLoading(false);
@@ -391,13 +226,6 @@ export default function SchumannScreen() {
     return 'Zirve enerjisel portal devrede. Sinir sisteminin en yüksek kapasitede çalışması ve kozmik bilinçle bütünleşme anıdır. Bol dinlenme ve topraklanma gerekir.';
   };
 
-  const getSpiritualLabel = (score: number) => {
-    if (score >= 8.5) return 'Zirve Hücresel Uyanış (Zirve Portal)';
-    if (score >= 7.0) return 'Yoğun Enerji Portalı (Giriş Aktif)';
-    if (score >= 5.0) return 'Yüksek Kozmik Uyarılma (Aktif)';
-    if (score >= 3.0) return 'Hafif Enerjisel Dalgalanma (Uyarılmış)';
-    return 'Dengeli & Dingin Akış (Sakin)';
-  };
 
   const formatTime = (timeStr: string) => {
     try {
@@ -493,9 +321,7 @@ export default function SchumannScreen() {
     }
   };
 
-
-
-  const generateRulesAnalysis = (score: number, speed: number, density: number, bz: number, bt: number, kp: number, a1: number, f1: number) => {
+  const generateRulesAnalysis = (score: number, a1: number, f1: number) => {
     // 1. Zirve Ekstrem Schumann Fırtınası (Ekstrem G5 Fırtınası)
     if (score >= 9.0) {
       return {
@@ -555,53 +381,6 @@ export default function SchumannScreen() {
     };
   };
 
-  const historyToRender = data?.history ? data.history.map((item, idx) => {
-    const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
-      if (!currItem.predicted) {
-        return currIdx;
-      }
-      return lastIdx;
-    }, -1);
-
-    if (idx === lastMeasuredIdx) {
-      if (simulatedA1 !== null) {
-        return { ...item, kp: getSchumannScoreFromA1(simulatedA1) };
-      }
-      const activeKp = item.kp;
-      const activeImpact = getCalculatedImpact(activeKp);
-      return { ...item, kp: activeImpact };
-    }
-    
-    const estimatedImpact = getEstimatedImpact(item.kp);
-    return { ...item, kp: estimatedImpact };
-  }) : [];
-
-  const kpHistoryToRender = data?.history ? data.history.map((item, idx) => {
-    const lastMeasuredIdx = data.history.reduce((lastIdx, currItem, currIdx) => {
-      if (!currItem.predicted) {
-        return currIdx;
-      }
-      return lastIdx;
-    }, -1);
-
-    if (simulatedA1 !== null && idx === lastMeasuredIdx) {
-      const activeKp = Math.min(9.0, (simulatedA1 / 75.0) * 9.0);
-      return { ...item, kp: activeKp };
-    }
-    return item;
-  }) : [];
-
-  // Find index of the first forecast block to draw "ŞİMDİ" divider line
-  const firstForecastIndex = historyToRender.findIndex(item => item.predicted) ?? -1;
-
-  const activeSpectrogramBar = hoveredSpectrogramBar 
-    ? (historyToRender.find(item => item.time === hoveredSpectrogramBar.time) || hoveredSpectrogramBar) 
-    : null;
-
-  const activeKpBar = hoveredBar 
-    ? (kpHistoryToRender.find(item => item.time === hoveredBar.time) || hoveredBar) 
-    : null;
-
   return (
     <SacredBackground>
       <View style={styles.header}>
@@ -610,7 +389,7 @@ export default function SchumannScreen() {
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={styles.headerTitle}>Schumann Rezonansı</Text>
-          <Text style={styles.headerSubtitle}>Canlı Jeomanyetik Kp ve Kozmik Akış</Text>
+          <Text style={styles.headerSubtitle}>Tomsk Spektrogram ve Rezonans Analizi</Text>
         </View>
         <View style={{ width: 44 }} />
       </View>
@@ -618,7 +397,7 @@ export default function SchumannScreen() {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Kozmik dalgalanmalar ölçülüyor...</Text>
+          <Text style={styles.loadingText}>Rezonans verileri ölçülüyor...</Text>
         </View>
       ) : (
         <ScrollView 
@@ -637,25 +416,24 @@ export default function SchumannScreen() {
             }
 
             const score = simulatedA1 !== null ? getSchumannScoreFromA1(simulatedA1) : (data?.cosmic_impact_score ?? 0.5);
-            
-            // Keep solar wind and Kp index strictly at their live values (do not simulate)
-            const activeKp = data?.current_kp ?? 0;
-            const speed = data?.solar_wind?.speed ?? 350;
-            const density = data?.solar_wind?.density ?? 4;
-            const bz = data?.solar_wind?.bz ?? 0;
-            const bt = data?.solar_wind?.bt ?? 5;
 
-            const analysis = generateRulesAnalysis(score, speed, density, bz, bt, activeKp, a1, f1);
+            const analysis = generateRulesAnalysis(score, a1, f1);
 
             return (
               <View style={styles.oracleCard}>
                 <View style={styles.oracleHeader}>
-                  <View style={[styles.oracleScoreBadge, { borderColor: getScoreColor(score) }]}>
-                    <Text style={styles.oracleScoreLabel}>SR İndeks</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getScoreColor(score) }]}>
-                      {score.toFixed(1)}
+                  <View style={[
+                    styles.oracleScoreBadge, 
+                    { 
+                      backgroundColor: getScoreColor(score),
+                      borderColor: getScoreColor(score)
+                    }
+                  ]}>
+                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(score) }]}>DURUM</Text>
+                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(score), fontSize: 22, fontWeight: '900' }]}>
+                      {getSchumannGLevel(score)}
                     </Text>
-                    <Text style={styles.oracleScoreAmp}>
+                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(score) + 'B0' }]}>
                       A1: {a1.toFixed(1)}
                     </Text>
                   </View>
@@ -670,19 +448,17 @@ export default function SchumannScreen() {
                         [{ text: "Anladım" }]
                       )}
                       style={{
-                        borderColor: getScoreColor(score) + '40',
-                        borderWidth: 1,
-                        backgroundColor: getScoreColor(score) + '15',
-                        borderRadius: 6,
-                        paddingHorizontal: 8,
-                        paddingVertical: 2,
+                        backgroundColor: getScoreColor(score),
+                        borderRadius: 8,
+                        paddingHorizontal: 10,
+                        paddingVertical: 4,
                         marginTop: 6,
                         alignSelf: 'flex-start'
                       }}
                     >
                       <Text style={{
-                        color: getScoreColor(score) === '#FFFFFF' ? '#FFD700' : getScoreColor(score),
-                        fontSize: 9,
+                        color: getScoreTextColor(score),
+                        fontSize: 10,
                         fontWeight: 'bold'
                       }}>
                         {getSchumannLevelLabel(score)} ⓘ
@@ -833,7 +609,21 @@ export default function SchumannScreen() {
               contentContainerStyle={{ width: 750, paddingBottom: 15 }}
             >
               <View style={{ width: 750 }}>
-                     {/* Chart Legend */}
+                {loading ? (
+                  <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                ) : (
+                  <Image 
+                    source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
+                    style={{ width: 750, height: 200 }}
+                    resizeMode="stretch"
+                  />
+                )}
+              </View>
+            </ScrollView>
+
+            {/* Chart Legend */}
             <View style={styles.legendContainer}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
