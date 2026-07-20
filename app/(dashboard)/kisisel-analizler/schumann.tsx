@@ -546,41 +546,11 @@ export default function SchumannScreen() {
       };
     }
     
-    // 4. Güneş Rüzgarı Hızı Sıçraması
-    if (speed >= 500) {
-      return {
-        title: 'Kozmik Plazma Rüzgarı Dalgası (Hızlı Akış)',
-        science: `Güneş yüzeyindeki koronal deliklerden kopan yüksek hızlı plazma akışı saniyede ${Math.round(speed)} km hıza ulaşarak manyetik kalkanımızı sıkıştırıyor. Schumann Rezonansı ana mod genliği (A1): ${a1.toFixed(1)}, frekansı: ${f1.toFixed(2)} Hz.`,
-        symptoms: 'Fiziksel bedende ani bir enerjik uyarılma, sabırsızlık/huzursuzluk hissi, kalp atışlarında hızlanma dalgaları, hafif sersemlik ve kulaklarda dalgalı frekans sesleri.',
-        spiritual: 'Artan plazma akışı, aura alanınızı temizlemek ve eski hücresel kalıpları salıvermek için çalışır. Birikmiş statik elektriği nötrlemek için ılık/tuzlu bir duş alın. Kalp merkezli nefes pratikleri (4 saniye al, 4 saniye ver) yaparak akışı bedende dengeleyin.'
-      };
-    }
-    
-    // 5. Kalkan Açılması (Bz Güney)
-    if (bz <= -3.0) {
-      return {
-        title: 'Manyetik Kalkan Geçiş Portalı (Bz Güney Yönlü)',
-        science: `Dünya'nın koruyucu manyetik kalkanının yönünü belirleyen Bz parametresi güneye yönelerek ${bz.toFixed(1)} nT seviyesine ulaştı. Kalkanımızda açılan bu kapı güneş rüzgarı sızıntısını artırırken, Schumann Rezonansı genliği ${a1.toFixed(1)} ve frekansı ${f1.toFixed(2)} Hz olarak ölçüldü.`,
-        symptoms: 'Yüksek duygusal duyarlılık, empati yeteneğinde aşırı artış, başkalarının enerjilerini hissetme, hafif şakak ağrıları ve rüyalarda yoğun astral semboller.',
-        spiritual: 'Kalkanın açık olması ruhsal olarak alıcı (reseptif) modda olduğumuzu gösterir. Negatif enerjilerden korunmak için kendinizi mor bir ışık küresi içinde hayal edin. Adaçayı veya üzerlik otu yakarak yaşam alanınızı arındırın.'
-      };
-    }
-    
-    // 6. Parçacık Yoğunluğu Sıçraması
-    if (density >= 10.0) {
-      return {
-        title: 'Yoğun Parçacık Bombardımanı (Proton Yoğunluğu)',
-        science: `Güneş rüzgarındaki parçacık (proton) yoğunluğu cm³ başına ${density.toFixed(1)} seviyesine ulaştı. Schumann Rezonansı ana mod genliği (A1) ${a1.toFixed(1)} ve frekansı ${f1.toFixed(2)} Hz olarak kaydedildi.`,
-        symptoms: 'Eklem ağrıları, kas seğirmeleri, aşırı fiziksel yorgunluk ve uykuya geçişte zorlanma, göz arkesinde hafif sızlama veya basınç.',
-        spiritual: 'Artan proton akışı, hücresel şablonumuzda ve DNA yapımızda yoğun bir elektromanyetik dönüşüm tetikler. Ağır yiyeceklerden kaçının, hafif beslenin ve bol su için. Vücuttaki iletkenliği ve topraklanmayı artırmak için magnezyum takviyesi alabilirsiniz.'
-      };
-    }
-    
-    // 7. Sakin ve Dengeli Durum
+    // 4. Sakin ve Dengeli Durum
     return {
       title: 'Dingin Elektromanyetik Akış (Sakin Faz)',
-      science: `Güneş rüzgarı hızı (${Math.round(speed)} km/s) ve parçacık yoğunluğu (${density.toFixed(1)} p/cm³) normal sınırlarında. Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana frekansı ${f1.toFixed(2)} Hz (Genlik A1: ${a1.toFixed(1)}) seviyesinde dengeli ve doğal titreşiminde seyrediyor.`,
-      symptoms: 'Zihinsel netlik, dengeli enerji seviyeleri, sakin uyku düzeni ve bedensel rahatlık. Zihnin gürültüsünü yatıştırmak, yeni bilgiler öğrenmek, kadim dersleri çalışmak ve kök çakra meditasyonları yapmak için en ideal dönemdir. Enerjinizin merkezlendiği bu dingin zamanı tefekkür ile değerlendirebilirsiniz.',
+      science: `Tomsk Rasathanesi ölçümlerine göre Schumann Rezonansı ana frekansı ${f1.toFixed(2)} Hz (Genlik A1: ${a1.toFixed(1)}) seviyesinde dengeli ve doğal titreşiminde seyrediyor. İyonosfer tabakası sakin durumda.`,
+      symptoms: 'Zihinsel netlik, dengeli enerji seviyeleri, sakin uyku düzeni ve bedensel rahatlık. Olağanüstü bir uyarılma belirtisi beklenmez.',
       spiritual: 'Zihnin gürültüsünü yatıştırmak, yeni bilgiler öğrenmek, kadim dersleri çalışmak ve kök çakra meditasyonları yapmak için en ideal dönemdir. Enerjinizin merkezlendiği bu dingin zamanı tefekkür ile değerlendirebilirsiniz.'
     };
   };
