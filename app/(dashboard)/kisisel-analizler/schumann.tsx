@@ -59,6 +59,7 @@ export default function SchumannScreen() {
   const [notificationLevel, setNotificationLevel] = useState<'G1' | 'G2' | 'G3'>('G1');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
+  const scrollViewRef = useRef<ScrollView>(null);
   const getResonanceColor = (kp: number) => {
     const stops = [
       { kp: 0.0, r: 0, g: 110, b: 140 },   // Deep green-blue (quiet)
@@ -668,10 +669,14 @@ export default function SchumannScreen() {
             )}
 
             <ScrollView 
+              ref={scrollViewRef}
               horizontal={true} 
               showsHorizontalScrollIndicator={true}
               style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
               contentContainerStyle={{ width: 750, paddingBottom: 15 }}
+              onContentSizeChange={() => {
+                scrollViewRef.current?.scrollToEnd({ animated: false });
+              }}
             >
               <View style={{ width: 750 }}>
                 {loading ? (
@@ -730,7 +735,7 @@ export default function SchumannScreen() {
                   <Text style={styles.notificationDesc}>
                     {!isApprenticeOrAbove 
                       ? 'Bu özellik Çırak seviyesi ve üzeri üyelerimiz içindir. Seviyenizi yükselterek bildirimleri aktif edebilirsiniz.' 
-                      : 'Şık Kapısı fırtına uyarısı (G1, G2 veya G3 ve üzeri) anlık uyarılarda bildirim alırsınız.'}
+                      : 'Işık Kapısı fırtına uyarısı (G1, G2 veya G3 ve üzeri) anlık uyarılarda bildirim alırsınız.'}
                   </Text>
                 </View>
               </View>
