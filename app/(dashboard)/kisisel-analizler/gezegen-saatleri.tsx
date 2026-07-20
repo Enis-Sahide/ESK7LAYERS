@@ -368,10 +368,8 @@ export default function GezegenSaatleriScreen() {
         const hasRule = planetRules.length > 0;
 
         return (
-          <TouchableOpacity 
+          <View 
             key={idx} 
-            activeOpacity={0.8}
-            onPress={() => toggleExpand(id)}
             style={[
               styles.hourCard, 
               { borderLeftColor: info.color },
@@ -397,8 +395,7 @@ export default function GezegenSaatleriScreen() {
                   </View>
                 )}
                 <TouchableOpacity 
-                  onPress={(e) => { 
-                    e.stopPropagation(); 
+                  onPress={() => { 
                     setSelectedPlanetForAlarms(hour.planet);
                     setPlanetAlarmsModalVisible(true); 
                   }}
@@ -412,13 +409,7 @@ export default function GezegenSaatleriScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-            
-            {isExpanded && (
-              <View style={styles.expandedContent}>
-                <Text style={styles.descriptionText}>{info.description}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          </View>
         );
       })}
     </View>

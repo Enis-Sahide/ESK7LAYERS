@@ -123,14 +123,56 @@ export const getPlanetaryHours = (date: Date, lat: number, lon: number) => {
   };
 };
 
-const PLANET_DESCRIPTIONS: Record<string, string> = {
-  'Sun': 'Terfi istemek, yöneticilerle görüşmek, sunum yapmak, resmi işler, dikkat çekmek ve otorite figürleriyle iletişim için çok uygundur. Canlılık ve özgüven artar.',
-  'Moon': 'Ev işleri, ailevi konular, mutfak alışverişi, duygusal sohbetler, taşınmak veya kısa yolculuklar için uygundur. Ruh halinin dalgalı olabileceği, değişken işler için ideal bir saattir.',
-  'Mars': 'Spora başlamak, cesaret gerektiren adımlar atmak, fiziksel efor gerektiren zorlu işleri halletmek, hakkınızı aramak ve rekabet için uygundur. Tartışmalardan ve öfkeden kaçınılmalıdır.',
-  'Mercury': 'İletişim, eğitim, yazı yazmak, ticaret, sözleşme imzalamak, teknolojik aletler almak, önemli e-postalar göndermek ve zihinsel aktiviteler için en uygun saattir.',
-  'Jupiter': 'Finansal yatırımlar, şans gerektiren işler, uzun yolculuklar, hukuki süreçler başlatmak, dua/meditasyon ve büyük çaplı alımlar için en şanslı ve bereketli saattir.',
-  'Venus': 'Aşk meşk işleri, ilk buluşmalar, sosyalleşme, kuaför/bakım işlemleri, sanatla ilgilenmek, estetik alışverişleri yapmak ve küsleri barıştırmak için idealdir.',
-  'Saturn': 'Uzun vadeli planlar yapmak, toprak/emlak işleri, borç yapılandırmak, disiplin gerektiren sıkıcı işlere odaklanmak için uygundur. Hızlı sonuç beklenen yeni başlangıçlardan kaçınılmalıdır.'
+export const PLANET_DAY_GUIDELINES: Record<string, { name: string; symbol: string; color: string; do: string; avoid: string }> = {
+  'Sun': {
+    name: 'Güneş',
+    symbol: '☉',
+    color: '#FFCC00',
+    do: 'Terfi istemek, yöneticilerle veya otorite figürleriyle önemli görüşmeler yapmak, sunum yapmak, sahneye çıkmak, dikkat çekmek istediğiniz bir işi yayınlamak, özgüven gerektiren projelere başlamak, kişisel gelişim çalışmaları yapmak.',
+    avoid: 'Gizli kalmasını istediğiniz işler yürütmek (Güneş her şeyi aydınlatır, sırlar açığa çıkar), dinlenmek ve inzivaya çekilmek (aktif enerji uykuyu veya huzuru zorlaştırır).'
+  },
+  'Moon': {
+    name: 'Ay',
+    symbol: '☽',
+    color: '#E6E6FA',
+    do: 'Sezgisel çalışmalar yapmak, meditasyon, aile ziyaretleri, ev temizliği, yemek pişirmek ve dekorasyon değiştirmek, halkla ilişkiler, pazarlama ve geniş kitlelere hitap eden tanıtımlar yapmak.',
+    avoid: 'Uzun vadeli, istikrar ve kararlılık gerektiren büyük finansal yatırımlara başlamak (Ay hızlı değişir, kararlar çabuk dalgalanabilir), gayrimenkul alım satımı gibi kalıcılık isteyen işler başlatmak.'
+  },
+  'Mars': {
+    name: 'Mars',
+    symbol: '♂',
+    color: '#FF3B30',
+    do: 'Spor yapmak, ağır fiziksel antrenmanlar, zor kararlar almak, cesaret isteyen adımları atmak, rakiplerle mücadele etmek, teknik işler, tamirat yapmak.',
+    avoid: 'İlişki sorunlarını konuşmak veya uzlaşma aramak (Mars öfke ve kavga getirir), ameliyat ve operasyonlar (kanama riskini artırabilir), sakinlik gerektiren meditasyonlar.'
+  },
+  'Mercury': {
+    name: 'Merkür',
+    symbol: '☿',
+    color: '#32ADE6',
+    do: 'Sözleşme imzalamak, anlaşmalar yapmak, e-posta göndermek, ders çalışmak, yeni bir dil öğrenmek, ticari pazarlıklar, reklam yayınlamak, teknolojik aletler satın almak, seyahate çıkmak.',
+    avoid: 'Duygusal derinlik gerektiren konuşmalar yapmak (zihin çok aktiftir, kalpten ziyade mantık konuşur), zihni susturmaya çalışıp uyumak.'
+  },
+  'Jupiter': {
+    name: 'Jüpiter',
+    symbol: '♃',
+    color: '#8A2BE2',
+    do: 'Yeni bir iş kurmak, finansal yatırımlar yapmak, para konularını görüşmek, hukuki süreçleri başlatmak, dua/meditasyon ve büyük çaplı alımlar için en şanslı ve bereketli saattir.',
+    avoid: 'Diyete başlamak (Jüpiter genişletir ve büyütür, bu saatte başlanan diyet kilo vermeyi zorlaştırıp iştahı açabilir!), gizli tutulması gereken sırları paylaşmak.'
+  },
+  'Venus': {
+    name: 'Venüs',
+    symbol: '♀',
+    color: '#34C759',
+    do: 'İlk randevuya çıkmak, evlilik teklif etmek, ilan-ı aşk etmek, kırgınlıkları gidermek, küslerle barışmak, kişisel bakım yaptırmak, saç kestirmek, estetik müdahaleler, sanatsal aktivitelere katılmak.',
+    avoid: 'Sert disiplin gerektiren işlerle uğraşmak (Venüs tembellik ve keyif verir, odaklanmak zordur), soğuk mantıkla kararlar almaya çalışmak.'
+  },
+  'Saturn': {
+    name: 'Satürn',
+    symbol: '♄',
+    color: '#A9A9A9',
+    do: 'Uzun vadeli planlar yapmak, bütçe hazırlamak, sorumluluk almak, temizlik, arşivleme, temel atmak, inşaat başlatmak, yalnız kalıp derin konsantrasyon gerektiren teknik işler yapmak.',
+    avoid: 'Borç para istemek, kredi başvurusu yapmak (Satürn kısıtlar, ret gelebilir), hızlı sonuç beklediğiniz işlere başlamak, eğlence/parti düzenlemek.'
+  }
 };
 
 export const getPlanetInfo = (planet: string) => {
@@ -138,6 +180,6 @@ export const getPlanetInfo = (planet: string) => {
     name: PLANET_TR_NAMES[planet] || planet,
     color: PLANET_COLORS[planet] || '#FFFFFF',
     symbol: PLANET_SYMBOLS[planet] || '?',
-    description: PLANET_DESCRIPTIONS[planet] || ''
+    description: ''
   };
 };

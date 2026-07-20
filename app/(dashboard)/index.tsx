@@ -9,7 +9,7 @@ import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { useProgress } from '@/src/context/ProgressContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
+import { getPlanetaryHours, getPlanetInfo, PlanetaryHour, PLANET_DAY_GUIDELINES } from '@/src/features/astrology/engine/PlanetaryHours';
 import SacredBackground from '@/components/SacredBackground';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
@@ -388,7 +388,32 @@ export default function DashboardScreen() {
                 <View style={{ marginTop: 25, paddingTop: 20, borderTopWidth: 1, borderTopColor: 'rgba(212, 175, 55, 0.2)' }}>
                   <Text style={{ fontSize: 36, color: selectedChakra?.color || COLORS.primary, alignSelf: 'center', marginBottom: 10, textShadowColor: selectedChakra?.color, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 10 }}>{selectedInfo.symbol}</Text>
                   <Text style={styles.affirmationText}>"{dailyAffirmation.text}"</Text>
-                  <Text style={[styles.affirmationAuthor, { color: selectedChakra?.color || COLORS.primaryDark }]}>— {dailyAffirmation.author}</Text>
+                  <Text style={[styles.affirmationAuthor, { color: selectedChakra?.color || COLORS.primaryDark, marginBottom: 15 }]}>— {dailyAffirmation.author}</Text>
+
+                  {/* Planetary Day Guidelines */}
+                  {(() => {
+                    const planetKeys = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'];
+                    const key = planetKeys[selectedDay];
+                    const guide = PLANET_DAY_GUIDELINES[key];
+                    if (!guide) return null;
+                    return (
+                      <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.05)', paddingTop: 15, marginTop: 10 }}>
+                        <Text style={{ color: selectedChakra?.color || COLORS.primary, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 8, alignSelf: 'center' }}>
+                          {guide.symbol} {guide.name} Günü Enerjisi
+                        </Text>
+                        <View style={{ gap: 8 }}>
+                          <View>
+                            <Text style={{ color: '#34D399', fontSize: 11, fontWeight: 'bold', marginBottom: 2 }}>✓ Yapılması Önerilenler:</Text>
+                            <Text style={{ color: COLORS.textMuted, fontSize: 11, lineHeight: 15, textAlign: 'justify' }}>{guide.do}</Text>
+                          </View>
+                          <View>
+                            <Text style={{ color: '#F87171', fontSize: 11, fontWeight: 'bold', marginBottom: 2 }}>✗ Kaçınılması Gerekenler:</Text>
+                            <Text style={{ color: COLORS.textMuted, fontSize: 11, lineHeight: 15, textAlign: 'justify' }}>{guide.avoid}</Text>
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  })()}
                 </View>
               )}
             </View>
