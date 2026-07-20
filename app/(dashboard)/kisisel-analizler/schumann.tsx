@@ -192,8 +192,10 @@ export default function SchumannScreen() {
   const getScoreColor = (score: number) => {
     if (score < 3.0) return '#00E5FF'; // Mavi (Cyan)
     if (score < 5.0) return '#10B981'; // Yeşil (Green)
-    if (score < 7.0) return '#EF4444'; // Kırmızı (Red)
-    return '#FFFFFF'; // Beyaz (Zirve Parlama / G3+)
+    if (score < 7.0) return '#F97316'; // G1-G2: Turuncu (Orange)
+    if (score < 8.0) return '#EF4444'; // G3: Kırmızı (Red)
+    if (score < 9.0) return '#EC4899'; // G4: Pembe (Pink)
+    return '#FFFFFF'; // G5: Beyaz (White)
   };
 
   const getSchumannLevelLabel = (score: number) => {
