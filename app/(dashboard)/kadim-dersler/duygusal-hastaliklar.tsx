@@ -84,13 +84,35 @@ export default function DuygusalHastaliklarScreen() {
           renderItem={({ item: disease }) => (
             <View style={styles.diseaseCard}>
               <Text style={styles.diseaseName}>{disease.name}</Text>
+
+              {disease.organSystem && (
+                <View style={styles.badgeContainer}>
+                  <Text style={styles.badgeText}>🧬 {disease.organSystem}</Text>
+                </View>
+              )}
+
               <View style={styles.diseaseRow}>
                 <Ionicons name="alert-circle-outline" size={16} color="#FF9500" style={styles.diseaseIcon} />
                 <Text style={styles.diseaseCause}>{disease.cause}</Text>
               </View>
-              <View style={styles.diseaseRow}>
-                <Ionicons name="heart-circle-outline" size={16} color="#34C759" style={styles.diseaseIcon} />
-                <Text style={styles.diseaseAffirmation}>{disease.affirmation}</Text>
+
+              {disease.detailedExplanation && (
+                <View style={styles.detailBox}>
+                  <Text style={styles.detailHeader}>🧠 Psikosomatik Analiz</Text>
+                  <Text style={styles.detailText}>{disease.detailedExplanation}</Text>
+                </View>
+              )}
+
+              {disease.symptomMessage && (
+                <View style={styles.messageBox}>
+                  <Text style={styles.messageHeader}>💡 Bedenin Şifa Mesajı</Text>
+                  <Text style={styles.messageText}>{disease.symptomMessage}</Text>
+                </View>
+              )}
+
+              <View style={styles.affirmationBox}>
+                <Ionicons name="sparkles" size={16} color={COLORS.primary} style={styles.diseaseIcon} />
+                <Text style={styles.diseaseAffirmation}>"{disease.affirmation}"</Text>
               </View>
             </View>
           )}
@@ -172,10 +194,51 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
-  diseaseName: { color: COLORS.primary, fontSize: 16, fontWeight: 'bold', marginBottom: 10 },
+  diseaseName: { color: COLORS.primary, fontSize: 16, fontWeight: 'bold', marginBottom: 6 },
+  badgeContainer: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    marginBottom: 10,
+  },
+  badgeText: { color: COLORS.primary, fontSize: 11, fontWeight: 'bold' },
   diseaseRow: { flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' },
   diseaseIcon: { marginTop: 2, marginRight: 8 },
-  diseaseCause: { color: COLORS.text, fontSize: 13, lineHeight: 20, flex: 1 },
-  diseaseAffirmation: { color: '#34C759', fontSize: 13, lineHeight: 20, fontStyle: 'italic', flex: 1 },
+  diseaseCause: { color: COLORS.text, fontSize: 13, lineHeight: 20, flex: 1, fontWeight: '500' },
+  detailBox: {
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 6,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  detailHeader: { color: '#00E5FF', fontSize: 11, fontWeight: 'bold', marginBottom: 4 },
+  detailText: { color: COLORS.textMuted, fontSize: 12, lineHeight: 18 },
+  messageBox: {
+    backgroundColor: 'rgba(255, 149, 0, 0.1)',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 149, 0, 0.25)',
+  },
+  messageHeader: { color: '#FF9500', fontSize: 11, fontWeight: 'bold', marginBottom: 3 },
+  messageText: { color: '#FFE0B2', fontSize: 12, fontStyle: 'italic', lineHeight: 18 },
+  affirmationBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+  },
+  diseaseAffirmation: { color: '#FFF', fontSize: 13, lineHeight: 20, fontStyle: 'italic', fontWeight: 'bold', flex: 1 },
   noResultText: { color: COLORS.textMuted, textAlign: 'center', padding: 20, fontStyle: 'italic' }
 });
