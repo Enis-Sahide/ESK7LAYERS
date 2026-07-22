@@ -570,11 +570,6 @@ export default function SchumannScreen() {
                   </View>
                   <Text style={styles.oracleSegmentBody}>
                     {analysis.science}
-                    {data?.peak_a1_24h && (
-                      <Text style={{ color: '#FF9500', fontWeight: 'bold', fontSize: 12 }}>
-                        {"\n\n"}⚠️ Zirve Analizi: Spektrogramda son 24 saat içinde A1 genliği {data.peak_a1_24h.toFixed(1)} seviyesine ({getSchumannGLevel(data.peak_a1_24h)}) kadar ulaşan yoğun uyarılmalar ve parlamalar gözlemlendi.
-                      </Text>
-                    )}
                   </Text>
                   <TouchableOpacity
                     activeOpacity={0.7}
