@@ -523,37 +523,14 @@ export default function SchumannScreen() {
                       borderColor: getScoreColor(a1)
                     }
                   ]}>
-                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>ANLIK</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 18, fontWeight: '900' }]}>
+                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>DURUM</Text>
+                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 22, fontWeight: '900' }]}>
                       {getSchumannGLevel(a1)}
                     </Text>
-                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0', fontSize: 9 }]}>
+                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0' }]}>
                       A1: {a1.toFixed(1)}
                     </Text>
                   </View>
-
-                  {(() => {
-                    const peakA1 = data?.peak_a1_24h ?? a1;
-                    return (
-                      <View style={[
-                        styles.oracleScoreBadge, 
-                        { 
-                          backgroundColor: getScoreColor(peakA1),
-                          borderColor: 'rgba(212, 175, 55, 0.4)',
-                          borderWidth: 1,
-                          marginLeft: 6
-                        }
-                      ]}>
-                        <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(peakA1), fontSize: 7 }]}>24S ZİRVE</Text>
-                        <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(peakA1), fontSize: 18, fontWeight: '900' }]}>
-                          {getSchumannGLevel(peakA1)}
-                        </Text>
-                        <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(peakA1) + 'B0', fontSize: 9 }]}>
-                          A1: {peakA1.toFixed(1)}
-                        </Text>
-                      </View>
-                    );
-                  })()}
 
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu {data?.schumann_real && `- GÖZLEM SAATİ: ${formatRealTime(data.schumann_real.time_utc)}`}</Text>
