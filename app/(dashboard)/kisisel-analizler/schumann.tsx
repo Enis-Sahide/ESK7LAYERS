@@ -94,15 +94,21 @@ export default function SchumannScreen() {
   };
 
   const getSchumannScoreFromA1 = (a1: number) => {
-    if (a1 < 4.0) return 0.5;
-    if (a1 < 10.0) {
-      return parseFloat((0.5 + ((a1 - 4) / 6) * 4.5).toFixed(2));
+    if (a1 <= 0) return 0.5;
+    if (a1 < 8.0) {
+      return parseFloat((0.5 + (a1 / 8.0) * 2.4).toFixed(2));
     } else if (a1 < 15.0) {
-      return parseFloat((5.0 + ((a1 - 10) / 5) * 1.0).toFixed(2));
+      return parseFloat((3.0 + ((a1 - 8.0) / 7.0) * 1.9).toFixed(2));
     } else if (a1 < 25.0) {
-      return parseFloat((6.0 + ((a1 - 15) / 10) * 2.5).toFixed(2));
+      return parseFloat((5.0 + ((a1 - 15.0) / 10.0) * 0.9).toFixed(2));
+    } else if (a1 < 40.0) {
+      return parseFloat((6.0 + ((a1 - 25.0) / 15.0) * 0.9).toFixed(2));
+    } else if (a1 < 55.0) {
+      return parseFloat((7.0 + ((a1 - 40.0) / 15.0) * 0.9).toFixed(2));
+    } else if (a1 < 70.0) {
+      return parseFloat((8.0 + ((a1 - 55.0) / 15.0) * 0.9).toFixed(2));
     } else {
-      return parseFloat(Math.min(10.0, 8.5 + ((a1 - 25) / 25) * 1.5).toFixed(2));
+      return parseFloat((9.0 + Math.min(1.0, ((a1 - 70.0) / 30.0) * 1.0)).toFixed(2));
     }
   };
 
