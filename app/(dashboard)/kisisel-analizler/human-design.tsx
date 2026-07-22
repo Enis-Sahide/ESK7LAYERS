@@ -70,6 +70,160 @@ const GATE_COORDS: Record<number, { x: number, y: number }> = {
   6: { x: 285, y: 387 }, 49: { x: 295, y: 398 }, 55: { x: 315, y: 408 }, 30: { x: 335, y: 418 },
 };
 
+const normalizeHDKey = (key: string, type?: string): string => {
+  if (!key) return "";
+  const k = key.trim();
+  if (k === "Memnuniyet") return "Tatmin";
+  if (k === "Tepki Vermek") return "Yanıt Vermek";
+  if (k === "Duygusal (Solar Pleksus)") return "Duygusal";
+  if (k === "Reflektör") return "Yansıtıcı";
+  if (k === "Manifesting Jeneratör") return "Manifesting Generator";
+  if (k === "Ay Otoritesi (Reflektör)") return "Ay Döngüsü";
+  if (k === "Ego (Kalp)") return "Ego";
+  if (k === "Kendinden Gelen (G Merkezi)") return "Benlik";
+  if (k === "Çevresel (Zihinsel)") return "Zihinsel";
+  if (k === "Bir Ay Döngüsü Beklemek") return "28 Gün Beklemek";
+  if (k === "Hayal Kırıklığı" && (type === "Reflektör" || type === "Yansıtıcı")) {
+    return "Hayal Kırıklığı (Yansıtıcı)";
+  }
+  return k;
+};
+
+const HD_DETAILS_MAP: Record<string, { subtitle: string; description: string }> = {
+  "Projektör": {
+    subtitle: "Tür / Tip",
+    description: "Projektörler, dünya nüfusunun yaklaşık %20'sini oluşturur. Enerjiyi başlatmak veya üretmek için değil, diğer tiplerin enerjisini yönlendirmek, rehberlik etmek ve yönetmek için buradadırlar. Doğal bir liderlik, rehberlik ve sezgisel gözlem yeteneğine sahiptirler. En büyük başarıları, davet edildikleri ortamlarda takdir görmek ve başkalarına en verimli yolları göstermektir."
+  },
+  "Jeneratör": {
+    subtitle: "Tür / Tip",
+    description: "Jeneratörler, nüfusun yaklaşık %37'sini oluşturur ve dünyanın birincil yaşam enerjisi motorudur. Tanımlı Sakral merkezleri sayesinde sürekli ve sürdürülebilir bir üretici güce sahiptirler. Yaşamlarındaki anahtar, dış dünyadan gelen uyarılara/fırsatlara yanıt vermek (cevap vermek) ve sevdikleri işlerde bu muazzam enerjiyi harcayarak derin bir tatmine ulaşmaktır."
+  },
+  "Manifesting Generator": {
+    subtitle: "Tür / Tip",
+    description: "Manifesting Generator'lar (M.G.), nüfusun yaklaşık %33'ünü oluşturur. Hem Jeneratörlerin sürdürülebilir yaşam enerjisine, hem de Manifestörlerin hızlı eyleme geçme ve başlatma gücüne sahiptirler. Çok yönlüdürler, aynı anda birden fazla işi yapabilirler. Stratejileri, yanıt vermek, harekete geçmeden önce bilgilendirmek ve süreci takip etmektir."
+  },
+  "Manifestör": {
+    subtitle: "Tür / Tip",
+    description: "Manifestörler, nüfusun yaklaşık %9'unu oluşturur. Saf bir başlatıcı ve etki yaratıcı güçtürler. Kendi başlarına hareket edebilir, kararlar alabilir ve başkalarını harekete geçirebilirler. İlişkilerinde dirençle karşılaşmamak ve çevrelerine huzur vermek için harekete geçmeden önce mutlaka başkalarını bilgilendirmeleri gerekir."
+  },
+  "Yansıtıcı": {
+    subtitle: "Tür / Tip",
+    description: "Yansıtıcılar (Reflector), dünya nüfusunun sadece %1'ini oluşturan en nadir tiptir. Tüm 9 enerji merkezleri tamamen açıktır. Yaşadıkları ortamın, topluluğun ve ilişkide oldukları kişilerin sağlık ve refah düzeyini bir ayna gibi yansıtırlar. Yaşamlarındaki en büyük güç, bilgece bir gözlemci olmak ve doğru kararlar için 28 günlük Ay döngüsünü beklemektir."
+  },
+  "Dalak": {
+    subtitle: "İç Otorite",
+    description: "Dalak Otoritesi, anlık sezgilere, hayatta kalma reflekslerine ve içgüdülere dayanır. Vücudunuz size anında, sadece bir kez ve çok sessizce fısıldar (bir yere girmek veya girmemek, biriyle konuşmak veya konuşmamak gibi). Zihninizi susturup, o anlık 'güvenli/güvensiz' refleksine sadık kalmayı öğrenmelisiniz."
+  },
+  "Duygusal": {
+    subtitle: "İç Otorite",
+    description: "Duygusal Otorite, hislerinizin netleşmesini beklemeyi gerektirir. Sizin için 'anlık' bir evet veya hayır yoktur. Duygusal dalgalanmalarınızın (heyecan ve hüzün dalgalarının) yatışmasını beklemeli ve ancak dalga nötr bir noktaya ulaştığında karar vermelisiniz. 'Üzerine bir gece uyumak' sizin en büyük dostunuzdur."
+  },
+  "Sakral": {
+    subtitle: "İç Otorite",
+    description: "Sakral Otorite, karnınızdan (gut feeling) gelen anlık tepkilere dayanır. Bir soru sorulduğunda vücudunuzun çıkardığı 'hı-hı' (evet) veya 'ıh-ıh' (hayır) gibi sesler veya karın bölgesindeki büzülme/rahatlama hissi en doğru rehberinizdir. Zihinsel mantık yürütmeler yerine vücudunuzun bu fiziksel tepkilerine güvenin."
+  },
+  "Benlik": {
+    subtitle: "İç Otorite",
+    description: "Benlik (Self-Projected) Otoritesi, kalbinizin ve kimliğinizin sesini duymakla ilgilidir. Sizin için en doğru karar, başkalarıyla konuşurken ağzınızdan filtresizce çıkan kendi sözlerinizde gizlidir. Karar almadan önce güvendiğiniz dostlarınızla sohbet edin ve ne söylediğinizi, sesinizin tonunu dinleyin; gerçeğiniz orada belirecektir."
+  },
+  "Zihinsel": {
+    subtitle: "İç Otorite",
+    description: "Zihinsel Otorite (Mental/Soundboard), çevrenizdeki insanları birer yankı tahtası (soundboard) olarak kullanmanızı gerektirir. Kararınızı dışarıya sesli olarak aktarırken kendi sesinizin frekansını ve ne hissettiğinizi dinleyerek netliğe ulaşırsınız. Karar anında zihinsel mantık kuralları yerine kendi sesinizin tınısına güvenin."
+  },
+  "Ego": {
+    subtitle: "İç Otorite",
+    description: "Ego (Yürek) Otoritesi, kalbinizin gerçekten neyi arzuladığına ve neye irade göstermek istediğine dayanır. Karar anında kendinize sormanız gereken soru: 'Ben bunu gerçekten istiyor muyum ve bunun için taahhüt vermeye hazır mıyım?' sorusudur. Kendi isteklerinizi dürüstçe kabul etmeniz en doğru yoldur."
+  },
+  "Ay Döngüsü": {
+    subtitle: "İç Otorite",
+    description: "Ay Döngüsü Otoritesi, sadece Yansıtıcı (Reflector) tipine özeldir. Tüm merkezleriniz açık olduğu için acele karar vermemeli, Ay'ın 28 günlük döngüsünü tamamlamasını beklemelisiniz. Bu süreç boyunca farklı günlerde konuyu değerlendirip içinizde biriken netliğe göre hareket etmelisiniz."
+  },
+  "Davet Beklemek": {
+    subtitle: "Strateji",
+    description: "Projektörler için geçerli stratejidir. İş, ilişkiler, kariyer veya ev gibi büyük yaşam adımlarında başkaları tarafından fark edilmeyi ve resmi/gayriresmi olarak davet edilmeyi beklemelisiniz. Davet edilmeden girdiğiniz durumlarda enerjiniz doğru algılanmaz ve burukluk yaşarsınız."
+  },
+  "Yanıt Vermek": {
+    subtitle: "Strateji",
+    description: "Jeneratörler için geçerli stratejidir. Hayatı sıfırdan başlatmaya (initiate) çalışmak yerine, önünüze çıkan fırsatlara, sorulara ve olaylara vücudunuzun (Sakral) verdiği yanıtı izlemelisiniz. Hayat size gelir, siz sadece yanıt verirsiniz."
+  },
+  "Bilgilendirmek ve Yanıt Vermek": {
+    subtitle: "Strateji",
+    description: "Manifesting Generator'lar için geçerli stratejidir. Eyleme geçmeden önce etrafınızdaki insanları bilgilendirerek dirençle karşılaşmayı engeller ve eylemi Sakral merkezinizin verdiği yanıta göre şekillendirirsiniz."
+  },
+  "Bilgilendirmek": {
+    subtitle: "Strateji",
+    description: "Manifestörler için geçerli stratejidir. Büyük bir eylem başlatmadan veya karar almadan önce, bu durumdan etkilenecek kişileri önceden bilgilendirmelisiniz. Bu, etrafınızdaki direnç dirençlerini yıkar ve önünüzü açar."
+  },
+  "28 Gün Beklemek": {
+    subtitle: "Strateji",
+    description: "Yansıtıcılar (Reflector) için geçerli stratejidir. Kararlarınızın netleşmesi için Ay'ın 28 günlük geçiş döngüsünü beklemeli, bu sürede farklı ortamlarda konuyu gözlemlemelisiniz."
+  },
+  "Başarı": {
+    subtitle: "İmza (Hizalanma Ödülü)",
+    description: "Projektörlerin doğru stratejiyle (davet bekleyerek) hareket ettiklerinde hissettikleri tatmin ve takdir edilme duygusudur. Kendinizi başarılı, görülmüş ve bilgece yönlendirmiş hissettiğinizde doğru yoldasınız demektir."
+  },
+  "Tatmin": {
+    subtitle: "İmza (Hizalanma Ödülü)",
+    description: "Jeneratör ve Manifesting Generator'ların enerjilerini sevdikleri işlerde doğru şekilde tükettiklerinde hissettikleri derin içsel doyumdur. Akşam yatağa yorgun ama mutlu girmek tatmin imzanızdır."
+  },
+  "Huzur": {
+    subtitle: "İmza (Hizalanma Ödülü)",
+    description: "Manifestörlerin kararlarını alıp etrafı bilgilendirdikten sonra, hiç kimsenin direnciyle karşılaşmadan eylemlerini özgürce tamamladıklarında hissettikleri içsel dinginlik ve özgürlük hissidir."
+  },
+  "Sürpriz": {
+    subtitle: "İmza (Hizalanma Ödülü)",
+    description: "Yansıtıcıların (Reflector) yaşamın ve insanların beklenmedik güzelliklerine, mucizelerine ve farklılıklarına tanık olduklarında hissettikleri çocuksu hayranlık ve keyif alma duygusudur."
+  },
+  "Acı / Burukluk": {
+    subtitle: "Benlik Olmayan Tema (Hizalanma Uyarısı)",
+    description: "Projektörlerin davet edilmeden harekete geçtiklerinde veya başkaları tarafından görülmediklerini, takdir edilmediklerini hissettiklerinde yaşadıkları kırgınlık ve hayal kırıklığı hissidir."
+  },
+  "Hayal Kırıklığı": {
+    subtitle: "Benlik Olmayan Tema (Hizalanma Uyarısı)",
+    description: "Jeneratörlerin yanıt vermek yerine zihinsel kararlarla eyleme geçip engellerle karşılaştıklarında veya enerjilerini istemedikleri işlerde tükettiklerinde hissettikleri tıkanma ve bıkkınlık hissidir."
+  },
+  "Öfke": {
+    subtitle: "Benlik Olmayan Tema (Hizalanma Uyarısı)",
+    description: "Manifestörlerin eyleme geçmeden önce çevrelerini bilgilendirmedikleri için karşılaştıkları engeller, kontrol edilme çabaları veya kısıtlamalar karşısında hissettikleri patlama ve öfke duygusudur."
+  },
+  "Hayal Kırıklığı ve Öfke": {
+    subtitle: "Benlik Olmayan Tema (Hizalanma Uyarısı)",
+    description: "Manifesting Generator'ların hem hizalanmadıklarında hissettikleri tıkanıklık (hayal kırıklığı) hem de engellendiklerinde dışa vurdukları sabırsızlık ve kızgınlık (öfke) halidir."
+  },
+  "Hayal Kırıklığı (Yansıtıcı)": {
+    subtitle: "Benlik Olmayan Tema (Hizalanma Uyarısı)",
+    description: "Yansıtıcıların (Reflector) yanlış ortamlarda kalarak başkalarının olumsuz enerjilerini emdiklerinde veya hayatta hiç heyecan verici bir sürpriz kalmadığını düşündüklerinde hissettikleri donukluk halidir."
+  }
+};
+
+const getProfileDetails = (profile: string) => {
+  const profilesMap: Record<string, string> = {
+    "1/3": "Araştırmacı / Deneyimci. Temel atmak, araştırmak ve deneme-yanılma yoluyla öğrenmek için buradasınız. Güvenli bir temel oluşturmak hayatınızın anahtarıdır.",
+    "1/4": "Araştırmacı / Fırsatçı. Bilgiyi derinlemesine araştırıp, bu bilgiyi yakın dostlarınız ve sosyal çevreniz (network) aracılığıyla yaymak ve fırsatlara dönüştürmek için buradasınız.",
+    "2/4": "Münzevi / Fırsatçı. Kendi başınıza kalıp yeteneklerinizi geliştirmek istersiniz. Doğru fırsatlar ve teklifler size her zaman yakın sosyal çevrenizden gelir.",
+    "2/5": "Münzevi / Kurtarıcı. Doğal bir yeteneğe sahipsiniz ve kendi alanınızda kalmayı seversiniz. İnsanlar zor anlarında sizden pratik çözümler ve kurtarıcılık beklerler.",
+    "3/5": "Deneyimci / Kurtarıcı. Hayatı deneme-yanılma ve hatalardan öğrenerek yaşarsınız. Kazandığınız bu pratik tecrübelerle başkalarının sorunlarına en gerçekçi çözümleri sunarsınız.",
+    "3/6": "Deneyimci / Rol Modeli. Hayatınızın ilk yarısında yoğun deneyimler yaşayıp hatalardan öğrenir, olgunlaştıkça çevreniz için bilge bir izleyici ve rol modeli haline gelirsiniz.",
+    "4/6": "Fırsatçı / Rol Modeli. Sosyal çevrenizle kurduğunuz köprüler ve dostluklar hayatınızın yönünü belirler. Yaşınız ilerledikçe tarafsız, bilge bir rol modeline dönüşürsünüz.",
+    "4/1": "Fırsatçı / Araştırmacı. Kendi sabit inançlarınız ve araştırma temelleriniz üzerinde durursunuz. Bu temel bilgiyi yakın çevrenize aktararak hayatınızı kurarsınız.",
+    "5/1": "Kurtarıcı / Araştırmacı. İnsanların sizden büyük beklentileri vardır. Bilgiyi derinlemesine araştırıp, kriz anlarında pratik ve evrensel çözümler üreterek liderlik edersiniz.",
+    "5/2": "Kurtarıcı / Münzevi. Kendi köşenizde kalıp yeteneklerinizi geliştirmeyi seversiniz. İhtiyaç anında çağrıldığınızda, o pratik dehanızla krizleri çözersiniz.",
+    "6/2": "Rol Modeli / Münzevi. Hayatınız 3 aşamalıdır (30 yaşına kadar deneme, 50 yaşına kadar izleme, 50'den sonra rol modeli). Kendi alanınızda kalıp bilgeliğinizi olgunlaştırırsınız.",
+    "6/3": "Rol Modeli / Deneyimci. Hayat boyu denemekten ve öğrenmekten vazgeçmeyen, dinamik ve tecrübeli bir rol modelisiniz. Hayatın içinde aktif birer rehbersiniz."
+  };
+  return {
+    subtitle: "Profil Yapısı",
+    description: profilesMap[profile] || `${profile} profili, hayattaki temel duruşunuzu, öğrenme ve etkileşim kurma modelinizi simgeler.`
+  };
+};
+
+const getIncarnationCrossDetails = (cross: string) => {
+  return {
+    subtitle: "Enkarnasyon Haçı",
+    description: `${cross} Enkarnasyon Haçı, hayatınızdaki en büyük yaşam amacınızı, kaderinizi ve bu dünyaya getirdiğiniz temel enerjisel misyonu temsil eder. Dört ana kapınızın (Kişilik ve Tasarım Güneş/Dünya) birleşimiyle oluşur.`
+  };
+};
+
 export default function HumanDesignScreen() {
   const router = useRouter();
   const [dateStr, setDateStr] = useState('');
@@ -83,6 +237,7 @@ export default function HumanDesignScreen() {
   const [chart, setChart] = useState<HumanDesignChart | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeGateId, setActiveGateId] = useState<number | null>(null);
+  const [activeDetail, setActiveDetail] = useState<{ title: string; subtitle?: string; description: string } | null>(null);
 
   const { data: gatesData } = useContent<any[]>('/api/content/hd-gates');
   const activeGateData = activeGateId && gatesData ? gatesData.find((g: any) => g.id === activeGateId) : null;
@@ -534,34 +689,104 @@ export default function HumanDesignScreen() {
               </View>
 
               <BlurView intensity={30} tint="light" style={styles.textAnalysisCard}>
-                <View style={styles.textRow}>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = getProfileDetails(chart.profile);
+                    setActiveDetail({
+                      title: `Profil ${chart.profile}`,
+                      subtitle: match.subtitle,
+                      description: match.description
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>Profil:</Text>
                   <Text style={styles.textValue}>{chart.profile}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = HD_DETAILS_MAP[normalizeHDKey(chart.type)];
+                    setActiveDetail({
+                      title: chart.type,
+                      subtitle: match?.subtitle || "Tür / Tip",
+                      description: match?.description || ""
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>Tür:</Text>
                   <Text style={styles.textValue}>{chart.type}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = HD_DETAILS_MAP[normalizeHDKey(chart.strategy)];
+                    setActiveDetail({
+                      title: chart.strategy,
+                      subtitle: match?.subtitle || "Strateji",
+                      description: match?.description || ""
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>Strateji:</Text>
                   <Text style={styles.textValue}>{chart.strategy}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = HD_DETAILS_MAP[normalizeHDKey(chart.signature)];
+                    setActiveDetail({
+                      title: chart.signature,
+                      subtitle: match?.subtitle || "İmza (Hizalanma Ödülü)",
+                      description: match?.description || ""
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>İmza:</Text>
                   <Text style={styles.textValue}>{chart.signature}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = HD_DETAILS_MAP[normalizeHDKey(chart.notSelfTheme, chart.type)];
+                    setActiveDetail({
+                      title: chart.notSelfTheme,
+                      subtitle: match?.subtitle || "Benlik Olmayan Tema",
+                      description: match?.description || ""
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>Benlik Olmayan Tema:</Text>
                   <Text style={styles.textValue}>{chart.notSelfTheme}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = HD_DETAILS_MAP[normalizeHDKey(chart.authority)];
+                    setActiveDetail({
+                      title: chart.authority,
+                      subtitle: match?.subtitle || "İç Otorite",
+                      description: match?.description || ""
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>İç Otorite:</Text>
                   <Text style={styles.textValue}>{chart.authority}</Text>
-                </View>
-                <View style={styles.textRow}>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.textRow}
+                  onPress={() => {
+                    const match = getIncarnationCrossDetails(chart.incarnationCross);
+                    setActiveDetail({
+                      title: chart.incarnationCross,
+                      subtitle: match.subtitle,
+                      description: match.description
+                    });
+                  }}
+                >
                   <Text style={styles.textLabel}>Enkarnasyon Haçı:</Text>
                   <Text style={styles.textValue}>{chart.incarnationCross}</Text>
-                </View>
+                </TouchableOpacity>
               </BlurView>
 
             </View>
@@ -598,6 +823,26 @@ export default function HumanDesignScreen() {
                 </View>
               </View>
               <Text style={styles.gateDescription}>{activeGateData?.description}</Text>
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Modal for Card Details (Type, Authority, Strategy, Signature, etc.) */}
+      <Modal visible={!!activeDetail} animationType="slide" transparent={true} onRequestClose={() => setActiveDetail(null)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setActiveDetail(null)}>
+          <View style={styles.gateModalContent}>
+            <View style={styles.gateModalHeader}>
+              <Text style={[styles.gateModalTitle, { color: COLORS.primary }]}>{activeDetail?.subtitle}</Text>
+              <TouchableOpacity onPress={() => setActiveDetail(null)}>
+                <Ionicons name="close-circle" size={28} color={COLORS.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false}>
+              <Text style={[styles.gateModalTitle, { fontSize: 24, marginBottom: 15, fontFamily: 'serif' }]}>
+                {activeDetail?.title}
+              </Text>
+              <Text style={styles.gateDescription}>{activeDetail?.description}</Text>
             </ScrollView>
           </View>
         </TouchableOpacity>
