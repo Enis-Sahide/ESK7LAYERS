@@ -509,7 +509,7 @@ export default function SchumannScreen() {
               f1 = 7.83 + (simulatedA1 / 75.0) * 0.5;
             }
 
-            const score = simulatedA1 !== null ? getSchumannScoreFromA1(simulatedA1) : (data?.cosmic_impact_score ?? 0.5);
+            const score = getSchumannScoreFromA1(a1);
 
             const analysis = generateRulesAnalysis(score, a1, f1);
 
