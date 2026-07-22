@@ -217,10 +217,99 @@ const getProfileDetails = (profile: string) => {
   };
 };
 
+const GATE_NAMES: Record<number, string> = {
+  1: "Kendini İfade Etme / Yaratıcılık",
+  2: "Alıcılık / Yön",
+  3: "Düzen / Yeni Başlangıçlar",
+  4: "Formüller / Zihinsel Cevaplar",
+  5: "Ritim / Kalıplar",
+  6: "Sürtüşme / Uyum ve Çatışma",
+  7: "Rol / Liderlik",
+  8: "Katkı / Bireysel İfade",
+  9: "Odak / Detaylar",
+  10: "Kendini Sevme / Davranış",
+  11: "Fikirler / Uyum",
+  12: "Çekingenlik / İfade",
+  13: "Dinleyici / Sırdaş",
+  14: "Güç / Kaynak Yönetimi",
+  15: "Uçlar / Evrensel Sevgi ve Ritim",
+  16: "Beceri / Yetenek",
+  17: "Görüşler / Gelecek Planlama",
+  18: "Düzeltme / Kusursuzlaştırma",
+  19: "İhtiyaçlar / Bağlantı",
+  20: "Şimdi / Anlık Farkındalık",
+  21: "Kontrol / Hazine",
+  22: "Zarafet / Duygusal Derinlik",
+  23: "Basitlik / Bireysel Bilgelik",
+  24: "Rasyonalizasyon / Geri Dönüş",
+  25: "Koşulsuz Sevgi / Masumiyet",
+  26: "Bencillik / Pazarlamacı (Ego)",
+  27: "Bakım / Besleme",
+  28: "Mücadele / Yaşam Amacı",
+  29: "Bağlılık / Kararlılık (Evet Demek)",
+  30: "Arzular / Ateşli Duygular",
+  31: "Etki / Demokratik Liderlik",
+  32: "Süreklilik / Uyum Sağlama",
+  33: "Geri Çekilme / Mahremiyet",
+  34: "Güç / Saf Yaşam Gücü",
+  35: "Değişim / Deneyim Arayışı",
+  36: "Kriz / Duygusal Deneyim",
+  37: "Dostluk / Aile ve Anlaşmalar",
+  38: "Savaşçı / Anlam Arayışı",
+  39: "Provokasyon / Enerjisel Tetikleme",
+  40: "Yalnızlık / Teslimiyet (Topluluk)",
+  41: "Hayal Gücü / Kaynak İstekleri",
+  42: "Büyüme / Bitirme ve Olgunlaşma",
+  43: "İçgörü / Bireysel Deha",
+  44: "Uyanıklık / Geçmiş Deneyimler",
+  45: "Hükümdar / Dağıtıcı (Topluluk)",
+  46: "Beden Sevgisi / Doğru Yerde Olma",
+  47: "Fikir Dünyası / Gerçekleşme",
+  48: "Derinlik / Kuyu (Çözüm Arayışı)",
+  49: "Devrim / İlkeler ve Reddetme",
+  50: "Değerler / Koruma ve Kanunlar",
+  51: "Şok / Uyanış ve Rekabet",
+  52: "Durgunluk / Dağ (Odaklanma)",
+  53: "Başlangıçlar / Tohum",
+  54: "Hırs / Yükselme",
+  55: "Ruh / Bereket ve Duygusal Bolluk",
+  56: "Gezgin / Hikaye Anlatıcı",
+  57: "Sezgi / Anlık Güvenlik",
+  58: "Yaşam Sevinci / Canlılık",
+  59: "Cinsellik / Yakınlık",
+  60: "Sınırlar / Kabul ve Mutasyon",
+  61: "Gizem / İçsel Gerçeklik",
+  62: "Detaylar / Pratik Zihin",
+  63: "Şüphe / Mantıksal Sorgulama",
+  64: "Kafa Karışıklığı / Geçmişi Değerlendirme"
+};
+
 const getIncarnationCrossDetails = (cross: string) => {
+  const match = cross.match(/\((\d+)\/(\d+)\s*\|\s*(\d+)\/(\d+)\)/);
+  let gateDetails = "";
+  
+  if (match) {
+    const pSun = parseInt(match[1]);
+    const pEarth = parseInt(match[2]);
+    const dSun = parseInt(match[3]);
+    const dEarth = parseInt(match[4]);
+    
+    const nameSun = GATE_NAMES[pSun] || "Bilinmiyor";
+    const nameEarth = GATE_NAMES[pEarth] || "Bilinmiyor";
+    const nameDSun = GATE_NAMES[dSun] || "Bilinmiyor";
+    const nameDEarth = GATE_NAMES[dEarth] || "Bilinmiyor";
+    
+    gateDetails = `\n\nBu özel Enkarnasyon Haçı, hayatınızdaki en büyük yaşam amacınızı temsil eder ve şu 4 kapının enerjisinin sentezinden oluşur:\n\n` +
+      `• Kişilik Güneşi (Güneş - ${pSun}. Kapı): ${nameSun} - Hayattaki temel ifadeniz.\n\n` +
+      `• Kişilik Dünyası (Dünya - ${pEarth}. Kapı): ${nameEarth} - Sizi bu dünyada dengeleyen kökler.\n\n` +
+      `• Tasarım Güneşi (Güneş - ${dSun}. Kapı): ${nameDSun} - Bilinçdışı düzeydeki bedensel itici gücünüz.\n\n` +
+      `• Tasarım Dünyası (Dünya - ${dEarth}. Kapı): ${nameDEarth} - Bilinçdışı düzeydeki fiziksel dengeniz.\n\n` +
+      `Bu kapıların birleşimi, kaderinizi ve misyonunuzu şekillendirir.`;
+  }
+
   return {
     subtitle: "Enkarnasyon Haçı",
-    description: `${cross} Enkarnasyon Haçı, hayatınızdaki en büyük yaşam amacınızı, kaderinizi ve bu dünyaya getirdiğiniz temel enerjisel misyonu temsil eder. Dört ana kapınızın (Kişilik ve Tasarım Güneş/Dünya) birleşimiyle oluşur.`
+    description: `${cross} Enkarnasyon Haçı, yaşam amacınızı ve bu dünyaya getirdiğiniz temel enerjisel misyonu temsil eder. Dört ana kapınızın (Kişilik ve Tasarım Güneş/Dünya) birleşimiyle oluşur.${gateDetails}`
   };
 };
 
