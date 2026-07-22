@@ -46,6 +46,8 @@ interface KpData {
   cosmic_status_label?: string;
   cosmic_status_desc?: string;
   schumann_real?: RealSchumannRow;
+  peak_a1_24h?: number;
+  peak_score_24h?: number;
 }
 
 export default function SchumannScreen() {
@@ -128,10 +130,10 @@ export default function SchumannScreen() {
       return "Etkiler: Yoğun yorgunluk, kas seğirmeleri, uyku kayması. Öneri: Fiziksel işlerden kaçının, beyaz ışık imgelemesi yapın.";
     }
     if (a1 >= 40.0) {
-      return "Etkiler: Uykusuzluk, baş/ense basıncı, kulak çınlaması. Öneri: Hafif egzersizler yapın ve bol su tüketin.";
+      return "Etkiler: Sinirlilik, uykusuzluk, yüksek zihinsel uyarım. Öneri: Derin diyafram nefesi alın, kafeini azaltın.";
     }
-    if (a1 >= 15.0) {
-      return "Etkiler: Kalp merkezinde uyarılma, statik elektriklenme. Öneri: Tuzlu su banyosu yapın veya çıplak elle toprağa dokunun.";
+    if (a1 >= 25.0) {
+      return "Etkiler: Rüyalarda canlılık, hafif enerjik uyanıklık. Öneri: Günlük tutun, meditasyona zaman ayırın.";
     }
     return "Enerji alanı dengelidir. Meditasyon ve köklenmek için en uygun zamandır.";
   };
@@ -150,8 +152,12 @@ export default function SchumannScreen() {
         const savedNotifications = await AsyncStorage.getItem('schumann_notifications') === 'true';
         const savedLevel = (await AsyncStorage.getItem('schumann_notification_level') || 'G1') as 'G1' | 'G2' | 'G3';
         
-        if (savedNotifications && res.triggered_g_level && res.schumann_real) {
-          const triggeredLevel = res.triggered_g_level;
+        const currentA1 = res.schumann_real?.a1 ?? 4.0;
+        const peakA1 = res.peak_a1_24h ?? currentA1;
+        const targetA1 = Math.max(currentA1, peakA1);
+        const triggeredLevel = getSchumannGLevel(targetA1);
+
+        if (savedNotifications && triggeredLevel !== 'G0') {
           const lastNotifLevel = await AsyncStorage.getItem('schumann_last_notification_level');
           const lastNotifTimeStr = await AsyncStorage.getItem('schumann_last_notification_time');
           
@@ -177,7 +183,7 @@ export default function SchumannScreen() {
           }
           
           if (shouldNotify) {
-            const bodyText = getNotificationBody(res.schumann_real.a1);
+            const bodyText = getNotificationBody(targetA1);
             await Notifications.scheduleNotificationAsync({
               content: {
                 title: `🚨 Schumann Rezonansı Yükseldi: ${triggeredLevel}`,
@@ -511,14 +517,38 @@ export default function SchumannScreen() {
                       borderColor: getScoreColor(a1)
                     }
                   ]}>
-                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>DURUM</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 22, fontWeight: '900' }]}>
+                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>ANLIK</Text>
+                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 18, fontWeight: '900' }]}>
                       {getSchumannGLevel(a1)}
                     </Text>
-                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0' }]}>
+                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0', fontSize: 9 }]}>
                       A1: {a1.toFixed(1)}
                     </Text>
                   </View>
+
+                  {(() => {
+                    const peakA1 = data?.peak_a1_24h ?? a1;
+                    return (
+                      <View style={[
+                        styles.oracleScoreBadge, 
+                        { 
+                          backgroundColor: getScoreColor(peakA1),
+                          borderColor: 'rgba(212, 175, 55, 0.4)',
+                          borderWidth: 1,
+                          marginLeft: 6
+                        }
+                      ]}>
+                        <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(peakA1), fontSize: 7 }]}>24S ZİRVE</Text>
+                        <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(peakA1), fontSize: 18, fontWeight: '900' }]}>
+                          {getSchumannGLevel(peakA1)}
+                        </Text>
+                        <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(peakA1) + 'B0', fontSize: 9 }]}>
+                          A1: {peakA1.toFixed(1)}
+                        </Text>
+                      </View>
+                    );
+                  })()}
+
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu {data?.schumann_real && `- GÖZLEM SAATİ: ${formatRealTime(data.schumann_real.time_utc)}`}</Text>
                     <Text style={styles.oracleTitle}>{analysis.title}</Text>
@@ -555,7 +585,14 @@ export default function SchumannScreen() {
                     <Ionicons name="medical-outline" size={14} color="#00E5FF" />
                     <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>🔬 Bilimsel Teşhis</Text>
                   </View>
-                  <Text style={styles.oracleSegmentBody}>{analysis.science}</Text>
+                  <Text style={styles.oracleSegmentBody}>
+                    {analysis.science}
+                    {data?.peak_a1_24h && (
+                      <Text style={{ color: '#FF9500', fontWeight: 'bold', fontSize: 12 }}>
+                        {"\n\n"}⚠️ Zirve Analizi: Spektrogramda son 24 saat içinde A1 genliği {data.peak_a1_24h.toFixed(1)} seviyesine ({getSchumannGLevel(data.peak_a1_24h)}) kadar ulaşan yoğun uyarılmalar ve parlamalar gözlemlendi.
+                      </Text>
+                    )}
+                  </Text>
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={() => Alert.alert(
