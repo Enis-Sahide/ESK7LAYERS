@@ -233,8 +233,8 @@ const SchumannMiniWidget = () => {
           </Text>
         </View>
 
-        <View style={styles.kpBadgeContainer}>
-          <Text style={[styles.kpBadgeText, { color: cardColor }]}>
+        <View style={[styles.kpBadgeContainer, { backgroundColor: cardColor, borderColor: cardColor }]}>
+          <Text style={[styles.kpBadgeText, { color: '#000000' }]}>
             {getGLevelLabel(scoreVal)}
           </Text>
         </View>
