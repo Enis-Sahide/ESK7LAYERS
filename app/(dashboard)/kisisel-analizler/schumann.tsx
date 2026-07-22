@@ -279,9 +279,9 @@ export default function SchumannScreen() {
   const getSchumannLevelLabel = (a1: number) => {
     if (a1 < 8.0) return 'Düşük Seviye (Sakin / G0)';
     if (a1 < 15.0) return 'Hafif Uyarım (Aktif / G0)';
-    if (a1 < 25.0) return 'Orta Fırtına (G1 Seviyesi)';
-    if (a1 < 40.0) return 'Güçlü Fırtına (G2 Seviyesi)';
-    if (a1 < 55.0) return 'Şiddetli Fırtına (G3 Seviyesi)';
+    if (a1 < 25.0) return 'Hafif Fırtına (G1 Seviyesi)';
+    if (a1 < 40.0) return 'Orta Fırtına (G2 Seviyesi)';
+    if (a1 < 55.0) return 'Güçlü Fırtına (G3 Seviyesi)';
     if (a1 < 70.0) return 'Ağır Fırtına (G4 Seviyesi)';
     return 'Zirve Patlama (Ekstrem G5 Fırtınası)';
   };
