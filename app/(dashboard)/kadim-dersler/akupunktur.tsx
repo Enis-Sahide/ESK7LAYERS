@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '../../../src/context/ProgressContext';
 import { useContent } from '@/src/core/content/useContent';
+import { API_BASE_URL } from '@/src/core/config';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -13,8 +14,14 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 const getImageSource = (img: any) => {
   if (!img) return null;
-  if (typeof img === 'string') return { uri: img };
-  if (img.uri) return { uri: img.uri };
+  if (typeof img === 'string') {
+    if (img.startsWith('/')) return { uri: API_BASE_URL + img };
+    return { uri: img };
+  }
+  if (img.uri) {
+    if (img.uri.startsWith('/')) return { uri: API_BASE_URL + img.uri };
+    return { uri: img.uri };
+  }
   return img;
 };
 
