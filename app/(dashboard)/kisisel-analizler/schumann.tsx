@@ -498,170 +498,6 @@ export default function SchumannScreen() {
           contentContainerStyle={styles.scrollContent} 
           showsVerticalScrollIndicator={false}
         >
-          {/* 1. Kozmik Oracle / Durum Raporu */}
-          {(() => {
-            // Determine active metrics (simulated or live)
-            let a1 = data?.schumann_real?.a1 ?? 6.0;
-            let f1 = data?.schumann_real?.f1 ?? 7.83;
-            
-            if (simulatedA1 !== null) {
-              a1 = simulatedA1;
-              f1 = 7.83 + (simulatedA1 / 75.0) * 0.5;
-            }
-
-            const score = getSchumannScoreFromA1(a1);
-
-            const analysis = generateRulesAnalysis(score, a1, f1);
-
-            return (
-              <View style={styles.oracleCard}>
-                <View style={styles.oracleHeader}>
-                  <View style={[
-                    styles.oracleScoreBadge, 
-                    { 
-                      backgroundColor: getScoreColor(a1),
-                      borderColor: getScoreColor(a1)
-                    }
-                  ]}>
-                    <Text style={[styles.oracleScoreLabel, { color: getScoreTextColor(a1) }]}>DURUM</Text>
-                    <Text style={[styles.oracleScoreVal, { color: getScoreTextColor(a1), fontSize: 22, fontWeight: '900' }]}>
-                      {getSchumannGLevel(a1)}
-                    </Text>
-                    <Text style={[styles.oracleScoreAmp, { color: getScoreTextColor(a1) + 'B0' }]}>
-                      A1: {a1.toFixed(1)}
-                    </Text>
-                  </View>
-
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.oracleBadge}>Kozmik Oracle / Durum Raporu {data?.schumann_real && `- GÖZLEM SAATİ: ${formatRealTime(data.schumann_real.time_utc)}`}</Text>
-                    <Text style={styles.oracleTitle}>{analysis.title}</Text>
-                    <TouchableOpacity 
-                      activeOpacity={0.7}
-                      onPress={() => Alert.alert(
-                        `Fırtına Seviyesi: ${getSchumannLevelLabel(a1)}`,
-                        `Ezoterik Anlam: ${getSchumannEsotericTitle(a1)}\n\n${getSchumannEsotericDesc(a1)}`,
-                        [{ text: "Anladım" }]
-                      )}
-                      style={{
-                        backgroundColor: getScoreColor(a1),
-                        borderRadius: 8,
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                        marginTop: 6,
-                        alignSelf: 'flex-start'
-                      }}
-                    >
-                      <Text style={{
-                        color: getScoreTextColor(a1),
-                        fontSize: 10,
-                        fontWeight: 'bold'
-                      }}>
-                        {getSchumannLevelLabel(a1)} ⓘ
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Teşhis Paragrafları Stacked */}
-                <View style={styles.oracleSegment}>
-                  <View style={styles.oracleSegmentHeader}>
-                    <Ionicons name="medical-outline" size={14} color="#00E5FF" />
-                    <Text style={[styles.oracleSegmentTitle, { color: '#00E5FF' }]}>🔬 Bilimsel Teşhis</Text>
-                  </View>
-                  <Text style={styles.oracleSegmentBody}>
-                    {analysis.science}
-                  </Text>
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={() => Alert.alert(
-                      "Rasathane Ölçüm Notu",
-                      "Spektrogram verileri Tomsk (Rusya) Rasathanesi'nden alınmaktadır. Schumann Rezonansı küresel bir fenomen olsa da, ölçülen genlik seviyeleri ve anlık beyaz parlamalar istasyon çevresindeki yerel yıldırım fırtınalarından da etkilenebilmektedir.",
-                      [{ text: "Anladım" }]
-                    )}
-                    style={{
-                      marginTop: 10,
-                      paddingTop: 8,
-                      borderTopWidth: 1,
-                      borderTopColor: 'rgba(255, 255, 255, 0.05)',
-                      flexDirection: 'row',
-                      alignItems: 'center'
-                    }}
-                  >
-                    <Ionicons name="globe-outline" size={12} color="#00E5FF" style={{ marginRight: 4 }} />
-                    <Text style={{
-                      fontSize: 10,
-                      color: '#00E5FF',
-                      fontWeight: 'bold'
-                    }}>
-                      Rasathane Ölçüm Notu ⓘ
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.oracleSegment}>
-                  <View style={styles.oracleSegmentHeader}>
-                    <Ionicons name="flash-outline" size={14} color="#D4AF37" />
-                    <Text style={[styles.oracleSegmentTitle, { color: '#D4AF37' }]}>⚡ Beden Reaksiyonları</Text>
-                  </View>
-                  <Text style={styles.oracleSegmentBody}>{analysis.symptoms}</Text>
-                </View>
-
-                <View style={styles.oracleSegment}>
-                  <View style={styles.oracleSegmentHeader}>
-                    <Ionicons name="body-outline" size={14} color="pink" />
-                    <Text style={[styles.oracleSegmentTitle, { color: 'pink' }]}>🧘 Ruhsal Rehberlik</Text>
-                  </View>
-                  <Text style={styles.oracleSegmentBody}>{analysis.spiritual}</Text>
-                </View>
-              </View>
-            );
-          })()}
-
-          {/* Kozmik Enerji Simülatörü */}
-          <BlurView intensity={30} tint="dark" style={styles.simulatorCard}>
-            <View style={styles.simulatorHeader}>
-              <Text style={styles.simulatorTitle}>Kozmik Enerji Simülatörü</Text>
-              <View style={styles.badgeContainer}>
-                <Text style={styles.badgeText}>TEST PANELİ</Text>
-              </View>
-            </View>
-            <Text style={styles.simulatorSubtitle}>
-              Farklı Schumann A1 genliği seviyelerinin iyonosferik etkilerini ve renk değişimlerini test edin
-            </Text>
-            
-            <View style={styles.sliderWrapper}>
-              <Text style={styles.sliderLabel}>A1 4.0</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={4.0}
-                maximumValue={75.0}
-                step={0.5}
-                value={simulatedA1 !== null ? simulatedA1 : (data?.schumann_real?.a1 ?? 6.0)}
-                onValueChange={(val) => setSimulatedA1(val)}
-                minimumTrackTintColor={COLORS.primary}
-                maximumTrackTintColor="rgba(255, 255, 255, 0.2)"
-                thumbTintColor={COLORS.primary}
-              />
-              <Text style={styles.sliderLabel}>A1 75.0</Text>
-            </View>
-
-            <View style={styles.simulatorFooter}>
-              <Text style={styles.simulatorFooterText}>
-                Simüle Edilen Değer: <Text style={styles.simulatorValueText}>
-                  {simulatedA1 !== null ? `A1 Genliği ${simulatedA1.toFixed(1)}` : 'Canlı Akış'}
-                </Text>
-              </Text>
-              {simulatedA1 !== null && (
-                <TouchableOpacity 
-                  style={styles.resetBtn} 
-                  onPress={() => setSimulatedA1(null)}
-                >
-                  <Text style={styles.resetBtnText}>Sıfırla</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </BlurView>
-
           {/* Schumann Rezonansı Frekans Spektrogramı (Şelale Grafiği) */}
           <BlurView intensity={30} tint="dark" style={styles.spectrogramCard}>
             <Text style={styles.chartTitle}>Schumann Rezonansı</Text>
@@ -741,131 +577,100 @@ export default function SchumannScreen() {
             </View>
           </BlurView>
 
-          {/* 3. Bildirimler Ayarı */}
-          <BlurView intensity={35} tint="dark" style={styles.notificationCard}>
-            <View style={styles.notificationRow}>
-              <View style={styles.notificationLeft}>
-                <Ionicons 
-                  name={!isApprenticeOrAbove ? "lock-closed-outline" : (notificationsEnabled ? "notifications-outline" : "notifications-off-outline")} 
-                  size={24} 
-                  color={!isApprenticeOrAbove ? '#FFD700' : COLORS.primary} 
-                />
-                <View style={{ marginLeft: 15, flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <Text style={styles.notificationTitle}>Kozmik Rezonans Bildirimleri</Text>
-                    {!isApprenticeOrAbove && (
-                      <View style={{ backgroundColor: 'rgba(212, 175, 55, 0.15)', borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.4)', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 }}>
-                        <Text style={{ color: '#FFD700', fontSize: 9, fontWeight: 'bold', textTransform: 'uppercase' }}>Çırak Seviyesi</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text style={styles.notificationDesc}>
-                    {!isApprenticeOrAbove 
-                      ? 'Bu özellik Çırak seviyesi ve üzeri üyelerimiz içindir. Seviyenizi yükselterek bildirimleri aktif edebilirsiniz.' 
-                      : 'Işık Kapısı fırtına uyarısı (G1, G2 veya G3 ve üzeri) anlık uyarılarda bildirim alırsınız.'}
-                  </Text>
-                </View>
-              </View>
-              <TouchableOpacity 
-                style={[
-                  styles.toggleBtn, 
-                  !isApprenticeOrAbove ? styles.toggleBtnLocked : (notificationsEnabled ? styles.toggleBtnActive : styles.toggleBtnInactive)
-                ]}
-                onPress={toggleNotifications}
-              >
-                <Text style={[styles.toggleBtnText, { color: !isApprenticeOrAbove ? '#FFD700' : (notificationsEnabled ? '#000' : COLORS.primary) }]}>
-                  {!isApprenticeOrAbove ? 'Kilitli' : (notificationsEnabled ? 'Açık' : 'Kapalı')}
-                </Text>
-              </TouchableOpacity>
+          {/* Schumann Rezonansı Kılavuzu */}
+          <BlurView intensity={25} tint="dark" style={styles.guideCard}>
+            <View style={styles.guideHeader}>
+              <Ionicons name="information-circle-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
+              <Text style={styles.guideHeaderTitle}>Schumann Rezonansı Kılavuzu</Text>
             </View>
 
-            {notificationsEnabled && isApprenticeOrAbove && (
-              <View style={{ marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.05)' }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: 'bold', textTransform: 'uppercase', marginBottom: 10 }}>Hassasiyet Seviyesi</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  {(['G1', 'G2', 'G3'] as const).map((level) => (
-                    <TouchableOpacity
-                      key={level}
-                      activeOpacity={0.7}
-                      onPress={async () => {
-                        setNotificationLevel(level);
-                        await AsyncStorage.setItem('schumann_notification_level', level);
-                        Alert.alert(
-                          "Bildirim Seviyesi Güncellendi",
-                          `Fırtına uyarısı ${level} ve üzeri seviyelerde tetiklenecek şekilde ayarlandı.`,
-                          [{ text: "Anladım" }]
-                        );
-                      }}
-                      style={{
-                        paddingHorizontal: 12,
-                        paddingVertical: 6,
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: notificationLevel === level ? '#00E5FF' : 'rgba(255, 255, 255, 0.1)',
-                        backgroundColor: notificationLevel === level ? 'rgba(0, 229, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-                      }}
-                    >
-                      <Text style={{
-                        color: notificationLevel === level ? '#00E5FF' : '#fff',
-                        fontSize: 11,
-                        fontWeight: 'bold',
-                      }}>{level} ve Üzeri</Text>
-                    </TouchableOpacity>
-                  ))}
+            <View style={styles.guideContent}>
+              <Text style={styles.guideSectionTitle}>Grafik Renklerinin Anlamı:</Text>
+              <View style={{ gap: 8, marginBottom: 15 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: '#000028', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }} />
+                  <Text style={{ color: '#fff', fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Mavi/Koyu Mavi:</Text> Sakin durum ve arka plan elektromanyetik gürültüsü.</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: '#10B981' }} />
+                  <Text style={{ color: '#fff', fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Yeşil:</Text> Doğal rezonans çizgileri (7.83 Hz ve üst modlar).</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: '#F59E0B' }} />
+                  <Text style={{ color: '#fff', fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Sarı/Turuncu:</Text> Hafif ve orta seviyede uyarılma/frekans artışı.</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: '#EF4444' }} />
+                  <Text style={{ color: '#fff', fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Kırmızı:</Text> Aktif manyetik fırtınalar ve plazma akışları.</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: '#fff' }} />
+                  <Text style={{ color: '#fff', fontSize: 12 }}><Text style={{ fontWeight: 'bold' }}>Beyaz:</Text> Zirve elektromanyetik uyarılma ve anlık parlamalar.</Text>
                 </View>
               </View>
-            )}
-          </BlurView>
 
+              <Text style={styles.guideSectionTitle}>Rezonans Seviyeleri ve Etkileri:</Text>
 
-
-          {/* 5. Bilgilendirme Bölümü (Açılır/Kapanır) */}
-          <BlurView intensity={25} tint="dark" style={styles.guideCard}>
-            <TouchableOpacity 
-              style={styles.guideHeader} 
-              onPress={() => setIsGuideOpen(!isGuideOpen)}
-              activeOpacity={0.8}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="information-circle-outline" size={24} color={COLORS.primary} style={{ marginRight: 10 }} />
-                <Text style={styles.guideHeaderTitle}>Jeomanyetik Rezonans Kılavuzu</Text>
+              {/* G0 Sakin */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#22D3EE', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(34, 211, 238, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Sakin Faz (A1 &lt; 8.0)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Dingin Elektromanyetik Akış</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Zihinsel netlik, dengeli enerji, sakin uyku ve bedensel rahatlık.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Tefekkür, zihni susturma ve kök çakra meditasyonları için en ideal dönem.</Text>
               </View>
-              <Ionicons 
-                name={isGuideOpen ? "chevron-up" : "chevron-down"} 
-                size={20} 
-                color={COLORS.textMuted} 
-              />
-            </TouchableOpacity>
 
-            {isGuideOpen && (
-              <View style={styles.guideContent}>
-                <Text style={styles.guideSectionTitle}>Grafiklerin Yapısı ve Okunması:</Text>
-                <Text style={styles.guideParagraph}>
-                  • <Text style={{ color: '#fff', fontWeight: 'bold' }}>Schumann Rezonans Spektrogramı:</Text> Elektromanyetik alanın dikey eksende frekans (0 - 40 Hz), yatay eksende ise zaman bazlı uyarılma düzeyini gösterir. Bu grafik, Space Observing System 70 (Tomsk, Rusya) rasathanesinde bulunan ELF alıcı antenleri aracılığıyla doğrudan yeryüzünden ölçülen gerçek zamanlı sonogram verilerini temsil eder. Zaman dilimi farkını en üstteki çift göstergeli anlık zaman panelinden (Yerel ve Tomsk) takip edebilirsiniz.
-                </Text>
-
-                <Text style={styles.guideSectionTitle}>Kozmik Oracle / Durum Raporu Nedir?</Text>
-                <Text style={styles.guideParagraph}>
-                  Gözlemevinden alınan canlı Schumann Rezonansı genliğini (A1) ve spektrogram uyarım dalgalarını anlık olarak inceleyen yerel kural motorudur. Bu motor, rezonanstaki dalgalanmaları yorumlayarak size üç alanda bilgi verir:
-                  {"\n\n"}
-                  🔬 <Text style={{ color: '#fff', fontWeight: 'bold' }}>Bilimsel Teşhis:</Text> İyonosferde gerçekleşen fiziksel olayların bilimsel açıklaması.
-                  {"\n\n"}
-                  ⚡ <Text style={{ color: '#fff', fontWeight: 'bold' }}>Beden Reaksiyonları:</Text> Rezonans değişimlerinin sinir sistemi, uyku düzeni ve baş bölgesi üzerindeki olası fiziksel etkileri.
-                  {"\n\n"}
-                  🧘 <Text style={{ color: '#fff', fontWeight: 'bold' }}>Ruhsal Rehberlik:</Text> Enerjiyi topraklamak, aura alanını korumak ve uyanış kapılarından faydalanmak için önerilen meditasyon ve nefes pratikleri.
-                </Text>
-
-                <Text style={styles.guideSectionTitle}>Kozmik Enerji Simülatörü (Test Paneli):</Text>
-                <Text style={styles.guideParagraph}>
-                  Uygulamadaki test sürgüsü yardımıyla Schumann A1 Genlik değerini (4.0 - 75.0 arası) manuel olarak değiştirebilirsiniz. Sürgüyü oynattığınızda, Kozmik Oracle teşhisi, beden reaksiyonları ve ruhsal rehberlik önerileri senkronize bir şekilde güncellenerek yüksek rezonans titreşimlerinin etkilerini test etmenizi sağlar. "Canlı Veriye Dön" butonuyla gerçek verilere dönebilirsiniz.
-                </Text>
-
-                <Text style={styles.guideSectionTitle}>Saat Dilimi ve Yerel Saat Dönüşümü:</Text>
-                <Text style={styles.guideParagraph}>
-                  Bölgesel gözlemevi grafikleri üzerinde (örneğin Tomsk ELF grafiğinin eksenlerinde) yazan saatler istasyonun yerel saatidir. Spektrogram görselinin hemen üzerine yerleştirdiğimiz çift zaman göstergeli panel ise, son ölçüm anını hem kendi cihazınızın yerel saat dilimine (örneğin Türkiye saati) dönüştürerek hem de Tomsk yerel saatiyle birlikte gösterir. Bu sayede grafik üzerindeki zaman dilimi farkını görselin hemen üstündeki zaman panelinden kolayca takip edebilirsiniz.
-                </Text>
+              {/* G0 Uyarım */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#34D399', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(52, 211, 153, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Hafif Uyarım (A1 8-15)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Hafif Schumann Dalgalanması</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Rüyalarda netlik/sembol artışı, hafif tatlı yorgunluk ve kulakta hafif uğultu.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Rüya analizi, günlük tutma ve üçüncü göz meditasyonları için harika bir akış.</Text>
               </View>
-            )}
+
+              {/* G1-G2 */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#F59E0B', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Aktif Fırtına (A1 15-40)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Manyetik Fırtına (G1-G2)</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Kalp genişlemesi, statik elektrik (çarpılma), hafif şakak/eklem ağrısı ve uykusuzluk.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Kalp çakrası açılımı. Tuzlu su banyosu, topraklanma ve kalp nefesi önerilir.</Text>
+              </View>
+
+              {/* G3 */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#F97316', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(249, 115, 22, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Güçlü Fırtına (A1 40-55)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Şiddetli Fırtına (G3)</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Sinir sistemi uyarılması, uyku dalgalanmaları, kulak çınlaması ve ense basıncı.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> DNA aktivasyonu ve ışık kodu entegrasyonu. Bol su ve hafif esneme pratikleri.</Text>
+              </View>
+
+              {/* G4 */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#EF4444', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Ağır Fırtına (A1 55-70)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Ağır Schumann Fırtınası (G4)</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Yoğun yorgunluk/kas seğirmesi, taç bölgesinde basınç ve zaman algısında bükülme.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Taç çakra portalı açık. Ağır fiziksel işlerden kaçının ve beyaz ışık imgelemesi yapın.</Text>
+              </View>
+
+              {/* G5 */}
+              <View style={styles.levelCard}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(255, 255, 255, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderStyle: 'solid', borderWidth: 1, borderColor: '#fff' }}>Zirve Fırtına (A1 &gt;= 70)</Text>
+                  <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Ekstrem Rezonans Fırtınası (G5)</Text>
+                </View>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Derin trans/aşırı uykusuzluk, ensede yoğun basınç ve kulaklarda yüksek tonlu çınlama.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Boyutlar arası geçiş portalı. Alkali su tüketimi ve çıplak ayakla toprağa basış.</Text>
+              </View>
+            </View>
           </BlurView>
 
           <View style={{ height: 100 }} />
@@ -1576,5 +1381,13 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 11,
     fontWeight: 'bold',
+  },
+  levelCard: {
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
   },
 });
