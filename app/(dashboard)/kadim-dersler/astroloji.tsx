@@ -187,6 +187,7 @@ export default function AstrolojiCurriculumScreen() {
 
             <AccordionItem lessonKey="3_ezoterik_katman" isExpanded={expandedLesson === '3_ezoterik_katman'} onToggle={() => handleToggle('3_ezoterik_katman')} />
             <AccordionItem lessonKey="3_burclar_ezoterik" isExpanded={expandedLesson === '3_burclar_ezoterik'} onToggle={() => handleToggle('3_burclar_ezoterik')} />
+            <AccordionItem lessonKey="3_harita_entegrasyonu" isExpanded={expandedLesson === '3_harita_entegrasyonu'} onToggle={() => handleToggle('3_harita_entegrasyonu')} />
           </View>
         )}
       </ScrollView>
