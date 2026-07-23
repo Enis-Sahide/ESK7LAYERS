@@ -189,19 +189,26 @@ export default function AkupunkturScreen() {
 
         {activeTab === 'cirak' && (
           <View style={styles.tabContentContainer}>
-            <AccordionItem lessonKey="1_temel_sifa" isExpanded={expandedLesson === '1_temel_sifa'} onToggle={() => handleToggle('1_temel_sifa')} />
+            <AccordionItem lessonKey="1_temel_felsefe" isExpanded={expandedLesson === '1_temel_felsefe'} onToggle={() => handleToggle('1_temel_felsefe')} />
+            <AccordionItem lessonKey="1_dil_teşhisi" isExpanded={expandedLesson === '1_dil_teşhisi'} onToggle={() => handleToggle('1_dil_teşhisi')} />
+            <AccordionItem lessonKey="1_nabiz_teşhisi" isExpanded={expandedLesson === '1_nabiz_teşhisi'} onToggle={() => handleToggle('1_nabiz_teşhisi')} />
+            <AccordionItem lessonKey="1_meridyen_anatomisi" isExpanded={expandedLesson === '1_meridyen_anatomisi'} onToggle={() => handleToggle('1_meridyen_anatomisi')} />
           </View>
         )}
 
         {activeTab === 'kalfa' && (
           <View style={styles.tabContentContainer}>
-            <AccordionItem lessonKey="2_12_meridyen" isExpanded={expandedLesson === '2_12_meridyen'} onToggle={() => handleToggle('2_12_meridyen')} />
+            <AccordionItem lessonKey="2_yin_meridyenleri" isExpanded={expandedLesson === '2_yin_meridyenleri'} onToggle={() => handleToggle('2_yin_meridyenleri')} />
+            <AccordionItem lessonKey="2_yang_meridyenleri" isExpanded={expandedLesson === '2_yang_meridyenleri'} onToggle={() => handleToggle('2_yang_meridyenleri')} />
+            <AccordionItem lessonKey="2_olağanüstü_kanallar" isExpanded={expandedLesson === '2_olağanüstü_kanallar'} onToggle={() => handleToggle('2_olağanüstü_kanallar')} />
           </View>
         )}
 
         {activeTab === 'ustat' && (
           <View style={styles.tabContentContainer}>
-            <AccordionItem lessonKey="3_dugumler_cozmek" isExpanded={expandedLesson === '3_dugumler_cozmek'} onToggle={() => handleToggle('3_dugumler_cozmek')} />
+            <AccordionItem lessonKey="3_ozel_noktalar" isExpanded={expandedLesson === '3_ozel_noktalar'} onToggle={() => handleToggle('3_ozel_noktalar')} />
+            <AccordionItem lessonKey="3_akupresur_formulleri" isExpanded={expandedLesson === '3_akupresur_formulleri'} onToggle={() => handleToggle('3_akupresur_formulleri')} />
+            <AccordionItem lessonKey="3_meridyen_saatleri" isExpanded={expandedLesson === '3_meridyen_saatleri'} onToggle={() => handleToggle('3_meridyen_saatleri')} />
           </View>
         )}
         <View style={{ height: 40 }} />
