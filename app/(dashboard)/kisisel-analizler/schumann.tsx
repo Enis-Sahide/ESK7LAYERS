@@ -9,7 +9,6 @@ import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
 import { API_BASE_URL } from '@/src/core/config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
 import { useProgress } from '@/src/context/ProgressContext';
 import Slider from '@react-native-community/slider';
 
@@ -57,8 +56,6 @@ export default function SchumannScreen() {
   const [data, setData] = useState<KpData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [notificationLevel, setNotificationLevel] = useState<'G1' | 'G2' | 'G3'>('G1');
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
   const [simulatedA1, setSimulatedA1] = useState<number | null>(null);
@@ -128,24 +125,6 @@ export default function SchumannScreen() {
     return '#FFFFFF'; // White text on other backgrounds
   };
 
-  const getNotificationBody = (a1: number) => {
-    if (a1 >= 70.0) {
-      return "Etkiler: Yoğun baş/ense basıncı, kulak uğultusu, derin trans hali. Öneri: Çıplak ayakla nemli toprağa basın ve alkali su tüketin.";
-    }
-    if (a1 >= 55.0) {
-      return "Etkiler: Yoğun yorgunluk, kas seğirmeleri, uyku kayması. Öneri: Fiziksel işlerden kaçının, beyaz ışık imgelemesi yapın.";
-    }
-    if (a1 >= 40.0) {
-      return "Etkiler: Sinirlilik, uykusuzluk, yüksek zihinsel uyarım. Öneri: Derin diyafram nefesi alın, kafeini azaltın.";
-    }
-    if (a1 >= 25.0) {
-      return "Etkiler: Rüyalarda canlılık, hafif enerjik uyanıklık. Öneri: Günlük tutun, meditasyona zaman ayırın.";
-    }
-    return "Enerji alanı dengelidir. Meditasyon ve köklenmek için en uygun zamandır.";
-  };
-
-
-
   const fetchData = async (showPulse = true) => {
     if (showPulse) setLoading(true);
     setImageTimestamp(Date.now());
@@ -153,55 +132,6 @@ export default function SchumannScreen() {
       const res = await apiFetch(`/api/schumann?t=${Date.now()}`);
       if (res) {
         setData(res);
-
-        // Trigger local notification if enabled
-        const savedNotifications = await AsyncStorage.getItem('schumann_notifications') === 'true';
-        const savedLevel = (await AsyncStorage.getItem('schumann_notification_level') || 'G1') as 'G1' | 'G2' | 'G3';
-        
-        const currentA1 = res.schumann_real?.a1 ?? 4.0;
-        const peakA1 = res.peak_a1_24h ?? currentA1;
-        const targetA1 = Math.max(currentA1, peakA1);
-        const triggeredLevel = getSchumannGLevel(targetA1);
-
-        if (savedNotifications && triggeredLevel !== 'G0') {
-          const lastNotifLevel = await AsyncStorage.getItem('schumann_last_notification_level');
-          const lastNotifTimeStr = await AsyncStorage.getItem('schumann_last_notification_time');
-          
-          let shouldNotify = false;
-          const currentTime = Date.now();
-          const lastTime = lastNotifTimeStr ? parseInt(lastNotifTimeStr) : 0;
-          
-          const levels = ['G1', 'G2', 'G3', 'G4', 'G5'];
-          const userThresholdIdx = levels.indexOf(savedLevel);
-          const triggeredIdx = levels.indexOf(triggeredLevel);
-          
-          if (triggeredIdx >= userThresholdIdx) {
-            if (currentTime - lastTime < 3 * 60 * 60 * 1000) {
-              // Within 3 hours, notify ONLY if the new level is higher than the last notified level
-              const lastNotifiedIdx = lastNotifLevel ? levels.indexOf(lastNotifLevel) : -1;
-              if (triggeredIdx > lastNotifiedIdx) {
-                shouldNotify = true;
-              }
-            } else {
-              // More than 3 hours have passed, notify anyway
-              shouldNotify = true;
-            }
-          }
-          
-          if (shouldNotify) {
-            const bodyText = getNotificationBody(targetA1);
-            await Notifications.scheduleNotificationAsync({
-              content: {
-                title: `🚨 Schumann Rezonansı Yükseldi: ${triggeredLevel}`,
-                body: bodyText,
-                sound: true,
-              },
-              trigger: null,
-            });
-            await AsyncStorage.setItem('schumann_last_notification_level', triggeredLevel);
-            await AsyncStorage.setItem('schumann_last_notification_time', String(currentTime));
-          }
-        }
       }
     } catch (e) {
       console.error('Error fetching Schumann in mobile:', e);
@@ -215,52 +145,10 @@ export default function SchumannScreen() {
   useEffect(() => {
     fetchData();
 
-    // Check saved notification settings
-    AsyncStorage.getItem('schumann_notifications').then(val => {
-      if (val === 'true') setNotificationsEnabled(true);
-    });
-    AsyncStorage.getItem('schumann_notification_level').then(val => {
-      if (val) setNotificationLevel(val as any);
-    });
-
     // Poll every 5 minutes
     const interval = setInterval(() => fetchData(false), 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const toggleNotifications = async () => {
-    if (!isApprenticeOrAbove) {
-      Alert.alert(
-        "Çıraklık Derecesi Gerekli",
-        "Kozmik Rezonans bildirimlerini aktif edebilmek için en az Çırak (Seviye 1) seviyesinde olmalısınız. Seviye atlamak için lütfen derslerinizi ve sınavlarınızı tamamlayın."
-      );
-      return;
-    }
-    const newState = !notificationsEnabled;
-    setNotificationsEnabled(newState);
-    await AsyncStorage.setItem('schumann_notifications', String(newState));
-
-    if (newState) {
-      try {
-        const { status } = await Notifications.requestPermissionsAsync();
-        if (status === 'granted') {
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: 'Kozmik Rezonans Bildirimleri Aktif!',
-              body: `Fırtına uyarısı ${notificationLevel} ve üzeri seviyelerde tetiklenecek şekilde ayarlandı.`,
-            },
-            trigger: null,
-          });
-        } else {
-          Alert.alert('Bildirim İzni Gerekli', 'Rezonans bildirimlerini alabilmek için cihaz ayarlarından bildirim izinlerini etkinleştirmeniz gerekir.');
-          setNotificationsEnabled(false);
-          await AsyncStorage.setItem('schumann_notifications', 'false');
-        }
-      } catch (e) {
-        console.error('Notification error:', e);
-      }
-    }
-  };
 
   const getKpColor = (kp: number) => {
     if (kp < 3) return '#10B981'; // Sakin (Yeşil)
