@@ -617,8 +617,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#22D3EE', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(34, 211, 238, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Sakin Faz (A1 &lt; 8.0)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Dingin Elektromanyetik Akış</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Zihinsel netlik, dengeli enerji, sakin uyku ve bedensel rahatlık.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Tefekkür, zihni susturma ve kök çakra meditasyonları için en ideal dönem.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Zihinsel netlik, dengeli enerji, sakin uyku ve bedensel rahatlık.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Tefekkür, zihni susturma ve kök çakra meditasyonları için en ideal dönem.</Text>
               </View>
 
               {/* G0 Uyarım */}
@@ -627,8 +627,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#34D399', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(52, 211, 153, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Hafif Uyarım (A1 8-15)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Hafif Schumann Dalgalanması</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Rüyalarda netlik/sembol artışı, hafif tatlı yorgunluk ve kulakta hafif uğultu.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Rüya analizi, günlük tutma ve üçüncü göz meditasyonları için harika bir akış.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Rüyalarda netlik/sembol artışı, hafif tatlı yorgunluk ve kulakta hafif uğultu.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Rüya analizi, günlük tutma ve üçüncü göz meditasyonları için harika bir akış.</Text>
               </View>
 
               {/* G1-G2 */}
@@ -637,8 +637,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#F59E0B', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(245, 158, 11, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Aktif Fırtına (A1 15-40)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Manyetik Fırtına (G1-G2)</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Kalp genişlemesi, statik elektrik (çarpılma), hafif şakak/eklem ağrısı ve uykusuzluk.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Kalp çakrası açılımı. Tuzlu su banyosu, topraklanma ve kalp nefesi önerilir.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Kalp genişlemesi, statik elektrik (çarpılma), hafif şakak/eklem ağrısı ve uykusuzluk.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Kalp çakrası açılımı. Tuzlu su banyosu, topraklanma ve kalp nefesi önerilir.</Text>
               </View>
 
               {/* G3 */}
@@ -647,8 +647,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#F97316', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(249, 115, 22, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Güçlü Fırtına (A1 40-55)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Şiddetli Fırtına (G3)</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Sinir sistemi uyarılması, uyku dalgalanmaları, kulak çınlaması ve ense basıncı.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> DNA aktivasyonu ve ışık kodu entegrasyonu. Bol su ve hafif esneme pratikleri.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Sinir sistemi uyarılması, uyku dalgalanmaları, kulak çınlaması ve ense basıncı.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> DNA aktivasyonu ve ışık kodu entegrasyonu. Bol su ve hafif esneme pratikleri.</Text>
               </View>
 
               {/* G4 */}
@@ -657,8 +657,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#EF4444', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(239, 68, 68, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>Ağır Fırtına (A1 55-70)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Ağır Schumann Fırtınası (G4)</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Yoğun yorgunluk/kas seğirmesi, taç bölgesinde basınç ve zaman algısında bükülme.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Taç çakra portalı açık. Ağır fiziksel işlerden kaçının ve beyaz ışık imgelemesi yapın.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Yoğun yorgunluk/kas seğirmesi, taç bölgesinde basınç ve zaman algısında bükülme.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Taç çakra portalı açık. Ağır fiziksel işlerden kaçının ve beyaz ışık imgelemesi yapın.</Text>
               </View>
 
               {/* G5 */}
@@ -667,8 +667,8 @@ export default function SchumannScreen() {
                   <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold', backgroundColor: 'rgba(255, 255, 255, 0.1)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderStyle: 'solid', borderWidth: 1, borderColor: '#fff' }}>Zirve Fırtına (A1 &gt;= 70)</Text>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>Ekstrem Rezonans Fırtınası (G5)</Text>
                 </View>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Derin trans/aşırı uykusuzluk, ensede yoğun basınç ve kulaklarda yüksek tonlu çınlama.</Text>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Boyutlar arası geçiş portalı. Alkali su tüketimi ve çıplak ayakla toprağa basış.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18, marginBottom: 4 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>⚡ Beden:</Text> Derin trans/aşırı uykusuzluk, ensede yoğun basınç ve kulaklarda yüksek tonlu çınlama.</Text>
+                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, lineHeight: 18 }}><Text style={{ color: '#fff', fontWeight: 'bold' }}>🧘 Ruhsal:</Text> Boyutlar arası geçiş portalı. Alkali su tüketimi ve çıplak ayakla toprağa basış.</Text>
               </View>
             </View>
           </BlurView>

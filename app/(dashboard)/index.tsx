@@ -138,110 +138,34 @@ const PlanetaryHourWidget = () => {
 
 const SchumannMiniWidget = () => {
   const router = useRouter();
-  const [data, setData] = useState<{ current_kp: number; status_label: string; cosmic_impact_score?: number } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
-      const fetchSchumann = async () => {
-        try {
-          const res = await apiFetch('/api/schumann');
-          if (res && isActive) {
-            setData(res);
-          }
-        } catch (e) {
-          console.error('Error fetching Schumann in mobile widget:', e);
-        } finally {
-          if (isActive) setLoading(false);
-        }
-      };
-
-      fetchSchumann();
-      const interval = setInterval(fetchSchumann, 5 * 60 * 1000); // 5 mins
-      return () => {
-        isActive = false;
-        clearInterval(interval);
-      };
-    }, [])
-  );
-
-  if (loading) {
-    return (
-      <View style={[styles.schumannWidget, { opacity: 0.6, justifyContent: 'center', alignItems: 'center', minHeight: 90 }]}>
-        <ActivityIndicator size="small" color={COLORS.primary} />
-      </View>
-    );
-  }
-
-  const kpVal = data?.current_kp ?? 0;
-  const scoreVal = data?.cosmic_impact_score ?? kpVal;
-
-  const getGLevelLabel = (score: number) => {
-    if (score < 5.0) return 'G0';
-    if (score < 6.0) return 'G1';
-    if (score < 7.0) return 'G2';
-    if (score < 8.0) return 'G3';
-    if (score < 9.0) return 'G4';
-    return 'G5';
-  };
-
-  const getGLevelText = (score: number) => {
-    if (score < 3.0) return 'G0 Sakin';
-    if (score < 5.0) return 'G0 Aktif';
-    if (score < 6.0) return 'G1 Orta';
-    if (score < 7.0) return 'G2 Güçlü';
-    if (score < 8.0) return 'G3 Şiddetli';
-    if (score < 9.0) return 'G4 Ağır';
-    return 'G5 Zirve';
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score < 3.0) return '#00E5FF'; // Mavi (Cyan)
-    if (score < 5.0) return '#10B981'; // Yeşil (Green)
-    if (score < 7.0) return '#EF4444'; // G1-G2: Kırmızı (Red)
-    return '#FFFFFF'; // G3-G5: Beyaz (White)
-  };
-
-  const getIndicatorText = (score: number) => {
-    if (score >= 7.0) return '🧬 Işık Portalı: DNA Aktivasyonu';
-    if (score >= 5.0) return '👁️ Yüksek Sezgi ve Farkındalık';
-    if (score >= 3.0) return '⚡ Enerjisel Kıpırdanma & Yenilenme';
-    return '🧘 Dengeli ve Dingin Akış';
-  };
-
-  const cardColor = getScoreColor(scoreVal);
 
   return (
     <TouchableOpacity 
-      style={[styles.schumannWidget, { borderLeftColor: cardColor }]} 
+      style={[styles.schumannWidget, { borderLeftColor: COLORS.primary }]} 
       onPress={() => router.push('/(dashboard)/kisisel-analizler/schumann')}
       activeOpacity={0.7}
     >
       <View style={styles.schumannRow}>
-        <View style={[styles.planetIconWrapper, { backgroundColor: cardColor + '20', borderColor: cardColor }]}>
-          <Ionicons name="flash-outline" size={18} color={cardColor} />
+        <View style={[styles.planetIconWrapper, { backgroundColor: COLORS.primary + '20', borderColor: COLORS.primary }]}>
+          <Ionicons name="flash-outline" size={18} color={COLORS.primary} />
         </View>
         
         <View style={{ flex: 1, marginLeft: 15 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={styles.schumannTitle}>Schumann Rezonansı</Text>
-            <View style={[styles.glowingDot, { backgroundColor: cardColor }]} />
           </View>
-          <Text style={[styles.schumannStatusName, { color: cardColor }]}>
-            {getGLevelText(scoreVal)}
+          <Text style={[styles.schumannStatusName, { color: '#fff' }]}>
+            Canlı Spektrogram Ölçümü
           </Text>
         </View>
 
-        <View style={[styles.kpBadgeContainer, { backgroundColor: cardColor, borderColor: cardColor }]}>
-          <Text style={[styles.kpBadgeText, { color: '#000000' }]}>
-            {getGLevelLabel(scoreVal)}
-          </Text>
+        <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+          <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
         </View>
       </View>
 
       <View style={styles.schumannFooter}>
-        <Text style={styles.schumannFooterText}>{getIndicatorText(scoreVal)}</Text>
+        <Text style={styles.schumannFooterText}>🧘 Dünya'nın kalp atışlarını izleyin</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ fontSize: 10, color: COLORS.primary }}>Canlı İzle</Text>
           <Ionicons name="chevron-forward" size={12} color={COLORS.primary} style={{ marginLeft: 2 }} />
