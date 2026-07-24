@@ -396,7 +396,7 @@ export default function KabbalahAnalysisScreen() {
               {/* Ascendant banner */}
               <View style={styles.ascendantBanner}>
                 <Ionicons name="sparkles-outline" size={24} color={COLORS.primary} style={{ marginBottom: 5 }} />
-                <Text style={styles.ascTitle}>1. Beden Haritası Yönetici Analizi</Text>
+                <Text style={styles.ascTitle}>Kabalistik 4 Alem Harita Analizi</Text>
                 <Text style={styles.ascDesc}>{searchQuery} • {dateStr.split('-').reverse().join('.')} {timeStr}</Text>
                 <Text style={styles.ascResult}>Yükselen Burç: <Text style={{fontWeight: 'bold', color: COLORS.primary}}>{chartData.assiah.ascendant.sign}</Text></Text>
               </View>
