@@ -10,6 +10,7 @@ import * as moment from 'moment-timezone';
 import tzlookup from 'tz-lookup';
 import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign, AstroCity } from '@/src/features/astrology/api/astrologyClient';
 import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '@/src/features/astrology/engine/AstrologyInterpretations';
+import { useProgress } from '@/src/context/ProgressContext';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -69,6 +70,19 @@ const ASPECT_COLORS: Record<string, string> = {
 
 export default function AstrolojiAnalysisScreen() {
   const router = useRouter();
+  const { role, isAdmin } = useProgress();
+  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
+
+  const handleInterpClick = (interp: any) => {
+    if (isApprenticeOrAbove) {
+      setSelectedInterp(interp || null);
+    } else {
+      Alert.alert(
+        "Detaylı Analiz Kilitli",
+        "Doğum haritasındaki gezegen yerleşimleri ve ev yorumlarının detayları Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir. Raporu PDF olarak edinmek için lütfen web sitemizi ziyaret edin veya Çıraklık seviyesine yükselin."
+      );
+    }
+  };
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
   const [country, setCountry] = useState('Türkiye');
@@ -528,7 +542,7 @@ export default function AstrolojiAnalysisScreen() {
                       <TouchableOpacity 
                         key={i} 
                         style={styles.tableRow}
-                        onPress={() => setSelectedInterp(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                      onPress={() => handleInterpClick(getFullPlanetInterpretation(p.name, p.sign, p.house))}
                       >
                         <Text style={styles.tableCell}><Text style={{color: COLORS.primary}}>{PLANET_SYMBOLS[p.name] || ''}</Text> {p.name}</Text>
                         <Text style={[styles.tableCell, {color: ZODIAC_COLORS[p.sign]}]}>{p.sign}</Text>
@@ -557,7 +571,7 @@ export default function AstrolojiAnalysisScreen() {
                       <TouchableOpacity 
                         key={i} 
                         style={styles.tableRow}
-                        onPress={() => setSelectedInterp(getHouseCuspInterpretation(h.house, h.sign))}
+                        onPress={() => handleInterpClick(getHouseCuspInterpretation(h.house, h.sign))}
                       >
                         <Text style={styles.tableCell}>{h.house}. Ev {h.house===1?'(ASC)':h.house===10?'(MC)':h.house===4?'(IC)':h.house===7?'(DSC)':''}</Text>
                         <Text style={[styles.tableCell, {color: ZODIAC_COLORS[h.sign]}]}>{h.sign}</Text>
