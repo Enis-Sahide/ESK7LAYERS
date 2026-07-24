@@ -177,6 +177,12 @@ const KABBALAH_PLANETS: Record<string, { assiah: string, yetzirah: string, beriy
     yetzirah: 'Bilinçaltı kör noktalarınız. Farkında olmadan hayatınıza çektiğiniz ve duygusal tetikleyici olan karmik ruhlar.',
     beriyah: 'Kadersel kesişim noktası. Evrenin sizi belli bir yola sokmak için kurduğu zihinsel ve eşzamanlı uyanış kapıları.',
     atzilut: 'İlahi Müdahale. Ruhun tekamülden sapmasını engellemek için Kaynak\'ın oyuna doğrudan ve aniden el atması.'
+  },
+  'Lilith': {
+    assiah: 'Fiziksel dünyada bastırılmış gölgeleriniz, cinsel tabulardan arınma ve dünyevi bağımlılıkları kesip atacak radikal dürüstlük gücünüz.',
+    yetzirah: 'Geçmiş yaşam karmalarından gelen boyun eğmeme dürtüsü. Duygusal boyuttaki kurban rolünü reddederek özgürleşme çabası ve vahşi dişil doğa.',
+    beriyah: 'Zihinsel düzeyde sistemin (matrix) sınırlayan marjinal fikirler. Egonun sınırlarını eriten ve karanlığı aydınlığa dönüştüren yüksek akıl.',
+    atzilut: 'İlahi adalet ve kozmik arınma. Ruhun yeryüzü illüzyonuna boyun eğmeyen, tabuları yıkan ve özgürleştiren en saf, lekesiz ışık gücü.'
   }
 };
 
