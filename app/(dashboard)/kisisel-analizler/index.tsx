@@ -80,21 +80,10 @@ export default function AnalysisHubScreen() {
 
   const handlePress = (tool: AnalysisTool) => {
     if (!tool.isAvailable) return;
-    
-    if (tool.id === 'kabalistik4alem' && !isMasterOrAdmin) {
-      Alert.alert(
-        "Ustalık Derecesi Gerekli",
-        "Kabalistik 4 Alem analizine erişebilmek için Usta seviyesinde olmalısınız. Seviye atlamak için lütfen sınavlarınızı tamamlayın."
-      );
-      return;
-    }
-    
     router.push(tool.route as any);
   };
 
-  const visibleTools = ANALYSIS_TOOLS.filter(
-    (tool) => tool.id !== 'kabalistik4alem' || isMasterOrAdmin
-  );
+  const visibleTools = ANALYSIS_TOOLS;
 
   return (
     <SacredBackground>
