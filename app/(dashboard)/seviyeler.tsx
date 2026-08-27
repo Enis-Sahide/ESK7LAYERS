@@ -77,7 +77,7 @@ const LEVELS_DATA: LevelDetail[] = [
     color: '#AF52DE',
     badge: 'Mistik Derece (VIP)',
     accessList: [
-      '4 katmanlı harita analizi',
+      '4 boyutlu harita okuması',
       'Kadim uygulamalar',
       'Her dersin çıraklık, kalfa ve ustalık seviyesi',
       'Ustalık dersi sınavları',

@@ -105,7 +105,7 @@ export default function AstrolojiCurriculumScreen() {
         {/* Başlık */}
         <View style={styles.header}>
           <Text style={styles.title}>Ezoterik Astroloji</Text>
-          <Text style={styles.subtitle}>4 Katmanlı Ruhsal Harita Okuma Sanatı</Text>
+          <Text style={styles.subtitle}>4 Boyutlu Ruhsal Harita Okuma Sanatı</Text>
         </View>
 
         {/* Tab Menüsü */}
@@ -148,7 +148,7 @@ export default function AstrolojiCurriculumScreen() {
             <View style={styles.introCard}>
               <Text style={styles.introTitle}>Fiziksel İllüzyon (Assiah)</Text>
               <Text style={styles.introText}>
-                Sıradan insanların gördüğü dünyevi katmandır. Beden sağlığı, para, iş, eş gibi fiziksel tezahürlerin okunmasını ve haritanın nasıl sentezleneceğini içerir.
+                Sıradan insanların gördüğü dünyevi boyuttur. Beden sağlığı, para, iş, eş gibi fiziksel tezahürlerin okunmasını ve haritanın nasıl sentezleneceğini içerir.
               </Text>
             </View>
 
@@ -165,7 +165,7 @@ export default function AstrolojiCurriculumScreen() {
             <View style={styles.introCard}>
               <Text style={styles.introTitle}>Psikolojik ve Karmik (Yetzirah & Briah)</Text>
               <Text style={styles.introText}>
-                Olayların arkasındaki "Neden?" sorusunu cevaplarız. Ruhun geçmiş yaşam borçları, içsel çatışmalar ve gölge arketiplerin okunduğu derin katmandır.
+                Olayların arkasındaki "Neden?" sorusunu cevaplarız. Ruhun geçmiş yaşam borçları, içsel çatışmalar ve gölge arketiplerin okunduğu derin boyuttur.
               </Text>
             </View>
 
