@@ -183,3 +183,10 @@ export const getPlanetInfo = (planet: string) => {
     description: ''
   };
 };
+
+export const getDayRulerSymbol = (date: Date): string => {
+  const day = date.getDay();
+  const planetIdx = DAY_RULERS[day];
+  const planetName = PLANETS[planetIdx];
+  return PLANET_SYMBOLS[planetName] || '';
+};

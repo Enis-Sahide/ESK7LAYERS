@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getPlanetaryHours, getPlanetInfo, PlanetaryHour } from '@/src/features/astrology/engine/PlanetaryHours';
+import { getPlanetaryHours, getPlanetInfo, PlanetaryHour, getDayRulerSymbol } from '@/src/features/astrology/engine/PlanetaryHours';
 import { COLORS, SIZES } from '@/src/theme';
 import { refreshAllAlarms, getAlarmRules, addAlarmRule, removeAlarmRule, updateAlarmRule, AlarmRule } from '@/src/utils/AlarmManager';
 
@@ -166,20 +166,18 @@ export default function GezegenSaatleriScreen() {
   const getNext7Days = () => {
     const days = [];
     const today = new Date();
-    let startOffset = 0;
     
+    let baseDate = new Date(today);
     if (currentCoords) {
       try {
         const todayHours = getPlanetaryHours(today, currentCoords.lat, currentCoords.lon);
-        if (today < todayHours.sunrise) {
-          startOffset = -1;
-        }
+        baseDate = new Date(todayHours.sunrise);
       } catch (e) {}
     }
     
-    for (let i = startOffset; i < startOffset + 7; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(baseDate);
+      d.setDate(baseDate.getDate() + i);
       days.push(d);
     }
     return days;
@@ -214,10 +212,7 @@ export default function GezegenSaatleriScreen() {
           // Determine the correct initial planetary day based on the saved location's sunrise
           const today = new Date();
           const todayHours = getPlanetaryHours(today, lat, lon);
-          let initialDate = new Date(today);
-          if (today < todayHours.sunrise) {
-            initialDate.setDate(today.getDate() - 1);
-          }
+          const initialDate = new Date(todayHours.sunrise);
 
           setCityInput(name);
           setCurrentLocationName(name);
@@ -309,9 +304,7 @@ export default function GezegenSaatleriScreen() {
     let initialDate = new Date(today);
     try {
       const todayHours = getPlanetaryHours(today, suggestion.lat, suggestion.lon);
-      if (today < todayHours.sunrise) {
-        initialDate.setDate(today.getDate() - 1);
-      }
+      initialDate = new Date(todayHours.sunrise);
     } catch (e) {}
 
     setCityInput(suggestion.shortName);
@@ -367,9 +360,7 @@ export default function GezegenSaatleriScreen() {
         let initialDate = new Date(today);
         try {
           const todayHours = getPlanetaryHours(today, latitude, longitude);
-          if (today < todayHours.sunrise) {
-            initialDate.setDate(today.getDate() - 1);
-          }
+          initialDate = new Date(todayHours.sunrise);
         } catch (e) {}
 
         setCurrentLocationName(name);
@@ -656,6 +647,7 @@ export default function GezegenSaatleriScreen() {
               const isToday = index === 0;
               const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
               const dayStr = d.toLocaleDateString('tr-TR', { weekday: 'short' });
+              const rulerSymbol = getDayRulerSymbol(d);
               return (
                 <TouchableOpacity
                   key={index}
@@ -663,7 +655,9 @@ export default function GezegenSaatleriScreen() {
                   onPress={() => setSelectedDate(d)}
                 >
                   <Text style={[styles.dateTabText, isSelected && styles.dateTabTextActive]}>{isToday ? 'Bugün' : dateStr}</Text>
-                  <Text style={[styles.dateTabSubText, isSelected && styles.dateTabTextActive]}>{dayStr}</Text>
+                  <Text style={[styles.dateTabSubText, isSelected && styles.dateTabTextActive]}>
+                    {dayStr} {rulerSymbol}
+                  </Text>
                 </TouchableOpacity>
               );
             })}
