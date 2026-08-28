@@ -998,6 +998,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(212, 175, 55, 0.2)',
     alignItems: 'center',
+    zIndex: 100,
   },
   searchInput: {
     flex: 1,
