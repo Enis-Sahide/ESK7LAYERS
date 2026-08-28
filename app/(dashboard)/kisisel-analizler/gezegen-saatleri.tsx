@@ -13,7 +13,6 @@ import { refreshAllAlarms, getAlarmRules, addAlarmRule, removeAlarmRule, updateA
 const REPEAT_OPTIONS = [
   { label: 'Tek sefer', value: 'once' },
   { label: 'Her zaman', value: 'always' },
-  { label: 'Hiçbir zaman', value: 'never' },
   { label: 'Hafta içi', value: 'weekday' },
   { label: 'Hafta sonu', value: 'weekend' },
   { label: 'Pazartesileri', value: 'monday' },
@@ -308,11 +307,28 @@ export default function GezegenSaatleriScreen() {
 
   const handleCreateRule = async () => {
     try {
+      let targetDateStr: string | undefined = undefined;
+      
+      if (newAlarmRepeat === 'once' && currentCoords) {
+        const data = getPlanetaryHours(selectedDate, currentCoords.lat, currentCoords.lon);
+        const matchingHour = data.hours.find(h => {
+          const triggerTime = h.startTime.getTime() + newAlarmOffset * 60000;
+          const isFuture = triggerTime > Date.now();
+          const isFutureDay = selectedDate.toDateString() !== new Date().toDateString();
+          return h.planet === newAlarmPlanet && (isFuture || isFutureDay);
+        }) || data.hours.find(h => h.planet === newAlarmPlanet);
+        
+        if (matchingHour) {
+          targetDateStr = matchingHour.startTime.toISOString();
+        }
+      }
+
       await addAlarmRule({
         planet: newAlarmPlanet,
         offsetMinutes: newAlarmOffset,
         repeatType: newAlarmRepeat,
         actionType: 'notify',
+        targetDate: targetDateStr,
       });
       await loadRules();
       if (currentCoords) {
@@ -520,7 +536,7 @@ export default function GezegenSaatleriScreen() {
           <TouchableOpacity style={styles.widgetToggleContainer} onPress={() => setShowSettingsModal(true)}>
             <View style={{ flex: 1 }}>
               <Text style={styles.widgetToggleTitle}>Bildirim Ayarları</Text>
-              <Text style={styles.widgetToggleDesc}>Kurulu alarmları buradan yönetin.</Text>
+              <Text style={styles.widgetToggleDesc}>Kurulu bildirimleri buradan yönetin.</Text>
             </View>
             <Ionicons name="settings-outline" size={24} color={COLORS.primary} />
           </TouchableOpacity>
@@ -548,7 +564,7 @@ export default function GezegenSaatleriScreen() {
               <View style={styles.quietHoursContainer}>
                 <View style={{ flex: 1, paddingRight: 15 }}>
                   <Text style={styles.sectionSubTitle}>Gece Rahatsız Etme</Text>
-                  <Text style={styles.sectionDesc}>Açıksa, 00:00 ile 07:00 arasındaki saatlere alarm kurulmaz.</Text>
+                  <Text style={styles.sectionDesc}>Açıksa, 00:00 ile 07:00 arasındaki saatlere bildirim kurulmaz.</Text>
                 </View>
                 <Switch
                   value={quietHours}
@@ -560,7 +576,7 @@ export default function GezegenSaatleriScreen() {
 
               {/* Rules List Title */}
               <View style={styles.rulesListHeader}>
-                <Text style={styles.rulesListTitle}>Aktif Alarmlar</Text>
+                <Text style={styles.rulesListTitle}>Aktif Bildirimler</Text>
                 <TouchableOpacity 
                   style={styles.rulesAddMiniBtn} 
                   onPress={() => {
@@ -579,8 +595,8 @@ export default function GezegenSaatleriScreen() {
               {alarmRules.length === 0 ? (
                 <View style={styles.emptyStateContainer}>
                   <Ionicons name="notifications-off-outline" size={48} color={COLORS.textMuted} />
-                  <Text style={styles.emptyStateText}>Henüz bir alarm eklemediniz.</Text>
-                  <Text style={styles.emptyStateSubtext}>Belirli bir gezegen saati geldiğinde haberdar olmak için yeni bir alarm ekleyin.</Text>
+                  <Text style={styles.emptyStateText}>Henüz bir bildirim eklemediniz.</Text>
+                  <Text style={styles.emptyStateSubtext}>Belirli bir gezegen saati geldiğinde haberdar olmak için yeni bir bildirim ekleyin.</Text>
                 </View>
               ) : (
                 alarmRules.map((rule) => {
@@ -641,7 +657,7 @@ export default function GezegenSaatleriScreen() {
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowAddAlarmModal(false)}>
           <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalTitle}>Yeni Alarm</Text>
+              <Text style={styles.modalTitle}>Yeni Bildirim</Text>
               <TouchableOpacity onPress={() => setShowAddAlarmModal(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
               </TouchableOpacity>
@@ -698,13 +714,13 @@ export default function GezegenSaatleriScreen() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Planet Alarms Modal (Gezegen Özelinde Alarmlar) */}
+      {/* Planet Alarms Modal (Gezegen Özelinde Bildirimler) */}
       <Modal visible={planetAlarmsModalVisible} transparent animationType="slide" onRequestClose={() => setPlanetAlarmsModalVisible(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPlanetAlarmsModalVisible(false)}>
           <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <View style={styles.modalHeaderRow}>
               <Text style={styles.modalTitle}>
-                {getPlanetInfo(selectedPlanetForAlarms).name} Saati Alarmları
+                {getPlanetInfo(selectedPlanetForAlarms).name} Saati Bildirimleri
               </Text>
               <TouchableOpacity onPress={() => setPlanetAlarmsModalVisible(false)}>
                 <Ionicons name="close" size={24} color="#fff" />
@@ -716,7 +732,7 @@ export default function GezegenSaatleriScreen() {
                 <View style={{ alignItems: 'center', paddingVertical: 20 }}>
                   <Ionicons name="notifications-outline" size={48} color={COLORS.textMuted} style={{ marginBottom: 10 }} />
                   <Text style={{ color: '#fff', textAlign: 'center', marginBottom: 15 }}>
-                    Bu gezegen için aktif bir alarm bulunmamaktadır.
+                    Bu gezegen için aktif bir bildirim bulunmamaktadır.
                   </Text>
                   <TouchableOpacity 
                     style={[styles.modalSaveBtn, { width: '100%' }]} 
@@ -728,7 +744,7 @@ export default function GezegenSaatleriScreen() {
                       setShowAddAlarmModal(true);
                     }}
                   >
-                    <Text style={styles.modalSaveBtnText}>+ Alarm Ekle</Text>
+                    <Text style={styles.modalSaveBtnText}>+ Bildirim Ekle</Text>
                   </TouchableOpacity>
                 </View>
               ) : (
@@ -763,7 +779,7 @@ export default function GezegenSaatleriScreen() {
                       setShowAddAlarmModal(true);
                     }}
                   >
-                    <Text style={[styles.modalSaveBtnText, { color: COLORS.primary }]}>+ Yeni Alarm Ekle</Text>
+                    <Text style={[styles.modalSaveBtnText, { color: COLORS.primary }]}>+ Yeni Bildirim Ekle</Text>
                   </TouchableOpacity>
                 </View>
               )}
