@@ -166,7 +166,18 @@ export default function GezegenSaatleriScreen() {
   const getNext7Days = () => {
     const days = [];
     const today = new Date();
-    for (let i = 0; i < 7; i++) {
+    let startOffset = 0;
+    
+    if (currentCoords) {
+      try {
+        const todayHours = getPlanetaryHours(today, currentCoords.lat, currentCoords.lon);
+        if (today < todayHours.sunrise) {
+          startOffset = -1;
+        }
+      } catch (e) {}
+    }
+    
+    for (let i = startOffset; i < startOffset + 7; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       days.push(d);
@@ -183,8 +194,9 @@ export default function GezegenSaatleriScreen() {
     } catch (e) {}
   };
 
+  // 1. Initial Load of Location and Settings on Mount
   useEffect(() => {
-    const loadSavedLocation = async () => {
+    const initLocation = async () => {
       try {
         const savedWidget = await AsyncStorage.getItem('@show_planetary_widget');
         if (savedWidget === 'true') setShowWidget(true);
@@ -198,35 +210,40 @@ export default function GezegenSaatleriScreen() {
         const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
         if (savedLocation) {
           const { lat, lon, name, tz } = JSON.parse(savedLocation);
-          setCurrentCoords({lat, lon});
-          setCityInput(name);
-          setLoading(true);
-
-          let dateToLoad = new Date(selectedDate);
+          
+          // Determine the correct initial planetary day based on the saved location's sunrise
           const today = new Date();
-          if (dateToLoad.toDateString() === today.toDateString()) {
-            const data = getPlanetaryHours(today, lat, lon);
-            if (today < data.sunrise) {
-              dateToLoad.setDate(today.getDate() - 1);
-              setSelectedDate(dateToLoad);
-              return;
-            }
+          const todayHours = getPlanetaryHours(today, lat, lon);
+          let initialDate = new Date(today);
+          if (today < todayHours.sunrise) {
+            initialDate.setDate(today.getDate() - 1);
           }
 
-          loadHoursFromCoords(lat, lon, name, tz, dateToLoad);
-
-          // Top up alarms
-          refreshAllAlarms(lat, lon, tz).then(actives => {
-            setActiveAlarms(actives);
-          });
+          setCityInput(name);
+          setCurrentLocationName(name);
+          setTimezone(tz);
+          setCurrentCoords({lat, lon});
+          setSelectedDate(initialDate);
+          setLoading(true);
         }
       } catch (e) {}
     };
-    loadSavedLocation();
+    initLocation();
 
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
-  }, [selectedDate]);
+  }, []);
+
+  // 2. Load Hours When Selected Date or Coordinates Change
+  useEffect(() => {
+    if (!currentCoords || !timezone) return;
+    loadHoursFromCoords(currentCoords.lat, currentCoords.lon, currentLocationName || cityInput, timezone, selectedDate);
+    
+    // Top up alarms
+    refreshAllAlarms(currentCoords.lat, currentCoords.lon, timezone).then(actives => {
+      setActiveAlarms(actives);
+    });
+  }, [selectedDate, currentCoords]);
 
   useEffect(() => {
     if (!cityInput.trim() || cityInput.trim().length < 3) {
@@ -288,9 +305,21 @@ export default function GezegenSaatleriScreen() {
     const tz = tzlookup(suggestion.lat, suggestion.lon);
     const name = suggestion.shortName.toUpperCase();
     
+    const today = new Date();
+    let initialDate = new Date(today);
+    try {
+      const todayHours = getPlanetaryHours(today, suggestion.lat, suggestion.lon);
+      if (today < todayHours.sunrise) {
+        initialDate.setDate(today.getDate() - 1);
+      }
+    } catch (e) {}
+
     setCityInput(suggestion.shortName);
+    setCurrentLocationName(name);
+    setTimezone(tz);
     setCurrentCoords({ lat: suggestion.lat, lon: suggestion.lon });
-    loadHoursFromCoords(suggestion.lat, suggestion.lon, name, tz, selectedDate);
+    setSelectedDate(initialDate);
+    setLoading(true);
     
     AsyncStorage.setItem('last_planet_hours_location', JSON.stringify({
       lat: suggestion.lat,
@@ -333,7 +362,20 @@ export default function GezegenSaatleriScreen() {
       if (latitude !== undefined && longitude !== undefined) {
         const tz = tzlookup(latitude, longitude);
         const name = cityInput.trim().toUpperCase();
-        loadHoursFromCoords(latitude, longitude, name, tz, selectedDate);
+        
+        const today = new Date();
+        let initialDate = new Date(today);
+        try {
+          const todayHours = getPlanetaryHours(today, latitude, longitude);
+          if (today < todayHours.sunrise) {
+            initialDate.setDate(today.getDate() - 1);
+          }
+        } catch (e) {}
+
+        setCurrentLocationName(name);
+        setTimezone(tz);
+        setCurrentCoords({ lat: latitude, lon: longitude });
+        setSelectedDate(initialDate);
         
         AsyncStorage.setItem('last_planet_hours_location', JSON.stringify({
           lat: latitude,
