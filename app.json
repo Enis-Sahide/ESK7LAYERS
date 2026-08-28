@@ -2,7 +2,7 @@
   "expo": {
     "name": "7LAYERS",
     "slug": "ESK7LAYERS",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "proje1",
@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.enissahide.esk7layers",
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
