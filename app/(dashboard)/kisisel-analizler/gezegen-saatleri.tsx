@@ -24,6 +24,79 @@ const REPEAT_OPTIONS = [
   { label: 'Pazarları', value: 'sunday' },
 ];
 
+const DAY_OPTIONS = [
+  { label: 'Her gün', value: 'always' },
+  { label: 'Hafta içi', value: 'weekday' },
+  { label: 'Hafta sonu', value: 'weekend' },
+  { label: 'Pazartesi', value: 'monday' },
+  { label: 'Salı', value: 'tuesday' },
+  { label: 'Çarşamba', value: 'wednesday' },
+  { label: 'Perşembe', value: 'thursday' },
+  { label: 'Cuma', value: 'friday' },
+  { label: 'Cumartesi', value: 'saturday' },
+  { label: 'Pazar', value: 'sunday' },
+];
+
+const FREQ_OPTIONS = [
+  { label: 'Tek sefer', value: 'once' },
+  { label: 'Tekrarlı', value: 'repeat' },
+];
+
+const DAYS_OF_WEEK_ENG = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+const getUIDayFromRule = (rule: AlarmRule): string => {
+  if (rule.repeatType === 'once') {
+    if (rule.targetDate) {
+      const date = new Date(rule.targetDate);
+      return DAYS_OF_WEEK_ENG[date.getDay()];
+    }
+    return 'always';
+  }
+  return rule.repeatType;
+};
+
+const getUIFrequencyFromRepeatType = (repeatType: string): string => {
+  return repeatType === 'once' ? 'once' : 'repeat';
+};
+
+const resolveRuleParams = (
+  planet: string,
+  offsetMinutes: number,
+  uiDay: string,
+  uiFreq: string,
+  selectedDate: Date,
+  lat: number,
+  lon: number
+) => {
+  if (uiFreq === 'once') {
+    let targetDayObj = new Date(selectedDate);
+    
+    if (uiDay !== 'always' && uiDay !== 'weekday' && uiDay !== 'weekend') {
+      const targetDayIndex = DAYS_OF_WEEK_ENG.indexOf(uiDay);
+      const currentDayIndex = targetDayObj.getDay();
+      let daysDiff = targetDayIndex - currentDayIndex;
+      if (daysDiff < 0) daysDiff += 7;
+      targetDayObj.setDate(targetDayObj.getDate() + daysDiff);
+    }
+    
+    const data = getPlanetaryHours(targetDayObj, lat, lon);
+    const matchingHour = data.hours.find(h => {
+      const triggerTime = h.startTime.getTime() + offsetMinutes * 60000;
+      return h.planet === planet && triggerTime > Date.now();
+    }) || data.hours.find(h => h.planet === planet);
+    
+    return {
+      repeatType: 'once' as const,
+      targetDate: matchingHour ? matchingHour.startTime.toISOString() : undefined,
+    };
+  } else {
+    return {
+      repeatType: uiDay as any,
+      targetDate: undefined,
+    };
+  }
+};
+
 
 const PLANET_OPTIONS = [
   { label: 'Satürn ♄', value: 'Saturn' },
@@ -77,7 +150,8 @@ export default function GezegenSaatleriScreen() {
   const [showAddAlarmModal, setShowAddAlarmModal] = useState(false);
   const [newAlarmPlanet, setNewAlarmPlanet] = useState('Jupiter');
   const [newAlarmOffset, setNewAlarmOffset] = useState(0);
-  const [newAlarmRepeat, setNewAlarmRepeat] = useState<'once' | 'always' | 'never' | 'weekday' | 'weekend' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'>('always');
+  const [newAlarmDay, setNewAlarmDay] = useState('always');
+  const [newAlarmFreq, setNewAlarmFreq] = useState('once');
 
   // Planet specific alarms modal state
   const [planetAlarmsModalVisible, setPlanetAlarmsModalVisible] = useState(false);
@@ -307,28 +381,23 @@ export default function GezegenSaatleriScreen() {
 
   const handleCreateRule = async () => {
     try {
-      let targetDateStr: string | undefined = undefined;
-      
-      if (newAlarmRepeat === 'once' && currentCoords) {
-        const data = getPlanetaryHours(selectedDate, currentCoords.lat, currentCoords.lon);
-        const matchingHour = data.hours.find(h => {
-          const triggerTime = h.startTime.getTime() + newAlarmOffset * 60000;
-          const isFuture = triggerTime > Date.now();
-          const isFutureDay = selectedDate.toDateString() !== new Date().toDateString();
-          return h.planet === newAlarmPlanet && (isFuture || isFutureDay);
-        }) || data.hours.find(h => h.planet === newAlarmPlanet);
-        
-        if (matchingHour) {
-          targetDateStr = matchingHour.startTime.toISOString();
-        }
-      }
+      if (!currentCoords) return;
+      const resolved = resolveRuleParams(
+        newAlarmPlanet,
+        newAlarmOffset,
+        newAlarmDay,
+        newAlarmFreq,
+        selectedDate,
+        currentCoords.lat,
+        currentCoords.lon
+      );
 
       await addAlarmRule({
         planet: newAlarmPlanet,
         offsetMinutes: newAlarmOffset,
-        repeatType: newAlarmRepeat,
+        repeatType: resolved.repeatType,
         actionType: 'notify',
-        targetDate: targetDateStr,
+        targetDate: resolved.targetDate,
       });
       await loadRules();
       if (currentCoords) {
@@ -359,6 +428,48 @@ export default function GezegenSaatleriScreen() {
         setActiveAlarms(actives);
       }
     } catch (err) {}
+  };
+
+  const handleUpdateRuleDay = async (rule: AlarmRule, newDay: string) => {
+    if (!currentCoords) return;
+    const resolved = resolveRuleParams(
+      rule.planet,
+      rule.offsetMinutes,
+      newDay,
+      getUIFrequencyFromRepeatType(rule.repeatType),
+      selectedDate,
+      currentCoords.lat,
+      currentCoords.lon
+    );
+    await handleUpdateRule(rule.id, resolved);
+  };
+
+  const handleUpdateRuleFreq = async (rule: AlarmRule, newFreq: string) => {
+    if (!currentCoords) return;
+    const resolved = resolveRuleParams(
+      rule.planet,
+      rule.offsetMinutes,
+      getUIDayFromRule(rule),
+      newFreq,
+      selectedDate,
+      currentCoords.lat,
+      currentCoords.lon
+    );
+    await handleUpdateRule(rule.id, resolved);
+  };
+
+  const handleUpdateRuleOffset = async (rule: AlarmRule, newOffset: number) => {
+    if (!currentCoords) return;
+    const resolved = resolveRuleParams(
+      rule.planet,
+      newOffset,
+      getUIDayFromRule(rule),
+      getUIFrequencyFromRepeatType(rule.repeatType),
+      selectedDate,
+      currentCoords.lat,
+      currentCoords.lon
+    );
+    await handleUpdateRule(rule.id, { offsetMinutes: newOffset, ...resolved });
   };
 
   const handleQuietHoursChange = async (val: boolean) => {
@@ -580,9 +691,11 @@ export default function GezegenSaatleriScreen() {
                 <TouchableOpacity 
                   style={styles.rulesAddMiniBtn} 
                   onPress={() => {
+                    const currentDayName = DAYS_OF_WEEK_ENG[selectedDate.getDay()];
                     setNewAlarmPlanet('Jupiter');
                     setNewAlarmOffset(0);
-                    setNewAlarmRepeat('always');
+                    setNewAlarmDay(currentDayName);
+                    setNewAlarmFreq('once');
                     setShowAddAlarmModal(true);
                   }}
                 >
@@ -625,20 +738,34 @@ export default function GezegenSaatleriScreen() {
                         {/* Offset Edit */}
                         <TouchableOpacity 
                           style={styles.ruleDetailItem} 
-                          onPress={() => openCustomPicker('Bildirim Zamanı', MINS_OPTIONS, rule.offsetMinutes, (val) => handleUpdateRule(rule.id, { offsetMinutes: val }))}
+                          onPress={() => openCustomPicker('Bildirim Zamanı', MINS_OPTIONS, rule.offsetMinutes, (val) => handleUpdateRuleOffset(rule, val))}
                         >
                           <Ionicons name="time-outline" size={14} color={COLORS.primary} />
                           <Text style={styles.ruleDetailText}>{offsetLabel}</Text>
                           <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
                         </TouchableOpacity>
 
-                        {/* Repeat Edit */}
+                        {/* Day Edit */}
                         <TouchableOpacity 
                           style={styles.ruleDetailItem} 
-                          onPress={() => openCustomPicker('Tekrar Ayarı', REPEAT_OPTIONS, rule.repeatType, (val) => handleUpdateRule(rule.id, { repeatType: val }))}
+                          onPress={() => openCustomPicker('Gün Seçin', DAY_OPTIONS, getUIDayFromRule(rule), (val) => handleUpdateRuleDay(rule, val))}
                         >
                           <Ionicons name="calendar-outline" size={14} color={COLORS.primary} />
-                          <Text style={styles.ruleDetailText}>{repeatLabel}</Text>
+                          <Text style={styles.ruleDetailText}>
+                            {DAY_OPTIONS.find(o => o.value === getUIDayFromRule(rule))?.label || getUIDayFromRule(rule)}
+                          </Text>
+                          <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
+                        </TouchableOpacity>
+
+                        {/* Frequency Edit */}
+                        <TouchableOpacity 
+                          style={styles.ruleDetailItem} 
+                          onPress={() => openCustomPicker('Sıklık Seçin', FREQ_OPTIONS, getUIFrequencyFromRepeatType(rule.repeatType), (val) => handleUpdateRuleFreq(rule, val))}
+                        >
+                          <Ionicons name="repeat-outline" size={14} color={COLORS.primary} />
+                          <Text style={styles.ruleDetailText}>
+                            {FREQ_OPTIONS.find(o => o.value === getUIFrequencyFromRepeatType(rule.repeatType))?.label}
+                          </Text>
                           <Ionicons name="chevron-down" size={12} color={COLORS.textMuted} />
                         </TouchableOpacity>
                       </View>
@@ -691,15 +818,29 @@ export default function GezegenSaatleriScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Repeat Field */}
+            {/* Day Field */}
             <View style={styles.modalFormGroup}>
-              <Text style={styles.modalFormLabel}>Tekrar Ayarı</Text>
+              <Text style={styles.modalFormLabel}>Gün</Text>
               <TouchableOpacity 
                 style={styles.modalDropdown} 
-                onPress={() => openCustomPicker('Tekrar Ayarı', REPEAT_OPTIONS, newAlarmRepeat, setNewAlarmRepeat)}
+                onPress={() => openCustomPicker('Gün Seçin', DAY_OPTIONS, newAlarmDay, setNewAlarmDay)}
               >
                 <Text style={styles.modalDropdownText}>
-                  {REPEAT_OPTIONS.find(o => o.value === newAlarmRepeat)?.label || 'Seçin'}
+                  {DAY_OPTIONS.find(o => o.value === newAlarmDay)?.label || 'Seçin'}
+                </Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Frequency Field */}
+            <View style={styles.modalFormGroup}>
+              <Text style={styles.modalFormLabel}>Sıklık</Text>
+              <TouchableOpacity 
+                style={styles.modalDropdown} 
+                onPress={() => openCustomPicker('Sıklık Seçin', FREQ_OPTIONS, newAlarmFreq, setNewAlarmFreq)}
+              >
+                <Text style={styles.modalDropdownText}>
+                  {FREQ_OPTIONS.find(o => o.value === newAlarmFreq)?.label || 'Seçin'}
                 </Text>
                 <Ionicons name="chevron-down" size={16} color={COLORS.primary} />
               </TouchableOpacity>
@@ -737,9 +878,11 @@ export default function GezegenSaatleriScreen() {
                   <TouchableOpacity 
                     style={[styles.modalSaveBtn, { width: '100%' }]} 
                     onPress={() => {
+                      const currentDayName = DAYS_OF_WEEK_ENG[selectedDate.getDay()];
                       setNewAlarmPlanet(selectedPlanetForAlarms);
                       setNewAlarmOffset(0);
-                      setNewAlarmRepeat('always');
+                      setNewAlarmDay(currentDayName);
+                      setNewAlarmFreq('once');
                       setPlanetAlarmsModalVisible(false);
                       setShowAddAlarmModal(true);
                     }}
@@ -772,9 +915,11 @@ export default function GezegenSaatleriScreen() {
                   <TouchableOpacity 
                     style={[styles.modalSaveBtn, { width: '100%', marginTop: 15, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.4)' }]} 
                     onPress={() => {
+                      const currentDayName = DAYS_OF_WEEK_ENG[selectedDate.getDay()];
                       setNewAlarmPlanet(selectedPlanetForAlarms);
                       setNewAlarmOffset(0);
-                      setNewAlarmRepeat('always');
+                      setNewAlarmDay(currentDayName);
+                      setNewAlarmFreq('once');
                       setPlanetAlarmsModalVisible(false);
                       setShowAddAlarmModal(true);
                     }}
