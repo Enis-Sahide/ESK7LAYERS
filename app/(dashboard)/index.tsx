@@ -82,8 +82,14 @@ const PlanetaryHourWidget = () => {
           const updateCurrent = () => {
             if (!isActive) return;
             const now = new Date();
-            const { hours } = getPlanetaryHours(now, lat, lon);
-            const current = hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
+            let data = getPlanetaryHours(now, lat, lon);
+            
+            if (now < data.sunrise) {
+              const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+              data = getPlanetaryHours(yesterday, lat, lon);
+            }
+            
+            const current = data.hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
             
             if (current) {
               const info = getPlanetInfo(current.planet);

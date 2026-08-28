@@ -201,7 +201,19 @@ export default function GezegenSaatleriScreen() {
           setCurrentCoords({lat, lon});
           setCityInput(name);
           setLoading(true);
-          loadHoursFromCoords(lat, lon, name, tz, selectedDate);
+
+          let dateToLoad = new Date(selectedDate);
+          const today = new Date();
+          if (dateToLoad.toDateString() === today.toDateString()) {
+            const data = getPlanetaryHours(today, lat, lon);
+            if (today < data.sunrise) {
+              dateToLoad.setDate(today.getDate() - 1);
+              setSelectedDate(dateToLoad);
+              return;
+            }
+          }
+
+          loadHoursFromCoords(lat, lon, name, tz, dateToLoad);
 
           // Top up alarms
           refreshAllAlarms(lat, lon, tz).then(actives => {

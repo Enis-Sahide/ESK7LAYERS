@@ -139,7 +139,10 @@ export const refreshAllAlarms = async (lat: number, lon: number, tz: string) => 
   // Process next 7 days
   const days = [];
   const today = new Date();
-  for (let i = 0; i < 7; i++) {
+  const todayHours = getPlanetaryHours(today, lat, lon);
+  const startOffset = today < todayHours.sunrise ? -1 : 0;
+  
+  for (let i = startOffset; i < startOffset + 7; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     days.push(d);
