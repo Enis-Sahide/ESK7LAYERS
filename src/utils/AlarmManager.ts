@@ -153,7 +153,9 @@ export const refreshAllAlarms = async (lat: number, lon: number, tz: string) => 
       for (const rule of matchingRules) {
         if (rule.repeatType === 'once') {
           if (rule.targetDate) {
-            if (hour.startTime.toISOString() === rule.targetDate) {
+            const targetDateOnly = rule.targetDate.split('T')[0];
+            const hourDateOnly = hour.startTime.toISOString().split('T')[0];
+            if (hourDateOnly === targetDateOnly) {
               await scheduleNotification(hour.startTime, hour.planet, rule);
             }
           } else {
@@ -161,7 +163,7 @@ export const refreshAllAlarms = async (lat: number, lon: number, tz: string) => 
             if (triggerTime > now) {
               const scheduled = await scheduleNotification(hour.startTime, hour.planet, rule);
               if (scheduled) {
-                rule.targetDate = hour.startTime.toISOString();
+                rule.targetDate = hour.startTime.toISOString().split('T')[0];
                 rulesChanged = true;
               }
             }
@@ -179,8 +181,9 @@ export const refreshAllAlarms = async (lat: number, lon: number, tz: string) => 
   for (let i = updatedRules.length - 1; i >= 0; i--) {
     const rule = updatedRules[i];
     if (rule.repeatType === 'once' && rule.targetDate) {
-      const targetTime = new Date(rule.targetDate).getTime() + rule.offsetMinutes * 60000;
-      if (now > targetTime) {
+      const targetDateOnly = rule.targetDate.split('T')[0];
+      const todayDateStr = new Date(now).toISOString().split('T')[0];
+      if (todayDateStr > targetDateOnly) {
         updatedRules.splice(i, 1);
         rulesChanged = true;
       }

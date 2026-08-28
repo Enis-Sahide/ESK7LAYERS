@@ -79,15 +79,9 @@ const resolveRuleParams = (
       targetDayObj.setDate(targetDayObj.getDate() + daysDiff);
     }
     
-    const data = getPlanetaryHours(targetDayObj, lat, lon);
-    const matchingHour = data.hours.find(h => {
-      const triggerTime = h.startTime.getTime() + offsetMinutes * 60000;
-      return h.planet === planet && triggerTime > Date.now();
-    }) || data.hours.find(h => h.planet === planet);
-    
     return {
       repeatType: 'once' as const,
-      targetDate: matchingHour ? matchingHour.startTime.toISOString() : undefined,
+      targetDate: targetDayObj.toISOString().split('T')[0],
     };
   } else {
     return {
