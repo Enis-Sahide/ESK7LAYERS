@@ -39,7 +39,7 @@ const DAY_OPTIONS = [
 
 const FREQ_OPTIONS = [
   { label: 'Tek sefer', value: 'once' },
-  { label: 'Tekrarlı', value: 'repeat' },
+  { label: 'Her hafta', value: 'repeat' },
 ];
 
 const DAYS_OF_WEEK_ENG = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
