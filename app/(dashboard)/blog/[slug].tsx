@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import SacredBackground from '@/components/SacredBackground';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
+import { API_BASE_URL } from '@/src/core/config';
 
 const { width } = Dimensions.get('window');
 
@@ -45,7 +46,10 @@ export default function BlogDetailScreen() {
             {/* Cover Image banner */}
             <View style={styles.imageWrapper}>
               {post.imageUrl ? (
-                <Image source={{ uri: post.imageUrl }} style={styles.coverImage} />
+                <Image 
+                  source={post.imageUrl.startsWith('/') ? { uri: API_BASE_URL + post.imageUrl } : { uri: post.imageUrl }} 
+                  style={styles.coverImage} 
+                />
               ) : (
                 <View style={styles.placeholderImage}>
                   <Ionicons name="book" size={48} color="rgba(255, 149, 0, 0.2)" />

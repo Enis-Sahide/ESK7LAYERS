@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import SacredBackground from '@/components/SacredBackground';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
+import { API_BASE_URL } from '@/src/core/config';
 
 const { width } = Dimensions.get('window');
 const CATEGORIES = ['Tümü', 'Astroloji', 'Nefes', 'Ritüeller', 'Kişisel Gelişim', 'Çakra Dengeleme'];
@@ -34,7 +35,10 @@ export default function BlogListScreen() {
       {/* Cover Image */}
       <View style={styles.cardImageContainer}>
         {item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
+          <Image 
+            source={item.imageUrl.startsWith('/') ? { uri: API_BASE_URL + item.imageUrl } : { uri: item.imageUrl }} 
+            style={styles.cardImage} 
+          />
         ) : (
           <View style={styles.placeholderImage}>
             <Ionicons name="book-outline" size={32} color="rgba(255, 149, 0, 0.3)" />
