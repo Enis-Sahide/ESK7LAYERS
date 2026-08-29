@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Dimensions, ActivityIndicator, Share } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import SacredBackground from '@/components/SacredBackground';
@@ -16,6 +16,17 @@ export default function BlogDetailScreen() {
   // Fetch article details from API
   const { data: post, loading, error } = useContent<any>(slug ? `/api/content/blog/${slug}` : null);
 
+  const handleShare = async () => {
+    if (!post) return;
+    try {
+      await Share.share({
+        message: `${post.title}\n\nhttps://www.7layers.tr/blog/${post.slug}`,
+      });
+    } catch (e) {
+      console.error('Paylaşım hatası:', e);
+    }
+  };
+
   return (
     <SacredBackground>
       {/* Header */}
@@ -24,6 +35,12 @@ export default function BlogDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
         <Text style={styles.title} numberOfLines={1}>Geri Dön</Text>
+
+        {post && !loading && (
+          <TouchableOpacity onPress={handleShare} style={styles.shareBtn}>
+            <Ionicons name="share-social-outline" size={22} color={COLORS.text} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.container}>
@@ -108,6 +125,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.text,
+  },
+  shareBtn: {
+    marginLeft: 'auto',
+    padding: 4,
   },
   container: {
     flex: 1,
