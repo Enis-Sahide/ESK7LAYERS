@@ -79,7 +79,7 @@ export default function AstrolojiAnalysisScreen() {
     } else {
       Alert.alert(
         "Detaylı Analiz Kilitli",
-        "Doğum haritasındaki gezegen yerleşimleri ve ev yorumlarının detayları Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir. Raporu PDF olarak edinmek için lütfen web sitemizi ziyaret edin veya Çıraklık seviyesine yükselin."
+        "Doğum haritasındaki gezegen yerleşimleri ve ev yorumlarının detayları Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır."
       );
     }
   };

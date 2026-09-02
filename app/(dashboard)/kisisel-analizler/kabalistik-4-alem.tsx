@@ -70,7 +70,7 @@ export default function KabbalahAnalysisScreen() {
     } else {
       Alert.alert(
         "Detaylı Analiz Kilitli",
-        "Kabalistik gezegen yerleşimlerinin derin ezoterik analizleri Usta Seviyesi (Master) üyelere özeldir. Raporu PDF olarak edinmek için lütfen web sitemizi ziyaret edin veya Usta seviyesine yükselin."
+        "Kabalistik gezegen yerleşimlerinin derin ezoterik analizleri Usta Seviyesi (Master) üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır."
       );
     }
   };

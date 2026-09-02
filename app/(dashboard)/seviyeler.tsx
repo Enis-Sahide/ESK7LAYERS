@@ -188,21 +188,16 @@ export default function LevelsScreen() {
           </View>
         ))}
 
-        {/* Web Sitesine Yönlendirme Kartı */}
+        {/* Derece Bilgilendirme Kartı */}
         <BlurView intensity={35} tint="dark" style={styles.redirectCard}>
-          <Ionicons name="information-circle-outline" size={32} color="#D4AF37" style={{ marginBottom: 12 }} />
-          <Text style={styles.redirectTitle}>Aşama Aktivasyon İşlemi</Text>
+          <Ionicons name="sparkles-outline" size={32} color="#D4AF37" style={{ marginBottom: 12 }} />
+          <Text style={styles.redirectTitle}>Derece ve Seviye Sistemi</Text>
           <Text style={styles.redirectText}>
-            Mobil uygulama üzerinden doğrudan aşama geçişi veya derece aktivasyon işlemi gerçekleştirilmemektedir. Hak kazandığınız veya ilerlemek istediğiniz yeni dereceleri etkinleştirmek için lütfen web sitemizi ziyaret edin.
+            Dersleri ve sınavları tamamlayarak tekamül derecenizi yükseltebilir, kilitli derin analizlerin ve ileri seviye kadim bilgilerin kapısını aralayabilirsiniz.
           </Text>
           <Text style={styles.redirectTextSub}>
-            Web sitemiz üzerinden hesabınıza giriş yaparak, hak kazandığınız dereceleri kolayca aktif edebilirsiniz.
+            Bu derin analiz seviye sistemine özeldir, yakında yeni dereceler ve sınavlar erişime açılacaktır.
           </Text>
-          
-          <TouchableOpacity style={styles.webBtn} onPress={handleOpenWeb}>
-            <Ionicons name="globe-outline" size={20} color="#000" style={{ marginRight: 8 }} />
-            <Text style={styles.webBtnText}>Web Sitesini İncele</Text>
-          </TouchableOpacity>
         </BlurView>
 
         <View style={{ height: 100 }} />
