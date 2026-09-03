@@ -9,6 +9,155 @@ import { API_BASE_URL } from '@/src/core/config';
 
 const { width } = Dimensions.get('window');
 
+const parseMobileInline = (text: string) => {
+  if (!text) return null;
+  const parts = text.split('**');
+  return parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return (
+        <Text key={index} style={{ fontWeight: 'bold', color: '#FFFFFF' }}>
+          {part}
+        </Text>
+      );
+    }
+    return (
+      <Text key={index} style={{ color: 'rgba(255,255,255,0.85)' }}>
+        {part}
+      </Text>
+    );
+  });
+};
+
+const renderMobileContent = (content: string) => {
+  if (!content) return null;
+  const lines = content.split('\n');
+  const elements: React.ReactNode[] = [];
+  let inCodeBlock = false;
+  let codeLines: string[] = [];
+  let codeIndex = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('```')) {
+      if (inCodeBlock) {
+        elements.push(
+          <View key={`code-${codeIndex}`} style={styles.codeBlock}>
+            <Text style={styles.codeText}>{codeLines.join('\n')}</Text>
+          </View>
+        );
+        codeLines = [];
+        inCodeBlock = false;
+      } else {
+        inCodeBlock = true;
+        codeIndex = i;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeLines.push(line);
+      continue;
+    }
+
+    if (!trimmed) {
+      elements.push(<View key={`space-${i}`} style={{ height: 8 }} />);
+      continue;
+    }
+
+    if (trimmed === '---') {
+      elements.push(<View key={`hr-${i}`} style={styles.hr} />);
+      continue;
+    }
+
+    if (trimmed.startsWith('> ')) {
+      elements.push(
+        <View key={`quote-${i}`} style={styles.quoteBlock}>
+          <Text style={styles.quoteText}>{trimmed.replace(/^>\s*/, '')}</Text>
+        </View>
+      );
+      continue;
+    }
+
+    if (trimmed.startsWith('#### ')) {
+      elements.push(
+        <Text key={`h4-${i}`} style={styles.h4Text}>
+          {trimmed.replace('#### ', '')}
+        </Text>
+      );
+      continue;
+    }
+
+    if (trimmed.startsWith('### ')) {
+      elements.push(
+        <Text key={`h3-${i}`} style={styles.h3Text}>
+          {trimmed.replace('### ', '')}
+        </Text>
+      );
+      continue;
+    }
+
+    if (trimmed.startsWith('## ')) {
+      elements.push(
+        <Text key={`h2-${i}`} style={styles.h2Text}>
+          {trimmed.replace('## ', '')}
+        </Text>
+      );
+      continue;
+    }
+
+    if (trimmed.startsWith('# ')) {
+      elements.push(
+        <Text key={`h1-${i}`} style={styles.h1Text}>
+          {trimmed.replace('# ', '')}
+        </Text>
+      );
+      continue;
+    }
+
+    const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
+    if (numMatch) {
+      elements.push(
+        <View key={`num-${i}`} style={styles.listItem}>
+          <View style={styles.numBadge}>
+            <Text style={styles.numBadgeText}>{numMatch[1]}</Text>
+          </View>
+          <Text style={styles.listItemText}>{parseMobileInline(numMatch[2])}</Text>
+        </View>
+      );
+      continue;
+    }
+
+    const listMatch = trimmed.match(/^[\*\-]\s+(.*)$/);
+    if (listMatch) {
+      elements.push(
+        <View key={`li-${i}`} style={styles.listItem}>
+          <Text style={styles.bulletIcon}>✦</Text>
+          <Text style={styles.listItemText}>{parseMobileInline(listMatch[1])}</Text>
+        </View>
+      );
+      continue;
+    }
+
+    elements.push(
+      <Text key={`p-${i}`} style={styles.bodyText}>
+        {parseMobileInline(line)}
+      </Text>
+    );
+  }
+
+  if (inCodeBlock && codeLines.length > 0) {
+    elements.push(
+      <View key={`code-${codeIndex}`} style={styles.codeBlock}>
+        <Text style={styles.codeText}>{codeLines.join('\n')}</Text>
+      </View>
+    );
+  }
+
+  return elements;
+};
+
 export default function BlogDetailScreen() {
   const router = useRouter();
   const { slug } = useLocalSearchParams();
@@ -99,7 +248,7 @@ export default function BlogDetailScreen() {
 
             {/* Content text */}
             <View style={styles.bodyContainer}>
-              <Text style={styles.bodyText}>{post.content}</Text>
+              {renderMobileContent(post.content)}
             </View>
           </ScrollView>
         )}
@@ -210,7 +359,112 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
     fontSize: 14,
     lineHeight: 24,
-    textAlign: 'justify',
+    marginBottom: 12,
+  },
+  h1Text: {
+    color: '#FF9500',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    lineHeight: 28,
+  },
+  h2Text: {
+    color: '#FF9500',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 18,
+    marginBottom: 8,
+    lineHeight: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
+    paddingBottom: 4,
+  },
+  h3Text: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 6,
+    lineHeight: 22,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF9500',
+    paddingLeft: 8,
+  },
+  h4Text: {
+    color: '#FFB84D',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 14,
+    marginBottom: 4,
+    lineHeight: 20,
+  },
+  quoteBlock: {
+    backgroundColor: 'rgba(255, 149, 0, 0.08)',
+    borderLeftWidth: 3,
+    borderLeftColor: '#FF9500',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginVertical: 12,
+  },
+  quoteText: {
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 13,
+    lineHeight: 20,
+    fontStyle: 'italic',
+  },
+  codeBlock: {
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 149, 0, 0.25)',
+    borderRadius: 12,
+    padding: 12,
+    marginVertical: 14,
+  },
+  codeText: {
+    fontFamily: 'monospace',
+    color: '#FFB84D',
+    fontSize: 11,
+    lineHeight: 18,
+  },
+  hr: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    marginVertical: 16,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+    paddingLeft: 4,
+  },
+  bulletIcon: {
+    color: '#FF9500',
+    fontSize: 10,
+    marginTop: 4,
+    marginRight: 8,
+  },
+  numBadge: {
+    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 149, 0, 0.3)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    marginRight: 8,
+    marginTop: 1,
+  },
+  numBadgeText: {
+    color: '#FF9500',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  listItemText: {
+    flex: 1,
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 13,
+    lineHeight: 20,
   },
   loadingContainer: {
     flex: 1,
