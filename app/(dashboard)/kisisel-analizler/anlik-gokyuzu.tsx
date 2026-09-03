@@ -11,6 +11,9 @@ import tzlookup from 'tz-lookup';
 import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@/src/features/astrology/engine/TransitInterpretations';
 
 import { API_BASE_URL } from '@/src/core/config';
+import { useProgress } from '@/src/context/ProgressContext';
+import MobileTransitTimelineChart from '@/src/features/astrology/components/MobileTransitTimelineChart';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 const CHART_SIZE = width - 20;
@@ -119,6 +122,43 @@ export default function AnlikGokyuzuScreen() {
   const [selectedInterp, setSelectedInterp] = useState<{ title: string, content: string } | null>(null);
   const [isHousesExpanded, setIsHousesExpanded] = useState(true);
   const [isAspectsExpanded, setIsAspectsExpanded] = useState(true);
+
+  // User role & Premium check
+  const { role } = useProgress();
+  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin';
+
+  // Timeline (Gantt) states
+  const [activeTab, setActiveTab] = useState<'BIWHEEL' | 'TIMELINE'>('BIWHEEL');
+  const [timelineData, setTimelineData] = useState<any>(null);
+  const [timelineRange, setTimelineRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m');
+  const [isTimelineLoading, setIsTimelineLoading] = useState(false);
+  const [showLockModal, setShowLockModal] = useState(false);
+
+  const fetchTimeline = async (rangeToFetch: '1m' | '3m' | '6m' | '1y' = timelineRange) => {
+    if (!selectedCityData) return;
+    setIsTimelineLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/astrology/transit-timeline`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          natalDate: natalDateStr,
+          natalTime: natalTimeStr,
+          cityData: selectedCityData,
+          range: rangeToFetch,
+          startDateStr: transitDateStr
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTimelineData(data.data);
+      }
+    } catch (e) {
+      console.error('Mobile timeline fetch error:', e);
+    } finally {
+      setIsTimelineLoading(false);
+    }
+  };
 
   const dateInputRef = useRef<TextInput>(null);
   const timeInputRef = useRef<TextInput>(null);
@@ -305,6 +345,7 @@ export default function AnlikGokyuzuScreen() {
       }
 
       setTransitData(result.data);
+      fetchTimeline('1m');
     } catch (error: any) {
       console.error(error);
       Alert.alert("Hata", error.message || "Transitler hesaplanırken bir hata oluştu.");
@@ -749,6 +790,8 @@ export default function AnlikGokyuzuScreen() {
               {/* Reset/Back Button */}
               <TouchableOpacity style={styles.resetBtn} onPress={() => {
                 setTransitData(null);
+                setTimelineData(null);
+                setActiveTab('BIWHEEL');
                 setTransitSearchQuery('');
                 setSelectedTransitCityData(null);
               }}>
@@ -768,7 +811,37 @@ export default function AnlikGokyuzuScreen() {
                 </View>
               </View>
 
-              {/* Dual Wheel Chart */}
+              {/* Tab Selector: Anlık Harita vs Zaman Çizelgesi */}
+              <View style={styles.tabSelector}>
+                <TouchableOpacity
+                  onPress={() => setActiveTab('BIWHEEL')}
+                  style={[styles.tabBtn, activeTab === 'BIWHEEL' && styles.tabBtnActive]}
+                >
+                  <Ionicons name="compass-outline" size={15} color={activeTab === 'BIWHEEL' ? '#000' : '#9CA3AF'} style={{ marginRight: 5 }} />
+                  <Text style={[styles.tabBtnText, activeTab === 'BIWHEEL' && styles.tabBtnTextActive]}>
+                    Anlık Harita
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setActiveTab('TIMELINE');
+                    if (!timelineData && !isTimelineLoading) {
+                      fetchTimeline(timelineRange);
+                    }
+                  }}
+                  style={[styles.tabBtn, activeTab === 'TIMELINE' && styles.tabBtnActive]}
+                >
+                  <Ionicons name="sparkles" size={15} color={activeTab === 'TIMELINE' ? '#000' : '#9CA3AF'} style={{ marginRight: 5 }} />
+                  <Text style={[styles.tabBtnText, activeTab === 'TIMELINE' && styles.tabBtnTextActive]}>
+                    Zaman Çizelgesi (Gantt)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {activeTab === 'BIWHEEL' ? (
+                <>
+                  {/* Dual Wheel Chart */}
               {renderBiWheel()}
 
               {/* AI Guidance Text */}
@@ -845,6 +918,36 @@ export default function AnlikGokyuzuScreen() {
                   )}
                 </View>
               )}
+                </>
+              ) : (
+                isTimelineLoading && !timelineData ? (
+                  <View style={{ padding: 40, alignItems: 'center', backgroundColor: 'rgba(20,20,25,0.7)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginTop: 10 }}>
+                    <ActivityIndicator size="large" color={COLORS.primary} style={{ marginBottom: 12 }} />
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14, marginBottom: 4 }}>
+                      Kozmik Zaman Çizelgesi Hesaplanıyor...
+                    </Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 11, textAlign: 'center' }}>
+                      Gezegenlerin gökyüzü yörüngeleri ve açı başlangıç-bitiş tarihleri taranıyor.
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 10 }}>
+                    <MobileTransitTimelineChart
+                      items={timelineData?.items || []}
+                      startDateStr={timelineData?.startDate || transitDateStr}
+                      endDateStr={timelineData?.endDate || transitDateStr}
+                      range={timelineRange}
+                      onRangeChange={(newRange) => {
+                        setTimelineRange(newRange);
+                        fetchTimeline(newRange);
+                      }}
+                      isLoading={isTimelineLoading}
+                      isPremium={isApprenticeOrAbove}
+                      onRequirePremium={() => setShowLockModal(true)}
+                    />
+                  </View>
+                )
+              )}
             </View>
           )}
 
@@ -864,6 +967,41 @@ export default function AnlikGokyuzuScreen() {
               <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
                 <Text style={styles.modalText}>{selectedInterp?.content}</Text>
               </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal for Premium Lock */}
+        <Modal visible={showLockModal} animationType="fade" transparent={true} onRequestClose={() => setShowLockModal(false)}>
+          <View style={[styles.modalOverlay, { justifyContent: 'center', padding: 20 }]}>
+            <View style={[styles.modalContent, { height: 'auto', borderRadius: 24, padding: 24, alignItems: 'center' }]}>
+              <View style={styles.lockModalIcon}>
+                <Ionicons name="lock-closed" size={28} color="#D4AF37" />
+              </View>
+              <Text style={styles.lockModalTitle}>Çıraklık Seviyesine Özel</Text>
+              <Text style={styles.lockModalDesc}>
+                Uzun vadeli kozmik zaman çizelgeleri (3 Ay, 6 Ay, 1 Yıl) ve 7Layers derin çakra reçeteleri Çıraklık (Apprentice) ve üzeri seviyelere özeldir.
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowLockModal(false);
+                  router.push('/(dashboard)/seviyeler');
+                }}
+                style={styles.modalUpgradeBtn}
+              >
+                <LinearGradient
+                  colors={['#D4AF37', '#0EA5E9']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.modalUpgradeBtnGrad}
+                >
+                  <Text style={styles.modalUpgradeBtnText}>Seviyeleri İncele & Yükselt</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowLockModal(false)} style={{ marginTop: 14 }}>
+                <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Vazgeç</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -921,5 +1059,18 @@ const styles = StyleSheet.create({
   modalContent: { backgroundColor: '#000000', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '60%', padding: 22, borderWidth: 1, borderColor: COLORS.primary },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.1)', paddingBottom: 10 },
   modalTitle: { fontSize: 17, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 8 },
-  modalText: { fontSize: 15, color: COLORS.text, lineHeight: 24 }
+  modalText: { fontSize: 15, color: COLORS.text, lineHeight: 24 },
+
+  tabSelector: { flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 14, padding: 3, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginBottom: 16 },
+  tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 11 },
+  tabBtnActive: { backgroundColor: COLORS.primary },
+  tabBtnText: { fontSize: 12, fontWeight: 'bold', color: '#9CA3AF' },
+  tabBtnTextActive: { color: '#000' },
+
+  lockModalIcon: { width: 56, height: 56, borderRadius: 18, backgroundColor: 'rgba(212,175,55,0.15)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.4)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  lockModalTitle: { fontSize: 17, fontWeight: 'bold', color: '#FFF', marginBottom: 6, textAlign: 'center' },
+  lockModalDesc: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', lineHeight: 18, marginBottom: 16, paddingHorizontal: 10 },
+  modalUpgradeBtn: { width: '100%', borderRadius: 12, overflow: 'hidden' },
+  modalUpgradeBtnGrad: { paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
+  modalUpgradeBtnText: { fontSize: 13, fontWeight: 'bold', color: '#000' }
 });
