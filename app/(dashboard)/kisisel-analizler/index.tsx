@@ -63,6 +63,15 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     isAvailable: true
   },
   { 
+    id: 'rectification', 
+    title: 'Doğum Saati Belirleme', 
+    description: 'Kadersel yaşam olaylarınız ve mizaç analiziyle bilinmeyen doğum saatinizi dakikası dakikasına tespit edin.',
+    icon: 'time-outline', 
+    route: '/(dashboard)/kisisel-analizler/dogum-saati-belirleme',
+    color: '#10B981',
+    isAvailable: true
+  },
+  { 
     id: 'chakraanalysis', 
     title: 'Çakra Analizi', 
     description: 'Doğum haritanız ve çakra enerjileriniz arasındaki ilişkiyi analiz edin ve blokajları keşfedin.',
