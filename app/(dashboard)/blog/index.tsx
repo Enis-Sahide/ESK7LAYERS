@@ -8,7 +8,7 @@ import { useContent } from '@/src/core/content/useContent';
 import { API_BASE_URL } from '@/src/core/config';
 
 const { width } = Dimensions.get('window');
-const CATEGORIES = ['Tümü', 'Astroloji', 'Nefes', 'Ritüeller', 'Kişisel Gelişim', 'Çakra Dengeleme'];
+const CATEGORIES = ['Tümü', 'Ezoterik', 'Astroloji', 'Nefes', 'Ritüeller', 'Kişisel Gelişim', 'Ruhsal Gelişim', 'Çakra Dengeleme'];
 
 export default function BlogListScreen() {
   const router = useRouter();
