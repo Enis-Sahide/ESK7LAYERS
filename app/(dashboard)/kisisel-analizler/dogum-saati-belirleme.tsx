@@ -243,8 +243,18 @@ export default function DogumSaatiBelirlemeScreen() {
 
   const accuracy = getAccuracyGauge();
 
+  const formatDateInput = (text: string): string => {
+    const cleaned = text.replace(/\D/g, '');
+    let formatted = '';
+    if (cleaned.length > 0) formatted = cleaned.substring(0, 4);
+    if (cleaned.length > 4) formatted += '-' + cleaned.substring(4, 6);
+    if (cleaned.length > 6) formatted += '-' + cleaned.substring(6, 8);
+    return formatted;
+  };
+
   const handleAddEvent = () => {
-    if (!newEventDate || newEventDate.length < 10) {
+    const formattedDate = formatDateInput(newEventDate);
+    if (!formattedDate || formattedDate.length < 10) {
       Alert.alert('Eksik Tarih', 'Lütfen olayın gerçekleştiği tarihi (YYYY-AA-GG) tam giriniz.');
       return;
     }
@@ -255,7 +265,7 @@ export default function DogumSaatiBelirlemeScreen() {
       id: Date.now().toString(),
       type: newEventTemplate,
       title,
-      date: newEventDate
+      date: formattedDate
     };
 
     setEvents(prev => [...prev, newEv]);
@@ -488,9 +498,11 @@ export default function DogumSaatiBelirlemeScreen() {
                 <TextInput
                   style={styles.input}
                   value={birthDate}
-                  onChangeText={setBirthDate}
+                  onChangeText={t => setBirthDate(formatDateInput(t))}
                   placeholder="Örn: 1992-06-15"
                   placeholderTextColor="#666"
+                  keyboardType="numeric"
+                  maxLength={10}
                 />
               </View>
             )}
@@ -825,9 +837,11 @@ export default function DogumSaatiBelirlemeScreen() {
                 <TextInput
                   style={styles.input}
                   value={newEventDate}
-                  onChangeText={setNewEventDate}
+                  onChangeText={t => setNewEventDate(formatDateInput(t))}
                   placeholder="Örn: 2018-05-24"
                   placeholderTextColor="#666"
+                  keyboardType="numeric"
+                  maxLength={10}
                 />
 
                 <TouchableOpacity
