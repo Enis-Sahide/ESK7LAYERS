@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert,
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as moment from 'moment-timezone';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
@@ -70,6 +70,16 @@ const ASPECT_COLORS: Record<string, string> = {
 
 export default function AstrolojiAnalysisScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+    date?: string;
+    time?: string;
+    cityName?: string;
+    lat?: string;
+    lon?: string;
+    tz?: string;
+    country?: string;
+    autoCalculate?: string;
+  }>();
   const { role, isAdmin } = useProgress();
   const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
 
@@ -182,17 +192,9 @@ export default function AstrolojiAnalysisScreen() {
     setTimeStr(formatted);
   };
 
-  const handleCalculate = async () => {
-    if (!selectedCityData) {
-      Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
-      return;
-    }
-    if (!dateStr || !timeStr) {
-      Alert.alert("Hata", "Lütfen doğum tarihi ve saatini girin.");
-      return;
-    }
-    const [year, month, day] = dateStr.split('-').map(Number);
-    const [hour, minute] = timeStr.split(':').map(Number);
+  const calculateChart = async (calcDate: string, calcTime: string, calcCity: AstroCity) => {
+    const [year, month, day] = calcDate.split('-').map(Number);
+    const [hour, minute] = calcTime.split(':').map(Number);
 
     if (!year || !month || !day || isNaN(hour) || isNaN(minute)) {
       Alert.alert("Geçersiz Format", "Tarih YYYY-AA-GG, Saat SS:DD formatında olmalıdır.");
@@ -203,8 +205,7 @@ export default function AstrolojiAnalysisScreen() {
     try {
       let birthDate;
       const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-      
-      const tz = selectedCityData.tz || 'Europe/Istanbul';
+      const tz = calcCity.tz || 'Europe/Istanbul';
 
       if (moment && typeof moment.tz === 'function') {
         const m = moment.tz(dateString, "YYYY-MM-DD HH:mm", tz);
@@ -213,7 +214,7 @@ export default function AstrolojiAnalysisScreen() {
         birthDate = new Date(year, month - 1, day, hour, minute);
       }
       
-      const result = await fetchAstrologyChart(birthDate, selectedCityData);
+      const result = await fetchAstrologyChart(birthDate, calcCity);
       setChart(result);
     } catch (error) {
       Alert.alert("Hesaplama Hatası", "Harita sunucudan alınırken bir sorun oluştu.");
@@ -222,6 +223,43 @@ export default function AstrolojiAnalysisScreen() {
       setIsLoading(false);
     }
   };
+
+  const handleCalculate = async () => {
+    if (!selectedCityData) {
+      Alert.alert("Eksik Bilgi", "Lütfen doğum şehri arayıp seçiniz.");
+      return;
+    }
+    if (!dateStr || !timeStr) {
+      Alert.alert("Hata", "Lütfen doğum tarihi ve saatini girin.");
+      return;
+    }
+    calculateChart(dateStr, timeStr, selectedCityData);
+  };
+
+  // Auto-fill and calculate if params passed from Rectification screen
+  useEffect(() => {
+    if (params.date) {
+      setDateStr(params.date);
+    }
+    if (params.time) {
+      setTimeStr(params.time);
+    }
+    if (params.cityName) {
+      const cityObj: AstroCity = {
+        name: params.cityName,
+        lat: params.lat ? parseFloat(params.lat) : 41.0082,
+        lon: params.lon ? parseFloat(params.lon) : 28.9784,
+        tz: params.tz || 'Europe/Istanbul',
+        country: params.country || 'Türkiye'
+      };
+      setSelectedCityData(cityObj);
+      setSearchQuery(`${cityObj.name}, ${cityObj.country}`);
+
+      if (params.autoCalculate === 'true' && params.date && params.time) {
+        calculateChart(params.date, params.time, cityObj);
+      }
+    }
+  }, [params.date, params.time, params.cityName, params.autoCalculate]);
 
   const renderSvgWheel = () => {
     if (!chart) return null;
