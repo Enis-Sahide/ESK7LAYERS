@@ -10,6 +10,21 @@ import { API_BASE_URL } from '@/src/core/config';
 const { width } = Dimensions.get('window');
 const CATEGORIES = ['Tümü', 'Ezoterik', 'Astroloji', 'Nefes', 'Ritüeller', 'Kişisel Gelişim', 'Ruhsal Gelişim', 'Çakra Dengeleme'];
 
+const getCleanExcerpt = (content: string, maxLength = 140) => {
+  if (!content) return '';
+  const clean = content
+    .replace(/```[\s\S]*?```/g, '') // kod bloklarını temizle
+    .replace(/^#{1,6}\s+.*$/gm, '') // markdown başlıklarını (#, ##, ###) temizle
+    .replace(/^>\s+/gm, '') // alıntı işaretlerini temizle
+    .replace(/^[-*]\s+/gm, '') // madde işaretlerini temizle
+    .replace(/^[0-9]+\.\s+/gm, '') // numaralı liste işaretlerini temizle
+    .replace(/[-*]{3,}/g, '') // yatay çizgileri temizle
+    .replace(/[*_`]/g, '') // kalın, italik, kod işaretlerini temizle
+    .replace(/\s+/g, ' ') // fazla boşlukları teke indir
+    .trim();
+  return clean.length > maxLength ? clean.slice(0, maxLength) + '...' : clean;
+};
+
 export default function BlogListScreen() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
@@ -59,7 +74,7 @@ export default function BlogListScreen() {
           </Text>
         </View>
         <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.cardExcerpt} numberOfLines={2}>{item.content}</Text>
+        <Text style={styles.cardExcerpt} numberOfLines={2}>{getCleanExcerpt(item.content)}</Text>
         
         <View style={styles.cardFooter}>
           <Text style={styles.readMoreText}>Yazıyı Oku</Text>
