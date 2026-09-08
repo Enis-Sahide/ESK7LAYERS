@@ -97,11 +97,13 @@ export default function AdminDashboardScreen() {
     }
   };
 
-  const fetchAnalytics = async () => {
+  const [excludeAdmin, setExcludeAdmin] = useState(true);
+
+  const fetchAnalytics = async (exclude = excludeAdmin) => {
     setIsLoadingAnalytics(true);
     setAnalyticsError(null);
     try {
-      const data = await apiFetch<any>('/api/admin/analytics');
+      const data = await apiFetch<any>(`/api/admin/analytics?excludeAdmin=${exclude}&limit=50`);
       setAnalytics(data);
     } catch (err: any) {
       console.error("Analytics fetch error:", err);
@@ -109,6 +111,11 @@ export default function AdminDashboardScreen() {
     } finally {
       setIsLoadingAnalytics(false);
     }
+  };
+
+  const handleToggleExcludeAdmin = (val: boolean) => {
+    setExcludeAdmin(val);
+    fetchAnalytics(val);
   };
 
   const handleRefresh = () => {
@@ -642,7 +649,7 @@ export default function AdminDashboardScreen() {
               </View>
               <TouchableOpacity 
                 style={styles.analyticsRefreshBtn}
-                onPress={fetchAnalytics}
+                onPress={() => fetchAnalytics()}
                 disabled={isLoadingAnalytics}
               >
                 {isLoadingAnalytics ? (
@@ -785,9 +792,31 @@ export default function AdminDashboardScreen() {
 
                 {/* 4. Kayıtlı Üyelerin Son Aktiviteleri */}
                 <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
-                  <View style={styles.analyticsCardTitleRow}>
-                    <Ionicons name="people-circle-outline" size={18} color="#A855F7" />
-                    <Text style={styles.analyticsCardTitle}>Kayıtlı Üyelerin Son Aktiviteleri</Text>
+                  <View style={[styles.analyticsCardTitleRow, { justifyContent: 'space-between', alignItems: 'center' }]}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                      <Ionicons name="people-circle-outline" size={18} color="#A855F7" />
+                      <Text style={styles.analyticsCardTitle}>Son Aktiviteler</Text>
+                      {analytics?.recentMemberVisits && (
+                        <Text style={{ fontSize: 10, color: COLORS.textMuted }}>
+                          ({analytics.recentMemberVisits.length})
+                        </Text>
+                      )}
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleToggleExcludeAdmin(!excludeAdmin)}
+                      style={[
+                        styles.adminFilterPill,
+                        excludeAdmin && styles.adminFilterPillActive
+                      ]}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[
+                        styles.adminFilterPillText,
+                        excludeAdmin && styles.adminFilterPillTextActive
+                      ]}>
+                        {excludeAdmin ? '🛡️ Yönetici Gizli' : '🛡️ Tümü Dahil'}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
 
                   {(!analytics?.recentMemberVisits || analytics.recentMemberVisits.length === 0) ? (
@@ -798,10 +827,19 @@ export default function AdminDashboardScreen() {
                         const date = new Date(visit.created_at);
                         const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
                         const dateStr = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                        const roleMeta = ROLE_LABELS[visit.role] || ROLE_LABELS.free;
+
                         return (
                           <View key={idx} style={styles.memberVisitItem}>
                             <View style={styles.memberVisitHeader}>
-                              <Text style={styles.memberVisitName}>{visit.full_name || 'İsimsiz Üye'}</Text>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, marginRight: 8 }}>
+                                <Text style={styles.memberVisitName} numberOfLines={1}>{visit.full_name || 'İsimsiz Üye'}</Text>
+                                {visit.role && visit.role !== 'free' && (
+                                  <View style={[styles.roleMiniBadge, { backgroundColor: roleMeta.bg }]}>
+                                    <Text style={[styles.roleMiniBadgeText, { color: roleMeta.color }]}>{roleMeta.label}</Text>
+                                  </View>
+                                )}
+                              </View>
                               <Text style={styles.memberVisitTime}>{dateStr}, {timeStr}</Text>
                             </View>
                             <Text style={styles.memberVisitEmail}>{visit.email}</Text>
@@ -1780,5 +1818,34 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     flex: 1,
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  adminFilterPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  adminFilterPillActive: {
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+  },
+  adminFilterPillText: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    fontWeight: '600',
+  },
+  adminFilterPillTextActive: {
+    color: COLORS.primary,
+  },
+  roleMiniBadge: {
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+  },
+  roleMiniBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
   }
 });
