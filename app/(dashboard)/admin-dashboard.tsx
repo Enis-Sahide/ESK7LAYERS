@@ -28,6 +28,24 @@ const ROLE_LABELS: Record<string, { label: string; color: string; bg: string }> 
   admin: { label: 'YÖNETİCİ', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' }
 };
 
+const formatDateSafe = (rawDate: any): { dateStr: string; timeStr: string } => {
+  if (!rawDate) return { dateStr: '-', timeStr: '-' };
+  try {
+    const isoStr = typeof rawDate === 'string' ? rawDate.replace(' ', 'T') : rawDate;
+    const d = new Date(isoStr);
+    if (isNaN(d.getTime())) {
+      const s = String(rawDate);
+      return { dateStr: s.slice(0, 10), timeStr: s.slice(11, 16) };
+    }
+    return {
+      dateStr: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
+      timeStr: d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+    };
+  } catch {
+    return { dateStr: String(rawDate).slice(0, 10), timeStr: '' };
+  }
+};
+
 export default function AdminDashboardScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'members' | 'blog' | 'analytics'>('members');
@@ -792,66 +810,95 @@ export default function AdminDashboardScreen() {
 
                 {/* 4. Kayıtlı Üyelerin Son Aktiviteleri */}
                 <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
-                  <View style={[styles.analyticsCardTitleRow, { justifyContent: 'space-between', alignItems: 'center' }]}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
-                      <Ionicons name="people-circle-outline" size={18} color="#A855F7" />
-                      <Text style={styles.analyticsCardTitle}>Son Aktiviteler</Text>
-                      {analytics?.recentMemberVisits && (
-                        <Text style={{ fontSize: 10, color: COLORS.textMuted }}>
-                          ({analytics.recentMemberVisits.length})
-                        </Text>
-                      )}
-                    </View>
+                  <View style={styles.analyticsCardTitleRow}>
+                    <Ionicons name="people-circle-outline" size={18} color="#A855F7" />
+                    <Text style={styles.analyticsCardTitle}>Kayıtlı Üyelerin Son Aktiviteleri</Text>
+                  </View>
+
+                  {/* 2-Option Segmented Switch */}
+                  <View style={styles.memberFilterSegment}>
                     <TouchableOpacity
-                      onPress={() => handleToggleExcludeAdmin(!excludeAdmin)}
+                      onPress={() => handleToggleExcludeAdmin(true)}
                       style={[
-                        styles.adminFilterPill,
-                        excludeAdmin && styles.adminFilterPillActive
+                        styles.segmentBtn,
+                        excludeAdmin && styles.segmentBtnActive
                       ]}
                       activeOpacity={0.7}
                     >
                       <Text style={[
-                        styles.adminFilterPillText,
-                        excludeAdmin && styles.adminFilterPillTextActive
+                        styles.segmentBtnText,
+                        excludeAdmin && styles.segmentBtnTextActive
                       ]}>
-                        {excludeAdmin ? '🛡️ Yönetici Gizli' : '🛡️ Tümü Dahil'}
+                        👥 Sadece Üyeler
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => handleToggleExcludeAdmin(false)}
+                      style={[
+                        styles.segmentBtn,
+                        !excludeAdmin && styles.segmentBtnActive
+                      ]}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[
+                        styles.segmentBtnText,
+                        !excludeAdmin && styles.segmentBtnTextActive
+                      ]}>
+                        🛡️ Yöneticiler Dahil
                       </Text>
                     </TouchableOpacity>
                   </View>
 
-                  {(!analytics?.recentMemberVisits || analytics.recentMemberVisits.length === 0) ? (
-                    <Text style={styles.emptyText}>Kayıtlı üye aktivitesi bulunmuyor.</Text>
-                  ) : (
-                    <View style={styles.memberVisitsList}>
-                      {analytics.recentMemberVisits.map((visit: any, idx: number) => {
-                        const date = new Date(visit.created_at);
-                        const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-                        const dateStr = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-                        const roleMeta = ROLE_LABELS[visit.role] || ROLE_LABELS.free;
+                  {(() => {
+                    const displayedVisits = (analytics?.recentMemberVisits || []).filter((visit: any) => {
+                      if (excludeAdmin) {
+                        const isRoleAdmin = visit.role === 'admin';
+                        const isPathAdmin = visit.path && visit.path.startsWith('/admin');
+                        const isNameAdmin = visit.full_name && visit.full_name.toLowerCase().includes('admin');
+                        return !isRoleAdmin && !isPathAdmin && !isNameAdmin;
+                      }
+                      return true;
+                    });
 
-                        return (
-                          <View key={idx} style={styles.memberVisitItem}>
-                            <View style={styles.memberVisitHeader}>
-                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, marginRight: 8 }}>
-                                <Text style={styles.memberVisitName} numberOfLines={1}>{visit.full_name || 'İsimsiz Üye'}</Text>
-                                {visit.role && visit.role !== 'free' && (
-                                  <View style={[styles.roleMiniBadge, { backgroundColor: roleMeta.bg }]}>
-                                    <Text style={[styles.roleMiniBadgeText, { color: roleMeta.color }]}>{roleMeta.label}</Text>
-                                  </View>
-                                )}
+                    if (displayedVisits.length === 0) {
+                      return (
+                        <Text style={styles.emptyText}>
+                          {excludeAdmin ? 'Yönetici harici kayıtlı üye aktivitesi bulunamadı.' : 'Kayıtlı üye aktivitesi bulunmuyor.'}
+                        </Text>
+                      );
+                    }
+
+                    return (
+                      <View style={styles.memberVisitsList}>
+                        {displayedVisits.map((visit: any, idx: number) => {
+                          const { dateStr, timeStr } = formatDateSafe(visit.created_at);
+                          const roleMeta = ROLE_LABELS[visit.role] || ROLE_LABELS.free;
+
+                          return (
+                            <View key={idx} style={styles.memberVisitItem}>
+                              <View style={styles.memberVisitHeader}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, marginRight: 8 }}>
+                                  <Text style={styles.memberVisitName} numberOfLines={1}>{visit.full_name || 'İsimsiz Üye'}</Text>
+                                  {visit.role && visit.role !== 'free' && (
+                                    <View style={[styles.roleMiniBadge, { backgroundColor: roleMeta.bg }]}>
+                                      <Text style={[styles.roleMiniBadgeText, { color: roleMeta.color }]}>{roleMeta.label}</Text>
+                                    </View>
+                                  )}
+                                </View>
+                                <Text style={styles.memberVisitTime}>{dateStr}, {timeStr}</Text>
                               </View>
-                              <Text style={styles.memberVisitTime}>{dateStr}, {timeStr}</Text>
+                              <Text style={styles.memberVisitEmail}>{visit.email}</Text>
+                              <View style={styles.memberVisitPathContainer}>
+                                <Ionicons name="compass-outline" size={12} color={COLORS.primary} />
+                                <Text style={styles.memberVisitPath} numberOfLines={1}>{visit.path}</Text>
+                              </View>
                             </View>
-                            <Text style={styles.memberVisitEmail}>{visit.email}</Text>
-                            <View style={styles.memberVisitPathContainer}>
-                              <Ionicons name="compass-outline" size={12} color={COLORS.primary} />
-                              <Text style={styles.memberVisitPath} numberOfLines={1}>{visit.path}</Text>
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  )}
+                          );
+                        })}
+                      </View>
+                    );
+                  })()}
                 </BlurView>
               </>
             )}
@@ -1819,25 +1866,35 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
-  adminFilterPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+  memberFilterSegment: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 3,
+    marginBottom: 12,
   },
-  adminFilterPillActive: {
+  segmentBtn: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 7,
+  },
+  segmentBtnActive: {
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.4)',
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
   },
-  adminFilterPillText: {
-    fontSize: 10,
+  segmentBtnText: {
+    fontSize: 11,
     color: COLORS.textMuted,
-    fontWeight: '600',
+    fontWeight: '500',
   },
-  adminFilterPillTextActive: {
+  segmentBtnTextActive: {
     color: COLORS.primary,
+    fontWeight: 'bold',
   },
   roleMiniBadge: {
     paddingHorizontal: 5,
