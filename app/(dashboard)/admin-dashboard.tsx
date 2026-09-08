@@ -19,7 +19,6 @@ import { BlurView } from 'expo-blur';
 import SacredBackground from '@/components/SacredBackground';
 import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
-import { useMarketplace } from '@/src/core/content/useContent';
 
 const ROLE_LABELS: Record<string, { label: string; color: string; bg: string }> = {
   free: { label: 'ÜCRETSİZ ÜYELİK', color: COLORS.textMuted, bg: 'rgba(255, 255, 255, 0.05)' },
@@ -29,37 +28,9 @@ const ROLE_LABELS: Record<string, { label: string; color: string; bg: string }> 
   admin: { label: 'YÖNETİCİ', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.1)' }
 };
 
-const MOCK_USER_STORES: Record<string, { id: string; name: string }> = {
-  "1dde7856-c331-4277-a43f-fb975808c3c0": { id: "sifa-tasi", name: "Şifa Taşı Dükkanı" }
-};
-
-const getUserStore = (profile: any) => {
-  if (MOCK_USER_STORES[profile.id]) {
-    return MOCK_USER_STORES[profile.id];
-  }
-  const name = (profile.full_name || '').toLowerCase();
-  if (name.includes('enis') || name.includes('enis@')) {
-    return { id: "kadim-kokular", name: "Kadim Kokular" };
-  }
-  if (name.includes('lalezar') || name.includes('lalezar_28')) {
-    return { id: "mistik-yol", name: "Mistik Yol" };
-  }
-  return null;
-};
-
 export default function AdminDashboardScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'stores' | 'members' | 'blog'>('stores');
-  
-  // Stores (vendors) from marketplace content API
-  const { vendors: VENDORS, loading: isLoadingVendors } = useMarketplace();
-  const [vendors, setVendors] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (VENDORS && VENDORS.length > 0) {
-      setVendors(VENDORS.map(v => ({ ...v, status: 'approved' })));
-    }
-  }, [VENDORS]);
+  const [activeTab, setActiveTab] = useState<'members' | 'blog'>('members');
 
   // Profiles (members)
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -86,10 +57,10 @@ export default function AdminDashboardScreen() {
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
-  const [storeFilter, setStoreFilter] = useState('all');
 
-  // Updating and modal states
+  // Updating, deleting and modal states
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [selectingUser, setSelectingUser] = useState<{ id: string; name: string; currentRole: string } | null>(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
 
@@ -109,6 +80,7 @@ export default function AdminDashboardScreen() {
 
   useEffect(() => {
     fetchProfiles();
+    fetchBlogs();
   }, []);
 
   const fetchBlogs = async () => {
@@ -218,35 +190,35 @@ export default function AdminDashboardScreen() {
     }
   };
 
-  const handleToggleStoreStatus = (id: string) => {
-    const vendor = vendors.find(v => v.id === id);
-    if (!vendor) return;
-
-    const toggleStatus = () => {
-      setVendors(vendors.map(v => {
-        if (v.id === id) {
-          return { ...v, status: v.status === 'approved' ? 'banned' : 'approved' };
-        }
-        return v;
-      }));
+  const handleDeleteUser = (userId: string, userName: string) => {
+    const executeDelete = async () => {
+      setDeletingUserId(userId);
+      try {
+        await apiFetch(`/api/admin/profiles/${userId}`, {
+          method: 'DELETE'
+        });
+        setProfiles(prev => prev.filter(p => p.id !== userId));
+      } catch (err: any) {
+        if (Platform.OS === 'web') window.alert("Hata: " + err.message);
+        else Alert.alert("Hata", err.message);
+      } finally {
+        setDeletingUserId(null);
+      }
     };
 
-    if (vendor.status === 'approved') {
-      if (Platform.OS === 'web') {
-        const confirmClose = window.confirm(`"${vendor.name}" isimli mağazayı kapatmak istediğinize emin misiniz?`);
-        if (confirmClose) toggleStatus();
-      } else {
-        Alert.alert(
-          "Mağazayı Kapat",
-          `"${vendor.name}" isimli mağazayı kapatmak istediğinize emin misiniz?`,
-          [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Kapat', style: 'destructive', onPress: toggleStatus }
-          ]
-        );
-      }
+    const confirmMessage = `"${userName}" isimli kullanıcıyı ve tüm platform verilerini kalıcı olarak silmek istediğinize emin misiniz?`;
+    if (Platform.OS === 'web') {
+      const ok = window.confirm(confirmMessage);
+      if (ok) executeDelete();
     } else {
-      toggleStatus();
+      Alert.alert(
+        "Üyeyi Sil",
+        confirmMessage,
+        [
+          { text: 'İptal', style: 'cancel' },
+          { text: 'Sil', style: 'destructive', onPress: executeDelete }
+        ]
+      );
     }
   };
 
@@ -316,14 +288,7 @@ export default function AdminDashboardScreen() {
 
     const matchesRole = roleFilter === 'all' || p.role === roleFilter;
 
-    const userStore = getUserStore(p);
-    const hasStore = !!userStore;
-    const matchesStore = 
-      storeFilter === 'all' || 
-      (storeFilter === 'has_store' && hasStore) || 
-      (storeFilter === 'no_store' && !hasStore);
-
-    return matchesSearch && matchesRole && matchesStore;
+    return matchesSearch && matchesRole;
   });
 
   return (
@@ -344,13 +309,6 @@ export default function AdminDashboardScreen() {
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'stores' && styles.tabActive]}
-          onPress={() => setActiveTab('stores')}
-        >
-          <Ionicons name="storefront-outline" size={16} color={activeTab === 'stores' ? COLORS.primary : COLORS.textMuted} />
-          <Text style={[styles.tabText, activeTab === 'stores' && styles.tabTextActive]}>Mağaza</Text>
-        </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tabButton, activeTab === 'members' && styles.tabActive]}
           onPress={() => setActiveTab('members')}
@@ -377,74 +335,26 @@ export default function AdminDashboardScreen() {
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <View style={styles.statHeader}>
-              <Text style={styles.statTitle}>Toplam Ciro</Text>
-              <Ionicons name="cash-outline" size={16} color={COLORS.textMuted} />
+              <Text style={styles.statTitle}>Toplam Üye</Text>
+              <Ionicons name="people-outline" size={16} color={COLORS.primary} />
             </View>
-            <Text style={styles.statValue}>45.000 ₺</Text>
-            <Text style={styles.statSub}>Mağazaların toplam cirosu</Text>
+            <Text style={styles.statValue}>
+              {isLoadingProfiles ? '...' : profiles.length}
+            </Text>
+            <Text style={styles.statSub}>Platforma kayıtlı ruhlar</Text>
           </View>
 
           <View style={[styles.statCard, { borderColor: 'rgba(212, 175, 55, 0.3)', backgroundColor: 'rgba(212, 175, 55, 0.05)' }]}>
             <View style={styles.statHeader}>
-              <Text style={[styles.statTitle, { color: COLORS.primary }]}>Net Gelir (%10)</Text>
-              <Ionicons name="shield-outline" size={16} color={COLORS.primary} />
+              <Text style={[styles.statTitle, { color: COLORS.primary }]}>Blog Kütüphanesi</Text>
+              <Ionicons name="book-outline" size={16} color={COLORS.primary} />
             </View>
-            <Text style={styles.statValue}>4.500 ₺</Text>
-            <Text style={styles.statSub}>Platform komisyon geliri</Text>
+            <Text style={styles.statValue}>
+              {isLoadingBlogs ? '...' : blogs.length}
+            </Text>
+            <Text style={styles.statSub}>Rehber ve makaleler</Text>
           </View>
         </View>
-
-        {/* Tab Content 1: Stores */}
-        {activeTab === 'stores' && (
-          <View style={styles.contentSection}>
-            <Text style={styles.sectionTitle}>Kayıtlı Mağazalar ({vendors.length})</Text>
-
-            {isLoadingVendors ? (
-              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 30 }} />
-            ) : (
-              vendors.map(v => (
-                <BlurView intensity={20} tint="dark" key={v.id} style={[styles.vendorCard, v.status === 'banned' && styles.cardBanned]}>
-                  <View style={styles.vendorHeader}>
-                    <View style={styles.avatarCircle}>
-                      <Text style={styles.avatarText}>{v.name ? v.name.slice(0, 1) : 'M'}</Text>
-                    </View>
-                    <View style={styles.vendorInfo}>
-                      <Text style={styles.vendorName}>{v.name}</Text>
-                      <Text style={styles.vendorId}>ID: {v.id}</Text>
-                    </View>
-                    <View style={styles.ratingBadge}>
-                      <Ionicons name="star" size={12} color="#F59E0B" />
-                      <Text style={styles.ratingText}>{v.rating || '5.0'}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.vendorFooter}>
-                    {v.status === 'approved' ? (
-                      <View style={styles.statusBadgeGreen}>
-                        <Ionicons name="checkmark-circle" size={12} color="#10B981" style={{ marginRight: 4 }} />
-                        <Text style={styles.statusTextGreen}>Aktif</Text>
-                      </View>
-                    ) : (
-                      <View style={styles.statusBadgeRed}>
-                        <Ionicons name="close-circle" size={12} color="#EF4444" style={{ marginRight: 4 }} />
-                        <Text style={styles.statusTextRed}>Engellendi</Text>
-                      </View>
-                    )}
-
-                    <TouchableOpacity 
-                      style={[styles.actionBtn, v.status === 'approved' ? styles.actionBtnRed : styles.actionBtnGreen]}
-                      onPress={() => handleToggleStoreStatus(v.id)}
-                    >
-                      <Text style={[styles.actionBtnText, v.status === 'approved' ? styles.actionTextRed : styles.actionTextGreen]}>
-                        {v.status === 'approved' ? 'Mağazayı Kapat' : 'Geri Aç'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </BlurView>
-              ))
-            )}
-          </View>
-        )}
 
         {/* Tab Content 2: Members */}
         {activeTab === 'members' && (
@@ -502,7 +412,6 @@ export default function AdminDashboardScreen() {
               filteredProfiles.map(p => {
                 const userRole = p.role || 'free';
                 const roleMeta = ROLE_LABELS[userRole] || ROLE_LABELS.free;
-                const userStore = getUserStore(p);
 
                 return (
                   <BlurView intensity={20} tint="dark" key={p.id} style={styles.memberCard}>
@@ -515,7 +424,18 @@ export default function AdminDashboardScreen() {
                       <View style={styles.memberInfo}>
                         <Text style={styles.memberName}>{p.full_name || 'İsimsiz Üye'}</Text>
                         <Text style={styles.memberEmail}>{p.email}</Text>
-                        <Text style={styles.memberId}>ID: {p.id}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                          <Text style={styles.memberId}>ID: {p.id.slice(0, 8)}...</Text>
+                          {p.email_verified ? (
+                            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderColor: 'rgba(16, 185, 129, 0.3)', borderWidth: 1, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
+                              <Text style={{ color: '#10B981', fontSize: 9, fontWeight: 'bold' }}>✓ Onaylı</Text>
+                            </View>
+                          ) : (
+                            <View style={{ backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.3)', borderWidth: 1, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 4 }}>
+                              <Text style={{ color: '#F59E0B', fontSize: 9, fontWeight: 'bold' }}>⏳ Onay Bekliyor</Text>
+                            </View>
+                          )}
+                        </View>
                       </View>
                     </View>
 
@@ -532,13 +452,6 @@ export default function AdminDashboardScreen() {
                           }) : 'Bilinmiyor'}
                         </Text>
                       </View>
-
-                      <View style={styles.metaCol}>
-                        <Text style={styles.metaLabel}>Mağaza</Text>
-                        <Text style={[styles.metaValue, userStore ? { color: '#3B82F6', fontWeight: 'bold' } : null]}>
-                          {userStore ? userStore.name : 'Yok'}
-                        </Text>
-                      </View>
                     </View>
 
                     <View style={styles.memberActionsRow}>
@@ -546,23 +459,45 @@ export default function AdminDashboardScreen() {
                         <Text style={[styles.roleBadgeText, { color: roleMeta.color }]}>{roleMeta.label}</Text>
                       </View>
 
-                      <TouchableOpacity 
-                        style={styles.changeRoleBtn}
-                        disabled={updatingUserId === p.id}
-                        onPress={() => {
-                          setSelectingUser({ id: p.id, name: p.full_name || 'İsimsiz Üye', currentRole: userRole });
-                          setShowRoleModal(true);
-                        }}
-                      >
-                        {updatingUserId === p.id ? (
-                          <ActivityIndicator size="small" color={COLORS.primary} />
-                        ) : (
-                          <>
-                            <Text style={styles.changeRoleBtnText}>Seviye Değiştir</Text>
-                            <Ionicons name="chevron-down" size={14} color={COLORS.primary} style={{ marginLeft: 4 }} />
-                          </>
-                        )}
-                      </TouchableOpacity>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <TouchableOpacity 
+                          style={styles.changeRoleBtn}
+                          disabled={updatingUserId === p.id || deletingUserId === p.id}
+                          onPress={() => {
+                            setSelectingUser({ id: p.id, name: p.full_name || 'İsimsiz Üye', currentRole: userRole });
+                            setShowRoleModal(true);
+                          }}
+                        >
+                          {updatingUserId === p.id ? (
+                            <ActivityIndicator size="small" color={COLORS.primary} />
+                          ) : (
+                            <>
+                              <Text style={styles.changeRoleBtnText}>Seviye Değiştir</Text>
+                              <Ionicons name="chevron-down" size={14} color={COLORS.primary} style={{ marginLeft: 4 }} />
+                            </>
+                          )}
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={{
+                            padding: 7,
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(239, 68, 68, 0.3)',
+                            borderRadius: 10,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                          }}
+                          disabled={deletingUserId === p.id}
+                          onPress={() => handleDeleteUser(p.id, p.full_name || p.email)}
+                        >
+                          {deletingUserId === p.id ? (
+                            <ActivityIndicator size="small" color="#EF4444" />
+                          ) : (
+                            <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                          )}
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   </BlurView>
                 );

@@ -511,13 +511,13 @@ export default function DashboardScreen() {
              {/* Seviyeler Linki */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/seviyeler'); setIsToolsExpanded(false); }}>
                <Ionicons name="shield-outline" size={20} color="#D4AF37" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Seviyeler</Text>
+                  <Text style={styles.fabMenuText}>Seviyeler</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
 
              {/* Keşfet Linki */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/store'); setIsToolsExpanded(false); }}>
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/explore'); setIsToolsExpanded(false); }}>
                <Ionicons name="compass" size={20} color="#10B981" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Keşfet</Text>
              </TouchableOpacity>

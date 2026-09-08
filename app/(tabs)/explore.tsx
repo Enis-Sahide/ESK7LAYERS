@@ -23,14 +23,6 @@ export default function ExploreScreen() {
 
   const modules = [
     {
-      title: 'Mistik Mağaza',
-      subtitle: 'Şifalı Ürünler',
-      icon: 'bag-handle-outline',
-      color: '#D4AF37',
-      gradient: ['rgba(212, 175, 55, 0.15)', 'rgba(0, 0, 0, 0.4)'],
-      route: '/(tabs)/store'
-    },
-    {
       title: 'Meditasyon',
       subtitle: 'Zihinsel Huzur',
       icon: 'leaf-outline',

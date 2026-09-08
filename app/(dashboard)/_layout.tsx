@@ -7,7 +7,7 @@ import { ROLE_LEVELS, type MinRole } from '@/src/core/auth/roles';
 // ── GİRİŞ ZORUNLU BÖLÜMLER (web ile aynı mantık) ──────────────────
 // Public: Ana Sayfa, Frekans Odası (meditation), Nefes (breathwork), Analiz (kisisel-analizler).
 // Aşağıdaki segmentler en az GİRİŞ ister (misafir → /(auth)/login):
-const AUTH_REQUIRED = ['kadim-dersler', 'tests', 'final-test', 'store', 'profile', 'kadim-uygulamalar', 'kabalistik-4-alem'];
+const AUTH_REQUIRED = ['kadim-dersler', 'tests', 'final-test', 'profile', 'kadim-uygulamalar', 'kabalistik-4-alem'];
 
 // ── SAYFA (ROUTE) BAZLI MİNİMUM ROL ───────────────────────────────
 // Anahtar: yol içinde geçen segment. Yetersiz seviye → sınavlara yönlenir. admin her zaman geçer.
