@@ -1085,19 +1085,19 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#FFF',
   },
   cardDescription: {
-    fontSize: 12,
+    fontSize: 13.5,
     color: '#9CA3AF',
-    lineHeight: 18,
+    lineHeight: 20,
     marginBottom: 16,
   },
 
   fieldLabel: {
-    fontSize: 12,
+    fontSize: 13.5,
     fontWeight: 'bold',
     color: '#D4AF37',
     marginBottom: 8,
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
   },
   segmentBtn: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 9,
     alignItems: 'center',
     borderRadius: 9,
   },
@@ -1121,7 +1121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
   },
   segmentBtnText: {
-    fontSize: 11,
+    fontSize: 12.5,
     fontWeight: '600',
     color: '#9CA3AF',
   },
@@ -1133,9 +1133,9 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 12 },
   inputRow: { flexDirection: 'row' },
   inputLabel: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: '#9CA3AF',
-    marginBottom: 4,
+    marginBottom: 5,
     fontWeight: '600',
   },
   input: {
@@ -1144,9 +1144,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 11,
     color: '#FFF',
-    fontSize: 13,
+    fontSize: 14,
   },
 
   suggestionsBox: {
@@ -1164,12 +1164,12 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 13,
   },
 
   pillBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: 10,
     backgroundColor: 'rgba(0,0,0,0.4)',
     borderWidth: 1,
@@ -1180,7 +1180,7 @@ const styles = StyleSheet.create({
     borderColor: '#D4AF37',
   },
   pillBtnText: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: '#9CA3AF',
   },
 
@@ -1202,14 +1202,15 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   temperamentTitle: {
-    fontSize: 13,
+    fontSize: 14.5,
     fontWeight: 'bold',
     color: '#FFF',
     marginBottom: 2,
   },
   temperamentDesc: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: '#9CA3AF',
+    lineHeight: 18,
   },
 
   buttonRow: {
@@ -1506,8 +1507,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   methodologyIconBox: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     borderRadius: 12,
     backgroundColor: 'rgba(245, 158, 11, 0.2)',
     alignItems: 'center',
@@ -1515,70 +1516,71 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   methodologyTitle: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#FDE68A',
   },
   methodologyBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.2)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 6,
   },
   methodologyBadgeText: {
-    fontSize: 9,
+    fontSize: 10.5,
     color: '#FBBF24',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   methodologySubtitle: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginTop: 2,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 3,
+    lineHeight: 16,
   },
   methodologyContent: {
     marginTop: 14,
     paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    gap: 12,
+    gap: 14,
   },
   methodologyRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   methodologyBold: {
-    fontSize: 11,
+    fontSize: 13.5,
     fontWeight: 'bold',
     color: '#FDE68A',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   methodologyDesc: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.75)',
-    lineHeight: 16,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.85)',
+    lineHeight: 19,
   },
   methodologyBullet: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.7)',
-    lineHeight: 15,
+    fontSize: 12.5,
+    color: 'rgba(255, 255, 255, 0.8)',
+    lineHeight: 18,
   },
   methodologyNoteBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     borderRadius: 12,
-    padding: 10,
+    padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   methodologyNoteTitle: {
-    fontSize: 10,
+    fontSize: 12.5,
     fontWeight: 'bold',
     color: '#FBBF24',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   methodologyNoteText: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.65)',
-    lineHeight: 14,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.75)',
+    lineHeight: 17,
   },
 
   accuracyScaleBox: {
@@ -1586,11 +1588,12 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    gap: 2,
+    gap: 3,
   },
   accuracyScaleItem: {
-    fontSize: 10,
-    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 11.5,
+    color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    lineHeight: 16,
   }
 });
