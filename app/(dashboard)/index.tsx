@@ -516,14 +516,6 @@ export default function DashboardScreen() {
 
              <View style={styles.fabMenuDivider} />
 
-             {/* Keşfet Linki */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(tabs)/explore'); setIsToolsExpanded(false); }}>
-               <Ionicons name="compass" size={20} color="#10B981" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Keşfet</Text>
-             </TouchableOpacity>
-
-             <View style={styles.fabMenuDivider} />
-
              {/* Profil ve Ayarlar */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/profile'); setIsToolsExpanded(false); }}>
                <Ionicons name="settings-outline" size={20} color="#34C759" style={{ marginRight: 10 }} />
