@@ -30,7 +30,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string; bg: string }> 
 
 export default function AdminDashboardScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'members' | 'blog'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'blog' | 'analytics'>('members');
 
   // Profiles (members)
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -41,6 +41,11 @@ export default function AdminDashboardScreen() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [isLoadingBlogs, setIsLoadingBlogs] = useState(false);
   const [blogError, setBlogError] = useState<string | null>(null);
+
+  // Analytics states
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   const [showBlogModal, setShowBlogModal] = useState(false);
   const [editingBlog, setEditingBlog] = useState<any>(null);
@@ -78,11 +83,6 @@ export default function AdminDashboardScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchProfiles();
-    fetchBlogs();
-  }, []);
-
   const fetchBlogs = async () => {
     setIsLoadingBlogs(true);
     setBlogError(null);
@@ -97,9 +97,37 @@ export default function AdminDashboardScreen() {
     }
   };
 
+  const fetchAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    setAnalyticsError(null);
+    try {
+      const data = await apiFetch<any>('/api/admin/analytics');
+      setAnalytics(data);
+    } catch (err: any) {
+      console.error("Analytics fetch error:", err);
+      setAnalyticsError(err.message || 'Analiz verileri yüklenirken hata oluştu.');
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchProfiles();
+    fetchBlogs();
+    fetchAnalytics();
+  };
+
+  useEffect(() => {
+    fetchProfiles();
+    fetchBlogs();
+    fetchAnalytics();
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'blog') {
       fetchBlogs();
+    } else if (activeTab === 'analytics') {
+      fetchAnalytics();
     }
   }, [activeTab]);
 
@@ -302,7 +330,7 @@ export default function AdminDashboardScreen() {
           <Text style={styles.headerTitle}>Sistem Yöneticisi</Text>
           <Text style={styles.headerSub}>Genel Yönetim ve Yetkilendirme</Text>
         </View>
-        <TouchableOpacity onPress={fetchProfiles} style={styles.refreshBtn}>
+        <TouchableOpacity onPress={handleRefresh} style={styles.refreshBtn}>
           <Ionicons name="refresh" size={20} color={COLORS.textMuted} />
         </TouchableOpacity>
       </View>
@@ -327,32 +355,70 @@ export default function AdminDashboardScreen() {
             Blog {!isLoadingBlogs && `(${blogs.length})`}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tabButton, activeTab === 'analytics' && styles.tabActive]}
+          onPress={() => setActiveTab('analytics')}
+        >
+          <Ionicons name="stats-chart-outline" size={16} color={activeTab === 'analytics' ? COLORS.primary : COLORS.textMuted} />
+          <Text style={[styles.tabText, activeTab === 'analytics' && styles.tabTextActive]}>
+            Analitik
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Statistics Widgets */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <View style={styles.statHeader}>
-              <Text style={styles.statTitle}>Toplam Üye</Text>
-              <Ionicons name="people-outline" size={16} color={COLORS.primary} />
+        {/* Statistics Widgets (2x2 Grid) */}
+        <View style={styles.statsGridContainer}>
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <View style={styles.statHeader}>
+                <Text style={styles.statTitle}>Toplam Üye</Text>
+                <Ionicons name="people-outline" size={16} color="#A855F7" />
+              </View>
+              <Text style={styles.statValue}>
+                {isLoadingProfiles ? '...' : profiles.length}
+              </Text>
+              <Text style={styles.statSub}>Platforma kayıtlı ruhlar</Text>
             </View>
-            <Text style={styles.statValue}>
-              {isLoadingProfiles ? '...' : profiles.length}
-            </Text>
-            <Text style={styles.statSub}>Platforma kayıtlı ruhlar</Text>
+
+            <View style={[styles.statCard, { borderColor: 'rgba(249, 115, 22, 0.3)', backgroundColor: 'rgba(249, 115, 22, 0.06)' }]}>
+              <View style={styles.statHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <View style={styles.liveDot} />
+                  <Text style={[styles.statTitle, { color: '#FB923C' }]}>Şu An Aktif</Text>
+                </View>
+                <Ionicons name="pulse-outline" size={16} color="#FB923C" />
+              </View>
+              <Text style={[styles.statValue, { color: '#FB923C' }]}>
+                {isLoadingAnalytics ? '...' : (analytics?.activeUsers ?? 0)}
+              </Text>
+              <Text style={styles.statSub}>Son 5 dakikadaki tekil</Text>
+            </View>
           </View>
 
-          <View style={[styles.statCard, { borderColor: 'rgba(212, 175, 55, 0.3)', backgroundColor: 'rgba(212, 175, 55, 0.05)' }]}>
-            <View style={styles.statHeader}>
-              <Text style={[styles.statTitle, { color: COLORS.primary }]}>Blog Kütüphanesi</Text>
-              <Ionicons name="book-outline" size={16} color={COLORS.primary} />
+          <View style={styles.statsRow}>
+            <View style={[styles.statCard, { borderColor: 'rgba(16, 185, 129, 0.3)', backgroundColor: 'rgba(16, 185, 129, 0.05)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statTitle, { color: '#34D399' }]}>Bugün Tekil</Text>
+                <Ionicons name="eye-outline" size={16} color="#34D399" />
+              </View>
+              <Text style={[styles.statValue, { color: '#34D399' }]}>
+                {isLoadingAnalytics ? '...' : (analytics?.today?.visitors ?? 0)}
+              </Text>
+              <Text style={styles.statSub}>Bugünkü tekil ziyaret</Text>
             </View>
-            <Text style={styles.statValue}>
-              {isLoadingBlogs ? '...' : blogs.length}
-            </Text>
-            <Text style={styles.statSub}>Rehber ve makaleler</Text>
+
+            <View style={[styles.statCard, { borderColor: 'rgba(212, 175, 55, 0.3)', backgroundColor: 'rgba(212, 175, 55, 0.05)' }]}>
+              <View style={styles.statHeader}>
+                <Text style={[styles.statTitle, { color: COLORS.primary }]}>Blog Kütüphanesi</Text>
+                <Ionicons name="book-outline" size={16} color={COLORS.primary} />
+              </View>
+              <Text style={styles.statValue}>
+                {isLoadingBlogs ? '...' : blogs.length}
+              </Text>
+              <Text style={styles.statSub}>Rehber ve makaleler</Text>
+            </View>
           </View>
         </View>
 
@@ -561,6 +627,195 @@ export default function AdminDashboardScreen() {
                   </View>
                 </BlurView>
               ))
+            )}
+          </View>
+        )}
+
+        {/* Tab Content 3: Analytics */}
+        {activeTab === 'analytics' && (
+          <View style={styles.contentSection}>
+            {/* Analytics Header Summary Card */}
+            <View style={styles.analyticsHeaderCard}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.analyticsHeaderTitle}>Ziyaretçi Analitiği</Text>
+                <Text style={styles.analyticsHeaderSubtitle}>Son 14 günün trafik, sayfa popülaritesi ve coğrafi verileri.</Text>
+              </View>
+              <TouchableOpacity 
+                style={styles.analyticsRefreshBtn}
+                onPress={fetchAnalytics}
+                disabled={isLoadingAnalytics}
+              >
+                {isLoadingAnalytics ? (
+                  <ActivityIndicator size="small" color={COLORS.primary} />
+                ) : (
+                  <Ionicons name="refresh" size={16} color={COLORS.primary} />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Total Counters Overview */}
+            {analytics?.total && (
+              <View style={styles.analyticsMiniGrid}>
+                <View style={styles.analyticsMiniCard}>
+                  <Text style={styles.analyticsMiniLabel}>Toplam Sayfa Görüntüleme</Text>
+                  <Text style={styles.analyticsMiniValue}>
+                    {Number(analytics.total.total_page_views || 0).toLocaleString('tr-TR')}
+                  </Text>
+                </View>
+                <View style={styles.analyticsMiniCard}>
+                  <Text style={styles.analyticsMiniLabel}>Toplam Tekil Ziyaretçi</Text>
+                  <Text style={[styles.analyticsMiniValue, { color: '#34D399' }]}>
+                    {Number(analytics.total.total_unique_visitors || 0).toLocaleString('tr-TR')}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {isLoadingAnalytics && !analytics ? (
+              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 30 }} />
+            ) : analyticsError ? (
+              <Text style={styles.errorText}>{analyticsError}</Text>
+            ) : (
+              <>
+                {/* 1. En Çok Ziyaret Edilen Sayfalar */}
+                <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
+                  <View style={styles.analyticsCardTitleRow}>
+                    <Ionicons name="trending-up" size={18} color={COLORS.primary} />
+                    <Text style={styles.analyticsCardTitle}>En Çok Ziyaret Edilen Sayfalar</Text>
+                  </View>
+                  
+                  {(!analytics?.topPages || analytics.topPages.length === 0) ? (
+                    <Text style={styles.emptyText}>Henüz sayfa ziyaret verisi bulunmuyor.</Text>
+                  ) : (
+                    <View style={styles.analyticsList}>
+                      {analytics.topPages.map((page: any, idx: number) => {
+                        const maxViews = Math.max(...analytics.topPages.map((p: any) => p.views || 1), 1);
+                        const percent = Math.min(100, Math.round(((page.views || 0) / maxViews) * 100));
+                        return (
+                          <View key={page.path || idx} style={styles.analyticsBarItem}>
+                            <View style={styles.analyticsBarHeader}>
+                              <Text style={styles.analyticsItemPath} numberOfLines={1}>
+                                {page.path}
+                              </Text>
+                              <Text style={styles.analyticsItemHighlight}>{page.views} tık</Text>
+                            </View>
+                            <View style={styles.progressBarBackground}>
+                              <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: COLORS.primary }]} />
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </BlurView>
+
+                {/* 2. Ziyaret Edilen Şehirler (Son 14 Gün) */}
+                <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
+                  <View style={styles.analyticsCardTitleRow}>
+                    <Ionicons name="location-outline" size={18} color="#10B981" />
+                    <Text style={styles.analyticsCardTitle}>Ziyaret Edilen Şehirler (Son 14 Gün)</Text>
+                  </View>
+
+                  {(!analytics?.topCities || analytics.topCities.length === 0) ? (
+                    <Text style={styles.emptyText}>Henüz coğrafi veri bulunmuyor.</Text>
+                  ) : (
+                    <View style={styles.analyticsList}>
+                      {analytics.topCities.map((city: any, idx: number) => {
+                        const maxViews = Math.max(...analytics.topCities.map((c: any) => c.visitors || 1), 1);
+                        const percent = Math.min(100, Math.round(((city.visitors || 0) / maxViews) * 100));
+                        return (
+                          <View key={idx} style={styles.analyticsBarItem}>
+                            <View style={styles.analyticsBarHeader}>
+                              <Text style={styles.analyticsItemPath} numberOfLines={1}>
+                                📍 {city.city || 'Bilinmeyen Şehir'}, {city.country || 'TR'}
+                              </Text>
+                              <Text style={[styles.analyticsItemHighlight, { color: '#10B981' }]}>
+                                {city.visitors} tekil
+                              </Text>
+                            </View>
+                            <View style={styles.progressBarBackground}>
+                              <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: '#10B981' }]} />
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </BlurView>
+
+                {/* 3. Günlük Trafik Akışı (Son 14 Gün) */}
+                <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
+                  <View style={styles.analyticsCardTitleRow}>
+                    <Ionicons name="calendar-outline" size={18} color="#3B82F6" />
+                    <Text style={styles.analyticsCardTitle}>Günlük Trafik Akışı (Son 14 Gün)</Text>
+                  </View>
+
+                  {(!analytics?.daily || analytics.daily.length === 0) ? (
+                    <Text style={styles.emptyText}>Henüz trafik verisi bulunmuyor.</Text>
+                  ) : (
+                    <View style={styles.dailyTable}>
+                      <View style={styles.dailyTableHeader}>
+                        <Text style={[styles.dailyColHeader, { flex: 2 }]}>Tarih</Text>
+                        <Text style={[styles.dailyColHeader, { flex: 1.2, textAlign: 'center' }]}>Tekil</Text>
+                        <Text style={[styles.dailyColHeader, { flex: 1.2, textAlign: 'right' }]}>Gösterim</Text>
+                      </View>
+                      {analytics.daily.map((day: any) => {
+                        const maxViews = Math.max(...analytics.daily.map((d: any) => d.page_views || 1), 1);
+                        const percent = Math.min(100, Math.round(((day.page_views || 0) / maxViews) * 100));
+                        return (
+                          <View key={day.date} style={styles.dailyTableRow}>
+                            <View style={{ flex: 2 }}>
+                              <Text style={styles.dailyDateText}>{day.date}</Text>
+                              <View style={[styles.progressBarBackground, { height: 3, marginTop: 4 }]}>
+                                <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: '#3B82F6', height: 3 }]} />
+                              </View>
+                            </View>
+                            <Text style={[styles.dailyValueText, { flex: 1.2, textAlign: 'center' }]}>
+                              {day.unique_visitors}
+                            </Text>
+                            <Text style={[styles.dailyValueText, { flex: 1.2, textAlign: 'right', color: COLORS.primary, fontWeight: 'bold' }]}>
+                              {day.page_views}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </BlurView>
+
+                {/* 4. Kayıtlı Üyelerin Son Aktiviteleri */}
+                <BlurView intensity={20} tint="dark" style={styles.analyticsSectionCard}>
+                  <View style={styles.analyticsCardTitleRow}>
+                    <Ionicons name="people-circle-outline" size={18} color="#A855F7" />
+                    <Text style={styles.analyticsCardTitle}>Kayıtlı Üyelerin Son Aktiviteleri</Text>
+                  </View>
+
+                  {(!analytics?.recentMemberVisits || analytics.recentMemberVisits.length === 0) ? (
+                    <Text style={styles.emptyText}>Kayıtlı üye aktivitesi bulunmuyor.</Text>
+                  ) : (
+                    <View style={styles.memberVisitsList}>
+                      {analytics.recentMemberVisits.map((visit: any, idx: number) => {
+                        const date = new Date(visit.created_at);
+                        const timeStr = date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                        const dateStr = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+                        return (
+                          <View key={idx} style={styles.memberVisitItem}>
+                            <View style={styles.memberVisitHeader}>
+                              <Text style={styles.memberVisitName}>{visit.full_name || 'İsimsiz Üye'}</Text>
+                              <Text style={styles.memberVisitTime}>{dateStr}, {timeStr}</Text>
+                            </View>
+                            <Text style={styles.memberVisitEmail}>{visit.email}</Text>
+                            <View style={styles.memberVisitPathContainer}>
+                              <Ionicons name="compass-outline" size={12} color={COLORS.primary} />
+                              <Text style={styles.memberVisitPath} numberOfLines={1}>{visit.path}</Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </BlurView>
+              </>
             )}
           </View>
         )}
@@ -799,10 +1054,19 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
 
-  statsGrid: {
+  statsGridContainer: {
+    gap: 10,
+    marginBottom: 20,
+  },
+  statsRow: {
     flexDirection: 'row',
-    gap: 15,
-    marginBottom: 25,
+    gap: 10,
+  },
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
+    backgroundColor: '#22C55E',
   },
   statCard: {
     flex: 1,
@@ -810,28 +1074,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: SIZES.radius,
-    padding: 15,
+    padding: 12,
   },
   statHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   statTitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textMuted,
     fontWeight: '500',
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#FFF',
   },
   statSub: {
     fontSize: 9,
     color: COLORS.textMuted,
-    marginTop: 4,
+    marginTop: 3,
   },
 
   contentSection: {
@@ -1323,5 +1587,198 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+
+  /* Analytics Styles */
+  analyticsHeaderCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: SIZES.radius,
+    padding: 14,
+    marginBottom: 5,
+  },
+  analyticsHeaderTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  analyticsHeaderSubtitle: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  analyticsRefreshBtn: {
+    padding: 8,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  analyticsMiniGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+  },
+  analyticsMiniCard: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 12,
+  },
+  analyticsMiniLabel: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    fontWeight: '500',
+  },
+  analyticsMiniValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginTop: 4,
+  },
+  analyticsSectionCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderRadius: SIZES.radius,
+    padding: 15,
+    marginBottom: 15,
+    overflow: 'hidden',
+  },
+  analyticsCardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    paddingBottom: 10,
+  },
+  analyticsCardTitle: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  analyticsList: {
+    gap: 10,
+  },
+  analyticsBarItem: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 10,
+    padding: 10,
+  },
+  analyticsBarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  analyticsItemPath: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFF',
+    flex: 1,
+    marginRight: 8,
+  },
+  analyticsItemHighlight: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  progressBarBackground: {
+    height: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  dailyTable: {
+    gap: 6,
+  },
+  dailyTableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    paddingBottom: 8,
+  },
+  dailyColHeader: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  dailyTableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.03)',
+  },
+  dailyDateText: {
+    fontSize: 11,
+    color: '#FFF',
+    fontWeight: '500',
+  },
+  dailyValueText: {
+    fontSize: 11,
+    color: '#FFF',
+  },
+  memberVisitsList: {
+    gap: 8,
+  },
+  memberVisitItem: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 10,
+    padding: 10,
+  },
+  memberVisitHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  memberVisitName: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  memberVisitTime: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+  },
+  memberVisitEmail: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  memberVisitPathContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  memberVisitPath: {
+    fontSize: 11,
+    color: COLORS.primary,
+    flex: 1,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   }
 });
