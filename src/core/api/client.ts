@@ -118,9 +118,24 @@ export async function login(email: string, password: string) {
 
 export async function register(email: string, password: string, fullName?: string) {
   const data: any = await postNoAuth('/api/auth/register', { email, password, fullName });
-  await setTokens(data.accessToken, data.refreshToken);
-  notify();
+  if (data.accessToken) {
+    await setTokens(data.accessToken, data.refreshToken);
+    notify();
+  }
   return data;
+}
+
+export async function verifyEmail(email: string, code: string) {
+  const data: any = await postNoAuth('/api/auth/verify-email', { email, code });
+  if (data.accessToken) {
+    await setTokens(data.accessToken, data.refreshToken);
+    notify();
+  }
+  return data;
+}
+
+export async function resendVerificationCode(email: string) {
+  return postNoAuth('/api/auth/resend-code', { email });
 }
 
 export async function logout() {

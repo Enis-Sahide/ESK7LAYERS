@@ -232,6 +232,31 @@ export default function NumerolojiEgitimScreen() {
                 Hiç 8 yoksa: Parayı yönetme ve otorite kurma dersi.
               </Text>
             </View>
+
+            <Text style={styles.sectionTitle}>4. Harflerin Mahreçleri ve Çakra Titreşimi</Text>
+            <View style={styles.methodCard}>
+              <Text style={styles.methodText}>
+                Harfler yalnızca semboller değildir; nefesin insan bedenindeki mahreçlerinden (çıkış kapılarından) geçerken evrenin farklı elementleriyle rezonansa giren kutsal ses dalgalarıdır:
+              </Text>
+              <Text style={styles.methodExample}>
+                • Gırtlak & Boğaz (Ateş / Güneş - A, E, H...): Derin ciğerden engelsiz çıkar. Görünürlük, sahneye çıkış ve şöhret frekansıdır.{"\n"}
+                • Dudak & Ağız (Toprak & Su / Mülk - B, M, P, V...): Ağzın kapanmasıyla titreşir. Mem (Mülk, Maya, Para) köküdür. Fikri somut servete dönüştürür.{"\n"}
+                • Damak & Dil (Hava / Zeka - C, Ç, D, K, L, N, R, T...): Hızlı hava akışı sağlar. İletişim, ticari zeka ve network yayılımını yönetir.{"\n"}
+                • Diş & Islık (Aura / Manyetizma - S, Ş, Z, J...): Manyetik çekim ve negatif enerjileri savuşturan koruyucu bir aura kalkanı kurar.
+              </Text>
+            </View>
+
+            <Text style={styles.sectionTitle}>5. İsim Simülasyonu ve Ek İsimle Çakra Dengeleme</Text>
+            <View style={styles.methodCard}>
+              <Text style={styles.methodText}>
+                Kadim gelenekte bir insanın isminde eksik olan çakralar, hayatındaki tıkanıklık alanlarını gösterir. Bu eksiklikler bilinçli bir "İkinci İsim" eklenerek rezonans düzeyinde kapatılabilir:
+              </Text>
+              <Text style={styles.methodExample}>
+                • Bolluk & Bereket Hedefi: 2 (Ortaklık), 3 (İrade), 4 (Mülk - Mem) ve 8 (Büyük Finans) çakralarını taşıyan isimler (Örn: Melis, Burak, Berk, Demir, Banu).{"\n"}
+                • Görünürlük & Şöhret: 1 (Liderlik - Alef), 5 (Boğaz - İfade) ve 9 (Evrensel Yayılım) çakralarını taşıyan isimler (Örn: Arya, Aras, Ege, Rana, Sera).{"\n"}
+                • Aşk & Uyum: 2 (Sakral Çekim) ve 4-6 (Kalp ve Estetik) çakralarını taşıyan isimler (Örn: Defne, Can, Filiz, Deniz, Oya).
+              </Text>
+            </View>
           </View>
         )}
 
@@ -287,10 +312,25 @@ export default function NumerolojiEgitimScreen() {
               </Text>
             </View>
 
-            <Text style={styles.sectionTitle}>4. Temel Taşı ve Zirve Taşı</Text>
+            <Text style={styles.sectionTitle}>4. Temel Taşı, Zirve Taşı ve Ouroboros Geometrisi</Text>
             <View style={styles.methodCard}>
               <Text style={styles.methodText}>
-                Bir kişinin ismindeki **İlk Harf (Temel Taşı - Cornerstone)** onun hayata karşı ilk reaksiyonunu, ilk savunma mekanizmasını gösterir. **Son Harf (Zirve Taşı - Capstone)** ise bir projeyi nasıl tamamladığını veya sorunları nasıl sonlandırdığını gösterir. İlk Sesli Harf ise ruhun dünyevi dünyaya bakan ilk penceresidir.
+                Bir ismin ilk harfi **Temel Taşı (Cornerstone)**, son harfi ise **Zirve Taşı (Capstone)** olarak adlandırılır. Bu iki harfin birbiriyle ilişkisi, enerjinin akışını ya da kilitlenmesini belirler.
+              </Text>
+              <Text style={styles.methodExample}>
+                • Kutsal Döngü (Ouroboros Kalkanı): İsmin aynı harfle başlayıp aynı harfle bitmesi (Örn: Omnia Studio - O...O veya A...A) paranın ve enerjinin dışarı kaçmasını önleyen kapalı bir bereket aurası çizer.{"\n"}
+                • Dönüştürücü Akış: İsmin gırtlaktan (Ateş/Güneş) başlayıp dudakta (Toprak/Mem) bitmesi, fikirlerin hızla fiziksel servete dönüşmesini sağlar.
+              </Text>
+            </View>
+
+            <Text style={styles.sectionTitle}>5. Ticari Şirket ve Marka Akustiği Sırrı</Text>
+            <View style={styles.methodCard}>
+              <Text style={styles.methodText}>
+                Başarılı küresel markalar incelendiğinde harf frekanslarının tesadüfi olmadığı görülür:
+              </Text>
+              <Text style={styles.methodExample}>
+                • Finans & E-Ticaret: M (Mem - Mülk), B (Bet - Kap), L (Genişleme) ve 8 (Zayin - Otorite) harfleriyle müşterinin güvenle para harcaması ve kârın kasada kalması sağlanır.{"\n"}
+                • Sanat & Tasarım: 6. Çakra (O, F) ve 2. Çakra (B, K, T) harfleriyle estetik arzu, ilham ve görsel çekicilik manyetizması yaratılır.
               </Text>
             </View>
           </View>
