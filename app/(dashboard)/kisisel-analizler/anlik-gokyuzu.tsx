@@ -493,27 +493,7 @@ export default function AnlikGokyuzuScreen() {
 
   const renderAIRecommendation = () => {
     if (!transitData) return null;
-    const tMoon = transitData.transitPlanets.find(p => p.name === 'Ay');
-    const tSun = transitData.transitPlanets.find(p => p.name === 'Güneş');
     const exactAspects = [...transitData.transitAspects].filter(a => a.orb <= 3).sort((a, b) => a.orb - b.orb);
-
-    const getHouseFocus = (house: number) => {
-      const foci: Record<number, string> = {
-        1: "kişisel imajınız ve yeni başlangıçlarınız",
-        2: "maddi kaynaklarınız ve öz değeriniz",
-        3: "iletişim trafiğiniz ve yakın çevreniz",
-        4: "eviniz, aileniz ve iç dünyanız",
-        5: "aşk hayatınız ve yaratıcılığınız",
-        6: "günlük rutinleriniz ve sağlığınız",
-        7: "ikili ilişkileriniz ve ortaklıklarınız",
-        8: "kriz yönetimi ve ortak finansal kaynaklarınız",
-        9: "inançlarınız ve hayata bakış açınız",
-        10: "kariyeriniz ve toplumsal statünüz",
-        11: "sosyal çevreniz ve geleceğe dair umutlarınız",
-        12: "bilinçaltınız ve ruhsal şifalanma süreciniz"
-      };
-      return foci[house] || "yaşamınızın bu alanı";
-    };
 
     const getPlanetTheme = (planetName: string) => {
       const themes: Record<string, string> = {
@@ -568,12 +548,6 @@ export default function AnlikGokyuzuScreen() {
     };
 
     let paragraphs = [];
-    
-    // Paragraph 1: Sun & Moon
-    let p1 = "";
-    if (tSun) p1 += `Bugün Güneş, haritanızda ${tSun.house}. evinizi aydınlatıyor. Bu dönemde odak noktanız ${getHouseFocus(tSun.house)} üzerine yoğunlaşacaktır. `;
-    if (tMoon) p1 += `Duygusal pusulanız olan Ay ise an itibarıyla ${tMoon.house}. evinizden geçiş yapıyor; bu durum bugünkü ruh halinizi ve anlık reaksiyonlarınızı doğrudan "${getHouseFocus(tMoon.house)}" konularına yönlendirecek.`;
-    paragraphs.push(p1);
 
     // Paragraph 2: Exact Aspects
     if (exactAspects.length > 0) {
