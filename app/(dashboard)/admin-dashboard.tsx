@@ -31,16 +31,24 @@ const ROLE_LABELS: Record<string, { label: string; color: string; bg: string }> 
 const formatDateSafe = (rawDate: any): { dateStr: string; timeStr: string } => {
   if (!rawDate) return { dateStr: '-', timeStr: '-' };
   try {
-    const isoStr = typeof rawDate === 'string' ? rawDate.replace(' ', 'T') : rawDate;
-    const d = new Date(isoStr);
-    if (isNaN(d.getTime())) {
-      const s = String(rawDate);
-      return { dateStr: s.slice(0, 10), timeStr: s.slice(11, 16) };
+    let str = String(rawDate).trim();
+    if (/[+-]\d{2}$/.test(str)) {
+      str += ':00';
     }
-    return {
-      dateStr: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
-      timeStr: d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
-    };
+    str = str.replace(' ', 'T');
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      return {
+        dateStr: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
+        timeStr: d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+      };
+    }
+    const m = String(rawDate).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if (m) {
+      return { dateStr: `${m[3]}.${m[2]}`, timeStr: `${m[4]}:${m[5]}` };
+    }
+    const s = String(rawDate);
+    return { dateStr: s.slice(0, 10), timeStr: s.slice(11, 16) };
   } catch {
     return { dateStr: String(rawDate).slice(0, 10), timeStr: '' };
   }
