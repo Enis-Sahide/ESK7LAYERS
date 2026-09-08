@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 // Öncelik: EXPO_PUBLIC_API_URL env → app.json extra.apiBaseUrl → localhost (dev).
 // Gerçek cihaz/emülatörde localhost çalışmaz; app.json > expo.extra.apiBaseUrl
 // alanına dağıtılmış web API adresini (örn https://api.example.com) yazın.
-const getBackendUrl = (): string => {
+export const getBackendUrl = (): string => {
   // 1. Tarayıcıda yerel test yapıyorsak (localhost:8081 veya 127.0.0.1)
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -13,14 +13,14 @@ const getBackendUrl = (): string => {
     }
   }
 
-  // 2. Eğer env ile API adresi tanımlanmışsa, onu kullan.
-  if (process.env.EXPO_PUBLIC_API_URL) {
-    return process.env.EXPO_PUBLIC_API_URL;
-  }
-
-  // 3. Geliştirme / Emülatör modunda yerel backend'e bağlan (adb reverse tcp:3000 tcp:3000)
+  // 2. Geliştirme / Emülatör modunda daima yerel Next.js backend'ine bağlan (adb reverse tcp:3000 tcp:3000)
   if (__DEV__) {
     return 'http://localhost:3000';
+  }
+
+  // 3. Eğer env ile API adresi tanımlanmışsa (ve __DEV__ değilse), onu kullan.
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
   }
 
   return (

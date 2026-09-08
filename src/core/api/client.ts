@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL, getBackendUrl } from '../config';
 
 // Kendi JWT auth'umuz için token saklama + fetch wrapper.
 // Supabase yerine geçer. Access + refresh token AsyncStorage'da tutulur.
@@ -72,7 +72,8 @@ async function rawFetch(path: string, opts: RequestInit, withAuth: boolean) {
     ...((opts.headers as Record<string, string>) || {}),
   };
   if (withAuth && accessToken) headers['Authorization'] = 'Bearer ' + accessToken;
-  return fetch(API_BASE_URL + path, { ...opts, headers });
+  const baseUrl = getBackendUrl() || API_BASE_URL;
+  return fetch(baseUrl + path, { ...opts, headers });
 }
 
 async function parse<T>(res: Response): Promise<T> {
