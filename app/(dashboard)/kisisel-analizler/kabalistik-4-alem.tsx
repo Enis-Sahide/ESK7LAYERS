@@ -302,6 +302,73 @@ export default function KabbalahAnalysisScreen() {
     );
   };
 
+  if (!isMasterOrAdmin) {
+    return (
+      <SacredBackground>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
+          </TouchableOpacity>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.headerTitle}>Kabalistik 4 Alem</Text>
+            <Text style={styles.headerSubtitle}>Sefirot Ağacı Analizi</Text>
+          </View>
+          <View style={{ width: 28 }} />
+        </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <View style={{
+            width: '100%',
+            maxWidth: 380,
+            padding: 28,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: 'rgba(212,175,55,0.4)',
+            backgroundColor: 'rgba(10, 10, 10, 0.85)',
+            alignItems: 'center',
+          }}>
+            <View style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              backgroundColor: 'rgba(212,175,55,0.15)',
+              borderWidth: 1,
+              borderColor: 'rgba(212,175,55,0.3)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 16,
+            }}>
+              <Ionicons name="lock-closed" size={32} color={COLORS.primary} />
+            </View>
+            <Text style={{ color: '#FFF', fontSize: 18, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' }}>
+              Usta Seviyesi Gerekli
+            </Text>
+            <Text style={{ color: '#9CA3AF', fontSize: 14, textAlign: 'center', marginBottom: 24, lineHeight: 22 }}>
+              Bu derin ezoterik analiz Usta Seviyesi (Master) üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır.
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'rgba(212,175,55,0.2)',
+                borderWidth: 1,
+                borderColor: COLORS.primary,
+                paddingHorizontal: 32,
+                paddingVertical: 12,
+                borderRadius: 24,
+                width: '100%',
+                alignItems: 'center',
+              }}
+              onPress={() => router.back()}
+              activeOpacity={0.85}
+            >
+              <Text style={{ color: COLORS.primary, fontWeight: 'bold', fontSize: 15 }}>
+                Geri Dön
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SacredBackground>
+    );
+  }
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
       <SacredBackground>
