@@ -415,32 +415,121 @@ export default function KabbalahAnalysisScreen() {
                 <Text style={styles.ascResult}>Yükselen Burç: <Text style={{fontWeight: 'bold', color: COLORS.primary}}>{chartData.assiah.ascendant.sign}</Text></Text>
               </View>
 
-              {/* Aktif Bilinç Boyutu Kartı */}
+              {/* Aktif Bilinç Boyutu & Frekans Aynası Kartı */}
               {kabbalahAnalysis?.activeConsciousness && (
                 <View style={styles.activeConsciousnessCard}>
                   <View style={styles.acHeaderRow}>
                     <View style={styles.acBadge}>
-                      <Text style={styles.acBadgeText}>GÜNCEL GÖKYÜZÜ ETKİSİ</Text>
+                      <Text style={styles.acBadgeText}>CANLI GÖKYÜZÜ AYNASI</Text>
                     </View>
                   </View>
-                  <View style={{flexDirection: 'row', alignItems: 'flex-start', marginTop: 8}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 6, marginBottom: 12}}>
                     <View style={styles.acIconWrap}>
                       <Ionicons name="sparkles" size={20} color="#0EA5E9" />
                     </View>
                     <View style={{flex: 1, marginLeft: 10}}>
-                      <Text style={styles.acMainTitle}>Aktif Bilinç Boyutunuz</Text>
-                      <Text style={styles.acSubTitle}>{kabbalahAnalysis.activeConsciousness.title}</Text>
-                      <Text style={styles.acReason}>{kabbalahAnalysis.activeConsciousness.reason}</Text>
+                      <Text style={styles.acMainTitle}>Kozmik Sınav & Frekans Aynanız</Text>
+                      <Text style={styles.acSubTitle}>Hangi Haritanızı Çalıştırıyorsunuz?</Text>
                     </View>
                   </View>
 
+                  {/* Sınav Kutusu */}
                   <View style={styles.acAdviceBox}>
-                    <Text style={styles.acAdviceHeader}>MEVCUT TEKÂMÜL TAVSİYESİ</Text>
-                    <Text style={styles.acAdviceText}>{kabbalahAnalysis.activeConsciousness.explanation}</Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
+                      <View style={styles.acChallengeBadge}>
+                        <Text style={styles.acChallengeBadgeText}>GÜNCEL SINAV</Text>
+                      </View>
+                      <Text style={styles.acChallengeTitle}>
+                        {kabbalahAnalysis.activeConsciousness.currentTheme || kabbalahAnalysis.activeConsciousness.title}
+                      </Text>
+                    </View>
+                    <Text style={styles.acChallengeDesc}>
+                      {kabbalahAnalysis.activeConsciousness.cosmicChallenge || kabbalahAnalysis.activeConsciousness.explanation}
+                    </Text>
+                    <View style={styles.acTriggerBox}>
+                      <Text style={styles.acTriggerText}>
+                        <Text style={{fontWeight: 'bold', color: '#38BDF8'}}>⚡ Tetikleyici: </Text>
+                        {kabbalahAnalysis.activeConsciousness.transitSummary || kabbalahAnalysis.activeConsciousness.reason}
+                      </Text>
+                    </View>
                   </View>
 
+                  {/* Frekans Aynası 4 Alem */}
+                  {kabbalahAnalysis.activeConsciousness.spectrum && (
+                    <View style={styles.acSpectrumContainer}>
+                      <Text style={styles.acSpectrumHeading}>🪞 4 Alem Frekans Aynanız</Text>
+                      <Text style={styles.acSpectrumSub}>
+                        Bu sınav karşısındaki tutumunuz, o an hangi haritanızı çalıştırdığınızı gösterir:
+                      </Text>
+
+                      {/* 1. Assiah */}
+                      <View style={[styles.acSpectrumCard, { borderColor: 'rgba(239, 68, 68, 0.4)', backgroundColor: 'rgba(239, 68, 68, 0.08)' }]}>
+                        <View style={styles.acCardHeaderRow}>
+                          <Text style={[styles.acCardTitle, { color: '#EF4444' }]}>1. Assiah (Madde)</Text>
+                          <Text style={[styles.acLevelTag, { color: '#F87171', backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>REAKTİF DÜZEY</Text>
+                        </View>
+                        <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.assiah.title}</Text>
+                        <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.assiah.reaction}</Text>
+                        <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(239, 68, 68, 0.2)' }]}>
+                          <Text style={styles.acDiagnosisText}>
+                            <Text style={{fontWeight: 'bold', color: '#EF4444'}}>Teşhis: </Text>
+                            {kabbalahAnalysis.activeConsciousness.spectrum.assiah.diagnosis}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* 2. Yetzirah */}
+                      <View style={[styles.acSpectrumCard, { borderColor: 'rgba(14, 165, 233, 0.4)', backgroundColor: 'rgba(14, 165, 233, 0.08)' }]}>
+                        <View style={styles.acCardHeaderRow}>
+                          <Text style={[styles.acCardTitle, { color: '#0EA5E9' }]}>2. Yetzirah (Duygu)</Text>
+                          <Text style={[styles.acLevelTag, { color: '#38BDF8', backgroundColor: 'rgba(14, 165, 233, 0.2)' }]}>DUYGUSAL ŞİFA</Text>
+                        </View>
+                        <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.title}</Text>
+                        <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.reaction}</Text>
+                        <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(14, 165, 233, 0.2)' }]}>
+                          <Text style={styles.acDiagnosisText}>
+                            <Text style={{fontWeight: 'bold', color: '#0EA5E9'}}>Teşhis: </Text>
+                            {kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.diagnosis}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* 3. Beriyah */}
+                      <View style={[styles.acSpectrumCard, { borderColor: 'rgba(245, 158, 11, 0.4)', backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}>
+                        <View style={styles.acCardHeaderRow}>
+                          <Text style={[styles.acCardTitle, { color: '#F59E0B' }]}>3. Beriyah (Zihin)</Text>
+                          <Text style={[styles.acLevelTag, { color: '#FBBF24', backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>BİLGE İRADE</Text>
+                        </View>
+                        <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.beriyah.title}</Text>
+                        <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.beriyah.reaction}</Text>
+                        <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(245, 158, 11, 0.2)' }]}>
+                          <Text style={styles.acDiagnosisText}>
+                            <Text style={{fontWeight: 'bold', color: '#F59E0B'}}>Teşhis: </Text>
+                            {kabbalahAnalysis.activeConsciousness.spectrum.beriyah.diagnosis}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* 4. Atzilut */}
+                      <View style={[styles.acSpectrumCard, { borderColor: 'rgba(168, 85, 247, 0.4)', backgroundColor: 'rgba(168, 85, 247, 0.08)' }]}>
+                        <View style={styles.acCardHeaderRow}>
+                          <Text style={[styles.acCardTitle, { color: '#A855F7' }]}>4. Atzilut (Kudret)</Text>
+                          <Text style={[styles.acLevelTag, { color: '#C084FC', backgroundColor: 'rgba(168, 85, 247, 0.2)' }]}>KOZMİK BİRLİK</Text>
+                        </View>
+                        <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.atzilut.title}</Text>
+                        <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.atzilut.reaction}</Text>
+                        <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(168, 85, 247, 0.2)' }]}>
+                          <Text style={styles.acDiagnosisText}>
+                            <Text style={{fontWeight: 'bold', color: '#A855F7'}}>Teşhis: </Text>
+                            {kabbalahAnalysis.activeConsciousness.spectrum.atzilut.diagnosis}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   <Text style={styles.acFootnote}>
-                    ⚠️ Önemli Bilgilendirme: 4 Alem haritalarınız kalıcı potansiyelinizdir; ancak bu kart bugünkü canlı gökyüzü transitlerine göre dönemsel tekâmül ödevinizi gösterir.
+                    ⚠️ Ezoterik İlke: Bir kriz anındaki bilinçli tutumunuz o an hangi haritanızı çalıştırdığınızı belirler. Reaksiyonunuzu korkudan (Assiah) bilgelik ve teslimiyete (Beriyah & Atzilut) yükselterek üst potansiyelinizi hayata çekebilirsiniz.
                   </Text>
                 </View>
               )}
@@ -829,46 +918,129 @@ const styles = StyleSheet.create({
   },
   acMainTitle: {
     color: '#0EA5E9',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   acSubTitle: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 6,
-  },
-  acReason: {
-    color: 'rgba(255, 255, 255, 0.85)',
-    fontSize: 13,
-    lineHeight: 18,
   },
   acAdviceBox: {
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderRadius: 12,
     padding: 12,
-    marginTop: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  acAdviceHeader: {
+  acChallengeBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  acChallengeBadgeText: {
+    color: '#F59E0B',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  acChallengeTitle: {
     color: '#0EA5E9',
+    fontSize: 14,
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  acChallengeDesc: {
+    color: '#E5E7EB',
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 6,
+    marginBottom: 8,
+  },
+  acTriggerBox: {
+    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+    borderRadius: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(14, 165, 233, 0.2)',
+  },
+  acTriggerText: {
+    color: '#BAE6FD',
     fontSize: 11,
+    lineHeight: 16,
+  },
+  acSpectrumContainer: {
+    marginTop: 14,
+  },
+  acSpectrumHeading: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 3,
+  },
+  acSpectrumSub: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    lineHeight: 15,
+    marginBottom: 10,
+  },
+  acSpectrumCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 10,
+  },
+  acCardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  acCardTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  acLevelTag: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  acLevelHeading: {
+    color: '#FFFFFF',
+    fontSize: 13,
     fontWeight: 'bold',
     marginBottom: 4,
-    letterSpacing: 0.5,
   },
-  acAdviceText: {
+  acReactionText: {
     color: '#D1D5DB',
     fontSize: 12,
     lineHeight: 17,
+    marginBottom: 8,
+  },
+  acDiagnosisBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 8,
+  },
+  acDiagnosisText: {
+    color: '#E5E7EB',
+    fontSize: 11,
+    lineHeight: 16,
   },
   acFootnote: {
     color: '#9CA3AF',
     fontSize: 10,
-    lineHeight: 14,
-    marginTop: 10,
+    lineHeight: 15,
+    marginTop: 8,
     fontStyle: 'italic',
   }
 });
