@@ -21,8 +21,11 @@ export interface TransitTimelineItem {
   type: 'Kavuşum' | 'Karşıt' | 'Kare' | 'Üçgen' | 'Sekstil';
   isHarmonious: boolean;
   startDate: string;
+  startTime?: string;
   peakDate: string;
+  peakTime?: string;
   endDate: string;
+  endTime?: string;
   minOrb: number;
   category: 'Kadersel' | 'Kişisel';
   title: string;
@@ -46,6 +49,9 @@ interface MobileTransitTimelineChartProps {
   isLoading?: boolean;
   isPremium?: boolean;
   onRequirePremium?: () => void;
+  isMundane?: boolean;
+  userTimezone?: string;
+  tzOffsetHours?: number;
 }
 
 const PLANET_SYMBOLS: Record<string, string> = {
@@ -71,7 +77,10 @@ export default function MobileTransitTimelineChart({
   onRangeChange,
   isLoading = false,
   isPremium = false,
-  onRequirePremium
+  onRequirePremium,
+  isMundane = false,
+  userTimezone = 'Europe/Istanbul',
+  tzOffsetHours = 3
 }: MobileTransitTimelineChartProps) {
   const [selectedItem, setSelectedItem] = useState<TransitTimelineItem | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | 'KADERSEL' | 'KISISEL'>('ALL');
@@ -157,7 +166,7 @@ export default function MobileTransitTimelineChart({
               style={[styles.pillBtn, categoryFilter === 'KADERSEL' && styles.pillBtnActivePurple]}
             >
               <Text style={[styles.pillText, categoryFilter === 'KADERSEL' && { color: '#C084FC', fontWeight: 'bold' }]}>
-                Kadersel (Plüton/Satürn...)
+                {isMundane ? 'Büyük Döngüler (Jüpiter, Satürn...)' : 'Kadersel (Plüton/Satürn...)'}
               </Text>
             </TouchableOpacity>
 
@@ -166,7 +175,7 @@ export default function MobileTransitTimelineChart({
               style={[styles.pillBtn, categoryFilter === 'KISISEL' && styles.pillBtnActiveAmber]}
             >
               <Text style={[styles.pillText, categoryFilter === 'KISISEL' && { color: '#FCD34D', fontWeight: 'bold' }]}>
-                Kişisel (Mars/Güneş...)
+                {isMundane ? 'Hızlı Gezegenler (Mars, Venüs...)' : 'Kişisel (Mars/Güneş...)'}
               </Text>
             </TouchableOpacity>
 
@@ -208,6 +217,12 @@ export default function MobileTransitTimelineChart({
         <View style={styles.listHeader}>
           <Text style={styles.listHeaderTitle}>Kozmik Zaman Çizelgesi ({filteredItems.length} Açı)</Text>
           <Text style={styles.listHeaderSubtitle}>Çubuklar etki sürecini, parlak nokta zirveyi (0°) simgeler</Text>
+          <View style={styles.tzHeaderBadge}>
+            <Ionicons name="location-sharp" size={11} color="#D4AF37" />
+            <Text style={styles.tzHeaderBadgeText}>
+              Saatler: <Text style={{ color: '#FFF', fontWeight: 'bold' }}>{userTimezone}</Text> (UTC{tzOffsetHours >= 0 ? `+${tzOffsetHours}` : tzOffsetHours})
+            </Text>
+          </View>
         </View>
 
         {filteredItems.length === 0 ? (
@@ -274,7 +289,9 @@ export default function MobileTransitTimelineChart({
                       </Text>
                       <View style={styles.peakIndicator}>
                         <Ionicons name="sparkles" size={10} color="#FFF" />
-                        <Text style={styles.peakText}>Zirve: {item.peakDate.slice(5)}</Text>
+                        <Text style={styles.peakText}>
+                          Zirve: {item.peakDate.slice(5)}{item.peakTime ? ` • ${item.peakTime}` : ''}
+                        </Text>
                       </View>
                     </View>
                   </LinearGradient>
@@ -285,9 +302,11 @@ export default function MobileTransitTimelineChart({
                   <Text style={styles.dateLabelText}>
                     {item.isStartedInPast ? 'Başladı: ' : 'Başlangıç: '}
                     <Text style={{ color: '#E5E7EB', fontWeight: 'bold' }}>{item.startDate}</Text>
+                    {item.startTime ? <Text style={{ color: '#9CA3AF', fontSize: 10 }}> ({item.startTime})</Text> : null}
                   </Text>
                   <Text style={styles.dateLabelText}>
                     Bitiş: <Text style={{ color: '#E5E7EB', fontWeight: 'bold' }}>{item.endDate}</Text>
+                    {item.endTime ? <Text style={{ color: '#9CA3AF', fontSize: 10 }}> ({item.endTime})</Text> : null}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -327,15 +346,29 @@ export default function MobileTransitTimelineChart({
                 <View style={styles.modalDatesBox}>
                   <View style={styles.dateBoxCol}>
                     <Text style={styles.dateBoxSub}>BAŞLANGIÇ</Text>
-                    <Text style={styles.dateBoxVal}>{selectedItem.startDate}</Text>
-                    {selectedItem.isStartedInPast && (
+                    <Text style={styles.dateBoxVal}>
+                      {selectedItem.startDate}
+                      {selectedItem.startTime ? (
+                        <Text style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 'normal' }}>{'\n'}({selectedItem.startTime})</Text>
+                      ) : null}
+                    </Text>
+                    {selectedItem.isStartedInPast ? (
                       <Text style={styles.dateBoxBadge}>Geçmişte başladı</Text>
+                    ) : selectedItem.startDate === new Date().toISOString().split('T')[0] ? (
+                      <Text style={[styles.dateBoxBadge, { color: '#34D399' }]}>
+                        Bugün {selectedItem.startTime ? `${selectedItem.startTime}'te ` : ''}başladı
+                      </Text>
+                    ) : (
+                      <Text style={[styles.dateBoxBadge, { color: '#38BDF8' }]}>Başlaması bekleniyor</Text>
                     )}
                   </View>
                   <View style={[styles.dateBoxCol, styles.dateBoxColBorder]}>
                     <Text style={[styles.dateBoxSub, { color: '#D4AF37' }]}>⚡ ZİRVE (0°)</Text>
                     <Text style={[styles.dateBoxVal, { color: '#D4AF37', fontWeight: 'bold' }]}>
                       {selectedItem.peakDate}
+                      {selectedItem.peakTime ? (
+                        <Text style={{ fontSize: 11, color: '#FCD34D', fontWeight: 'bold' }}>{'\n'}• {selectedItem.peakTime}</Text>
+                      ) : null}
                     </Text>
                     <Text style={[styles.dateBoxBadge, { color: selectedItem.isPeakInPast ? '#38BDF8' : '#34D399' }]}>
                       {selectedItem.isPeakInPast ? 'Zirvesi tamamlandı' : 'Zirve bekleniyor'}
@@ -343,9 +376,22 @@ export default function MobileTransitTimelineChart({
                   </View>
                   <View style={styles.dateBoxCol}>
                     <Text style={styles.dateBoxSub}>BİTİŞ</Text>
-                    <Text style={styles.dateBoxVal}>{selectedItem.endDate}</Text>
+                    <Text style={styles.dateBoxVal}>
+                      {selectedItem.endDate}
+                      {selectedItem.endTime ? (
+                        <Text style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 'normal' }}>{'\n'}({selectedItem.endTime})</Text>
+                      ) : null}
+                    </Text>
                     <Text style={styles.dateBoxBadge}>Toplam {selectedItem.durationDays} gün</Text>
                   </View>
+                </View>
+
+                {/* Timezone Note in Modal */}
+                <View style={styles.tzModalBadge}>
+                  <Ionicons name="location-sharp" size={11} color="#D4AF37" />
+                  <Text style={styles.tzModalBadgeText}>
+                    Tüm saatler cihazınızın yerel konumuna ({userTimezone} • UTC{tzOffsetHours >= 0 ? `+${tzOffsetHours}` : tzOffsetHours}) göredir.
+                  </Text>
                 </View>
 
                 {/* 1. Temel Özet (Herkese Açık) */}
@@ -558,6 +604,41 @@ const styles = StyleSheet.create({
   listHeaderSubtitle: {
     fontSize: 11,
     color: '#9CA3AF'
+  },
+  tzHeaderBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 6,
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start'
+  },
+  tzHeaderBadgeText: {
+    fontSize: 10,
+    color: '#D4AF37'
+  },
+  tzModalBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    marginBottom: 12
+  },
+  tzModalBadgeText: {
+    fontSize: 10,
+    color: '#9CA3AF',
+    textAlign: 'center'
   },
   emptyCard: {
     padding: 30,

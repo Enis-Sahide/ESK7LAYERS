@@ -134,6 +134,51 @@ export default function AnlikGokyuzuScreen() {
   const [isTimelineLoading, setIsTimelineLoading] = useState(false);
   const [showLockModal, setShowLockModal] = useState(false);
 
+  // User Local Timezone (Auto-detected from phone/device without permissions)
+  const [userTz, setUserTz] = useState<string>('Europe/Istanbul');
+  const [tzOffsetHours, setTzOffsetHours] = useState<number>(3);
+
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Istanbul';
+      const offset = -new Date().getTimezoneOffset() / 60;
+      setUserTz(tz);
+      setTzOffsetHours(offset);
+    } catch {
+      // fallback to Europe/Istanbul
+    }
+  }, []);
+
+  // Mode: PERSONAL (Doğum Haritası Üzerine) vs MUNDANE (Kolektif Gökyüzü)
+  const [analysisMode, setAnalysisMode] = useState<'PERSONAL' | 'MUNDANE'>('PERSONAL');
+  const [skyTimelineData, setSkyTimelineData] = useState<any>(null);
+  const [skyTimelineRange, setSkyTimelineRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m');
+  const [isSkyTimelineLoading, setIsSkyTimelineLoading] = useState(false);
+
+  const fetchSkyTimeline = async (rangeToFetch: '1m' | '3m' | '6m' | '1y' = skyTimelineRange) => {
+    setIsSkyTimelineLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/astrology/sky-timeline`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startDateStr: transitDateStr,
+          range: rangeToFetch,
+          userTz,
+          tzOffsetHours
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSkyTimelineData(data.data);
+      }
+    } catch (e) {
+      console.error('Sky timeline fetch error:', e);
+    } finally {
+      setIsSkyTimelineLoading(false);
+    }
+  };
+
   const fetchTimeline = async (rangeToFetch: '1m' | '3m' | '6m' | '1y' = timelineRange) => {
     if (!selectedCityData) return;
     setIsTimelineLoading(true);
@@ -146,7 +191,9 @@ export default function AnlikGokyuzuScreen() {
           natalTime: natalTimeStr,
           cityData: selectedCityData,
           range: rangeToFetch,
-          startDateStr: transitDateStr
+          startDateStr: transitDateStr,
+          userTz,
+          tzOffsetHours
         })
       });
       const data = await response.json();
@@ -610,7 +657,67 @@ export default function AnlikGokyuzuScreen() {
             <Text style={styles.subtitle}>Gezegenlerin Anlık Etkileri (Transit)</Text>
           </View>
 
-          {!transitData ? (
+          {/* Mode Switcher: Kişisel Transitler vs Kolektif Gökyüzü */}
+          <View style={styles.modeSwitchContainer}>
+            <TouchableOpacity
+              onPress={() => setAnalysisMode('PERSONAL')}
+              style={[styles.modeSwitchBtn, analysisMode === 'PERSONAL' && styles.modeSwitchBtnActive]}
+            >
+              <Ionicons name="person" size={13} color={analysisMode === 'PERSONAL' ? '#000' : '#D4AF37'} style={{ marginRight: 5 }} />
+              <Text style={[styles.modeSwitchText, analysisMode === 'PERSONAL' && styles.modeSwitchTextActive]}>
+                Kişisel Transitler
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                setAnalysisMode('MUNDANE');
+                if (!skyTimelineData) {
+                  fetchSkyTimeline(skyTimelineRange);
+                }
+              }}
+              style={[styles.modeSwitchBtn, analysisMode === 'MUNDANE' && styles.modeSwitchBtnActive]}
+            >
+              <Ionicons name="globe-outline" size={13} color={analysisMode === 'MUNDANE' ? '#000' : '#0EA5E9'} style={{ marginRight: 5 }} />
+              <Text style={[styles.modeSwitchText, analysisMode === 'MUNDANE' && styles.modeSwitchTextActive]}>
+                Kolektif Gökyüzü
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {analysisMode === 'MUNDANE' ? (
+            isSkyTimelineLoading && !skyTimelineData ? (
+              <View style={{ padding: 40, alignItems: 'center', backgroundColor: 'rgba(20,20,25,0.7)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginTop: 10 }}>
+                <ActivityIndicator size="large" color="#0EA5E9" style={{ marginBottom: 12 }} />
+                <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14, marginBottom: 4 }}>
+                  Kolektif Gökyüzü Çizelgesi Hesaplanıyor...
+                </Text>
+                <Text style={{ color: '#9CA3AF', fontSize: 11, textAlign: 'center' }}>
+                  Gökyüzündeki gezegenlerin birbiriyle oluşturduğu büyük döngüler taranıyor.
+                </Text>
+              </View>
+            ) : (
+              <View style={{ marginTop: 10 }}>
+                <MobileTransitTimelineChart
+                  items={skyTimelineData?.items || []}
+                  startDateStr={skyTimelineData?.startDate || transitDateStr}
+                  endDateStr={skyTimelineData?.endDate || transitDateStr}
+                  range={skyTimelineRange}
+                  onRangeChange={(newRange) => {
+                    setSkyTimelineRange(newRange);
+                    fetchSkyTimeline(newRange);
+                  }}
+                  isLoading={isSkyTimelineLoading}
+                  isPremium={isApprenticeOrAbove}
+                  onRequirePremium={() => setShowLockModal(true)}
+                  isMundane={true}
+                  userTimezone={skyTimelineData?.timeZone || userTz}
+                  tzOffsetHours={skyTimelineData?.tzOffsetHours ?? tzOffsetHours}
+                />
+              </View>
+            )
+          ) : (
+            !transitData ? (
             <BlurView intensity={25} tint="dark" style={styles.formCard}>
               
               <Text style={styles.sectionHeader}>1. Doğum Bilgileriniz (Natal)</Text>
@@ -918,12 +1025,15 @@ export default function AnlikGokyuzuScreen() {
                       isLoading={isTimelineLoading}
                       isPremium={isApprenticeOrAbove}
                       onRequirePremium={() => setShowLockModal(true)}
+                      userTimezone={timelineData?.timeZone || userTz}
+                      tzOffsetHours={timelineData?.tzOffsetHours ?? tzOffsetHours}
                     />
                   </View>
                 )
               )}
             </View>
-          )}
+          )
+        )}
 
           <View style={{ height: 100 }} />
         </ScrollView>
@@ -1046,5 +1156,35 @@ const styles = StyleSheet.create({
   lockModalDesc: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', lineHeight: 18, marginBottom: 16, paddingHorizontal: 10 },
   modalUpgradeBtn: { width: '100%', borderRadius: 12, overflow: 'hidden' },
   modalUpgradeBtnGrad: { paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
-  modalUpgradeBtnText: { fontSize: 13, fontWeight: 'bold', color: '#000' }
+  modalUpgradeBtnText: { fontSize: 13, fontWeight: 'bold', color: '#000' },
+
+  modeSwitchContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(20, 20, 25, 0.85)',
+    borderRadius: 14,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 16
+  },
+  modeSwitchBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 11
+  },
+  modeSwitchBtnActive: {
+    backgroundColor: '#D4AF37'
+  },
+  modeSwitchText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9CA3AF'
+  },
+  modeSwitchTextActive: {
+    color: '#000',
+    fontWeight: 'bold'
+  }
 });
