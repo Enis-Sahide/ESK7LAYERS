@@ -28,6 +28,15 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     isAvailable: true
   },
   { 
+    id: 'frekansaynasi', 
+    title: 'Frekans Aynası (Canlı)', 
+    description: 'Günün gökyüzü transit sınavı karşısında hangi haritanızı çalıştırdığınızı anlık teşhis edin.',
+    icon: 'sparkles-outline', 
+    route: '/(dashboard)/kisisel-analizler/frekans-aynasi',
+    color: '#0EA5E9',
+    isAvailable: true
+  },
+  { 
     id: 'numeroloji', 
     title: 'Numeroloji Analizi', 
     description: 'İsim ve doğum tarihinizle detaylı analiz veya sadece doğum tarihinizle Pisagor Sayısal Titreşimlerinizi analiz edin.',

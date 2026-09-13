@@ -746,6 +746,24 @@ export default function AnlikGokyuzuScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Frekans Aynası Mini Banner */}
+          <TouchableOpacity 
+            style={styles.frekansMiniBanner} 
+            activeOpacity={0.8}
+            onPress={() => router.push('/(dashboard)/kisisel-analizler/frekans-aynasi' as any)}
+          >
+            <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
+              <View style={styles.frekansMiniIconWrap}>
+                <Ionicons name="sparkles" size={16} color="#0EA5E9" />
+              </View>
+              <View style={{flex: 1, marginLeft: 10}}>
+                <Text style={styles.frekansMiniTitle}>Kozmik Sınav & Frekans Aynanız</Text>
+                <Text style={styles.frekansMiniSub}>Bugün hangi haritanızı çalıştırıyorsunuz?</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#0EA5E9" />
+          </TouchableOpacity>
+
           {analysisMode === 'MUNDANE' ? (
             <View style={{ marginTop: 6 }}>
               {/* Mundane Sub-Tab Switcher: Çark vs Zaman Çizelgesi */}
@@ -1563,5 +1581,33 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
     marginLeft: 4,
+  },
+  frekansMiniBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(14, 165, 233, 0.08)',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(14, 165, 233, 0.25)',
+  },
+  frekansMiniIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(14, 165, 233, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  frekansMiniTitle: {
+    color: '#0EA5E9',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  frekansMiniSub: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    marginTop: 1,
   },
 });
