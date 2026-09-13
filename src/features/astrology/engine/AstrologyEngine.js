@@ -246,7 +246,9 @@ function calculateAspects(planets) {
 }
 function generateAstrologyChart(birthDate, cityKey, isDraconic) {
     if (isDraconic === void 0) { isDraconic = false; }
-    var city = exports.ASTRO_CITIES.find(function (c) { return c.name === cityKey; }) || { name: 'İstanbul', lat: 41.0082, lon: 28.9784, country: 'Türkiye', tz: 'Europe/Istanbul' };
+    var city = (typeof cityKey === 'object' && cityKey !== null && cityKey.lat !== undefined)
+        ? cityKey
+        : (exports.ASTRO_CITIES.find(function (c) { return c.name === cityKey; }) || { name: 'İstanbul', lat: 41.0082, lon: 28.9784, country: 'Türkiye', tz: 'Europe/Istanbul' });
     var astroTime = (0, astronomy_engine_1.MakeTime)(birthDate);
     // 1. Calculate Exact Angles
     var _a = calculateAngles(birthDate, city.lat, city.lon), mcDeg = _a.mcDeg, ascDeg = _a.ascDeg;

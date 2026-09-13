@@ -16,6 +16,7 @@ import MobileTransitTimelineChart from '@/src/features/astrology/components/Mobi
 import MobileMundaneSkyWheel from '@/src/features/astrology/components/MobileMundaneSkyWheel';
 import { getSkyPlanetSignInterpretation, getSkyAspectInterpretation } from '@/src/features/astrology/engine/SkyAspectInterpretations';
 import { ASTRO_CITIES } from '@/src/features/astrology/api/astrologyClient';
+import { generateAstrologyChart } from '@/src/features/astrology/engine/AstrologyEngine';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -172,21 +173,35 @@ export default function AnlikGokyuzuScreen() {
   const fetchSkyChart = async (dStr: string = transitDateStr, tStr: string = transitTimeStr) => {
     setIsSkyChartLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/sky-chart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dateStr: dStr,
-          timeStr: tStr,
-          cityData: selectedTransitCityData || selectedCityData || ASTRO_CITIES[0]
-        })
+      const rawCity = selectedTransitCityData || selectedCityData || ASTRO_CITIES.find(c => c.name === 'İstanbul') || ASTRO_CITIES[0];
+      const city = {
+        name: rawCity.name,
+        lat: rawCity.lat ?? rawCity.latitude ?? 41.0082,
+        lon: rawCity.lon ?? rawCity.longitude ?? 28.9784,
+        tz: rawCity.tz || rawCity.timezone || userTz || 'Europe/Istanbul'
+      };
+
+      const mObj = moment.tz(`${dStr} ${tStr}:00`, 'YYYY-MM-DD HH:mm:ss', city.tz);
+      const dateObj = mObj.toDate();
+      const skyChart = generateAstrologyChart(dateObj, city, false);
+
+      const enrichedAspects = (skyChart.aspects || []).map((asp: any) => ({
+        ...asp,
+        interpretation: getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type)
+      }));
+
+      setSkyChartData({
+        date: dStr,
+        time: tStr,
+        city: city.name,
+        planets: skyChart.planets,
+        ascendant: skyChart.ascendant,
+        midheaven: skyChart.midheaven,
+        houses: skyChart.houses,
+        aspects: enrichedAspects
       });
-      const data = await response.json();
-      if (data.success) {
-        setSkyChartData(data.data);
-      }
     } catch (e) {
-      console.error('Sky chart fetch error:', e);
+      console.error('Sky chart local calculation error:', e);
     } finally {
       setIsSkyChartLoading(false);
     }
@@ -205,9 +220,13 @@ export default function AnlikGokyuzuScreen() {
           tzOffsetHours
         })
       });
-      const data = await response.json();
-      if (data.success) {
-        setSkyTimelineData(data.data);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.success) {
+          setSkyTimelineData(data.data);
+        }
+      } else {
+        console.warn('Sky timeline response status:', response.status);
       }
     } catch (e) {
       console.error('Sky timeline fetch error:', e);
