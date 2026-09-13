@@ -13,6 +13,9 @@ import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@
 import { API_BASE_URL } from '@/src/core/config';
 import { useProgress } from '@/src/context/ProgressContext';
 import MobileTransitTimelineChart from '@/src/features/astrology/components/MobileTransitTimelineChart';
+import MobileMundaneSkyWheel from '@/src/features/astrology/components/MobileMundaneSkyWheel';
+import { getSkyPlanetSignInterpretation, getSkyAspectInterpretation } from '@/src/features/astrology/engine/SkyAspectInterpretations';
+import { ASTRO_CITIES } from '@/src/features/astrology/api/astrologyClient';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -60,6 +63,10 @@ const PLANET_SYMBOLS: Record<string, string> = {
 
 const ASPECT_COLORS: Record<string, string> = {
   'Kavuşum': '#D4AF37', 'Sekstil': '#0A84FF', 'Kare': '#FF453A', 'Üçgen': '#32D74B', 'Karşıt': '#FF453A', 'Görmeyen': '#0A84FF'
+};
+
+const ASPECT_SYMBOLS: Record<string, string> = {
+  'Kavuşum': '☌', 'Sekstil': '⚹', 'Kare': '□', 'Üçgen': '△', 'Karşıt': '☍', 'Görmeyen': '⚻'
 };
 
 interface AstroPoint {
@@ -151,9 +158,39 @@ export default function AnlikGokyuzuScreen() {
 
   // Mode: PERSONAL (Doğum Haritası Üzerine) vs MUNDANE (Kolektif Gökyüzü)
   const [analysisMode, setAnalysisMode] = useState<'PERSONAL' | 'MUNDANE'>('PERSONAL');
+  const [skySubTab, setSkySubTab] = useState<'WHEEL' | 'TIMELINE'>('WHEEL');
+  const [skyChartData, setSkyChartData] = useState<any>(null);
+  const [isSkyChartLoading, setIsSkyChartLoading] = useState(false);
+  const [skyAspectFilter, setSkyAspectFilter] = useState<'ALL' | 'HARMONIOUS' | 'CHALLENGING' | 'CONJUNCTION'>('ALL');
+  const [isMundanePlanetsExpanded, setIsMundanePlanetsExpanded] = useState(true);
+  const [isMundaneAspectsExpanded, setIsMundaneAspectsExpanded] = useState(true);
+
   const [skyTimelineData, setSkyTimelineData] = useState<any>(null);
   const [skyTimelineRange, setSkyTimelineRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m');
   const [isSkyTimelineLoading, setIsSkyTimelineLoading] = useState(false);
+
+  const fetchSkyChart = async (dStr: string = transitDateStr, tStr: string = transitTimeStr) => {
+    setIsSkyChartLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/astrology/sky-chart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dateStr: dStr,
+          timeStr: tStr,
+          cityData: selectedTransitCityData || selectedCityData || ASTRO_CITIES[0]
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSkyChartData(data.data);
+      }
+    } catch (e) {
+      console.error('Sky chart fetch error:', e);
+    } finally {
+      setIsSkyChartLoading(false);
+    }
+  };
 
   const fetchSkyTimeline = async (rangeToFetch: '1m' | '3m' | '6m' | '1y' = skyTimelineRange) => {
     setIsSkyTimelineLoading(true);
@@ -672,7 +709,10 @@ export default function AnlikGokyuzuScreen() {
             <TouchableOpacity
               onPress={() => {
                 setAnalysisMode('MUNDANE');
-                if (!skyTimelineData) {
+                if (!skyChartData && !isSkyChartLoading) {
+                  fetchSkyChart();
+                }
+                if (!skyTimelineData && !isSkyTimelineLoading) {
                   fetchSkyTimeline(skyTimelineRange);
                 }
               }}
@@ -686,36 +726,288 @@ export default function AnlikGokyuzuScreen() {
           </View>
 
           {analysisMode === 'MUNDANE' ? (
-            isSkyTimelineLoading && !skyTimelineData ? (
-              <View style={{ padding: 40, alignItems: 'center', backgroundColor: 'rgba(20,20,25,0.7)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginTop: 10 }}>
-                <ActivityIndicator size="large" color="#0EA5E9" style={{ marginBottom: 12 }} />
-                <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14, marginBottom: 4 }}>
-                  Kolektif Gökyüzü Çizelgesi Hesaplanıyor...
-                </Text>
-                <Text style={{ color: '#9CA3AF', fontSize: 11, textAlign: 'center' }}>
-                  Gökyüzündeki gezegenlerin birbiriyle oluşturduğu büyük döngüler taranıyor.
-                </Text>
-              </View>
-            ) : (
-              <View style={{ marginTop: 10 }}>
-                <MobileTransitTimelineChart
-                  items={skyTimelineData?.items || []}
-                  startDateStr={skyTimelineData?.startDate || transitDateStr}
-                  endDateStr={skyTimelineData?.endDate || transitDateStr}
-                  range={skyTimelineRange}
-                  onRangeChange={(newRange) => {
-                    setSkyTimelineRange(newRange);
-                    fetchSkyTimeline(newRange);
+            <View style={{ marginTop: 6 }}>
+              {/* Mundane Sub-Tab Switcher: Çark vs Zaman Çizelgesi */}
+              <View style={styles.tabSelector}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setSkySubTab('WHEEL');
+                    if (!skyChartData && !isSkyChartLoading) {
+                      fetchSkyChart();
+                    }
                   }}
-                  isLoading={isSkyTimelineLoading}
-                  isPremium={isApprenticeOrAbove}
-                  onRequirePremium={() => setShowLockModal(true)}
-                  isMundane={true}
-                  userTimezone={skyTimelineData?.timeZone || userTz}
-                  tzOffsetHours={skyTimelineData?.tzOffsetHours ?? tzOffsetHours}
-                />
+                  style={[styles.tabBtn, skySubTab === 'WHEEL' && { backgroundColor: '#0EA5E9' }]}
+                >
+                  <Ionicons name="compass-outline" size={14} color={skySubTab === 'WHEEL' ? '#000' : '#0EA5E9'} style={{ marginRight: 5 }} />
+                  <Text style={[styles.tabBtnText, skySubTab === 'WHEEL' && { color: '#000' }]}>
+                    Gökyüzü Çarkı & Açıları
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setSkySubTab('TIMELINE');
+                    if (!skyTimelineData && !isSkyTimelineLoading) {
+                      fetchSkyTimeline(skyTimelineRange);
+                    }
+                  }}
+                  style={[styles.tabBtn, skySubTab === 'TIMELINE' && { backgroundColor: '#0EA5E9' }]}
+                >
+                  <Ionicons name="calendar-outline" size={14} color={skySubTab === 'TIMELINE' ? '#000' : '#0EA5E9'} style={{ marginRight: 5 }} />
+                  <Text style={[styles.tabBtnText, skySubTab === 'TIMELINE' && { color: '#000' }]}>
+                    Kozmik Zaman Çizelgesi
+                  </Text>
+                </TouchableOpacity>
               </View>
-            )
+
+              {skySubTab === 'WHEEL' ? (
+                isSkyChartLoading && !skyChartData ? (
+                  <View style={{ padding: 40, alignItems: 'center', backgroundColor: 'rgba(20,20,25,0.7)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginTop: 10 }}>
+                    <ActivityIndicator size="large" color="#0EA5E9" style={{ marginBottom: 12 }} />
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14, marginBottom: 4 }}>
+                      Kolektif Gökyüzü Taranıyor...
+                    </Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 11, textAlign: 'center' }}>
+                      Gezegenlerin burç dereceleri ve aralarındaki anlık açılar taranıyor.
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    {/* Sky Date Toolbar */}
+                    <View style={styles.skyDateToolbar}>
+                      <View style={styles.skyDateBadge}>
+                        <Ionicons name="time-outline" size={15} color="#0EA5E9" />
+                        <Text style={styles.skyDateText}>
+                          {transitDateStr.split('-').reverse().join('.')} {transitTimeStr} (Canlı Gökyüzü)
+                        </Text>
+                      </View>
+                      <TouchableOpacity 
+                        style={styles.refreshSkyBtn}
+                        onPress={() => fetchSkyChart()}
+                        disabled={isSkyChartLoading}
+                      >
+                        {isSkyChartLoading ? (
+                          <ActivityIndicator size="small" color="#0EA5E9" />
+                        ) : (
+                          <>
+                            <Ionicons name="refresh" size={13} color="#0EA5E9" />
+                            <Text style={styles.refreshSkyBtnText}>Yenile</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Mobile Mundane Sky Wheel */}
+                    <MobileMundaneSkyWheel
+                      planets={skyChartData?.planets || []}
+                      aspects={skyChartData?.aspects || []}
+                      ascendant={skyChartData?.ascendant}
+                      onSelectPlanet={(p) => {
+                        const interp = getSkyPlanetSignInterpretation(p.name, p.sign, p.degreeInSign, p.minutes, p.isRetrograde);
+                        setSelectedInterp({
+                          title: interp.title,
+                          content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
+                        });
+                      }}
+                      onSelectAspect={(asp) => {
+                        if ((asp as any).interpretation) {
+                          const interp = (asp as any).interpretation;
+                          setSelectedInterp({
+                            title: interp.title,
+                            content: `${interp.summary}\n\n【Kolektif Tema】\n${interp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${interp.dailyAdvice}\n\n【Çakra Rezonansı】\n${interp.chakraResonance}`
+                          });
+                        } else {
+                          const calcInterp = getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type);
+                          setSelectedInterp({
+                            title: calcInterp.title,
+                            content: `${calcInterp.summary}\n\n【Kolektif Tema】\n${calcInterp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${calcInterp.dailyAdvice}\n\n【Çakra Rezonansı】\n${calcInterp.chakraResonance}`
+                          });
+                        }
+                      }}
+                    />
+
+                    {/* Section 1: Anlık Gezegen Yerleşimleri */}
+                    <TouchableOpacity 
+                      style={styles.listSectionHeader}
+                      activeOpacity={0.7}
+                      onPress={() => setIsMundanePlanetsExpanded(!isMundanePlanetsExpanded)}
+                    >
+                      <Text style={[styles.listSectionTitle, { color: '#0EA5E9' }]}>Anlık Gezegen Yerleşimleri (Gökyüzü)</Text>
+                      <Ionicons name={isMundanePlanetsExpanded ? "chevron-up" : "chevron-down"} size={20} color="#0EA5E9" />
+                    </TouchableOpacity>
+
+                    {isMundanePlanetsExpanded && (
+                      <View style={styles.listCard}>
+                        {(skyChartData?.planets || []).filter((p: any) => ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton', 'Kiron'].includes(p.name)).map((p: any, i: number) => (
+                          <TouchableOpacity 
+                            key={`mpl-${i}`} 
+                            style={styles.listRow}
+                            activeOpacity={0.7}
+                            onPress={() => {
+                              const interp = getSkyPlanetSignInterpretation(p.name, p.sign, p.degreeInSign, p.minutes, p.isRetrograde);
+                              setSelectedInterp({
+                                title: interp.title,
+                                content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
+                              });
+                            }}
+                          >
+                            <View style={styles.listRowLeft}>
+                              <Text style={[styles.planetSymbolIcon, { color: '#0EA5E9' }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
+                              <Text style={styles.listRowMain}>{p.name}</Text>
+                            </View>
+
+                            <View style={styles.listRowMiddle}>
+                              <Text style={{ fontSize: 13, fontWeight: 'bold', color: ZODIAC_COLORS[p.sign] || '#FFF' }}>
+                                {p.sign}
+                              </Text>
+                            </View>
+
+                            <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }]}>
+                              <Text style={{ fontSize: 12, color: COLORS.textMuted }}>
+                                {`${p.degreeInSign}° ${String(p.minutes).padStart(2, '0')}'`}
+                              </Text>
+                              {p.isRetrograde && (
+                                <Text style={{ fontSize: 11, color: '#FF453A', fontWeight: 'bold', marginLeft: 4 }}>
+                                  Rx
+                                </Text>
+                              )}
+                              <Ionicons name="chevron-forward" size={14} color="#666" style={{ marginLeft: 6 }} />
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
+
+                    {/* Section 2: Kolektif Açılar Tablosu */}
+                    {(() => {
+                      const filteredAspects = (skyChartData?.aspects || []).filter((asp: any) => {
+                        if (skyAspectFilter === 'ALL') return true;
+                        if (skyAspectFilter === 'HARMONIOUS') return asp.type === 'Üçgen' || asp.type === 'Sekstil';
+                        if (skyAspectFilter === 'CHALLENGING') return asp.type === 'Kare' || asp.type === 'Karşıt';
+                        if (skyAspectFilter === 'CONJUNCTION') return asp.type === 'Kavuşum';
+                        return true;
+                      });
+
+                      return (
+                        <>
+                          <TouchableOpacity 
+                            style={styles.listSectionHeader}
+                            activeOpacity={0.7}
+                            onPress={() => setIsMundaneAspectsExpanded(!isMundaneAspectsExpanded)}
+                          >
+                            <Text style={[styles.listSectionTitle, { color: '#0EA5E9' }]}>
+                              Kolektif Gökyüzü Açıları ({filteredAspects.length})
+                            </Text>
+                            <Ionicons name={isMundaneAspectsExpanded ? "chevron-up" : "chevron-down"} size={20} color="#0EA5E9" />
+                          </TouchableOpacity>
+
+                          {isMundaneAspectsExpanded && (
+                            <View style={styles.listCard}>
+                              {/* Aspect Filter Chips */}
+                              <View style={styles.filterChipsRow}>
+                                {[
+                                  { id: 'ALL', label: 'Tümü' },
+                                  { id: 'HARMONIOUS', label: 'Uyumlu' },
+                                  { id: 'CHALLENGING', label: 'Zorlayıcı' },
+                                  { id: 'CONJUNCTION', label: 'Kavuşum' }
+                                ].map(f => (
+                                  <TouchableOpacity
+                                    key={f.id}
+                                    onPress={() => setSkyAspectFilter(f.id as any)}
+                                    style={[styles.filterChip, skyAspectFilter === f.id && styles.filterChipActive]}
+                                  >
+                                    <Text style={[styles.filterChipText, skyAspectFilter === f.id && styles.filterChipTextActive]}>
+                                      {f.label}
+                                    </Text>
+                                  </TouchableOpacity>
+                                ))}
+                              </View>
+
+                              {filteredAspects.length === 0 ? (
+                                <Text style={styles.emptyText}>Bu filtreye uygun aktif açı bulunamadı.</Text>
+                              ) : (
+                                filteredAspects.map((aspect: any, i: number) => (
+                                  <TouchableOpacity 
+                                    key={`masp-${i}`} 
+                                    style={styles.listRow}
+                                    activeOpacity={0.7}
+                                    onPress={() => {
+                                      if (aspect.interpretation) {
+                                        const interp = aspect.interpretation;
+                                        setSelectedInterp({
+                                          title: interp.title,
+                                          content: `${interp.summary}\n\n【Kolektif Tema】\n${interp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${interp.dailyAdvice}\n\n【Çakra Rezonansı】\n${interp.chakraResonance}`
+                                        });
+                                      } else {
+                                        const calcInterp = getSkyAspectInterpretation(aspect.planet1, aspect.planet2, aspect.type);
+                                        setSelectedInterp({
+                                          title: calcInterp.title,
+                                          content: `${calcInterp.summary}\n\n【Kolektif Tema】\n${calcInterp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${calcInterp.dailyAdvice}\n\n【Çakra Rezonansı】\n${calcInterp.chakraResonance}`
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <View style={styles.listRowLeft}>
+                                      <Text style={[styles.planetSymbolIcon, { color: '#0EA5E9' }]}>{PLANET_SYMBOLS[aspect.planet1] || '★'}</Text>
+                                      <Text style={styles.listRowMain}>{aspect.planet1}</Text>
+                                    </View>
+
+                                    <View style={[styles.listRowMiddle, { flexDirection: 'column', alignItems: 'center' }]}>
+                                      <Text style={[styles.aspectBadge, { color: ASPECT_COLORS[aspect.type] || '#FFF' }]}>
+                                        {ASPECT_SYMBOLS[aspect.type] || ''} {aspect.type}
+                                      </Text>
+                                      <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Orb: {aspect.orb.toFixed(1)}° {aspect.isExact ? '(Tam)' : ''}</Text>
+                                    </View>
+
+                                    <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1 }]}>
+                                      <Text style={[styles.listRowMain, { marginRight: 6 }]}>{aspect.planet2}</Text>
+                                      <Text style={[styles.planetSymbolIcon, { color: '#0EA5E9' }]}>{PLANET_SYMBOLS[aspect.planet2] || '★'}</Text>
+                                      <Ionicons name="chevron-forward" size={14} color="#666" style={{ marginLeft: 6 }} />
+                                    </View>
+                                  </TouchableOpacity>
+                                ))
+                              )}
+                            </View>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </View>
+                )
+              ) : (
+                // TIMELINE SUBTAB
+                isSkyTimelineLoading && !skyTimelineData ? (
+                  <View style={{ padding: 40, alignItems: 'center', backgroundColor: 'rgba(20,20,25,0.7)', borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginTop: 10 }}>
+                    <ActivityIndicator size="large" color="#0EA5E9" style={{ marginBottom: 12 }} />
+                    <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 14, marginBottom: 4 }}>
+                      Kolektif Gökyüzü Çizelgesi Hesaplanıyor...
+                    </Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 11, textAlign: 'center' }}>
+                      Gökyüzündeki gezegenlerin birbiriyle oluşturduğu büyük döngüler taranıyor.
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={{ marginTop: 10 }}>
+                    <MobileTransitTimelineChart
+                      items={skyTimelineData?.items || []}
+                      startDateStr={skyTimelineData?.startDate || transitDateStr}
+                      endDateStr={skyTimelineData?.endDate || transitDateStr}
+                      range={skyTimelineRange}
+                      onRangeChange={(newRange) => {
+                        setSkyTimelineRange(newRange);
+                        fetchSkyTimeline(newRange);
+                      }}
+                      isLoading={isSkyTimelineLoading}
+                      isPremium={isApprenticeOrAbove}
+                      onRequirePremium={() => setShowLockModal(true)}
+                      isMundane={true}
+                      userTimezone={skyTimelineData?.timeZone || userTz}
+                      tzOffsetHours={skyTimelineData?.tzOffsetHours ?? tzOffsetHours}
+                    />
+                  </View>
+                )
+              )}
+            </View>
           ) : (
             !transitData ? (
             <BlurView intensity={25} tint="dark" style={styles.formCard}>
@@ -1186,5 +1478,69 @@ const styles = StyleSheet.create({
   modeSwitchTextActive: {
     color: '#000',
     fontWeight: 'bold'
-  }
+  },
+  filterChipsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 12,
+    flexWrap: 'wrap',
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  filterChipActive: {
+    backgroundColor: 'rgba(14, 165, 233, 0.25)',
+    borderColor: '#0EA5E9',
+  },
+  filterChipText: {
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '600',
+  },
+  filterChipTextActive: {
+    color: '#0EA5E9',
+    fontWeight: 'bold',
+  },
+  skyDateToolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(20, 20, 25, 0.7)',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(14, 165, 233, 0.2)',
+    marginBottom: 12,
+  },
+  skyDateBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  skyDateText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  refreshSkyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(14, 165, 233, 0.2)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#0EA5E9',
+  },
+  refreshSkyBtnText: {
+    color: '#0EA5E9',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginLeft: 4,
+  },
 });
