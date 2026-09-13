@@ -56,7 +56,12 @@ export async function setTokens(access: string | null, refresh: string | null) {
 
 export async function isAuthenticated(): Promise<boolean> {
   await loadTokens();
-  return !!accessToken;
+  if (accessToken) return true;
+  if (refreshToken) {
+    const ok = await refreshAuthTokens();
+    return ok;
+  }
+  return false;
 }
 
 // İçerik fetch'lerinde kullanmak için (varsa) Bearer başlığı.
@@ -83,26 +88,58 @@ async function parse<T>(res: Response): Promise<T> {
   return json as T;
 }
 
-// Auth gerektiren çağrı; 401'de refresh dener, sonra bir kez tekrar dener.
+// Eşzamanlı isteklerin aynı anda refresh atmasını engelleyen tekil Promise kilidi (Mutex)
+let refreshPromise: Promise<boolean> | null = null;
+
+async function refreshAuthTokens(): Promise<boolean> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      await loadTokens();
+      if (!refreshToken) return false;
+
+      const r = await rawFetch(
+        '/api/auth/refresh',
+        { method: 'POST', body: JSON.stringify({ refreshToken }) },
+        false,
+      );
+
+      if (r.ok) {
+        const data: any = await r.json();
+        await setTokens(data.accessToken, data.refreshToken);
+        return true;
+      } else {
+        // Sadece sunucu açıkça yetkisiz oturum (401/403) dönerse token'ları temizle
+        if (r.status === 401 || r.status === 403) {
+          await setTokens(null, null);
+          notify();
+        }
+        return false;
+      }
+    } catch {
+      // Geçici ağ kopukluğunda veya sunucuya ulaşılamadığında token'ları silme!
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
+
+// Auth gerektiren çağrı; 401'de tekilleştirilmiş refresh dener, sonra tekrar dener.
 export async function apiFetch<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   let res = await rawFetch(path, opts, true);
   if (res.status === 401 && refreshToken) {
-    const r = await rawFetch(
-      '/api/auth/refresh',
-      { method: 'POST', body: JSON.stringify({ refreshToken }) },
-      false,
-    );
-    if (r.ok) {
-      const data: any = await r.json();
-      await setTokens(data.accessToken, data.refreshToken);
+    const refreshed = await refreshAuthTokens();
+    if (refreshed) {
       res = await rawFetch(path, opts, true);
-    } else {
-      await setTokens(null, null);
-      notify();
     }
   }
   return parse<T>(res);
 }
+
 
 async function postNoAuth<T = any>(path: string, body: any): Promise<T> {
   const res = await rawFetch(path, { method: 'POST', body: JSON.stringify(body) }, false);
