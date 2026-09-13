@@ -62,15 +62,15 @@ const ASPECT_COLORS: Record<string, string> = {
 export default function KabbalahAnalysisScreen() {
   const router = useRouter();
   const { role, isAdmin } = useProgress();
-  const isMasterOrAdmin = role === 'master' || role === 'admin' || isAdmin;
+  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
 
   const handleInterpClick = (interp: any) => {
-    if (isMasterOrAdmin) {
+    if (isApprenticeOrAbove) {
       setSelectedInterp(interp || null);
     } else {
       Alert.alert(
         "Detaylı Analiz Kilitli",
-        "Kabalistik gezegen yerleşimlerinin derin ezoterik analizleri Usta Seviyesi (Master) üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır."
+        "Kabalistik gezegen yerleşimlerinin derin ezoterik analizleri Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir."
       );
     }
   };
@@ -203,7 +203,7 @@ export default function KabbalahAnalysisScreen() {
     }
   };
 
-  const renderSvgWheel = (currentChart: NatalChartData | null) => {
+  const renderSvgWheel = (currentChart: NatalChartData | null, hasHouses: boolean = true) => {
     if (!currentChart) return null;
 
     const ascLon = currentChart.ascendant.longitude;
@@ -261,7 +261,7 @@ export default function KabbalahAnalysisScreen() {
           })}
 
           {/* House Lines */}
-          {currentChart.houses.map((h, i) => {
+          {hasHouses && currentChart.houses.map((h, i) => {
             const isAngle = h.house === 1 || h.house === 4 || h.house === 7 || h.house === 10;
             return (
               <G key={`house-${i}`}>
@@ -301,73 +301,6 @@ export default function KabbalahAnalysisScreen() {
       </View>
     );
   };
-
-  if (!isMasterOrAdmin) {
-    return (
-      <SacredBackground>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
-          </TouchableOpacity>
-          <View style={{ alignItems: 'center' }}>
-            <Text style={styles.headerTitle}>Kabalistik 4 Alem</Text>
-            <Text style={styles.headerSubtitle}>Sefirot Ağacı Analizi</Text>
-          </View>
-          <View style={{ width: 28 }} />
-        </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-          <View style={{
-            width: '100%',
-            maxWidth: 380,
-            padding: 28,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: 'rgba(212,175,55,0.4)',
-            backgroundColor: 'rgba(10, 10, 10, 0.85)',
-            alignItems: 'center',
-          }}>
-            <View style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              backgroundColor: 'rgba(212,175,55,0.15)',
-              borderWidth: 1,
-              borderColor: 'rgba(212,175,55,0.3)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 16,
-            }}>
-              <Ionicons name="lock-closed" size={32} color={COLORS.primary} />
-            </View>
-            <Text style={{ color: '#FFF', fontSize: 18, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' }}>
-              Usta Seviyesi Gerekli
-            </Text>
-            <Text style={{ color: '#9CA3AF', fontSize: 14, textAlign: 'center', marginBottom: 24, lineHeight: 22 }}>
-              Bu derin ezoterik analiz Usta Seviyesi (Master) üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır.
-            </Text>
-            <TouchableOpacity
-              style={{
-                backgroundColor: 'rgba(212,175,55,0.2)',
-                borderWidth: 1,
-                borderColor: COLORS.primary,
-                paddingHorizontal: 32,
-                paddingVertical: 12,
-                borderRadius: 24,
-                width: '100%',
-                alignItems: 'center',
-              }}
-              onPress={() => router.back()}
-              activeOpacity={0.85}
-            >
-              <Text style={{ color: COLORS.primary, fontWeight: 'bold', fontSize: 15 }}>
-                Geri Dön
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SacredBackground>
-    );
-  }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
@@ -482,6 +415,36 @@ export default function KabbalahAnalysisScreen() {
                 <Text style={styles.ascResult}>Yükselen Burç: <Text style={{fontWeight: 'bold', color: COLORS.primary}}>{chartData.assiah.ascendant.sign}</Text></Text>
               </View>
 
+              {/* Aktif Bilinç Boyutu Kartı */}
+              {kabbalahAnalysis?.activeConsciousness && (
+                <View style={styles.activeConsciousnessCard}>
+                  <View style={styles.acHeaderRow}>
+                    <View style={styles.acBadge}>
+                      <Text style={styles.acBadgeText}>GÜNCEL GÖKYÜZÜ ETKİSİ</Text>
+                    </View>
+                  </View>
+                  <View style={{flexDirection: 'row', alignItems: 'flex-start', marginTop: 8}}>
+                    <View style={styles.acIconWrap}>
+                      <Ionicons name="sparkles" size={20} color="#0EA5E9" />
+                    </View>
+                    <View style={{flex: 1, marginLeft: 10}}>
+                      <Text style={styles.acMainTitle}>Aktif Bilinç Boyutunuz</Text>
+                      <Text style={styles.acSubTitle}>{kabbalahAnalysis.activeConsciousness.title}</Text>
+                      <Text style={styles.acReason}>{kabbalahAnalysis.activeConsciousness.reason}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.acAdviceBox}>
+                    <Text style={styles.acAdviceHeader}>MEVCUT TEKÂMÜL TAVSİYESİ</Text>
+                    <Text style={styles.acAdviceText}>{kabbalahAnalysis.activeConsciousness.explanation}</Text>
+                  </View>
+
+                  <Text style={styles.acFootnote}>
+                    ⚠️ Önemli Bilgilendirme: 4 Alem haritalarınız kalıcı potansiyelinizdir; ancak bu kart bugünkü canlı gökyüzü transitlerine göre dönemsel tekâmül ödevinizi gösterir.
+                  </Text>
+                </View>
+              )}
+
               {/* Shortcut Level Banner */}
               {kabbalahAnalysis && kabbalahAnalysis.shortcutLevel > 0 && (
                 <View style={styles.shortcutBanner}>
@@ -538,35 +501,42 @@ export default function KabbalahAnalysisScreen() {
               )}
 
               {/* SVG Chart display */}
-              <View style={styles.chartOuterContainer}>
-                {renderSvgWheel(chartData[selectedWorld])}
-              </View>
+              {(() => {
+                const hasHouses = selectedWorld === 'assiah' || selectedWorld === 'yetzirah';
+                return (
+                  <View>
+                    <View style={styles.chartOuterContainer}>
+                      {renderSvgWheel(chartData[selectedWorld], hasHouses)}
+                    </View>
 
-              {/* Placements List */}
-              <View style={styles.listSection}>
-                <Text style={styles.sectionHeading}>Gezegen Konumları</Text>
-                {chartData[selectedWorld].planets.map((p: any, idx: number) => (
-                  <TouchableOpacity 
-                    key={idx} 
-                    style={styles.listItem}
-                    onPress={() => handleInterpClick(interpretations?.[selectedWorld]?.[p.name] || null)}
-                  >
-                    <View style={styles.listItemLeft}>
-                      <View style={styles.planetIcon}>
-                        <Text style={styles.planetIconText}>{PLANET_SYMBOLS[p.name] || p.name[0]}</Text>
-                      </View>
-                      <View>
-                        <Text style={styles.planetName}>{p.name}</Text>
-                        <Text style={styles.houseName}>{p.house}. Ev</Text>
-                      </View>
+                    {/* Placements List */}
+                    <View style={styles.listSection}>
+                      <Text style={styles.sectionHeading}>Gezegen Konumları</Text>
+                      {chartData[selectedWorld].planets.map((p: any, idx: number) => (
+                        <TouchableOpacity 
+                          key={idx} 
+                          style={styles.listItem}
+                          onPress={() => handleInterpClick(interpretations?.[selectedWorld]?.[p.name] || null)}
+                        >
+                          <View style={styles.listItemLeft}>
+                            <View style={styles.planetIcon}>
+                              <Text style={styles.planetIconText}>{PLANET_SYMBOLS[p.name] || p.name[0]}</Text>
+                            </View>
+                            <View>
+                              <Text style={styles.planetName}>{p.name}</Text>
+                              {hasHouses && <Text style={styles.houseName}>{p.house}. Ev</Text>}
+                            </View>
+                          </View>
+                          <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={[styles.signName, { color: ZODIAC_COLORS[p.sign] || '#E0E0E0' }]}>{ZODIAC_SYMBOLS[p.sign]} {p.sign}</Text>
+                            <Text style={styles.degreeName}>{p.degreeInSign}°{p.minutes}' {p.isRetrograde && 'Rx'}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
                     </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={[styles.signName, { color: ZODIAC_COLORS[p.sign] || '#E0E0E0' }]}>{ZODIAC_SYMBOLS[p.sign]} {p.sign}</Text>
-                      <Text style={styles.degreeName}>{p.degreeInSign}°{p.minutes}' {p.isRetrograde && 'Rx'}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                  </View>
+                );
+              })()}
 
             </View>
           )}
@@ -823,5 +793,82 @@ const styles = StyleSheet.create({
   interpModalContent: { backgroundColor: 'rgba(10,10,10,0.95)', borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '65%', padding: 25, borderWidth: 1, borderColor: COLORS.primary },
   interpModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: 'rgba(212,175,55,0.2)', paddingBottom: 15 },
   interpModalTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.primary, flex: 1, marginRight: 10 },
-  interpModalText: { fontSize: 15, color: '#E5E7EB', lineHeight: 24 }
+  interpModalText: { fontSize: 15, color: '#E5E7EB', lineHeight: 24 },
+  activeConsciousnessCard: {
+    backgroundColor: 'rgba(14, 165, 233, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(14, 165, 233, 0.3)',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 12,
+  },
+  acHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  acBadge: {
+    backgroundColor: 'rgba(14, 165, 233, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(14, 165, 233, 0.3)',
+  },
+  acBadgeText: {
+    color: '#0EA5E9',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  acIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(14, 165, 233, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  acMainTitle: {
+    color: '#0EA5E9',
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  acSubTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  acReason: {
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  acAdviceBox: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  acAdviceHeader: {
+    color: '#0EA5E9',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  acAdviceText: {
+    color: '#D1D5DB',
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  acFootnote: {
+    color: '#9CA3AF',
+    fontSize: 10,
+    lineHeight: 14,
+    marginTop: 10,
+    fontStyle: 'italic',
+  }
 });

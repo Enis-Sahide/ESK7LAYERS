@@ -25,8 +25,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     icon: 'moon-outline', 
     route: '/(dashboard)/kisisel-analizler/kabalistik-4-alem',
     color: '#D4AF37',
-    isAvailable: true,
-    minRole: 'master'
+    isAvailable: true
   },
   { 
     id: 'numeroloji', 
