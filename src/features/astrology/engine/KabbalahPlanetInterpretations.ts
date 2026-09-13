@@ -440,10 +440,27 @@ export function getEsotericPlanetInterpretation(planetName: string, signName: Zo
     retroSynthesis = `\n\n🔄 **KARMİK DÜZELTME (TİKKUN: Retrograde - Rx)**\n**${planetName} (Rx) Ruhsal Sınavı:** ${specificTikkun}`;
   }
 
-  const title = `${planetName} - ${signName} Burcunda ve ${houseNum}. Evde${titleSuffix}`;
+  const isNoHouseWorld = isHarmonic || isHeliocentric;
+  const title = isNoHouseWorld 
+    ? `${planetName} - ${signName} Burcunda${titleSuffix}`
+    : `${planetName} - ${signName} Burcunda ve ${houseNum}. Evde${titleSuffix}`;
   
   const planetContent = planet[layerKey] || planet.assiah;
   const signContent = sign[layerKey] || sign.assiah;
+
+  let houseSection = '';
+  let synthesisSection = '';
+
+  if (isNoHouseWorld) {
+    houseSection = isHeliocentric 
+      ? `**[İLÂHÎ BOYUT: ATZILUT (KUDRET)]**\nBu boyutta dünyevi ev ve ufuk kısıtlamaları bulunmaz. Gezegeniniz Güneş'in saf bilinciyle doğrudan rezonansa girer ve ego illüzyonlarından arınmış saf bir ilahi irade frekansı yayar.`
+      : `**[YÜKSEK ZİHİN BOYUTU: BERİYAH]**\nBu harmonik boyutta dünyevi ev sınırları aşılmıştır. Gezegeniniz doğrudan evrensel ilkeler, yüksek zihinsel kavrayış ve ruhsal vizyonunuzla rezonansa girer.`;
+
+    synthesisSection = `Bu yerleşim; ruhsal tekamülünüzde **${pDomain}**, ${signName} burcunun yüksek kozmik frekansıyla birleştirerek evrensel plana hizmet ettirir. ${worldSynthesisDesc}`;
+  } else {
+    houseSection = `**[YAŞAM ALANI (EV): ${houseNum}. Ev]**\n${house.esoteric}\n\n**🎯 Yaşamsal Sahne:** ${hPractical} merkezidir.`;
+    synthesisSection = `Bu yerleşim; haritanızda **${pDomain}**, ${signName} burcunun nitelikleriyle buluşturarak ${hPractical.toLowerCase()} doğrudan merkezine taşır. ${worldSynthesisDesc}`;
+  }
 
   const content = `**[KOZMİK SEMBOLİZM: ${planetName}]**
 ${planetContent}
@@ -455,13 +472,10 @@ ${signContent}
 
 **⚠️ Gölge Yan & Sınav:** ${sPractical.shadow}
 
-**[YAŞAM ALANI (EV): ${houseNum}. Ev]**
-${house.esoteric}
-
-**🎯 Yaşamsal Sahne:** ${hPractical} merkezidir.
+${houseSection}
 
 **[${worldNameTitle.toUpperCase()} SENTEZİ & TEKÂMÜL REHBERİ]**
-Bu yerleşim; haritanızda **${pDomain}**, ${signName} burcunun nitelikleriyle buluşturarak ${hPractical.toLowerCase()} doğrudan merkezine taşır. ${worldSynthesisDesc}
+${synthesisSection}
 
 **🔑 Tekâmül Anahtarı:** ${pPractical.key} ${sPractical.advice}${retroSynthesis}`;
 
