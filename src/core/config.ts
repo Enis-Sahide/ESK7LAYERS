@@ -24,3 +24,36 @@ export const getBackendUrl = (): string => {
 };
 
 export const API_BASE_URL: string = getBackendUrl();
+
+export const getLocalDevUrl = (): string => {
+  if (Platform.OS === 'android') {
+    return 'http://10.0.2.2:3000';
+  }
+  return 'http://localhost:3000';
+};
+
+export const apiFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  try {
+    const res = await fetch(url, options);
+    // If response is 404 (endpoint not yet deployed to production) and we are in __DEV__, try local dev server
+    if (!res.ok && res.status === 404 && typeof __DEV__ !== 'undefined' && __DEV__ && !endpoint.startsWith('http')) {
+      const devUrl = `${getLocalDevUrl()}${endpoint}`;
+      try {
+        const devRes = await fetch(devUrl, options);
+        if (devRes.ok) return devRes;
+      } catch {
+        // Fallback to original response
+      }
+    }
+    return res;
+  } catch (err) {
+    if (typeof __DEV__ !== 'undefined' && __DEV__ && !endpoint.startsWith('http')) {
+      const devUrl = `${getLocalDevUrl()}${endpoint}`;
+      try {
+        return await fetch(devUrl, options);
+      } catch {}
+    }
+    throw err;
+  }
+};

@@ -10,7 +10,7 @@ import moment from 'moment-timezone';
 import tzlookup from 'tz-lookup';
 import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@/src/features/astrology/engine/TransitInterpretations';
 
-import { API_BASE_URL } from '@/src/core/config';
+import { API_BASE_URL, apiFetch } from '@/src/core/config';
 import { useProgress } from '@/src/context/ProgressContext';
 import MobileTransitTimelineChart from '@/src/features/astrology/components/MobileTransitTimelineChart';
 import MobileMundaneSkyWheel from '@/src/features/astrology/components/MobileMundaneSkyWheel';
@@ -210,7 +210,7 @@ export default function AnlikGokyuzuScreen() {
   const fetchSkyTimeline = async (rangeToFetch: '1m' | '3m' | '6m' | '1y' = skyTimelineRange) => {
     setIsSkyTimelineLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/sky-timeline`, {
+      const response = await apiFetch('/api/astrology/sky-timeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -239,7 +239,7 @@ export default function AnlikGokyuzuScreen() {
     if (!selectedCityData) return;
     setIsTimelineLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/transit-timeline`, {
+      const response = await apiFetch('/api/astrology/transit-timeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -252,9 +252,11 @@ export default function AnlikGokyuzuScreen() {
           tzOffsetHours
         })
       });
-      const data = await response.json();
-      if (data.success) {
-        setTimelineData(data.data);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.success) {
+          setTimelineData(data.data);
+        }
       }
     } catch (e) {
       console.error('Mobile timeline fetch error:', e);
@@ -427,7 +429,7 @@ export default function AnlikGokyuzuScreen() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/astrology/calculate-transit`, {
+      const response = await apiFetch('/api/astrology/calculate-transit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
