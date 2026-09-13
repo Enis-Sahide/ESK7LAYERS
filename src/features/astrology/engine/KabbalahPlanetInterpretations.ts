@@ -447,20 +447,23 @@ export function getEsotericPlanetInterpretation(planetName: string, signName: Zo
 
   const content = `**[KOZMİK SEMBOLİZM: ${planetName}]**
 ${planetContent}
-*(✨ Ruhsal Güç & Potansiyel: ${pPractical.power})*
+
+**✨ Ruhsal Güç & Potansiyel:** ${pPractical.power}
 
 **[BURÇ REZONANSI: ${signName}]**
 ${signContent}
-*(⚠️ Gölge Yan & Sınav: ${sPractical.shadow})*
+
+**⚠️ Gölge Yan & Sınav:** ${sPractical.shadow}
 
 **[YAŞAM ALANI (EV): ${houseNum}. Ev]**
 ${house.esoteric}
-*(🎯 Yaşamsal Sahne: ${hPractical} merkezidir.)*
+
+**🎯 Yaşamsal Sahne:** ${hPractical} merkezidir.
 
 **[${worldNameTitle.toUpperCase()} SENTEZİ & TEKÂMÜL REHBERİ]**
 Bu yerleşim; haritanızda **${pDomain}**, ${signName} burcunun nitelikleriyle buluşturarak ${hPractical.toLowerCase()} doğrudan merkezine taşır. ${worldSynthesisDesc}
 
-🔑 **Tekâmül Anahtarı:** ${pPractical.key} ${sPractical.advice}${retroSynthesis}`;
+**🔑 Tekâmül Anahtarı:** ${pPractical.key} ${sPractical.advice}${retroSynthesis}`;
 
   return { title, content };
 }
