@@ -19,6 +19,15 @@ interface AnalysisTool {
 
 const ANALYSIS_TOOLS: AnalysisTool[] = [
   { 
+    id: 'druidtree', 
+    title: 'Kelt Druid Ağacı Analizi', 
+    description: '13 kutsal Ogham ağacındaki ruhsal arketipinizi, Ogham harfinizi ve Shinrin-Yoku topraklanma ritüelinizi analiz edin.',
+    icon: 'leaf-outline', 
+    route: '/(dashboard)/kisisel-analizler/kelt-druid-agaci',
+    color: '#10B981',
+    isAvailable: true
+  },
+  { 
     id: 'kabalistik4alem', 
     title: 'Kabalistik 4 Alem', 
     description: 'Sefirot ağacındaki kadersel sıçrama noktalarınızı bulun.',
