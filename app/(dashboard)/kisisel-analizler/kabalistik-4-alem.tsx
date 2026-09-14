@@ -428,8 +428,8 @@ export default function KabbalahAnalysisScreen() {
                       <Ionicons name="sparkles" size={20} color="#0EA5E9" />
                     </View>
                     <View style={{flex: 1, marginLeft: 10}}>
-                      <Text style={styles.acMainTitle}>Kozmik Sınav & Frekans Aynanız</Text>
-                      <Text style={styles.acSubTitle}>Hangi Haritanızı Çalıştırıyorsunuz?</Text>
+                      <Text style={styles.acMainTitle}>Kozmik Farkındalık & Frekans Aynanız</Text>
+                      <Text style={styles.acSubTitle}>Hangi Bilinç Âlemini Deneyimliyorsunuz?</Text>
                     </View>
                   </View>
 
@@ -437,7 +437,7 @@ export default function KabbalahAnalysisScreen() {
                   <View style={styles.acAdviceBox}>
                     <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 4}}>
                       <View style={styles.acChallengeBadge}>
-                        <Text style={styles.acChallengeBadgeText}>GÜNCEL SINAV</Text>
+                        <Text style={styles.acChallengeBadgeText}>GELİŞİM ODAK NOKTASI</Text>
                       </View>
                       <Text style={styles.acChallengeTitle}>
                         {kabbalahAnalysis.activeConsciousness.currentTheme || kabbalahAnalysis.activeConsciousness.title}
@@ -448,7 +448,7 @@ export default function KabbalahAnalysisScreen() {
                     </Text>
                     <View style={styles.acTriggerBox}>
                       <Text style={styles.acTriggerText}>
-                        <Text style={{fontWeight: 'bold', color: '#38BDF8'}}>⚡ Tetikleyici: </Text>
+                        <Text style={{fontWeight: 'bold', color: '#38BDF8'}}>⚡ Göksel Rehberlik: </Text>
                         {kabbalahAnalysis.activeConsciousness.transitSummary || kabbalahAnalysis.activeConsciousness.reason}
                       </Text>
                     </View>
@@ -457,22 +457,22 @@ export default function KabbalahAnalysisScreen() {
                   {/* Frekans Aynası 4 Alem */}
                   {kabbalahAnalysis.activeConsciousness.spectrum && (
                     <View style={styles.acSpectrumContainer}>
-                      <Text style={styles.acSpectrumHeading}>🪞 4 Alem Frekans Aynanız</Text>
+                      <Text style={styles.acSpectrumHeading}>🪞 4 Âlem Frekans Aynanız</Text>
                       <Text style={styles.acSpectrumSub}>
-                        Bu sınav karşısındaki tutumunuz, o an hangi haritanızı çalıştırdığınızı gösterir:
+                        Bu gökyüzü etkisi karşısında geliştirdiğiniz içsel tutum, şu an hangi bilinç boyutunu deneyimlediğinizi gösterir:
                       </Text>
 
                       {/* 1. Assiah */}
                       <View style={[styles.acSpectrumCard, { borderColor: 'rgba(239, 68, 68, 0.4)', backgroundColor: 'rgba(239, 68, 68, 0.08)' }]}>
                         <View style={styles.acCardHeaderRow}>
-                          <Text style={[styles.acCardTitle, { color: '#EF4444' }]}>1. Assiah (Madde)</Text>
-                          <Text style={[styles.acLevelTag, { color: '#F87171', backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>REAKTİF DÜZEY</Text>
+                          <Text style={[styles.acCardTitle, { color: '#EF4444' }]}>1. Âlem (Madde / Assiah)</Text>
+                          <Text style={[styles.acLevelTag, { color: '#F87171', backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>FİZİKSEL BOYUT</Text>
                         </View>
                         <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.assiah.title}</Text>
                         <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.assiah.reaction}</Text>
                         <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(239, 68, 68, 0.2)' }]}>
                           <Text style={styles.acDiagnosisText}>
-                            <Text style={{fontWeight: 'bold', color: '#EF4444'}}>Teşhis: </Text>
+                            <Text style={{fontWeight: 'bold', color: '#EF4444'}}>Farkındalık Aynası: </Text>
                             {kabbalahAnalysis.activeConsciousness.spectrum.assiah.diagnosis}
                           </Text>
                         </View>
@@ -481,14 +481,14 @@ export default function KabbalahAnalysisScreen() {
                       {/* 2. Yetzirah */}
                       <View style={[styles.acSpectrumCard, { borderColor: 'rgba(14, 165, 233, 0.4)', backgroundColor: 'rgba(14, 165, 233, 0.08)' }]}>
                         <View style={styles.acCardHeaderRow}>
-                          <Text style={[styles.acCardTitle, { color: '#0EA5E9' }]}>2. Yetzirah (Duygu)</Text>
+                          <Text style={[styles.acCardTitle, { color: '#0EA5E9' }]}>2. Âlem (Duygu / Yetzirah)</Text>
                           <Text style={[styles.acLevelTag, { color: '#38BDF8', backgroundColor: 'rgba(14, 165, 233, 0.2)' }]}>DUYGUSAL ŞİFA</Text>
                         </View>
                         <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.title}</Text>
                         <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.reaction}</Text>
                         <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(14, 165, 233, 0.2)' }]}>
                           <Text style={styles.acDiagnosisText}>
-                            <Text style={{fontWeight: 'bold', color: '#0EA5E9'}}>Teşhis: </Text>
+                            <Text style={{fontWeight: 'bold', color: '#0EA5E9'}}>Farkındalık Aynası: </Text>
                             {kabbalahAnalysis.activeConsciousness.spectrum.yetzirah.diagnosis}
                           </Text>
                         </View>
@@ -497,14 +497,14 @@ export default function KabbalahAnalysisScreen() {
                       {/* 3. Beriyah */}
                       <View style={[styles.acSpectrumCard, { borderColor: 'rgba(245, 158, 11, 0.4)', backgroundColor: 'rgba(245, 158, 11, 0.08)' }]}>
                         <View style={styles.acCardHeaderRow}>
-                          <Text style={[styles.acCardTitle, { color: '#F59E0B' }]}>3. Beriyah (Zihin)</Text>
+                          <Text style={[styles.acCardTitle, { color: '#F59E0B' }]}>3. Âlem (Zihin / Beriyah)</Text>
                           <Text style={[styles.acLevelTag, { color: '#FBBF24', backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>BİLGE İRADE</Text>
                         </View>
                         <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.beriyah.title}</Text>
                         <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.beriyah.reaction}</Text>
                         <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(245, 158, 11, 0.2)' }]}>
                           <Text style={styles.acDiagnosisText}>
-                            <Text style={{fontWeight: 'bold', color: '#F59E0B'}}>Teşhis: </Text>
+                            <Text style={{fontWeight: 'bold', color: '#F59E0B'}}>Farkındalık Aynası: </Text>
                             {kabbalahAnalysis.activeConsciousness.spectrum.beriyah.diagnosis}
                           </Text>
                         </View>
@@ -513,14 +513,14 @@ export default function KabbalahAnalysisScreen() {
                       {/* 4. Atzilut */}
                       <View style={[styles.acSpectrumCard, { borderColor: 'rgba(168, 85, 247, 0.4)', backgroundColor: 'rgba(168, 85, 247, 0.08)' }]}>
                         <View style={styles.acCardHeaderRow}>
-                          <Text style={[styles.acCardTitle, { color: '#A855F7' }]}>4. Atzilut (Kudret)</Text>
+                          <Text style={[styles.acCardTitle, { color: '#A855F7' }]}>4. Âlem (Kudret / Atzilut)</Text>
                           <Text style={[styles.acLevelTag, { color: '#C084FC', backgroundColor: 'rgba(168, 85, 247, 0.2)' }]}>KOZMİK BİRLİK</Text>
                         </View>
                         <Text style={styles.acLevelHeading}>{kabbalahAnalysis.activeConsciousness.spectrum.atzilut.title}</Text>
                         <Text style={styles.acReactionText}>{kabbalahAnalysis.activeConsciousness.spectrum.atzilut.reaction}</Text>
                         <View style={[styles.acDiagnosisBox, { borderColor: 'rgba(168, 85, 247, 0.2)' }]}>
                           <Text style={styles.acDiagnosisText}>
-                            <Text style={{fontWeight: 'bold', color: '#A855F7'}}>Teşhis: </Text>
+                            <Text style={{fontWeight: 'bold', color: '#A855F7'}}>Farkındalık Aynası: </Text>
                             {kabbalahAnalysis.activeConsciousness.spectrum.atzilut.diagnosis}
                           </Text>
                         </View>
@@ -529,7 +529,7 @@ export default function KabbalahAnalysisScreen() {
                   )}
 
                   <Text style={styles.acFootnote}>
-                    ⚠️ Ezoterik İlke: Bir kriz anındaki bilinçli tutumunuz o an hangi haritanızı çalıştırdığınızı belirler. Reaksiyonunuzu korkudan (Assiah) bilgelik ve teslimiyete (Beriyah & Atzilut) yükselterek üst potansiyelinizi hayata çekebilirsiniz.
+                    🌱 Ezoterik İlke: Hayat deneyimlerindeki bilinçli farkındalığınız, o an hangi âlemin potansiyelini aktive ettiğinizi belirler. Deneyimlerinizi eylem boyutundan (Assiah) bilgelik, sezgi ve içsel huzura (Beriyah & Atzilut) kolaylıkla dönüştürebilirsiniz.
                   </Text>
                 </View>
               )}
@@ -666,7 +666,18 @@ export default function KabbalahAnalysisScreen() {
                 </TouchableOpacity>
               </View>
               <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
-                <Text style={styles.interpModalText}>{selectedInterp?.content}</Text>
+                <Text style={styles.interpModalText}>
+                  {selectedInterp?.content ? selectedInterp.content.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                      return (
+                        <Text key={index} style={{ fontWeight: 'bold', color: '#D4AF37' }}>
+                          {part.slice(2, -2)}
+                        </Text>
+                      );
+                    }
+                    return part;
+                  }) : null}
+                </Text>
               </ScrollView>
             </View>
           </View>

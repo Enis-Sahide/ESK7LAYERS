@@ -101,32 +101,32 @@ export function getKabbalahAnalysis(dateStr: string) {
     shortcutLevel = 1;
     shortcutMessage = `Beden (1. Harita) Yöneticiniz Jüpiter'dir (Yaşam Yolu Sayınız: ${sum}). Jüpiter, makrokozmik aklın ve ilahi lütfun (Hesed) yöneticisidir. Beden haritanızda bu gücü aktive ettiğinizde hayatınızdaki fırsatlar ve ruhsal akış hızlanır. Bilgi edinmek, evrensel yasaları tefekkür etmek ve hakikati aramak sizin için en güçlü ruhsal uyanış anahtarıdır. Bu bilgelik arayışı sizi doğrudan üst alemlerin idrakine bağlar.`;
   } else if (primaryRuler === 'Satürn') {
-    shortcutLevel = 0; // Bu bir engeldir, shortcut değil.
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Satürn'dür (Yaşam Yolu Sayınız: ${sum}). Satürn, Assiah (Madde) dünyasındaki en ağır karmik testleri, sabrı ve kadersel sınırları (Binah'ın vakur disiplinini) temsil eder. Satürn'ün 1. haritanızı yönetmesi, dünyevi sorumlulukları yerine getirmeden ruhsal sıçrama yapılamayacağını gösterir. Üst haritalara geçebilmek için öncelikle dünyevi yükümlülükleri, korkuları ve zamanın getirdiği sabır sınavlarını yüksek bir olgunlukla aşmanız gerekir. Bu en zorlu ama ustalaşıldığında en kalıcı ve sarsılmaz tekâmül yoludur.`;
+    shortcutLevel = 0; // Köklenme ve sağlam temel
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Satürn'dür (Yaşam Yolu Sayınız: ${sum}). Satürn, Assiah (Madde) dünyasında sabır, köklenme, sağlıklı sınırlar ve Binah'ın vakur disiplinini temsil eder. Satürn enerjisi, dünyevi alanda sağlam ve sarsılmaz bir temel inşa etmenize rehberlik eder. Yaşamınızdaki sorumlulukları olgunlukla kucakladığınızda ve zamanın bilgeliğine güvendiğinizde, bu sağlam zemin üzerinde üst bilinç boyutlarına güvenle yükselebilirsiniz. Bu, sabırla işlendiğinde en kalıcı ve sarsılmaz tekâmül yoludur.`;
   } else if (primaryRuler === 'Mars' || primaryRuler === 'Plüto') {
     shortcutLevel = 3;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz ${primaryRuler}'dur (Yaşam Yolu Sayınız: ${sum}). Bu çok özel bir kozmik imzadır. ${primaryRuler}, ezoterik olarak kişinin içsel ateşini (Geburah) ve ruh gücünü temsil eder. Kendi ruhsal iradenizi ve yapıcı cesaretinizi ortaya çıkardığınız anda, 1. haritadan direkt olarak 3. haritaya (Zihin ve Ruh Alemi - Beriyah) bilinç sıçraması (shortcut) yapabilirsiniz. Odaklanmış iradeniz dünyevi illüzyonları aşma gücüne sahiptir.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz ${primaryRuler}'dur (Yaşam Yolu Sayınız: ${sum}). Bu çok özel bir kozmik imzadır. ${primaryRuler}, ezoterik olarak kişinin içsel ateşini (Geburah) ve ruh gücünü temsil eder. Kendi ruhsal iradenizi ve yapıcı cesaretinizi ortaya çıkardığınız anda, 1. haritadan direkt olarak 3. haritaya (Zihin ve Ruh Alemi - Beriyah) bilinç sıçraması yapabilirsiniz. Odaklanmış iradenizle dünyevi illüzyonları aşıp vizyonunuzu somutlaştırabilirsiniz.`;
   } else if (primaryRuler === 'Uranüs') {
     shortcutLevel = 4;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Uranüs'tür (Yaşam Yolu Sayınız: ${sum}). Uranüs, Atzilut'un (Kudret Alemi) şimşek misali ani aydınlanma ve uyanış frekansıdır. Maddi dünyadaki (Assiah) kalıplaşmış sınırları aşmak ve ilahi bilinci uyandırmak üzere enkarne oldunuz. Kolektif bilinci aşan özgün vizyonlar geliştirerek, doğrudan 4. haritaya hızlı bir bilinç sıçraması (shortcut) yapma potansiyeline sahipsiniz.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Uranüs'tür (Yaşam Yolu Sayınız: ${sum}). Uranüs, Atzilut'un (Kudret Alemi) şimşek misali ani aydınlanma ve uyanış frekansıdır. Maddi dünyadaki kalıplaşmış sınırları aşmak ve ilahi bilinci uyandırmak üzere güçlü bir potansiyele sahipsiniz. Kolektif bilinci aşan özgün vizyonlar geliştirerek, doğrudan 4. haritaya hızlı bir bilinç sıçraması yapma potansiyelini aktive edebilirsiniz.`;
   } else if (primaryRuler === 'Güneş') {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Güneş'tir (Yaşam Yolu Sayınız: ${sum}). Tifaret'in merkezi gücünü bedeninizde taşıyorsunuz. Sizin temel testiniz dünyevi ego ile ilahi öz arasındaki dengeyi kurmaktır. Kendi kalbinizi ve içsel ışığınızı keşfettiğinizde, koşulsuz bir cömertlik sergilediğinizde üst alemlerin kapıları size doğal bir akışla açılacaktır.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Güneş'tir (Yaşam Yolu Sayınız: ${sum}). Tifaret'in merkezi yaşam ışığını bedeninizde taşıyorsunuz. Kendi kalbinizi, özgün yaratıcılığınızı ve içsel ışığınızı keşfederek cömertçe paylaştığınızda, üst alemlerin kapıları size doğal ve bereketli bir akışla açılır.`;
   } else if (primaryRuler === 'Ay') {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Ay'dır (Yaşam Yolu Sayınız: ${sum}). Yesod'un (Bilinçaltı ve Temel) yansıtıcı aynasını taşıyorsunuz. Duygusal bağlarınızı, geçmiş yaşam karmalarınızı ve içsel çocuk yaralarınızı şifalandırmadan titreşiminizi yükseltmeniz zordur. Sizin çıkış kapınız, duygusal dalgalanmaların esiri olmak yerine hislerinizin bilge bir gözlemcisi olmaktan geçer.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Ay'dır (Yaşam Yolu Sayınız: ${sum}). Yesod'un (Bilinçaltı ve Temel) derin yansıtıcı aynasını taşıyorsunuz. Duygusal bağlarınızı ve içsel hislerinizi şefkatle kucakladığınızda titreşiminiz doğal olarak yükselir. Hislerinizin bilge ve sükûnet dolu bir gözlemcisi olarak içsel dengenizi kurabilir, sezgilerinizin rehberliğini güvenle yaşamınıza yansıtabilirsiniz.`;
   } else if (primaryRuler === 'Merkür') {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Merkür'dür (Yaşam Yolu Sayınız: ${sum}). Hod'un (Zeka, İlim ve İletişim) temsilcisisiniz. Assiah dünyasındaki sınavınız; dualiteyi, zihinsel vesveseleri ve yüzeysel bilgi karmaşasını aşmaktır. Kelimelerin ve düşüncelerin kutsal gücünü doğru yönde kullandığınızda yüksek zihin frekanslarına bağlanırsınız.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Merkür'dür (Yaşam Yolu Sayınız: ${sum}). Hod'un (Zeka, İlim ve İletişim) berrak frekansını temsil ediyorsunuz. Zihinsel enerjinizi sadeleştirdiğinizde, kelimelerin ve düşüncelerin birleştirici gücünü keşfederek yüksek zihin frekanslarıyla derin bir bağ kurabilirsiniz.`;
   } else if (primaryRuler === 'Venüs') {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Venüs'tür (Yaşam Yolu Sayınız: ${sum}). Netsah'ın (Güzellik, Ahenk ve Zafer) cazibesini taşıyorsunuz. Sizin en büyük dünyevi sınavınız, yalnızca geçici hazlara ve dış görünüşe takılı kalmaktır. Dünyevi sevginizi ilahi aşk, adalet ve estetik bir ruh haline dönüştürdüğünüzde yüksek alemlere geçişiniz gerçekleşir.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Venüs'tür (Yaşam Yolu Sayınız: ${sum}). Netsah'ın (Güzellik, Ahenk ve Sevgi) zarafetini taşıyorsunuz. Venüs'ün armağanı; güzellik, ahenk ve koşulsuz sevgidir. Bu sevgiyi evrensel bir şefkate, estetik bir derinliğe ve adalet duygusuna dönüştürerek yüksek bilinç alemleriyle derin bir uyum yakalayabilirsiniz.`;
   } else if (primaryRuler === 'Neptün') {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz Neptün'dür (Yaşam Yolu Sayınız: ${sum}). Keter'in okyanusal çözülme enerjisi madde bedeninizde (Assiah) zaman zaman yönsüzlük ve illüzyon hissi yaratabilir. Sizin yolculuğunuz, dünyevi kaçışlara veya kurban psikolojisine kapılmadan; saf sezgi, derin teslimiyet ve evrensel şefkat ile ilahi gerçekliği bu dünyada yaşamaktır.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz Neptün'dür (Yaşam Yolu Sayınız: ${sum}). Keter'in evrensel sevgi ve ilahi birlik frekansını taşıyorsunuz. Saf sezgi, derin teslimiyet ve evrensel şefkatinizi dünyevi sorumluluklarla toprakladığınızda, yüksek ilhamı ve ruhsal huzuru bu dünyada somut olarak deneyimleyebilirsiniz.`;
   } else {
     shortcutLevel = 0;
-    shortcutMessage = `Beden (1. Harita) Yöneticiniz ${primaryRuler}'dur (Yaşam Yolu Sayınız: ${sum}). Bu enerjiyle madde dünyasını anlamlandırmak ve ruhsal alemlere geçmek için ${primaryRuler} enerjisini kendi ilksel niyetinizle uyumlu olarak dönüştürmeniz ve evrimleştirmeniz gerekir.`;
+    shortcutMessage = `Beden (1. Harita) Yöneticiniz ${primaryRuler}'dur (Yaşam Yolu Sayınız: ${sum}). Bu enerjiyle madde dünyasını anlamlandırmak ve ruhsal alemlerle uyumlanmak için ${primaryRuler} potansiyelinizi kendi ilksel niyetinizle uyumlu kılarak yaşamınıza bereket ve idrakle yansıtabilirsiniz.`;
   }
 
   return {

@@ -187,18 +187,18 @@ const KABBALAH_PLANETS: Record<string, { assiah: string, yetzirah: string, beriy
 };
 
 const KABBALAH_HOUSES: Record<number, { esoteric: string }> = {
-  1: { esoteric: 'Malkut\'un birinci kapısı. Avatarın dünyada kendini ilk defa "Ben" olarak tezahür ettirdiği ve dış dünyayla çarpıştığı enerji alanı.' },
-  2: { esoteric: 'Ruhsal özdeğerin ve maddeye (Assiah) hükmetme gücünün test edildiği, yeryüzü kaynaklarının depolandığı form alanı.' },
-  3: { esoteric: 'Thoth\'un alt zihin kanalı. Kardeşlik bağları, yakın çevre karması ve bilginin alt boyutlarda kodlanma laboratuvarı.' },
-  4: { esoteric: 'Bilinçaltının dipsiz kuyusu ve atalardan gelen karmik miras (Kökler). Ruhun içsel sığınağı ve enkarnasyon temeli.' },
-  5: { esoteric: 'İlahi yaratıcılığın ve saf neşenin alanı. Kalp çakrasının dışa vurumu ve ruhun kendi tanrısallığını sanatta/çocukta görme arzusu.' },
-  6: { esoteric: 'Arınma, hizmet ve karmik borç ödeme alanı. Egonun fiziksel ve ruhsal hastalıklar üzerinden terbiye edilip saflaştığı ocak.' },
-  7: { esoteric: 'Aynalama kapısı. Kozmik kontratlarla (Tikkun) hayatımıza çekilen "Öteki" ruhlar üzerinden kendimizdeki eksiği ve gölgeyi gördüğümüz terazi.' },
-  8: { esoteric: 'Karanlık tünel. Simyasal ölüm, dönüşüm ve okült sırlar alanı. Egonun krizler yoluyla yıkılıp (Nigredo) astral bağlardan kurtuluş savaşı.' },
-  9: { esoteric: 'Yüksek zihnin (Beriyah) kapısı. İlahi yasanın, felsefenin ve uzak ufukların keşfedildiği makrokozmik arayış alanı.' },
-  10: { esoteric: 'Zirve noktası. Ruhun toplumsal matriks içindeki otoritesi ve bu boyutta gerçekleştirmesi gereken kadersel magnum opus\'u (başyapıtı).' },
-  11: { esoteric: 'Yıldız tohumlarının meclisi. Evrensel kardeşlik, vizyoner idealler ve kolektif bilincin (Ağa bağlanma) tezahür alanı.' },
-  12: { esoteric: 'Okyanusa dönüş ve çözülme. En gizli korkular, psişik saldırılar, geçmiş yaşam karmasının infazı ve egonun Vahdet\'e (Birliğe) mutlak teslimiyeti.' }
+  1: { esoteric: 'Malkut\'un birinci kapısı. Bireysel varoluşun dünyada kendini "Ben" olarak ortaya koyduğu, beden ve çevreyle ilk temas alanı.' },
+  2: { esoteric: 'Ruhsal özdeğerin ve madde boyutundaki (Assiah) üretim gücünün somutlaştığı, yaşam kaynaklarının yapılandığı güven alanı.' },
+  3: { esoteric: 'Thoth\'un zihin kanalı. İletişim, yakın çevre etkileşimleri ve bilginin alt ve üst boyutlar arasında köprü kurduğu idrak alanı.' },
+  4: { esoteric: 'İçsel sığınak ve kökler. Atalardan gelen ruhsal mirasın kucaklandığı, güven ve aidiyet temelinin atıldığı yuva.' },
+  5: { esoteric: 'İlahi yaratıcılığın ve saf neşenin alanı. Kalbin cömertçe parladığı, sanatsal ilhamın ve özgün ifadenin çiçek açtığı alan.' },
+  6: { esoteric: 'Arınma, denge ve özverili hizmet alanı. Beden, zihin ve ruh dengesinin kurulduğu, günlük ritimlerle yaşamın sadeleştirilip şifalandığı alan.' },
+  7: { esoteric: 'Aynalama ve ortaklık kapısı. Yaşam yolculuğumuza katılan yol arkadaşları üzerinden kendimizi tanıma, denge ve uyum geliştirme terazisi.' },
+  8: { esoteric: 'Dönüşüm simyası ve müşterek kaynakların bilgeliği alanı. Eski kalıpları serbest bırakıp yenilenerek küllerinden doğma ve derin ruhsal farkındalık kazanma kapısı.' },
+  9: { esoteric: 'Yüksek zihnin (Beriyah) kapısı. Evrensel yasaların, felsefi açılımların ve uzak ufukların keşfedildiği makrokozmik arayış alanı.' },
+  10: { esoteric: 'Kariyer ve toplumsal katkı zirvesi. Ruhun kolektif yaşam içerisindeki saygınlığı ve dünyaya armağan edeceği kalıcı eserlerin tezahür alanı.' },
+  11: { esoteric: 'Kolektif vizyon meclisi. Evrensel kardeşlik, vizyoner idealler ve bütüne fayda sağlayan toplumsal projelerin paylaşıldığı alan.' },
+  12: { esoteric: 'Evrensel birlik, içsel sükûnet ve ilahi teslimiyet alanı. Geçmiş tortuları şefkatle serbest bırakarak saf sezgiye, derin şifaya ve ruhsal dinginliğe kavuşma kapısı.' }
 };
 
 interface PlanetPracticalInfo {
@@ -209,75 +209,75 @@ interface PlanetPracticalInfo {
 const PLANET_PRACTICAL: Record<string, PlanetPracticalInfo> = {
   'Güneş': {
     power: 'Özgün kimliğinizi, yaratıcı liderliğinizi ve içsel ışığınızı dünyada güvenle ortaya koyma gücü.',
-    key: 'Işığınızı başkalarını gölgede bırakmak için değil; onların da kendi potansiyelini keşfetmesine ilham olmak ve yolu aydınlatmak için sunun.'
+    key: 'Işığınızı başkalarını gölgede bırakmak için değil; onların da kendi potansiyelini keşfetmesine ilham olmak ve yolu aydınlatmak için sunabilirsiniz.'
   },
   'Ay': {
     power: 'Derin sezgiler, duygusal empati, şefkat ve etrafınızdaki görünmez enerjileri hissetme yeteneği.',
-    key: 'Duygularınızı bastırmayın veya onlara esir olmayın; hislerinizin bilge ve sükûnet dolu bir gözlemcisi olun.'
+    key: 'Duygularınızı bastırmadan; hislerinizin bilge ve sükûnet dolu bir gözlemcisi olarak içsel rehberliğinize güvenebilirsiniz.'
   },
   'Merkür': {
     power: 'Hızlı kavrama, keskin analiz gücü, etkileyici ifade yeteneği ve zihinsel köprüler kurma ustalığı.',
-    key: 'Zihninizi sadece bilgi depolamak için değil, hakikati sadeleştiren ve insanları birleştiren sözler üretmek için kullanın.'
+    key: 'Zihninizi hakikati sadeleştiren ve insanları sevgiyle birleştiren yapıcı sözler üretmek için değerlendirebilirsiniz.'
   },
   'Venüs': {
     power: 'Kozmik çekim gücü, estetik vizyon, ilişkilerde zarafet yaratma ve maddi/manevi bereketi çekme.',
-    key: 'Özdeğerinizi başkalarının onayında değil kendi içsel bütünlüğünüzde arayın; sevginizi beklentisizce ve cömertçe paylaşın.'
+    key: 'Özdeğerinizi kendi içsel bütünlüğünüzde keşfedebilir; sevginizi beklentisizce ve cömertçe paylaşabilirsiniz.'
   },
   'Mars': {
     power: 'Yüksek eylem gücü, öncülük cesareti, engelleri aşan savaşçı irade ve kararlılık.',
-    key: 'Öfkenizi bir yıkım aracına değil; hedeflerinize odaklanan yapıcı, adil ve kararlı bir disipline dönüştürün.'
+    key: 'Eylem gücünüzü hedeflerinize odaklanan yapıcı, adil ve kararlı bir disiplinle ortaya koyabilirsiniz.'
   },
   'Jüpiter': {
     power: 'Evrensel vizyon, sarsılmaz inanç, yüksek bilgelik, cömertlik ve yaşam fırsatlarını çoğaltma gücü.',
-    key: 'Bilginizi tevazu ile büyütün; öğrendiklerinizi bencilce saklamak yerine başkalarının yolunu aydınlatmak için paylaşın.'
+    key: 'Bilginizi tevazu ile büyüterek öğrendiklerinizi başkalarının yolunu aydınlatmak için cömertçe paylaşabilirsiniz.'
   },
   'Satürn': {
     power: 'Sarsılmaz sabır, sağlam temeller inşa etme ustalığı, krizleri olgunlukla karşılama ve zamanın efendisi olma.',
-    key: 'Zorlukları bir ceza değil; ruhunuzu elmas gibi işleyen, size kadersel olgunluk kazandıran kutsal sınavlar olarak görün.'
+    key: 'Zamanın getirdiği deneyimleri ruhunuzu elmas gibi işleyen, size kalıcı olgunluk kazandıran kutsal büyüme fırsatları olarak görebilirsiniz.'
   },
   'Uranüs': {
     power: 'Deha kıvılcımları, kalıpları kıran özgünlük, geleceği öngörme ve toplumsal uyanışa öncülük etme.',
-    key: 'Sıra dışı vizyonunuzu sadece kurulu düzeni yıkmak için değil; insanlığa fayda sağlayan yeni ve özgürleştirici sistemler kurmak için kullanın.'
+    key: 'Sıra dışı vizyonunuzu insanlığa fayda sağlayan yeni, özgürleştirici ve ilham dolu sistemler kurmak için kullanabilirsiniz.'
   },
   'Neptün': {
     power: 'Kozmik sezgiler, sanatsal ve ruhsal ilham, koşulsuz sevgi ve ilahi akışa güvenle teslimiyet.',
-    key: 'Hayallerinizle gerçek dünya arasında köprü kurun; mistik algılarınızı dünyevi sorumluluklarla topraklayın.'
+    key: 'Mistik ve sezgisel algılarınızı dünyevi sorumluluklarla topraklayarak hayallerinizi gerçeğe dönüştürebilirsiniz.'
   },
   'Plüton': {
     power: 'Dönüşüm simyası, krizlerden küllerinden yeniden doğma, psişik derinlik ve manyetik güç.',
-    key: 'Kontrol takıntısını bırakın; eskiyen parçalarınızı serbest bıraktığınızda içinizdeki gerçek yenilenme gücü açığa çıkacaktır.'
+    key: 'Eskiyen parçalarınızı güvenle serbest bıraktığınızda içinizdeki gerçek yenilenme ve arınma gücünü açığa çıkarabilirsiniz.'
   },
   'Kiron': {
-    power: 'Kendi yarasından başkalarına şifa damıtan "Yaralı Şifacı" ustalığı, derin empati ve kapsayıcılık.',
-    key: 'Önce kendi içsel yaralarınıza şefkat gösterin; iyileştiğiniz yerden tüm çevrenize tükenmez bir ışık saçacaksınız.'
+    power: 'Kendi deneyimlerinden damıttığı bilgelikle başkalarına şifa olan bilgelik, derin empati ve kapsayıcılık.',
+    key: 'Önce kendi içsel hislerinize şefkat göstererek, deneyimlerinizden damıttığınız bilgelikle çevrenize tükenmez bir şifa ışığı saçabilirsiniz.'
   },
   'Kuzey Ay Düğümü': {
     power: 'Ruhun bu enkarnasyondaki pusulası, konfor alanını aşarak yeni erdemler ve yetenekler inşa etme cesareti.',
-    key: 'Bilinmeyene doğru cesaretle adım atın; geçmişin tanıdık alışkanlıklarını geride bıraktığınızda ruhsal doyumunuz başlayacaktır.'
+    key: 'Bilinmeyene doğru cesaretle adım atabilir; geçmişin alışkanlıklarını geride bırakarak ruhsal doyumunuza doğru ilerleyebilirsiniz.'
   },
   'Yükselen (ASC)': {
     power: 'Dünyaya sunulan özgün ışık, güçlü ilk intiba, yaşamsal canlılık ve bireysel varoluş imzası.',
-    key: 'İçinizdeki ruhsal hakikati dış dünyadaki duruşunuzla tam bir dürüstlük ve zarafetle hizalayın.'
+    key: 'İçinizdeki ruhsal hakikati dış dünyadaki duruşunuzla tam bir dürüstlük, zarafet ve özgüvenle hizalayabilirsiniz.'
   },
   'Tepe Noktası (MC)': {
     power: 'Toplumsal başarı, mesleki ustalık, kadersel başyapıt ve dünyaya bırakılacak kalıcı bir miras.',
-    key: 'Başarıyı unvan veya alkışta değil; yaptığınız işle kaç kişinin hayatına dokunduğunuzda arayın.'
+    key: 'Başarıyı unvandan ziyade ürettiğiniz faydada ve insanların hayatına kattığınız değerde bulabilirsiniz.'
   },
   'Şans Noktası (POF)': {
     power: 'Beden, zihin ve ruh hizalandığında hayatınıza zahmetsizce akan ilahi lütuf, şans ve bereket.',
-    key: 'Yeteneklerinizi sevgiyle ve samimiyetle paylaştığınızda; maddi ve manevi bolluk size kendiliğinden akacaktır.'
+    key: 'Yeteneklerinizi sevgi ve samimiyetle paylaştığınızda maddi ve manevi bolluğu yaşamınıza doğal bir akışla çekebilirsiniz.'
   },
   'Dünya': {
     power: 'Madde boyutuna sağlam köklenme, pratik bilgelik ve yeryüzünde sürdürülebilir güzellikler üretme.',
-    key: 'Gökyüzünün bilgeliğini yeryüzünün toprağıyla birleştirin; sağlam, dengeli ve faydalı eserler üretin.'
+    key: 'Gökyüzünün bilgeliğini yeryüzünün bereketiyle birleştirerek sağlam, dengeli ve kalıcı eserler üretebilirsiniz.'
   },
   'Vertex (Vx)': {
-    power: 'Kadersel eşzamanlılıklar, hayatınıza aniden giren uyanış vesilesi kilit insanlar ve dönüm noktaları.',
-    key: 'Karşınıza çıkan tesadüflerin arkasındaki ilahi mesajı fark edin ve hayatın getirdiği kadersel dönüşümlere gönüllü olun.'
+    power: 'Kadersel eşzamanlılıklar, hayatınıza giren uyanış vesilesi kilit insanlar ve dönüm noktaları.',
+    key: 'Yaşamın karşınıza çıkardığı kadersel eşzamanlılıkların arkasındaki ilahi rehberliği fark edip dönüşümlere gönüllü olabilirsiniz.'
   },
   'Lilith': {
-    power: 'Boyun eğmeyen içsel özgürlük, sezgisel vahşi bilgelik ve sahte tabuları yıkan radikal dürüstlük.',
-    key: 'Karanlığınızı inkar etmeyin; bastırılmış gölgelerinizi sevgiyle kucaklayıp yaratıcı ve özgürleştirici bir güce dönüştürün.'
+    power: 'Özgün içsel özgürlük, sezgisel derin bilgelik ve sahte kalıpları yıkan dürüstlük.',
+    key: 'Bastırılmış gölgelerinizi sevgiyle kucaklayarak yaratıcı, özgün ve özgürleştirici bir güce dönüştürebilirsiniz.'
   }
 };
 
@@ -288,52 +288,52 @@ interface SignPracticalInfo {
 
 const SIGN_PRACTICAL: Record<string, SignPracticalInfo> = {
   'Koç': {
-    shadow: 'Sabırsızlık, fevrilik, öfke patlamaları ve sonunu düşünmeden savaşa atılma eğilimi.',
-    advice: 'Cesaretinizi acelecilikle değil, bir nefeslik içsel sükûnet ve stratejiyle harmanlayın.'
+    shadow: 'Sabırsızlık, fevrilik ve aceleci tepkiler verme eğilimi.',
+    advice: 'Cesaretinizi acelecilik yerine bir nefeslik içsel sükûnet ve yapıcı stratejiyle harmanlayabilirsiniz.'
   },
   'Boğa': {
-    shadow: 'Değişime aşırı direnç, maddeye veya alışkanlıklara bağımlılık ve konfor alanına hapsolma.',
-    advice: 'Güveni dışsal varlıklarda değil, kendi üretkenliğinizde arayın ve hayatın akışına esneklikle güvenin.'
+    shadow: 'Değişime direnç, alışkanlıklara aşırı tutunma ve konfor alanında sabitlenme.',
+    advice: 'Güveni kendi üretkenliğinizde ve içsel değerinizde bularak yaşamın akışına esneklikle güvenebilirsiniz.'
   },
   'İkizler': {
-    shadow: 'Zihinsel dağınıklık, kararsızlık, yüzeysellik ve enerjiyi aynı anda birden çok yöne saçma.',
-    advice: 'Bilgiyi derinleştirin ve sözlerinizi yapıcı, odaklanmış bir amaca yönlendirin.'
+    shadow: 'Zihinsel dağınıklık, kararsızlık ve enerjiyi birden çok yöne dağıtma.',
+    advice: 'Bilgiyi derinleştirerek sözlerinizi yapıcı, odaklanmış ve birleştirici bir amaca yönlendirebilirsiniz.'
   },
   'Yengeç': {
-    shadow: 'Aşırı alınganlık, geçmiş travmalara hapsolma ve sevdiklerini boğucu şekilde sahiplenme.',
-    advice: 'Şefkatinizi başkalarına cömertçe sunarken kendinizi ihmal etmeyin; sağlıklı duygusal sınırlar çizin.'
+    shadow: 'Aşırı alınganlık, geçmiş anılara hapsolma ve sevdiklerine aşırı korumacı yaklaşım.',
+    advice: 'Şefkatinizi başkalarına cömertçe sunarken kendinizi ihmal etmeyip sağlıklı duygusal sınırlar çizebilirsiniz.'
   },
   'Aslan': {
-    shadow: 'Ego çatışmaları, sürekli ilgi/alkış bekleme ve gururuna yenik düşerek yalnızlaşma.',
-    advice: 'Kalbinizin sıcaklığını karşılıksız sunun; gerçek liderlik başkalarına da parlama alanı açmaktır.'
+    shadow: 'Onaylanma ihtiyacı, gurur ve ilgi odağında kalma arzusu.',
+    advice: 'Kalbinizin sıcaklığını karşılıksız sunarak başkalarına da parlama alanı açan cömert bir liderlik sergileyebilirsiniz.'
   },
   'Başak': {
-    shadow: 'Aşırı eleştiri, kusursuzluk takıntısı, evham ve kendini sürekli yetersiz hissetme.',
-    advice: 'Kusurların içindeki ilahi ahengi görün; hem kendinize hem çevrenize karşı hoşgörülü ve şefkatli olun.'
+    shadow: 'Aşırı eleştiri, kusursuzluk kaygısı ve kendini sürekli yetersiz hissetme.',
+    advice: 'Kusurların içindeki ilahi ahengi görerek hem kendinize hem çevrenize karşı hoşgörülü ve şefkatli olabilirsiniz.'
   },
   'Terazi': {
-    shadow: 'Huzur kaçmasın diye "hayır" diyememe, kararsızlık ve onay bağımlılığı.',
-    advice: 'Başkalarıyla dengeli bağlar kurarken kendi hakikatinizden ve kişisel sınırlarınızdan ödün vermeyin.'
+    shadow: 'Uyum bozulmasın diye sınır çizememe, kararsızlık ve dış onay arayışı.',
+    advice: 'Başkalarıyla dengeli bağlar kurarken kendi hakikatinizden ve kişisel sınırlarınızdan ödün vermeden ilerleyebilirsiniz.'
   },
   'Akrep': {
-    shadow: 'Aşırı şüphecilik, intikam, kontrol takıntısı ve bilinçdışı kriz üretme eğilimi.',
-    advice: 'Eski yaraları affedin ve serbest bırakın; gerçek güç kontrol etmekte değil, teslimiyetle yenilenmektedir.'
+    shadow: 'Şüphecilik, kontrol etme arzusu ve krizleri büyütme eğilimi.',
+    advice: 'Eski tortuları affedip serbest bırakarak teslimiyetin getirdiği yenilenme gücünü deneyimleyebilirsiniz.'
   },
   'Yay': {
-    shadow: 'Fanatizm, kibirli bir bilmişlik, sınırları görmezden gelme ve sorumluluktan kaçma.',
-    advice: 'Hakikat arayışınızı tevazu ile harmanlayın; başladığınız yolları sabırla ve sorumlulukla tamamlayın.'
+    shadow: 'Sabırsızlık, sınırları görmezden gelme ve sorumluluklardan uzaklaşma.',
+    advice: 'Hakikat arayışınızı tevazu ile harmanlayıp başladığınız yolları sabır ve sorumlulukla tamamlayabilirsiniz.'
   },
   'Oğlak': {
-    shadow: 'Duygusal katılık, aşırı görev odaklılık, başarısızlık korkusu ve kariyere esir olma.',
-    advice: 'Zirveye tırmanırken kalbinizin sesini dinlemeyi ve sevdiklerinize şefkatle vakit ayırmayı unutmayın.'
+    shadow: 'Duygusal mesafelilik, aşırı iş odaklılık ve başarısızlık endişesi.',
+    advice: 'Hedeflerinize yürürken kalbinizin sesini dinlemeyi ve sevdiklerinize şefkatle vakit ayırmayı önceliklendirebilirsiniz.'
   },
   'Kova': {
-    shadow: 'Duygusal mesafelilik, aşırı marjinallik, fildişi kule kibri ve aidiyetsizlik hissi.',
-    advice: 'Evrensel fikirlerinizi sadece teoride bırakmayın; birebir kurduğunuz samimi ilişkilere de sevgiyle yansıtın.'
+    shadow: 'Duygusal kopukluk, aşırı soyutlanma ve aidiyetsizlik hissi.',
+    advice: 'Evrensel fikirlerinizi birebir kurduğunuz samimi ilişkilere de sevgi ve anlayışla yansıtabilirsiniz.'
   },
   'Balık': {
-    shadow: 'Sınır çizememe, kurban psikolojisi, gerçeklerden kaçış ve sorumlulukları erteleme.',
-    advice: 'İlahi teslimiyetinizi dünyevi sorumluluklarla birleştirin; sezgilerinizle göklerde uçarken ayaklarınızı yere sağlam basın.'
+    shadow: 'Sınır çizmede zorlanma, gerçeklerden kaçış ve belirsizliğe kapılma.',
+    advice: 'İlahi teslimiyetinizi dünyevi sorumluluklarla birleştirerek sezgilerinizin rehberliğinde ayaklarınızı yere sağlam basabilirsiniz.'
   }
 };
 
@@ -381,18 +381,18 @@ export function getEsotericPlanetInterpretation(planetName: string, signName: Zo
   };
 
   const RETROGRADE_MEANINGS: Record<string, string> = {
-    'Merkür': 'Geçmiş yaşamlarda iletişim gücünüzü manipülasyon için kullanmış veya sesinizi duyuramayıp haksızlığa uğramış olabilirsiniz. Bu hayattaki Tikkun dersiniz; sözcüklerin karmik ağırlığını fark etmek, kendi içsel gerçeğinizi bulmak ve iletişimde mutlak dürüstlüğü sağlamaktır.',
-    'Venüs': 'Geçmiş yaşamlarda aşkı, özdeğeri veya maddi gücü yanlış değerlendirmiş; ilişkilerde aşırı bağımlı ya da bencil davranmış olabilirsiniz. Bu hayattaki Tikkun dersiniz; sevgiyi dışarıda aramak yerine önce kendi içsel özdeğerinizi (kalp merkezini) şifalandırmaktır.',
-    'Mars': 'Geçmiş yaşamlarda öfkenizi ve gücünüzü yıkıcı bir şekilde kullanmış veya tam tersi kurban rolüne düşmüş olabilirsiniz. Bu hayattaki Tikkun dersiniz; öfkeyi bastırmak veya savurmak yerine, bu ateşi yapıcı bir ruhsal savaşçı iradesine dönüştürmektir.',
-    'Jüpiter': 'Geçmiş yaşamlarda felsefi veya ilahi inanç sistemlerini kendi çıkarınıza kullanmış, sahte bir gururla kibre kapılmış olabilirsiniz. Bu hayattaki Tikkun dersiniz; körü körüne fanatizmden uzaklaşıp, gerçek bilgeliği ve içsel inancı tevazu ile yeniden keşfetmektir.',
-    'Satürn': 'Geçmiş yaşamlarda sorumluluklardan kaçmış veya başkaları üzerinde aşırı sert bir baskı kurmuş olabilirsiniz. Bu hayattaki Tikkun dersiniz; kadersel sınırları dışarıdan beklemek yerine, kendi içsel disiplininizi ve olgun sorumluluğunuzu inşa etmektir.',
-    'Uranüs': 'Geçmiş yaşamlarda isyan ve özgürlük uğruna aşırı kaosa sebep olmuş veya kolektiften dışlanmış olabilirsiniz. Bu hayattaki Tikkun dersiniz; sıra dışı vizyonunuzu sadece yıkmak için değil, insanlığın evrimine hizmet edecek yapıcı yenilikler için kullanmaktır.',
-    'Neptün': 'Geçmiş yaşamlarda gerçeklikten kaçmak için illüzyonlara sığınmış veya sahte kurban/kurtarıcı rollerine girmiş olabilirsiniz. Bu hayattaki Tikkun dersiniz; ruhsal fanteziler ile ilahi hakikati birbirinden ayırmak ve evrensel sevgiye bilinçli olarak topraklanmaktır.',
-    'Plüton': 'Geçmiş yaşamlarda gücü manipülatif bir şekilde kullanmış veya büyük bir yıkımın kurbanı olmuş olabilirsiniz. Bu hayattaki Tikkun dersiniz; kontrol takıntısını bırakmak, ruhsal gücünüzü şifa için kullanmak ve küllerinden yeniden doğma simyasına teslim olmaktır.',
-    'Kiron': 'Geçmiş yaşamlarda başkalarını iyileştirirken kendi yaralarınızı göz ardı etmiş veya derin bir reddedilme travması yaşamış olabilirsiniz. Bu hayattaki Tikkun dersiniz; en derin yaranızın aslında en büyük şifa kaynağınız olduğunu kabul edip, önce kendinize şefkat göstermektir.',
-    'Kuzey Ay Düğümü': 'Kuzey Ay Düğümü kadersel pusulanızın geçmiş karmaları temizlemeye kilitlendiğini gösterir. Bu hayattaki Tikkun dersiniz; Güney Düğümün konfor alanından vazgeçip, ruhunuzun asıl gitmesi gereken cesur evrim rotasına girmektir.',
-    'Güneş': 'Bu yerleşim çok özel bir ego tikkununu, ruhun geçmişte sahnede kibrini fazla parlatmasını ve bu hayatta gerçek ilahi tevazuyu öğrenmesini ifade eder.',
-    'Ay': 'Bu yerleşim geçmiş karmalardan gelen derin bir kök/aidiyet blokajını ve duygusal sığınağı kendi içinde bulma zorunluluğunu ifade eder.'
+    'Merkür': 'Bu yerleşimdeki Tikkun armağanınız; sözcüklerin ve düşüncelerin derin anlamını fark etmek, kendi içsel hakikatinizi keşfetmek ve iletişimde mutlak samimiyeti ve berraklığı yaşamınıza yansıtmaktır.',
+    'Venüs': 'Bu yerleşimdeki Tikkun armağanınız; sevgiyi dış koşullara bağlamadan önce kendi içsel özdeğerinizi ve kalp merkezinizi şefkatle kucaklamak, koşulsuz sevginin huzurunu deneyimlemektir.',
+    'Mars': 'Bu yerleşimdeki Tikkun armağanınız; eylem ve irade ateşinizi dışsal çatışmalar yerine, yapıcı ve kararlı bir ruhsal bilgelikle hedeflerinize yönlendirmektir.',
+    'Jüpiter': 'Bu yerleşimdeki Tikkun armağanınız; dış dogmalardan bağımsızlaşarak, gerçek bilgeliği ve içsel inancı derin bir tevazu ve açık bir kalple keşfetmektir.',
+    'Satürn': 'Bu yerleşimdeki Tikkun armağanınız; kadersel sınırları dışarıdan beklemek yerine, kendi içsel disiplininizi, sabrınızı ve vakur olgunluğunuzu sağlam temeller üzerine inşa etmektir.',
+    'Uranüs': 'Bu yerleşimdeki Tikkun armağanınız; sıra dışı vizyonunuzu insanlığın uyanışına ve kolektif iyiliğe hizmet edecek yapıcı, özgürleştirici yeniliklere dönüştürmektir.',
+    'Neptün': 'Bu yerleşimdeki Tikkun armağanınız; hayaller ile ilahi hakikati dengeli bir şekilde harmanlayarak, evrensel sevgiye ve saf sezgiye güvenle topraklanmaktır.',
+    'Plüton': 'Bu yerleşimdeki Tikkun armağanınız; kontrol takıntısını bırakıp içsel dönüşümün şifasına güvenmek ve küllerinden yeniden doğmanın getirdiği arınmış gücü keşfetmektir.',
+    'Kiron': 'Bu yerleşimdeki Tikkun armağanınız; en derin hassasiyetinizin aslında en büyük şifa ve empati kaynağınız olduğunu fark ederek önce kendinize, ardından tüm çevrenize şefkatle yaklaşmaktır.',
+    'Kuzey Ay Düğümü': 'Kadersel pusulanız; tanıdık alışkanlıkların ötesine geçerek ruhunuzun cesur, doyum dolu ve ilham verici evrim rotasına güvenle adım atmanızı destekler.',
+    'Güneş': 'Bu yerleşim, ruhun kendi içsel ışığını tevazu ve cömertlikle parlatıp, gerçek ilahi özgüveni keşfetme yolculuğunu ifade eder.',
+    'Ay': 'Bu yerleşim, duygusal sığınağı ve güveni kendi iç dünyasında inşa ederek, derin sezgilerini bilge bir sükûnetle yaşama potansiyelini ifade eder.'
   };
 
   let titleSuffix = '';
@@ -424,20 +424,20 @@ export function getEsotericPlanetInterpretation(planetName: string, signName: Zo
 
   const pPractical = PLANET_PRACTICAL[planetName] || PLANET_PRACTICAL[planetName.replace(' ', '')] || {
     power: 'İçsel potansiyelinizi ve farkındalığınızı ortaya koyma gücü.',
-    key: 'Bu enerjiyi bilinçli bir niyetle ve dengeyle yaşamınıza dahil edin.'
+    key: 'Bu enerjiyi bilinçli bir niyetle ve dengeyle yaşamınıza dahil edebilirsiniz.'
   };
 
   const sPractical = SIGN_PRACTICAL[signName] || {
     shadow: 'Dengesiz tepkiler ve aşırılıklar.',
-    advice: 'İçsel dengenizi koruyarak hareket edin.'
+    advice: 'İçsel dengenizi koruyarak hareket edebilirsiniz.'
   };
 
   const hPractical = HOUSE_PRACTICAL[houseNum] || 'Yaşam yolculuğunuzun bu özel alanının';
 
   let retroSynthesis = '';
   if (isRetrograde) {
-    const specificTikkun = RETROGRADE_MEANINGS[planetName] || `Geçmiş yaşamlarda bu gezegenin frekansını aşırı veya eksik kullanmış olabilirsiniz. Bu hayattaki Tikkun dersiniz; dışsal engellerle karşılaştığınızda çözümü dışarıda değil, içsel ruhsal dengenizde aramaktır.`;
-    retroSynthesis = `\n\n🔄 **KARMİK DÜZELTME (TİKKUN: Retrograde - Rx)**\n**${planetName} (Rx) Ruhsal Sınavı:** ${specificTikkun}`;
+    const specificTikkun = RETROGRADE_MEANINGS[planetName] || `Bu yerleşimdeki Tikkun armağanınız; dışsal engellerle karşılaştığınızda çözümü dışarıda değil, kendi içsel dengenizde ve öz bilgeliğinizde bulmaktır.`;
+    retroSynthesis = `\n\n🔄 **KARMİK ARMAĞAN & DERİNLEŞME (TİKKUN: Retrograde - Rx)**\n**${planetName} (Rx) İçsel Bilgeliği:** ${specificTikkun}`;
   }
 
   const isNoHouseWorld = isHarmonic || isHeliocentric;
@@ -552,7 +552,7 @@ ${signContent}
 **[${worldNameTitle.toUpperCase()} EV DİNAMİĞİ]**
 Bu ev giriş çizgisi (Cusp); doğum haritanızda **${hPractical.toLowerCase()}** ana sahnesini, ${signName} burcunun nitelik ve frekansıyla açar. ${worldSynthesisDesc}
 
-**🔑 Tekâmül Anahtarı:** ${sPractical.advice} Bu yaşam alanındaki sınavlarınızı aşmak ve kapıyı aralamak için ${signName} burcunun yüksek tekamül erdemlerini bilinçli bir niyetle uygulayın.`;
+**🔑 Tekâmül Anahtarı:** ${sPractical.advice} Bu yaşam alanında potansiyelinizi en yüksek seviyede açığa çıkarmak için ${signName} burcunun erdemlerini bilinçli bir farkındalıkla yaşamınıza dahil edebilirsiniz.`;
 
   return { title, content };
 }

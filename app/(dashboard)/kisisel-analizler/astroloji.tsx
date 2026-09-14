@@ -650,7 +650,18 @@ export default function AstrolojiAnalysisScreen() {
                 </TouchableOpacity>
               </View>
               <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }}>
-                <Text style={styles.interpModalText}>{selectedInterp?.content}</Text>
+                <Text style={styles.interpModalText}>
+                  {selectedInterp?.content ? selectedInterp.content.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+                    if (part.startsWith('**') && part.endsWith('**')) {
+                      return (
+                        <Text key={index} style={{ fontWeight: 'bold', color: COLORS.primary }}>
+                          {part.slice(2, -2)}
+                        </Text>
+                      );
+                    }
+                    return part;
+                  }) : null}
+                </Text>
               </ScrollView>
             </View>
           </View>
