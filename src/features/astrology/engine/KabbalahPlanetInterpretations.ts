@@ -448,36 +448,36 @@ export function getEsotericPlanetInterpretation(planetName: string, signName: Zo
   const planetContent = planet[layerKey] || planet.assiah;
   const signContent = sign[layerKey] || sign.assiah;
 
-  let houseSection = '';
-  let synthesisSection = '';
+  const toFirstLower = (str: string) => {
+    if (!str) return '';
+    const trimmed = str.trim().replace(/\.$/, '');
+    return trimmed.charAt(0).toLowerCase() + trimmed.slice(1);
+  };
+
+  const planetDesc = toFirstLower(planetContent);
+  const signDesc = toFirstLower(signContent);
+
+  let integrationNarrative = '';
 
   if (isNoHouseWorld) {
-    houseSection = isHeliocentric 
-      ? `**[İLÂHÎ BOYUT: ATZILUT (KUDRET)]**\nBu boyutta dünyevi ev ve ufuk kısıtlamaları bulunmaz. Gezegeniniz Güneş'in saf bilinciyle doğrudan rezonansa girer ve ego illüzyonlarından arınmış saf bir ilahi irade frekansı yayar.`
-      : `**[YÜKSEK ZİHİN BOYUTU: BERİYAH]**\nBu harmonik boyutta dünyevi ev sınırları aşılmıştır. Gezegeniniz doğrudan evrensel ilkeler, yüksek zihinsel kavrayış ve ruhsal vizyonunuzla rezonansa girer.`;
-
-    synthesisSection = `Bu yerleşim; ruhsal tekamülünüzde **${pDomain}**, ${signName} burcunun yüksek kozmik frekansıyla birleştirerek evrensel plana hizmet ettirir. ${worldSynthesisDesc}`;
+    if (isHeliocentric) {
+      integrationNarrative = `En yüksek ruhsal boyutta ${planetName}; ${planetDesc} olarak parlar. Bu saf ışık, ${signName} burcunun ilksel yaratıcı kudretiyle (${signDesc}) birleşerek doğrudan Güneş'in kalbiyle ve Kaynak ile hizalanır. Bu ilahi kudret boyutunda dünyevi ev sınırları ve egosal filtreler tamamen erir; varlığınız bütüne hizmet eden saf bir yaratım frekansı yayarak ilahi iradeyle bütünleşir. ${worldSynthesisDesc}`;
+    } else {
+      integrationNarrative = `Yüksek zihin ve evrensel yaratım boyutunda ${planetName}; ${planetDesc} olarak tezahür eder. Bu vizyon, ${signName} burcunun evrensel zihinsel formuyla (${signDesc}) birleşerek düşüncelerinizi ve inançlarınızı makro ölçekte programlar. Bu boyutta dünyevi ev sınırları aşılmıştır; zihninizin evrensel planla kurduğu bu berrak bağ, ideallerinizi kadersel bir vizyona dönüştürür. ${worldSynthesisDesc}`;
+    }
   } else {
-    houseSection = `**[YAŞAM ALANI (EV): ${houseNum}. Ev]**\n${house.esoteric}\n\n**🎯 Yaşamsal Sahne:** ${hPractical} merkezidir.`;
-    synthesisSection = `Bu yerleşim; haritanızda **${pDomain}**, ${signName} burcunun nitelikleriyle buluşturarak ${hPractical.toLowerCase()} doğrudan merkezine taşır. ${worldSynthesisDesc}`;
+    if (isDraconic) {
+      integrationNarrative = `Duygusal ve karmik hafıza boyutunuzda ${planetName}; ${planetDesc} olarak açığa çıkar. Bu derin hisler, ${signName} burcunun getirdiği ruhsal hafıza ile (${signDesc}) birleşerek özellikle ${hPractical.toLowerCase()} merkezinde kilitli kalmış duygusal döngüleri ve geçmiş yaşam kontratlarını tetikler. ${house.esoteric} Bu alanda yaşayacağınız deneyimler, geçmişin yüklerini sevgi ve yüksek farkındalıkla şifalandırarak içsel özgürlüğe kavuşmanız için kadersel bir uyanış kapısıdır. ${worldSynthesisDesc}`;
+    } else {
+      integrationNarrative = `Fiziksel dünyadaki somut eylem alanınızda ${planetName}; ${planetDesc} olarak kendini gösterir. Bu güç, ${signName} burcunun dinamikleriyle (${signDesc}) birleşerek özellikle ${hPractical.toLowerCase()} merkezinde açığa çıkar. ${house.esoteric} Bu alanda yüzeysel hevesler yerine kendi hakiki mizacınızı ortaya koyduğunuzda; enerjinizi somut başarılara ve kalıcı bir üretim gücüne dönüştürebilirsiniz. ${worldSynthesisDesc}`;
+    }
   }
 
-  const content = `**[KOZMİK SEMBOLİZM: ${planetName}]**
-${planetContent}
-
-**✨ Ruhsal Güç & Potansiyel:** ${pPractical.power}
-
-**[BURÇ REZONANSI: ${signName}]**
-${signContent}
-
-**⚠️ Gölge Yan & Sınav:** ${sPractical.shadow}
-
-${houseSection}
-
-**[${worldNameTitle.toUpperCase()} SENTEZİ & TEKÂMÜL REHBERİ]**
-${synthesisSection}
-
-**🔑 Tekâmül Anahtarı:** ${pPractical.key} ${sPractical.advice}${retroSynthesis}`;
+  const content = `BÜTÜNLEŞİK KOZMİK VE YAŞAMSAL ANALİZ (${worldNameTitle}):\n` +
+    `${integrationNarrative}\n\n` +
+    `✨ **Ruhsal Güç & Potansiyel:** ${pPractical.power}\n\n` +
+    `⚠️ **Gölge Yan & Sınav:** ${sPractical.shadow}\n\n` +
+    `🔑 **Tekâmül Anahtarı:** ${pPractical.key} ${sPractical.advice}${retroSynthesis}`;
 
   return { title, content };
 }
@@ -494,31 +494,31 @@ export function getEsotericHouseInterpretation(
 
   if (!house || !sign) {
     return {
-      title: `${houseNum}. Ev Girişi - ${signName}`,
-      content: 'Bu ev girişi için ezoterik bir çözümleme bulunamadı.'
+      title: `${houseNum}. Ev - ${signName}`,
+      content: 'Bu ev alanı için ezoterik bir çözümleme bulunamadı.'
     };
   }
 
   let titleSuffix = '';
   let layerKey: 'atzilut' | 'beriyah' | 'yetzirah' | 'assiah' = 'assiah';
   let worldNameTitle = 'Assiah (Madde ve Eylem Alemi)';
-  let worldSynthesisDesc = 'Bu ev girişi, ruhsal enerjinizi dünyevi hayatın somut meselelerinde nasıl yapılandıracağınızı ve fiziksel olarak hangi alanda kökleneceğinizi gösterir.';
+  let worldSynthesisDesc = 'Bu yaşam alanı, ruhsal enerjinizi dünyevi hayatın somut meselelerinde nasıl yapılandıracağınızı ve fiziksel olarak hangi alanda kökleneceğinizi gösterir.';
 
   if (isHeliocentric) {
     layerKey = 'atzilut';
     titleSuffix = ' (Atzilut - Kudret Alemi)';
     worldNameTitle = 'Atzilut (İlahi Kudret Alemi)';
-    worldSynthesisDesc = 'Bu ev girişi en yüksek ruhsal boyuttadır; yaşam alanınız doğrudan ilahi iradenin ve kozmik bilincin saf ışığıyla hizalanır.';
+    worldSynthesisDesc = 'Bu yaşam alanı en yüksek ruhsal boyuttadır; yaşam alanınız doğrudan ilahi iradenin ve kozmik bilincin saf ışığıyla hizalanır.';
   } else if (isHarmonic) {
     layerKey = 'beriyah';
     titleSuffix = ' (Beriyah - Zihin Alemi)';
     worldNameTitle = 'Beriyah (Yüksek Zihin Alemi)';
-    worldSynthesisDesc = 'Bu ev girişi yüksek zihninizin evrensel planla nasıl çalıştığını gösterir; bu alanda düşünceleriniz ve inançlarınızla kadersel vizyonunuzu şekillendirirsiniz.';
+    worldSynthesisDesc = 'Bu yaşam alanı yüksek zihninizin evrensel planla nasıl çalıştığını gösterir; bu alanda düşünceleriniz ve inançlarınızla kadersel vizyonunuzu şekillendirirsiniz.';
   } else if (isDraconic) {
     layerKey = 'yetzirah';
     titleSuffix = ' (Yetzirah - Duygu Alemi)';
     worldNameTitle = 'Yetzirah (Duygu ve Hisler Alemi)';
-    worldSynthesisDesc = 'Bu ev girişi geçmiş yaşam karmalarınızdan getirdiğiniz duygusal kalıpları, ruhsal sözleşmelerinizi ve bilinçaltı hafızanızı şifalandırma kapınızdır.';
+    worldSynthesisDesc = 'Bu yaşam alanı geçmiş yaşam karmalarınızdan getirdiğiniz duygusal kalıpları, ruhsal sözleşmelerinizi ve bilinçaltı hafızanızı şifalandırma kapınızdır.';
   } else {
     layerKey = 'assiah';
     titleSuffix = ' (Assiah - Madde Alemi)';
@@ -536,23 +536,27 @@ export function getEsotericHouseInterpretation(
   else if (houseNum === 4) housePrefix = `4. Ev (IC - Ayak Ucu)`;
   else if (houseNum === 7) housePrefix = `7. Ev (DSC - Alçalan)`;
 
-  const title = `${housePrefix} Girişi - ${signName} Burcunda${titleSuffix}`;
+  const title = `${housePrefix} - ${signName} Burcunda${titleSuffix}`;
   const signContent = sign[layerKey] || sign.assiah;
 
-  const content = `**[KOZMİK SAHNE: ${housePrefix}]**
-${house.esoteric}
+  const toFirstLower = (str: string) => {
+    if (!str) return '';
+    const trimmed = str.trim().replace(/\.$/, '');
+    return trimmed.charAt(0).toLowerCase() + trimmed.slice(1);
+  };
+  const signDesc = toFirstLower(signContent);
 
-**🎯 Yaşamsal Deneyim Alanı:** ${hPractical} doğrudan tezahür ettiği kapıdır.
+  let integrationNarrative = '';
+  if (isDraconic) {
+    integrationNarrative = `${house.esoteric} Ruhsal ve duygusal tekamül yolculuğunuzda bu kapı, ${hPractical.toLowerCase()} en derin karmik hatıralarını, bilinçaltı sözleşmelerini ve hücresel kayıtlarını barındırır. Bu alandaki deneyimlere ${signName} burcunun getirdiği duygusal hafızayla (${signDesc}) yaklaşırsınız. Karşılaştığınız her kadersel durum, geçmişin tortularını şefkatle serbest bırakarak ruhunuzu özgürleştirecek kutsal bir şifa kapısıdır. ${worldSynthesisDesc}`;
+  } else {
+    integrationNarrative = `${house.esoteric} Yaşam yolculuğunuzda bu kapı, ${hPractical.toLowerCase()} doğrudan somut eylem ve tezahür merkezidir. Bu deneyim alanına ${signName} burcunun dinamikleriyle (${signDesc}) adım atarsınız. Bu alanda karşılaştığınız durumları kendi özgün doğallığınızla ve içsel dengenizle yönettiğinizde, dünyevi hedeflerinizi sağlam ve kalıcı temeller üzerine inşa edebilirsiniz. ${worldSynthesisDesc}`;
+  }
 
-**[BURÇ KAPISI & REZONANS: ${signName}]**
-${signContent}
-
-**⚠️ Gölge Yan & Sınav:** ${sPractical.shadow}
-
-**[${worldNameTitle.toUpperCase()} EV DİNAMİĞİ]**
-Bu ev giriş çizgisi (Cusp); doğum haritanızda **${hPractical.toLowerCase()}** ana sahnesini, ${signName} burcunun nitelik ve frekansıyla açar. ${worldSynthesisDesc}
-
-**🔑 Tekâmül Anahtarı:** ${sPractical.advice} Bu yaşam alanında potansiyelinizi en yüksek seviyede açığa çıkarmak için ${signName} burcunun erdemlerini bilinçli bir farkındalıkla yaşamınıza dahil edebilirsiniz.`;
+  const content = `BÜTÜNLEŞİK YAŞAMSAL ALAN ANALİZİ (${worldNameTitle}):\n` +
+    `${integrationNarrative}\n\n` +
+    `⚠️ **Gölge Yan & Sınav:** ${sPractical.shadow}\n\n` +
+    `🔑 **Tekâmül Anahtarı:** ${sPractical.advice} Bu alandaki deneyimleri içsel dengenizi koruyarak karşıladığınızda, karşılaştığınız her durum sizi olgunlaştıran ve kişisel gücünüzü artıran değerli bir fırsata dönüşür.`;
 
   return { title, content };
 }
