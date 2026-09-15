@@ -24,7 +24,7 @@ const AVAILABLE_COUNTRIES = [
 ];
 
 const { width } = Dimensions.get('window');
-const CHART_SIZE = width - 40;
+const CHART_SIZE = Math.min(width - 40, 340);
 const CENTER = CHART_SIZE / 2;
 const RADIUS = CENTER - 45;
 
