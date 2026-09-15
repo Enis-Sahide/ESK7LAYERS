@@ -18,7 +18,7 @@ export interface TransitTimelineItem {
   id: string;
   transitPlanet: string;
   natalPlanet: string;
-  type: 'Kavuşum' | 'Karşıt' | 'Kare' | 'Üçgen' | 'Sekstil';
+  type: 'Kavuşum' | 'Karşıt' | 'Kare' | 'Üçgen' | 'Sekstil' | 'İngress';
   isHarmonious: boolean;
   startDate: string;
   startTime?: string;
@@ -69,6 +69,15 @@ const ASPECT_SYMBOLS: Record<string, string> = {
   'Karşıt': '☍'
 };
 
+const ZODIAC_SYMBOLS: Record<string, string> = {
+  'Koç': '♈', 'Boğa': '♉', 'İkizler': '♊', 'Yengeç': '♋',
+  'Aslan': '♌', 'Başak': '♍', 'Terazi': '♎', 'Akrep': '♏',
+  'Yay': '♐', 'Oğlak': '♑', 'Kova': '♒', 'Balık': '♓',
+  'Koç Burcu': '♈', 'Boğa Burcu': '♉', 'İkizler Burcu': '♊', 'Yengeç Burcu': '♋',
+  'Aslan Burcu': '♌', 'Başak Burcu': '♍', 'Terazi Burcu': '♎', 'Akrep Burcu': '♏',
+  'Yay Burcu': '♐', 'Oğlak Burcu': '♑', 'Kova Burcu': '♒', 'Balık Burcu': '♓'
+};
+
 export default function MobileTransitTimelineChart({
   items,
   startDateStr,
@@ -85,6 +94,7 @@ export default function MobileTransitTimelineChart({
   const [selectedItem, setSelectedItem] = useState<TransitTimelineItem | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | 'KADERSEL' | 'KISISEL'>('ALL');
   const [aspectFilter, setAspectFilter] = useState<'ALL' | 'HARMONIOUS' | 'CHALLENGING'>('ALL');
+  const [eventTypeFilter, setEventTypeFilter] = useState<'ALL' | 'INGRESS' | 'ASPECTS'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   const rangeStart = useMemo(() => new Date(startDateStr).getTime(), [startDateStr]);
@@ -93,11 +103,16 @@ export default function MobileTransitTimelineChart({
 
   const filteredItems = useMemo(() => {
     return items.filter(item => {
+      if (eventTypeFilter === 'INGRESS' && item.type !== 'İngress') return false;
+      if (eventTypeFilter === 'ASPECTS' && item.type === 'İngress') return false;
+
       if (categoryFilter === 'KADERSEL' && item.category !== 'Kadersel') return false;
       if (categoryFilter === 'KISISEL' && item.category !== 'Kişisel') return false;
 
-      if (aspectFilter === 'HARMONIOUS' && !item.isHarmonious) return false;
-      if (aspectFilter === 'CHALLENGING' && (item.isHarmonious || item.type === 'Kavuşum')) return false;
+      if (item.type !== 'İngress') {
+        if (aspectFilter === 'HARMONIOUS' && !item.isHarmonious) return false;
+        if (aspectFilter === 'CHALLENGING' && (item.isHarmonious || item.type === 'Kavuşum')) return false;
+      }
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -109,7 +124,7 @@ export default function MobileTransitTimelineChart({
 
       return true;
     });
-  }, [items, categoryFilter, aspectFilter, searchQuery]);
+  }, [items, eventTypeFilter, categoryFilter, aspectFilter, searchQuery]);
 
   return (
     <View style={styles.container}>
@@ -159,6 +174,15 @@ export default function MobileTransitTimelineChart({
               style={[styles.pillBtn, categoryFilter === 'ALL' && styles.pillBtnActive]}
             >
               <Text style={[styles.pillText, categoryFilter === 'ALL' && styles.pillTextActive]}>Tümü</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setEventTypeFilter(eventTypeFilter === 'INGRESS' ? 'ALL' : 'INGRESS')}
+              style={[styles.pillBtn, eventTypeFilter === 'INGRESS' && styles.pillBtnActiveCyan]}
+            >
+              <Text style={[styles.pillText, eventTypeFilter === 'INGRESS' && { color: '#22D3EE', fontWeight: 'bold' }]}>
+                ⚡ Burç Geçişleri
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -215,8 +239,8 @@ export default function MobileTransitTimelineChart({
       {/* Timeline List (Mobile Gantt Cards) */}
       <View style={styles.timelineList}>
         <View style={styles.listHeader}>
-          <Text style={styles.listHeaderTitle}>Kozmik Zaman Çizelgesi ({filteredItems.length} Açı)</Text>
-          <Text style={styles.listHeaderSubtitle}>Çubuklar etki sürecini, parlak nokta zirveyi (0°) simgeler</Text>
+          <Text style={styles.listHeaderTitle}>Kozmik Zaman Çizelgesi ({filteredItems.length} Olay)</Text>
+          <Text style={styles.listHeaderSubtitle}>Çubuklar etki sürecini, parlak nokta zirve/merkez anını simgeler</Text>
           <View style={styles.tzHeaderBadge}>
             <Ionicons name="location-sharp" size={11} color="#D4AF37" />
             <Text style={styles.tzHeaderBadgeText}>
@@ -233,11 +257,15 @@ export default function MobileTransitTimelineChart({
         ) : (
           filteredItems.map(item => {
             // Colors
-            let gradColors: [string, string] = ['rgba(16, 185, 129, 0.8)', 'rgba(5, 150, 105, 0.9)'];
+            let gradColors: [string, string, ...string[]] = ['rgba(16, 185, 129, 0.8)', 'rgba(5, 150, 105, 0.9)'];
             let badgeBg = 'rgba(16, 185, 129, 0.15)';
             let badgeColor = '#34D399';
 
-            if (item.type === 'Kavuşum') {
+            if (item.type === 'İngress') {
+              gradColors = ['rgba(8, 145, 178, 0.95)', 'rgba(79, 70, 229, 0.9)', 'rgba(147, 51, 234, 0.95)'];
+              badgeBg = 'rgba(6, 182, 212, 0.15)';
+              badgeColor = '#22D3EE';
+            } else if (item.type === 'Kavuşum') {
               gradColors = ['rgba(245, 158, 11, 0.8)', 'rgba(217, 119, 6, 0.9)'];
               badgeBg = 'rgba(245, 158, 11, 0.15)';
               badgeColor = '#FBBF24';
@@ -258,18 +286,38 @@ export default function MobileTransitTimelineChart({
                 <View style={styles.cardTopRow}>
                   <View style={styles.planetsBadge}>
                     <Text style={styles.transitSymbol}>{PLANET_SYMBOLS[item.transitPlanet] || '•'}</Text>
-                    <Text style={styles.transitName}>T.{item.transitPlanet}</Text>
-                    <Text style={styles.aspectSymbol}>{ASPECT_SYMBOLS[item.type] || item.type}</Text>
-                    <Text style={styles.natalName}>N.{item.natalPlanet}</Text>
-                    <Text style={styles.natalSymbol}>{PLANET_SYMBOLS[item.natalPlanet] || '•'}</Text>
+                    <Text style={styles.transitName}>
+                      {isMundane || item.type === 'İngress' ? item.transitPlanet : `T.${item.transitPlanet}`}
+                    </Text>
+                    <Text style={[styles.aspectSymbol, item.type === 'İngress' && { color: '#22D3EE', fontSize: 11 }]}>
+                      {item.type === 'İngress' ? '➔' : (ASPECT_SYMBOLS[item.type] || item.type)}
+                    </Text>
+                    <Text style={[styles.natalName, item.type === 'İngress' && { color: '#E0F2FE', fontWeight: 'bold' }]}>
+                      {item.type === 'İngress' ? item.natalPlanet.replace(' Burcu', '') : (isMundane ? item.natalPlanet : `N.${item.natalPlanet}`)}
+                    </Text>
+                    <Text style={[styles.natalSymbol, item.type === 'İngress' && { color: '#22D3EE' }]}>
+                      {item.type === 'İngress'
+                        ? (ZODIAC_SYMBOLS[item.natalPlanet] || '♒')
+                        : (PLANET_SYMBOLS[item.natalPlanet] || '•')}
+                    </Text>
                   </View>
 
                   {/* Phase or Status Badge */}
                   <View style={[styles.phaseBadge, { backgroundColor: badgeBg }]}>
                     <Text style={[styles.phaseBadgeText, { color: badgeColor }]}>
-                      {item.phase === 'YAKLASAN' && '📈 Tırmanıyor'}
-                      {item.phase === 'ZIRVE' && '⚡ Tam Zirvede'}
-                      {item.phase === 'UZAKLASAN' && '📉 Çözülüyor'}
+                      {item.type === 'İngress' ? (
+                        <>
+                          {item.phase === 'YAKLASAN' && '📈 Merkeze Yaklaşıyor'}
+                          {item.phase === 'ZIRVE' && '⚡ Burç Seyrinde'}
+                          {item.phase === 'UZAKLASAN' && '📉 Çıkışa Yakın'}
+                        </>
+                      ) : (
+                        <>
+                          {item.phase === 'YAKLASAN' && '📈 Tırmanıyor'}
+                          {item.phase === 'ZIRVE' && '⚡ Tam Zirvede'}
+                          {item.phase === 'UZAKLASAN' && '📉 Çözülüyor'}
+                        </>
+                      )}
                     </Text>
                   </View>
                 </View>
@@ -285,12 +333,15 @@ export default function MobileTransitTimelineChart({
                     <View style={styles.barContent}>
                       <Text style={styles.barTypeText}>
                         {item.isStartedInPast ? '◀ ' : ''}
-                        {item.type} ({item.durationDays} gün)
+                        {item.type === 'İngress' 
+                          ? `⚡ ${item.natalPlanet.replace(' Burcu', '')} (${item.durationDays} gün)` 
+                          : `${item.type} (${item.durationDays} gün)`}
                       </Text>
                       <View style={styles.peakIndicator}>
                         <Ionicons name="sparkles" size={10} color="#FFF" />
                         <Text style={styles.peakText}>
-                          Zirve: {item.peakDate.slice(5)}{item.peakTime ? ` • ${item.peakTime}` : ''}
+                          {item.type === 'İngress' ? 'Merkez: ' : 'Zirve: '}
+                          {item.peakDate.slice(5)}{item.peakTime ? ` • ${item.peakTime}` : ''}
                         </Text>
                       </View>
                     </View>
@@ -329,12 +380,26 @@ export default function MobileTransitTimelineChart({
               <View style={styles.modalHeader}>
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <View style={styles.categoryPill}>
-                      <Text style={styles.categoryPillText}>{selectedItem.category} • {selectedItem.type}</Text>
+                    <View style={[
+                      styles.categoryPill,
+                      selectedItem.type === 'İngress' && { backgroundColor: 'rgba(6, 182, 212, 0.15)', borderWidth: 1, borderColor: 'rgba(6, 182, 212, 0.3)' }
+                    ]}>
+                      <Text style={[
+                        styles.categoryPillText,
+                        selectedItem.type === 'İngress' && { color: '#22D3EE' }
+                      ]}>
+                        {selectedItem.type === 'İngress' ? 'Burç Seyri (İngress)' : `${selectedItem.category} • ${selectedItem.type}`}
+                      </Text>
                     </View>
-                    <Text style={styles.minOrbText}>Min Orb: {selectedItem.minOrb}°</Text>
+                    <Text style={styles.minOrbText}>
+                      {selectedItem.type === 'İngress' ? 'Etki: Burç Seyri' : `Min Orb: ${selectedItem.minOrb}°`}
+                    </Text>
                   </View>
-                  <Text style={styles.modalMainTitle}>{selectedItem.title}</Text>
+                  <Text style={styles.modalMainTitle}>
+                    {selectedItem.type === 'İngress'
+                      ? `${selectedItem.transitPlanet} ${selectedItem.natalPlanet.replace(' Burcu', '')} Burcunda ${ZODIAC_SYMBOLS[selectedItem.natalPlanet] || ''}`
+                      : selectedItem.title}
+                  </Text>
                 </View>
                 <TouchableOpacity onPress={() => setSelectedItem(null)} style={styles.closeBtn}>
                   <Ionicons name="close" size={22} color="#9CA3AF" />
@@ -363,15 +428,19 @@ export default function MobileTransitTimelineChart({
                     )}
                   </View>
                   <View style={[styles.dateBoxCol, styles.dateBoxColBorder]}>
-                    <Text style={[styles.dateBoxSub, { color: '#D4AF37' }]}>⚡ ZİRVE (0°)</Text>
-                    <Text style={[styles.dateBoxVal, { color: '#D4AF37', fontWeight: 'bold' }]}>
+                    <Text style={[styles.dateBoxSub, { color: selectedItem.type === 'İngress' ? '#22D3EE' : '#D4AF37' }]}>
+                      ⚡ {selectedItem.type === 'İngress' ? 'MERKEZ (15°)' : 'ZİRVE (0°)'}
+                    </Text>
+                    <Text style={[styles.dateBoxVal, { color: selectedItem.type === 'İngress' ? '#38BDF8' : '#D4AF37', fontWeight: 'bold' }]}>
                       {selectedItem.peakDate}
                       {selectedItem.peakTime ? (
-                        <Text style={{ fontSize: 11, color: '#FCD34D', fontWeight: 'bold' }}>{'\n'}• {selectedItem.peakTime}</Text>
+                        <Text style={{ fontSize: 11, color: selectedItem.type === 'İngress' ? '#BAE6FD' : '#FCD34D', fontWeight: 'bold' }}>{'\n'}• {selectedItem.peakTime}</Text>
                       ) : null}
                     </Text>
                     <Text style={[styles.dateBoxBadge, { color: selectedItem.isPeakInPast ? '#38BDF8' : '#34D399' }]}>
-                      {selectedItem.isPeakInPast ? 'Zirvesi tamamlandı' : 'Zirve bekleniyor'}
+                      {selectedItem.isPeakInPast 
+                        ? (selectedItem.type === 'İngress' ? 'Merkez geride kaldı' : 'Zirvesi tamamlandı') 
+                        : (selectedItem.type === 'İngress' ? 'Merkez bekleniyor' : 'Zirve bekleniyor')}
                     </Text>
                   </View>
                   <View style={styles.dateBoxCol}>
@@ -562,6 +631,10 @@ const styles = StyleSheet.create({
   pillBtnActiveRed: {
     backgroundColor: 'rgba(239, 68, 68, 0.2)',
     borderColor: 'rgba(239, 68, 68, 0.4)'
+  },
+  pillBtnActiveCyan: {
+    backgroundColor: 'rgba(6, 182, 212, 0.2)',
+    borderColor: 'rgba(6, 182, 212, 0.4)'
   },
   pillText: {
     fontSize: 11,
