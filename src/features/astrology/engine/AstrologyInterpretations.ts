@@ -61,18 +61,17 @@ export function getFullPlanetInterpretation(planetName: string, signName: Zodiac
   const title = `${planetName} - ${signName} Burcunda ve ${houseNum}. Evde${isDraconic ? ' (Drakonik)' : ''}`;
   
   if (isDraconic) {
-    const content = `Drakonik haritada (ruhsal sözleşmenizde) ${planetName}, ${signName} formuna bürünür.\n\n` +
-      `RUHSAL KÖKEN:\nGeçmiş deneyimlerinizden ve ruhsal köklerinizden gelen bu enerji, özünüzde ${planet.essence} kavramını nasıl kadersel bir bilgeliğe dönüştürdüğünüzü anlatır. ${sign.element} elementinin ${sign.quality} frekansıyla uyumlanan bu yerleşim, ruhunuzun asıl amacının "${sign.esoteric}" olduğunu gösterir.\n\n` +
-      `KADERSEL ARENA (EV ETKİSİ):\nRuhsal planınızda, bu gücün çözülmesi ve tezahür etmesi için seçtiğiniz yeryüzü sahnesi ${houseNum}. evdir. Bu nedenle ${house.domain} alanında derin içsel farkındalıklardan ve kadersel uyanış kapılarından geçebilirsiniz.\n\n` +
-      `TEKAMÜL YOLCULUĞU:\nEgonun geçici kalıplarını aştığınızda, "${planet.action}" potansiyeliniz tamamen ${sign.trait} bir bilgeliğe evrilir. Bu da sizi nihai olarak ${planet.esoteric} seviyesine taşıyacaktır.`;
+    const content = `BÜTÜNLEŞİK RUHSAL SÖZLEŞME VE TEKÂMÜL ANALİZİ:\n` +
+      `Drakonik haritanızda (ruhsal sözleşmenizde) ${planetName}, ${signName} formuna bürünerek ${houseNum}. evin yaşam sahnesine köklenir. Geçmiş ruhsal deneyimlerinizden ve köklerinizden gelen bu yerleşim, özünüzdeki ${planet.essence} potansiyelini kadersel bir bilgeliğe dönüştürür. ${sign.element} elementinin ${sign.quality} frekansıyla uyumlanan bu etki; ruhunuzun bu enkarnasyondaki asıl tekâmül amacının "${sign.esoteric}" olduğunu gösterir.\n\n` +
+      `Bu yüksek potansiyelin deneyimlenmesi ve dünyevi planda açığa çıkması için seçtiğiniz sahne ${houseNum}. evdir (${house.domain}). Egonun geçici kalıplarını aştığınızda, "${planet.action}" gücünüz tamamen ${sign.trait} bir bilgeliğe evrilerek sizi nihai olarak ${planet.esoteric} seviyesine taşıyacaktır.`;
     return { title, content };
   }
 
-  const content = `Astrolojide ${planetName}, ${planet.essence}ı temsil eder.\n\n` +
-    `BURÇ ETKİSİ:\nBu enerjinin ${signName} burcunda olması, içsel dinamiklerinizin ${sign.trait} bir doğayla ortaya çıkacağını gösterir. Harita sahibi olarak bu gezegenin temsil ettiği konularda ${sign.quality} bir tavır sergileyebilir ve ${sign.element} elementinin motivasyonuyla ${planet.action}.\n\n` +
-    `EV (YAŞAM ALANI) ETKİSİ:\nBu gezegenin ${houseNum}. Evde bulunması oldukça önemlidir. ${houseNum}. Ev astrolojide ${house.domain} alanını yönetir. Dolayısıyla, ${signName} burcunun nitelikleriyle harmanlanan bu gezegensel enerji, yaşamınızda en çok '${house.focus}' sahnelerinde kendini gösterecektir.\n\n` +
-    `SENTEZ:\nKısacası, ${planet.action} potansiyeliniz ${sign.trait} bir tarzda çalışarak hayatınızın ${houseNum}. evine ait olan "${house.focus}" sahnesinde dönüştürücü ve yapıcı bir rol oynar.\n\n` +
-    `EZOTERİK ANLAM:\nGeleneksel okumanın ötesinde, bu yerleşim çok daha derin bir spiritüel gerçeği fısıldar. ${planetName} enerjisi (${planet.esoteric}), ${signName} formunda vücut bularak (${sign.esoteric}) ruhun tekamülüne hizmet etmektedir. Bu kadersel mühür, ${houseNum}. evin sırlarını çözmeniz ve potansiyelinizi uyandırmanız için değerli bir anahtardır.`;
+  const content = `BÜTÜNLEŞİK KOZMİK VE YAŞAMSAL ANALİZ:\n` +
+    `Astrolojide ${planetName}, ${planet.essence}ı temsil eder. Bu kozmik enerjinin ${signName} burcunda ve ${houseNum}. evde vücut bulması; ${sign.element} elementinin motivasyonu ve ${sign.trait} mizacınızı doğrudan ${house.domain} sahnesine taşır.\n\n` +
+    `Harita sahibi olarak ${sign.quality} bir yaklaşımla, yaşamınızda en çok '${house.focus}' deneyimlerinde ${planet.action}. Bu yerleşim, ${planetName} potansiyelinizin ${signName} burcunun ayırt edici nitelikleriyle harmanlanarak ${houseNum}. evin getirdiği yaşam meydanlarında son derece dönüştürücü, yapıcı ve somut bir güç olarak ortaya çıkmasını sağlar.\n\n` +
+    `EZOTERİK ANLAM:\n` +
+    `Geleneksel okumanın ötesinde, bu yerleşim çok daha derin bir spiritüel gerçeği fısıldar. ${planetName} enerjisi (${planet.esoteric}), ${signName} formunda vücut bularak (${sign.esoteric}) ruhun tekamülüne hizmet etmektedir. Bu kadersel mühür, ${houseNum}. evin sırlarını çözmeniz ve potansiyelinizi uyandırmanız için değerli bir anahtardır.`;
 
   return { title, content };
 }
