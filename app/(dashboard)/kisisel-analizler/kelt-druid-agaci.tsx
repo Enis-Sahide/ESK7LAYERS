@@ -69,7 +69,7 @@ export default function KeltDruidAgaciScreen() {
         `✨ Ruhsal Karakter: ${currentTree.archetype}\n` +
         `🪐 Yönetici Güç: ${currentTree.rulingPlanets} | Element: ${currentTree.element}\n` +
         `📜 Druid Bilgeliği: "${currentTree.druidicProverb}"\n\n` +
-        `Sen de kendi kutsal Kelt ağacını keşfet: 7layers.org/analysis/druid-tree`;
+        `Sen de kendi kutsal Kelt ağacını keşfet: 7layers.tr/analysis/druid-tree`;
 
       await Share.share({ message });
     } catch (error) {
