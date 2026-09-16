@@ -6,7 +6,10 @@ import { LogBox } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ProgressProvider } from '@/src/context/ProgressContext';
 
-LogBox.ignoreLogs(['expo-notifications: Android Push notifications']);
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications',
+  "The action 'GO_BACK' was not handled by any navigator",
+]);
 let Notifications: any = null;
 try {
   Notifications = require('expo-notifications');
