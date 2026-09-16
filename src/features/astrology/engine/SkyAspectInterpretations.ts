@@ -342,7 +342,7 @@ export function getSkyPlanetSignInterpretation(
   planetName: string,
   signName: string,
   degree: number,
-  minutes: number,
+  minutes?: number,
   isRetrograde?: boolean
 ): { title: string; content: string; extra?: string } {
   const pInfo = PLANET_TRANSIT_THEMES[planetName] || {
@@ -358,7 +358,13 @@ export function getSkyPlanetSignInterpretation(
     advice: 'Dengede ve farkındalıkla kalın.'
   };
 
-  const formattedPos = `${degree}° ${String(minutes).padStart(2, '0')}'`;
+  const rawDeg = Number(degree) || 0;
+  const cleanDeg = Math.floor(rawDeg);
+  const cleanMin = (minutes !== undefined && !isNaN(minutes))
+    ? Math.round(Number(minutes))
+    : Math.floor((rawDeg - cleanDeg) * 60);
+
+  const formattedPos = `${cleanDeg}° ${String(cleanMin).padStart(2, '0')}'`;
   const retroTag = isRetrograde ? ' (Retro / Rx)' : '';
   const title = `Transit ${planetName} ${signName} Burcunda ${formattedPos}${retroTag}`;
 
@@ -370,7 +376,8 @@ export function getSkyPlanetSignInterpretation(
       `• Acele kararlar vermeyin; gecikmeler birer ceza değil, rotanızı doğru ayarlamanız için evrenin tanıdığı birer nefes alma molasıdır.`;
   }
 
-  const content = `【Gezegen Doğası & Anlık Konum】\n${planetName}, astrolojide ${pInfo.nature} temsil eder. Şu anda ${signName} burcunun ${formattedPos} derecesinde seyrediyor.\n\n` +
+  const cleanNature = pInfo.nature.replace(/\.$/, '');
+  const content = `【Gezegen Doğası & Anlık Konum】\n${planetName}, astrolojide ${cleanNature} konularını temsil eder. Şu anda ${signName} burcunun ${formattedPos} derecesinde seyrediyor.\n\n` +
     `【Kolektif & Küresel Etki】\n${pInfo.focus}\n${signName} burcunun ${sInfo.element} elementi ve ${sInfo.quality} niteliğiyle birleştiğinde; toplumda ve dünyada ${sInfo.theme} temaları çok güçlü bir şekilde ön plana çıkar.\n\n` +
     `【Bireysel Tavsiye & Kozmik Rehberlik】\n✓ ${sInfo.advice}\nBu enerjiyi günlük hayatınızda yapıcı kullanmak için ${signName} burcunun yüksek frekansını benimseyin, gölge yönlerinden uzak durun.${retroSection}`;
 

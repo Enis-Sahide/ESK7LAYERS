@@ -121,9 +121,13 @@ function getSignAndDegree(longitude) {
     var lon = mod360(longitude);
     var signIndex = Math.floor(lon / 30);
     var degreeInSign = lon % 30;
+    var deg = Math.floor(degreeInSign);
+    var min = Math.floor((degreeInSign - deg) * 60);
     return {
         sign: exports.ZODIAC_SIGNS[signIndex],
         degreeInSign: degreeInSign,
+        degree: deg,
+        minutes: min,
         signIndex: signIndex
     };
 }
@@ -305,6 +309,8 @@ function generateAstrologyChart(birthDate, cityKey, isDraconic) {
             longitude: lon,
             sign: data.sign,
             degreeInSign: data.degreeInSign,
+            degree: data.degree,
+            minutes: data.minutes,
             house: getHouseForLon(lon, cuspDegrees)
         });
     }
@@ -318,15 +324,21 @@ function generateAstrologyChart(birthDate, cityKey, isDraconic) {
         var dAscData = getSignAndDegree(ascendant.longitude);
         ascendant.sign = dAscData.sign;
         ascendant.degreeInSign = dAscData.degreeInSign;
+        ascendant.degree = dAscData.degree;
+        ascendant.minutes = dAscData.minutes;
         midheaven.longitude = transform_1(midheaven.longitude);
         var dMcData = getSignAndDegree(midheaven.longitude);
         midheaven.sign = dMcData.sign;
         midheaven.degreeInSign = dMcData.degreeInSign;
+        midheaven.degree = dMcData.degree;
+        midheaven.minutes = dMcData.minutes;
         planets.forEach(function (p) {
             p.longitude = transform_1(p.longitude);
             var dData = getSignAndDegree(p.longitude);
             p.sign = dData.sign;
             p.degreeInSign = dData.degreeInSign;
+            p.degree = dData.degree;
+            p.minutes = dData.minutes;
         });
         // Re-calculate Houses for Draconic Ascendant and MC
         var dCuspDegrees_1 = calculateHouseCusps(midheaven.longitude, ascendant.longitude);

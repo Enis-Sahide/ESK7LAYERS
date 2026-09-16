@@ -842,7 +842,11 @@ export default function AnlikGokyuzuScreen() {
                       aspects={skyChartData?.aspects || []}
                       ascendant={skyChartData?.ascendant}
                       onSelectPlanet={(p) => {
-                        const interp = getSkyPlanetSignInterpretation(p.name, p.sign, p.degreeInSign, p.minutes, p.isRetrograde);
+                        const pDeg = Math.floor(p.degreeInSign ?? p.degree ?? 0);
+                        const pMin = (p.minutes !== undefined && !isNaN(p.minutes))
+                          ? Math.round(Number(p.minutes))
+                          : Math.floor(((p.degreeInSign ?? 0) - pDeg) * 60);
+                        const interp = getSkyPlanetSignInterpretation(p.name, p.sign, pDeg, pMin, p.isRetrograde);
                         setSelectedInterp({
                           title: interp.title,
                           content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
@@ -877,43 +881,50 @@ export default function AnlikGokyuzuScreen() {
 
                     {isMundanePlanetsExpanded && (
                       <View style={styles.listCard}>
-                        {(skyChartData?.planets || []).filter((p: any) => ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton', 'Kiron'].includes(p.name)).map((p: any, i: number) => (
-                          <TouchableOpacity 
-                            key={`mpl-${i}`} 
-                            style={styles.listRow}
-                            activeOpacity={0.7}
-                            onPress={() => {
-                              const interp = getSkyPlanetSignInterpretation(p.name, p.sign, p.degreeInSign, p.minutes, p.isRetrograde);
-                              setSelectedInterp({
-                                title: interp.title,
-                                content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
-                              });
-                            }}
-                          >
-                            <View style={styles.listRowLeft}>
-                              <Text style={[styles.planetSymbolIcon, { color: '#0EA5E9' }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
-                              <Text style={styles.listRowMain}>{p.name}</Text>
-                            </View>
+                        {(skyChartData?.planets || []).filter((p: any) => ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton', 'Kiron'].includes(p.name)).map((p: any, i: number) => {
+                          const pDeg = Math.floor(p.degreeInSign ?? p.degree ?? 0);
+                          const pMin = (p.minutes !== undefined && !isNaN(p.minutes))
+                            ? Math.round(Number(p.minutes))
+                            : Math.floor(((p.degreeInSign ?? 0) - pDeg) * 60);
 
-                            <View style={styles.listRowMiddle}>
-                              <Text style={{ fontSize: 13, fontWeight: 'bold', color: ZODIAC_COLORS[p.sign] || '#FFF' }}>
-                                {p.sign}
-                              </Text>
-                            </View>
+                          return (
+                            <TouchableOpacity 
+                              key={`mpl-${i}`} 
+                              style={styles.listRow}
+                              activeOpacity={0.7}
+                              onPress={() => {
+                                const interp = getSkyPlanetSignInterpretation(p.name, p.sign, pDeg, pMin, p.isRetrograde);
+                                setSelectedInterp({
+                                  title: interp.title,
+                                  content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
+                                });
+                              }}
+                            >
+                              <View style={styles.listRowLeft}>
+                                <Text style={[styles.planetSymbolIcon, { color: '#0EA5E9' }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
+                                <Text style={styles.listRowMain}>{p.name}</Text>
+                              </View>
 
-                            <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }]}>
-                              <Text style={{ fontSize: 12, color: COLORS.textMuted }}>
-                                {`${p.degreeInSign}° ${String(p.minutes).padStart(2, '0')}'`}
-                              </Text>
-                              {p.isRetrograde && (
-                                <Text style={{ fontSize: 11, color: '#FF453A', fontWeight: 'bold', marginLeft: 4 }}>
-                                  Rx
+                              <View style={styles.listRowMiddle}>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold', color: ZODIAC_COLORS[p.sign] || '#FFF' }}>
+                                  {p.sign}
                                 </Text>
-                              )}
-                              <Ionicons name="chevron-forward" size={14} color="#666" style={{ marginLeft: 6 }} />
-                            </View>
-                          </TouchableOpacity>
-                        ))}
+                              </View>
+
+                              <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }]}>
+                                <Text style={{ fontSize: 12, color: COLORS.textMuted }}>
+                                  {`${pDeg}° ${String(pMin).padStart(2, '0')}'`}
+                                </Text>
+                                {p.isRetrograde && (
+                                  <Text style={{ fontSize: 11, color: '#FF453A', fontWeight: 'bold', marginLeft: 4 }}>
+                                    Rx
+                                  </Text>
+                                )}
+                                <Ionicons name="chevron-forward" size={14} color="#666" style={{ marginLeft: 6 }} />
+                              </View>
+                            </TouchableOpacity>
+                          );
+                        })}
                       </View>
                     )}
 
