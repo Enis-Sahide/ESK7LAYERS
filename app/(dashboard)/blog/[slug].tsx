@@ -71,6 +71,53 @@ const renderMobileContent = (content: string) => {
       continue;
     }
 
+    // Markdown Table handling (| ... |)
+    if (trimmed.startsWith('|') && trimmed.includes('|')) {
+      const tableLines: string[] = [];
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().includes('|')) {
+        tableLines.push(lines[i].trim());
+        i++;
+      }
+      i--; // adjust loop counter
+
+      if (tableLines.length >= 2) {
+        const parseRow = (rowStr: string) => {
+          const cleaned = rowStr.replace(/^\|/, '').replace(/\|$/, '');
+          return cleaned.split('|').map(cell => cell.trim());
+        };
+
+        const headers = parseRow(tableLines[0]);
+        const isSeparator = /^\|?[\s\-:]+(\|[\s\-:]+)+\|?$/.test(tableLines[1]);
+        const dataRows = isSeparator 
+          ? tableLines.slice(2).map(parseRow) 
+          : tableLines.slice(1).map(parseRow);
+
+        elements.push(
+          <ScrollView horizontal key={`table-${i}`} showsHorizontalScrollIndicator={false} style={styles.tableScroll}>
+            <View style={styles.tableWrapper}>
+              <View style={styles.tableHeaderRow}>
+                {headers.map((h, hIdx) => (
+                  <View key={hIdx} style={[styles.tableCell, styles.tableHeaderCell, hIdx === 0 ? { minWidth: 110 } : { minWidth: 160 }]}>
+                    <Text style={styles.tableHeaderText}>{h.replace(/\*\*/g, '')}</Text>
+                  </View>
+                ))}
+              </View>
+              {dataRows.map((row, rIdx) => (
+                <View key={rIdx} style={[styles.tableRow, rIdx % 2 === 1 && styles.tableRowAlt]}>
+                  {row.map((cell, cIdx) => (
+                    <View key={cIdx} style={[styles.tableCell, cIdx === 0 ? { minWidth: 110 } : { minWidth: 160 }]}>
+                      <Text style={styles.tableCellText}>{parseMobileInline(cell)}</Text>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        );
+        continue;
+      }
+    }
+
     if (trimmed.startsWith('> ')) {
       elements.push(
         <View key={`quote-${i}`} style={styles.quoteBlock}>
@@ -465,6 +512,49 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
     fontSize: 13,
     lineHeight: 20,
+  },
+  tableScroll: {
+    marginVertical: 14,
+  },
+  tableWrapper: {
+    borderWidth: 1,
+    borderColor: 'rgba(255, 149, 0, 0.25)',
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(20, 20, 25, 0.6)',
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 149, 0, 0.15)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 149, 0, 0.3)',
+  },
+  tableHeaderCell: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  tableHeaderText: {
+    color: '#FFB84D',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.06)',
+  },
+  tableRowAlt: {
+    backgroundColor: 'rgba(255,255,255,0.02)',
+  },
+  tableCell: {
+    paddingVertical: 9,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
+  },
+  tableCellText: {
+    color: 'rgba(255,255,255,0.88)',
+    fontSize: 12,
+    lineHeight: 18,
   },
   loadingContainer: {
     flex: 1,
