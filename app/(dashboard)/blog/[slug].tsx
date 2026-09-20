@@ -9,22 +9,37 @@ import { API_BASE_URL } from '@/src/core/config';
 
 const { width } = Dimensions.get('window');
 
+const parseMobileItalics = (text: string, keyPrefix: string | number) => {
+  if (!text) return null;
+  const parts = text.split('*');
+  return parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return (
+        <Text key={`${keyPrefix}-it-${index}`} style={{ fontStyle: 'italic', color: '#FFB84D' }}>
+          {part}
+        </Text>
+      );
+    }
+    return (
+      <Text key={`${keyPrefix}-txt-${index}`} style={{ color: 'rgba(255,255,255,0.85)' }}>
+        {part}
+      </Text>
+    );
+  });
+};
+
 const parseMobileInline = (text: string) => {
   if (!text) return null;
   const parts = text.split('**');
   return parts.map((part, index) => {
     if (index % 2 === 1) {
       return (
-        <Text key={index} style={{ fontWeight: 'bold', color: '#FFFFFF' }}>
-          {part}
+        <Text key={`b-${index}`} style={{ fontWeight: 'bold', color: '#FFFFFF' }}>
+          {parseMobileItalics(part, `b-${index}`)}
         </Text>
       );
     }
-    return (
-      <Text key={index} style={{ color: 'rgba(255,255,255,0.85)' }}>
-        {part}
-      </Text>
-    );
+    return parseMobileItalics(part, `p-${index}`);
   });
 };
 
@@ -121,7 +136,7 @@ const renderMobileContent = (content: string) => {
     if (trimmed.startsWith('> ')) {
       elements.push(
         <View key={`quote-${i}`} style={styles.quoteBlock}>
-          <Text style={styles.quoteText}>{trimmed.replace(/^>\s*/, '')}</Text>
+          <Text style={styles.quoteText}>{parseMobileInline(trimmed.replace(/^>\s*/, ''))}</Text>
         </View>
       );
       continue;
