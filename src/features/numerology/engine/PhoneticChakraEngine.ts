@@ -486,7 +486,7 @@ export class PhoneticChakraEngine {
     return {
       isClosed: false,
       title: 'Açık Kozmik Akış',
-      description: `İsim farklı mahreç ve beden merkezleriyle başlayıp bitiyor (${firstLetter.char} $\\rightarrow$ ${lastLetter.char}). Bu durum isme dinamizm, sürekli hareket ve dış dünyayla yoğun etkileşim kazandırır.`
+      description: `İsim farklı mahreç ve beden merkezleriyle başlayıp bitiyor (${firstLetter.char} → ${lastLetter.char}). Bu durum isme dinamizm, sürekli hareket ve dış dünyayla yoğun etkileşim kazandırır.`
     };
   }
 
