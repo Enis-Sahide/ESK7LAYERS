@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView, ImageBackground, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
 import { register as apiRegister, verifyEmail, resendVerificationCode } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
+const GOLD_LOGO = require('@/assets/images/gold-logo.png');
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -116,6 +117,7 @@ export default function RegisterScreen() {
           
           {/* Branding Header */}
           <View style={styles.brandHeader}>
+            <Image source={GOLD_LOGO} style={styles.logo} resizeMode="contain" />
             <Text style={styles.brandSub}>ANCIENT KNOWLEDGE SCHOOL</Text>
             <Text style={styles.title}>{step === 'form' ? 'İnisiyasyon' : 'E-Posta Doğrulama'}</Text>
             <Text style={styles.subtitle}>
@@ -253,6 +255,12 @@ const styles = StyleSheet.create({
   brandHeader: {
     alignItems: 'center',
     marginBottom: 20,
+  },
+  logo: {
+    width: 68,
+    height: 68,
+    alignSelf: 'center',
+    marginBottom: 12,
   },
   brandSub: {
     fontSize: 10,

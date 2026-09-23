@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ImageBackground } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, ImageBackground, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '@/src/theme';
 import { login as apiLogin } from '@/src/core/api/client';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
+const GOLD_LOGO = require('@/assets/images/gold-logo.png');
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.content}>
+          <Image source={GOLD_LOGO} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>7LAYERS</Text>
           <Text style={styles.schoolSubtitle}>ANCIENT KNOWLEDGE SCHOOL</Text>
           <Text style={styles.subtitle}>Gizemli yolculuğa hoş geldin.</Text>
@@ -105,6 +107,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: SIZES.padding,
     justifyContent: 'center',
+  },
+  logo: {
+    width: 72,
+    height: 72,
+    alignSelf: 'center',
+    marginBottom: 16,
   },
   title: {
     fontSize: 32,

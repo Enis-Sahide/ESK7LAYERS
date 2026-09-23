@@ -259,7 +259,7 @@ export default function DashboardScreen() {
           onPress={() => router.push('/(dashboard)/profile')}
           activeOpacity={0.7}
         >
-          <Image source={require('@/assets/images/indir.webp')} style={styles.headerAvatar} />
+          <Image source={require('@/assets/images/gold-logo.png')} style={styles.headerAvatar} />
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
               <Text style={styles.welcomeText}>Hoş Geldin, </Text>
