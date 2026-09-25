@@ -1,4 +1,4 @@
-import { GeoVector, Ecliptic, MakeTime, Body, SearchRelativeLongitude } from 'astronomy-engine';
+import { GeoVector, Ecliptic, MakeTime, Body, SearchRelativeLongitude, GeoMoonState, Vector } from 'astronomy-engine';
 
 export type PlanetCode = 'Sun' | 'Earth' | 'NorthNode' | 'SouthNode' | 'Moon' | 'Mercury' | 'Venus' | 'Mars' | 'Jupiter' | 'Saturn' | 'Uranus' | 'Neptune' | 'Pluto';
 
@@ -22,6 +22,8 @@ export interface PlanetActivation {
   gate: number;
   line: number;
   longitude: number;
+  isRetrograde: boolean;
+  direction: 'direct' | 'retrograde';
 }
 
 export interface HumanDesignChart {
@@ -147,6 +149,8 @@ export function calculateDesignDate(birthDate: Date): Date {
 
 function calculatePlanets(date: Date): PlanetActivation[] {
   const time = MakeTime(date);
+  const timeNext = MakeTime(new Date(date.getTime() + 60 * 60 * 1000));
+
   const bodies: Body[] = [Body.Sun, Body.Moon, Body.Mercury, Body.Venus, Body.Mars, Body.Jupiter, Body.Saturn, Body.Uranus, Body.Neptune, Body.Pluto];
   const keys: PlanetCode[] = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
 
@@ -155,8 +159,25 @@ function calculatePlanets(date: Date): PlanetActivation[] {
   for (let i = 0; i < bodies.length; i++) {
     const vec = GeoVector(bodies[i], time, true);
     const lon = Ecliptic(vec).elon;
+
+    const vecNext = GeoVector(bodies[i], timeNext, true);
+    const lonNext = Ecliptic(vecNext).elon;
+
+    let diff = lonNext - lon;
+    while (diff > 180) diff -= 360;
+    while (diff < -180) diff += 360;
+
+    const isRetro = (keys[i] !== 'Sun' && keys[i] !== 'Moon') && diff < 0;
+
     const { gate, line } = getGateAndLine(lon);
-    results.push({ planet: keys[i], gate, line, longitude: lon });
+    results.push({ 
+      planet: keys[i], 
+      gate, 
+      line, 
+      longitude: lon,
+      isRetrograde: isRetro,
+      direction: isRetro ? 'retrograde' : 'direct'
+    });
   }
 
   // Dünya, Güneş'in tam zıttıdır (+180 derece)
@@ -164,10 +185,64 @@ function calculatePlanets(date: Date): PlanetActivation[] {
   let earthLon = sunLon + 180;
   if (earthLon >= 360) earthLon -= 360;
   const earthGL = getGateAndLine(earthLon);
-  results.push({ planet: 'Earth', gate: earthGL.gate, line: earthGL.line, longitude: earthLon });
+  results.push({ 
+    planet: 'Earth', 
+    gate: earthGL.gate, 
+    line: earthGL.line, 
+    longitude: earthLon,
+    isRetrograde: false,
+    direction: 'direct'
+  });
+
+  // Kuzey ve Güney Ay Düğümleri (True Node - Gerçek Ay Düğümü)
+  const moonState = GeoMoonState(time);
+  const hx = moonState.y * moonState.vz - moonState.z * moonState.vy;
+  const hy = moonState.z * moonState.vx - moonState.x * moonState.vz;
+  const hz = moonState.x * moonState.vy - moonState.y * moonState.vx;
+  const h_eq = new Vector(hx, hy, hz, time);
+  const ecl = Ecliptic(h_eq);
+  let trueNode = ecl.elon + 90;
+  if (trueNode >= 360) trueNode -= 360;
+
+  // 1 saat sonraki düğüm hesabı
+  const moonStateNext = GeoMoonState(timeNext);
+  const hxN = moonStateNext.y * moonStateNext.vz - moonStateNext.z * moonStateNext.vy;
+  const hyN = moonStateNext.z * moonStateNext.vx - moonStateNext.x * moonStateNext.vz;
+  const hzN = moonStateNext.x * moonStateNext.vy - moonStateNext.y * moonStateNext.vx;
+  const h_eqN = new Vector(hxN, hyN, hzN, timeNext);
+  const eclN = Ecliptic(h_eqN);
+  let trueNodeNext = eclN.elon + 90;
+  if (trueNodeNext >= 360) trueNodeNext -= 360;
+
+  let nodeDiff = trueNodeNext - trueNode;
+  while (nodeDiff > 180) nodeDiff -= 360;
+  while (nodeDiff < -180) nodeDiff += 360;
+  const isNodeRetro = nodeDiff < 0;
+
+  const nnGL = getGateAndLine(trueNode);
+  results.push({ 
+    planet: 'NorthNode', 
+    gate: nnGL.gate, 
+    line: nnGL.line, 
+    longitude: trueNode,
+    isRetrograde: isNodeRetro,
+    direction: isNodeRetro ? 'retrograde' : 'direct'
+  });
+
+  let snLon = trueNode + 180;
+  if (snLon >= 360) snLon -= 360;
+  const snGL = getGateAndLine(snLon);
+  results.push({ 
+    planet: 'SouthNode', 
+    gate: snGL.gate, 
+    line: snGL.line, 
+    longitude: snLon,
+    isRetrograde: isNodeRetro,
+    direction: isNodeRetro ? 'retrograde' : 'direct'
+  });
 
   // İnsan Tasarımı geleneksel dizilimi
-  const order: PlanetCode[] = ['Sun', 'Earth', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+  const order: PlanetCode[] = ['Sun', 'Earth', 'Moon', 'NorthNode', 'SouthNode', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
   results.sort((a, b) => order.indexOf(a.planet) - order.indexOf(b.planet));
 
   return results;

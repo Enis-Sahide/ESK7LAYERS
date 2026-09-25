@@ -476,7 +476,7 @@ export default function HumanDesignScreen() {
 
   const drawChannels = () => {
     if (!chart) return null;
-    const elements: JSX.Element[] = [];
+    const elements: React.ReactNode[] = [];
 
     // Render 16-48 last to keep it clean on top
     const sortedChannels = [...CHANNELS].sort((a, b) => {
@@ -627,11 +627,13 @@ export default function HumanDesignScreen() {
     });
   };
 
-  // Yücelim (Exaltation) ve Düşüş (Detriment) okları için simülatör
-  // Gerçek I'Ching veritabanı 384 satır gerektirdiği için görsel tasarımı tamamlamak adına deterministik simüle ediyoruz.
-  const getFixationArrow = (gate: number, line: number) => {
-    // Şimdilik pasif hale getirildi. Gerçek Rave I'Ching veritabanı entegre edildiğinde açılacak.
-    return null;
+  const getFixationArrow = (isRetrograde?: boolean) => {
+    if (isRetrograde === undefined) return null;
+    return (
+      <Text style={{ fontSize: 10, color: isRetrograde ? '#F59E0B' : '#10B981', fontWeight: 'bold' }}>
+        {isRetrograde ? '▼' : '▲'}
+      </Text>
+    );
   };
 
   return (
@@ -749,7 +751,7 @@ export default function HumanDesignScreen() {
                     <View key={`unc-${i}`} style={styles.planetRow}>
                       <Text style={[styles.planetIcon, {color: COLORS.accent}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
                       <Text style={[styles.planetGate, {color: COLORS.accent}]}>{p.gate}.{p.line}</Text>
-                      <View style={{ width: 12 }}>{getFixationArrow(p.gate, p.line)}</View>
+                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.isRetrograde)}</View>
                     </View>
                   ))}
                 </View>
@@ -769,11 +771,32 @@ export default function HumanDesignScreen() {
                   <Text style={[styles.sidebarTitle, {color: COLORS.conscious}]}>Personality</Text>
                   {chart.conscious.map((p, i) => (
                     <View key={`con-${i}`} style={styles.planetRow}>
-                      <View style={{ width: 12 }}>{getFixationArrow(p.gate, p.line)}</View>
+                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.isRetrograde)}</View>
                       <Text style={[styles.planetGate, {color: COLORS.conscious}]}>{p.gate}.{p.line}</Text>
                       <Text style={[styles.planetIcon, {color: COLORS.conscious}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
                     </View>
                   ))}
+                </View>
+              </View>
+
+              {/* Gezegen Okları Açıklama Rehberi (Mobil) */}
+              <View style={styles.arrowGuideCard}>
+                <Text style={styles.arrowGuideTitle}>✦ Gezegen Hareket Yönleri Rehberi</Text>
+                <View style={styles.arrowGuideRow}>
+                  <View style={[styles.arrowGuideItem, { borderColor: 'rgba(16, 185, 129, 0.3)' }]}>
+                    <Text style={{ color: '#10B981', fontWeight: 'bold', fontSize: 13 }}>▲</Text>
+                    <View style={{ flex: 1, marginLeft: 5 }}>
+                      <Text style={{ color: '#10B981', fontSize: 10, fontWeight: 'bold' }}>Direkt (İleri)</Text>
+                      <Text style={{ color: '#D1D5DB', fontSize: 9, marginTop: 1 }}>Dışa dönük, aktif ve doğrudan tezahür.</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.arrowGuideItem, { borderColor: 'rgba(245, 158, 11, 0.3)' }]}>
+                    <Text style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: 13 }}>▼</Text>
+                    <View style={{ flex: 1, marginLeft: 5 }}>
+                      <Text style={{ color: '#F59E0B', fontSize: 10, fontWeight: 'bold' }}>Retrograd (Geri)</Text>
+                      <Text style={{ color: '#D1D5DB', fontSize: 9, marginTop: 1 }}>İçe dönük, karmik arınma ve derin bilgelik.</Text>
+                    </View>
+                  </View>
                 </View>
               </View>
 
@@ -1059,7 +1082,33 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontStyle: 'italic',
   },
-  
+  arrowGuideCard: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    padding: 10,
+    marginBottom: 16,
+  },
+  arrowGuideTitle: {
+    color: '#F59E0B',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  arrowGuideRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  arrowGuideItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 6,
+  },
   visualLayout: {
     flexDirection: 'row',
     justifyContent: 'space-between',
