@@ -17,6 +17,9 @@ export const PLANET_SYMBOLS: Record<PlanetCode, string> = {
   Neptune: '♆',
   Pluto: '♇',
 };
+
+import { getLineFixation } from '../data/raveIChingFixations';
+
 export interface PlanetActivation {
   planet: PlanetCode;
   gate: number;
@@ -24,6 +27,7 @@ export interface PlanetActivation {
   longitude: number;
   isRetrograde: boolean;
   direction: 'direct' | 'retrograde';
+  fixation: 'exalted' | 'detriment' | 'none';
 }
 
 export interface HumanDesignChart {
@@ -176,7 +180,8 @@ function calculatePlanets(date: Date): PlanetActivation[] {
       line, 
       longitude: lon,
       isRetrograde: isRetro,
-      direction: isRetro ? 'retrograde' : 'direct'
+      direction: isRetro ? 'retrograde' : 'direct',
+      fixation: getLineFixation(gate, line, keys[i])
     });
   }
 
@@ -191,7 +196,8 @@ function calculatePlanets(date: Date): PlanetActivation[] {
     line: earthGL.line, 
     longitude: earthLon,
     isRetrograde: false,
-    direction: 'direct'
+    direction: 'direct',
+    fixation: getLineFixation(earthGL.gate, earthGL.line, 'Earth')
   });
 
   // Kuzey ve Güney Ay Düğümleri (True Node - Gerçek Ay Düğümü)
@@ -226,7 +232,8 @@ function calculatePlanets(date: Date): PlanetActivation[] {
     line: nnGL.line, 
     longitude: trueNode,
     isRetrograde: isNodeRetro,
-    direction: isNodeRetro ? 'retrograde' : 'direct'
+    direction: isNodeRetro ? 'retrograde' : 'direct',
+    fixation: getLineFixation(nnGL.gate, nnGL.line, 'NorthNode')
   });
 
   let snLon = trueNode + 180;
@@ -238,7 +245,8 @@ function calculatePlanets(date: Date): PlanetActivation[] {
     line: snGL.line, 
     longitude: snLon,
     isRetrograde: isNodeRetro,
-    direction: isNodeRetro ? 'retrograde' : 'direct'
+    direction: isNodeRetro ? 'retrograde' : 'direct',
+    fixation: getLineFixation(snGL.gate, snGL.line, 'SouthNode')
   });
 
   // İnsan Tasarımı geleneksel dizilimi

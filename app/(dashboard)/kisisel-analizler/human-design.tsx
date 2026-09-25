@@ -627,11 +627,11 @@ export default function HumanDesignScreen() {
     });
   };
 
-  const getFixationArrow = (isRetrograde?: boolean) => {
-    if (isRetrograde === undefined) return null;
+  const getFixationArrow = (fixation?: 'exalted' | 'detriment' | 'none') => {
+    if (!fixation || fixation === 'none') return null;
     return (
-      <Text style={{ fontSize: 10, color: isRetrograde ? '#F59E0B' : '#10B981', fontWeight: 'bold' }}>
-        {isRetrograde ? '▼' : '▲'}
+      <Text style={{ fontSize: 10, color: fixation === 'exalted' ? '#10B981' : '#F43F5E', fontWeight: 'bold' }}>
+        {fixation === 'exalted' ? '▲' : '▼'}
       </Text>
     );
   };
@@ -749,9 +749,14 @@ export default function HumanDesignScreen() {
                   <Text style={[styles.sidebarTitle, {color: COLORS.accent}]}>Design</Text>
                   {chart.unconscious.map((p, i) => (
                     <View key={`unc-${i}`} style={styles.planetRow}>
-                      <Text style={[styles.planetIcon, {color: COLORS.accent}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={[styles.planetIcon, {color: COLORS.accent}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
+                        {p.isRetrograde && (
+                          <Text style={{ fontSize: 9, color: '#F59E0B', fontWeight: 'bold', marginLeft: 2 }}>R</Text>
+                        )}
+                      </View>
                       <Text style={[styles.planetGate, {color: COLORS.accent}]}>{p.gate}.{p.line}</Text>
-                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.isRetrograde)}</View>
+                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.fixation)}</View>
                     </View>
                   ))}
                 </View>
@@ -771,33 +776,48 @@ export default function HumanDesignScreen() {
                   <Text style={[styles.sidebarTitle, {color: COLORS.conscious}]}>Personality</Text>
                   {chart.conscious.map((p, i) => (
                     <View key={`con-${i}`} style={styles.planetRow}>
-                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.isRetrograde)}</View>
+                      <View style={{ width: 12, alignItems: 'center' }}>{getFixationArrow(p.fixation)}</View>
                       <Text style={[styles.planetGate, {color: COLORS.conscious}]}>{p.gate}.{p.line}</Text>
-                      <Text style={[styles.planetIcon, {color: COLORS.conscious}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        {p.isRetrograde && (
+                          <Text style={{ fontSize: 9, color: '#F59E0B', fontWeight: 'bold', marginRight: 2 }}>R</Text>
+                        )}
+                        <Text style={[styles.planetIcon, {color: COLORS.conscious}]}>{PLANET_SYMBOLS[p.planet] || '?'}</Text>
+                      </View>
                     </View>
                   ))}
                 </View>
               </View>
 
-              {/* Gezegen Okları Açıklama Rehberi (Mobil) */}
+              {/* Rave I'Ching Çizgi Fiksasyonları Rehberi (Mobil) */}
               <View style={styles.arrowGuideCard}>
-                <Text style={styles.arrowGuideTitle}>✦ Gezegen Hareket Yönleri Rehberi</Text>
+                <Text style={styles.arrowGuideTitle}>✦ Rave I&apos;Ching Çizgi Fiksasyonları (Resmi Standart)</Text>
                 <View style={styles.arrowGuideRow}>
                   <View style={[styles.arrowGuideItem, { borderColor: 'rgba(16, 185, 129, 0.3)' }]}>
                     <Text style={{ color: '#10B981', fontWeight: 'bold', fontSize: 13 }}>▲</Text>
-                    <View style={{ flex: 1, marginLeft: 5 }}>
-                      <Text style={{ color: '#10B981', fontSize: 10, fontWeight: 'bold' }}>Direkt (İleri)</Text>
-                      <Text style={{ color: '#D1D5DB', fontSize: 9, marginTop: 1 }}>Dışa dönük, aktif ve doğrudan tezahür.</Text>
+                    <View style={{ flex: 1, marginLeft: 4 }}>
+                      <Text style={{ color: '#10B981', fontSize: 10, fontWeight: 'bold' }}>Yücelim</Text>
+                      <Text style={{ color: '#D1D5DB', fontSize: 8.5, marginTop: 1 }}>Yüksek potansiyel.</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.arrowGuideItem, { borderColor: 'rgba(244, 63, 94, 0.3)' }]}>
+                    <Text style={{ color: '#F43F5E', fontWeight: 'bold', fontSize: 13 }}>▼</Text>
+                    <View style={{ flex: 1, marginLeft: 4 }}>
+                      <Text style={{ color: '#F43F5E', fontSize: 10, fontWeight: 'bold' }}>Düşüş</Text>
+                      <Text style={{ color: '#D1D5DB', fontSize: 8.5, marginTop: 1 }}>Gölge / içsel sınav.</Text>
                     </View>
                   </View>
                   <View style={[styles.arrowGuideItem, { borderColor: 'rgba(245, 158, 11, 0.3)' }]}>
-                    <Text style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: 13 }}>▼</Text>
-                    <View style={{ flex: 1, marginLeft: 5 }}>
-                      <Text style={{ color: '#F59E0B', fontSize: 10, fontWeight: 'bold' }}>Retrograd (Geri)</Text>
-                      <Text style={{ color: '#D1D5DB', fontSize: 9, marginTop: 1 }}>İçe dönük, karmik arınma ve derin bilgelik.</Text>
+                    <Text style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: 11, paddingHorizontal: 1 }}>R</Text>
+                    <View style={{ flex: 1, marginLeft: 4 }}>
+                      <Text style={{ color: '#F59E0B', fontSize: 10, fontWeight: 'bold' }}>Retrograd</Text>
+                      <Text style={{ color: '#D1D5DB', fontSize: 8.5, marginTop: 1 }}>İçe dönük enerji.</Text>
                     </View>
                   </View>
                 </View>
+                <Text style={{ color: '#9CA3AF', fontSize: 8.5, fontStyle: 'italic', marginTop: 5, textAlign: 'center' }}>
+                  * İşaretsiz kapılar nötr ve dengelidir; özel fiksasyona tabi değildir.
+                </Text>
               </View>
 
               <BlurView intensity={30} tint="light" style={styles.textAnalysisCard}>
