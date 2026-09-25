@@ -85,7 +85,7 @@ export const RAVE_ICHING_FIXATIONS: Record<number, Record<number, LineFixation>>
     2: { exalted: ['Mercury'], detriment: ['Mars'] },
     3: { exalted: ['Earth'], detriment: ['Moon'] },
     4: { exalted: ['Uranus'], detriment: ['Mercury'] },
-    5: { exalted: ['Jupiter'], detriment: ['Saturn'] },
+    5: { exalted: ['Jupiter', 'Mercury'], detriment: ['Mars'] },
     6: { exalted: ['Pluto'], detriment: ['Saturn'] },
   },
   11: {
@@ -145,8 +145,8 @@ export const RAVE_ICHING_FIXATIONS: Record<number, Record<number, LineFixation>>
     6: { exalted: ['Moon'], detriment: ['Jupiter'] },
   },
   18: {
-    1: { exalted: ['Earth'], detriment: ['Moon'] },
-    2: { exalted: ['Pluto'], detriment: ['Moon'] },
+    1: { exalted: ['Earth'], detriment: ['Jupiter'] },
+    2: { exalted: ['Neptune'], detriment: ['Mars'] },
     3: { exalted: ['Jupiter'], detriment: ['Mars'] },
     4: { exalted: ['Sun'], detriment: ['Pluto'] },
     5: { exalted: ['Saturn'], detriment: ['Uranus'] },
@@ -273,7 +273,7 @@ export const RAVE_ICHING_FIXATIONS: Record<number, Record<number, LineFixation>>
     6: { exalted: ['Sun'], detriment: ['Jupiter'] },
   },
   34: {
-    1: { exalted: ['Sun'], detriment: ['Earth'] },
+    1: { exalted: ['Saturn'], detriment: ['Pluto'] },
     2: { exalted: ['Mars'], detriment: ['Venus'] },
     3: { exalted: ['Earth'], detriment: ['Jupiter'] },
     4: { exalted: ['Pluto'], detriment: ['Mars'] },
@@ -449,11 +449,11 @@ export const RAVE_ICHING_FIXATIONS: Record<number, Record<number, LineFixation>>
     6: { exalted: ['Sun'], detriment: ['Saturn'] },
   },
   56: {
-    1: { exalted: ['Mars'], detriment: ['Moon'] },
-    2: { exalted: ['Moon'], detriment: ['Mars'] },
-    3: { exalted: ['Sun'], detriment: ['Uranus'] },
+    1: { exalted: ['Moon'], detriment: ['Mars'] },
+    2: { exalted: ['Uranus'], detriment: ['Moon'] },
+    3: { exalted: ['Sun'], detriment: ['Venus'] },
     4: { exalted: ['Moon'], detriment: ['Mars'] },
-    5: { exalted: ['Moon'], detriment: ['Mars'] },
+    5: { exalted: ['Sun'], detriment: ['Moon'] },
     6: { exalted: ['Sun'], detriment: ['Jupiter'] },
   },
   57: {
@@ -506,11 +506,11 @@ export const RAVE_ICHING_FIXATIONS: Record<number, Record<number, LineFixation>>
   },
   63: {
     1: { exalted: ['Sun'], detriment: ['Mars'] },
-    2: { exalted: ['Jupiter'], detriment: ['Mars'] },
+    2: { exalted: ['Jupiter'], detriment: ['Uranus'] },
     3: { exalted: ['Jupiter'], detriment: ['Mars'] },
     4: { exalted: ['Sun'], detriment: ['Mars'] },
     5: { exalted: ['Jupiter'], detriment: ['Mars'] },
-    6: { exalted: ['Sun'], detriment: ['Mars'] },
+    6: { exalted: ['Jupiter'], detriment: ['Pluto'] },
   },
   64: {
     1: { exalted: ['Moon'], detriment: ['Mars'] },
