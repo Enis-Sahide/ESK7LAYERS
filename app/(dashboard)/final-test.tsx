@@ -192,7 +192,7 @@ export default function FinalTestScreen() {
       icon = "infinite";
     } else if (score >= 70) {
       title = "Işık İşçisi";
-      message = "Gizem okulunun öğretilerini büyük ölçüde kavramışsın. Çok az eksiğin kaldı.";
+      message = "Kadim öğretileri büyük ölçüde kavramışsın. Çok az eksiğin kaldı.";
     } else if (score >= 50) {
       title = "Uyanış Yolcusu";
       message = "İçsel uyanışın başlamış ancak zihnin hala bazı kavramlarda dalgalanıyor. Bilgileri tekrar gözden geçirmelisin.";
@@ -200,7 +200,7 @@ export default function FinalTestScreen() {
       icon = "half-outline";
     } else {
       title = "Arayışta";
-      message = "Henüz sırlar okulunun kapısındasın. Enerji merkezleri hakkında daha fazla meditasyon yapmalı ve okumalısın.";
+      message = "Henüz bu kadim yolun başındasın. Enerji merkezleri hakkında daha fazla meditasyon yapmalı ve okumalısın.";
       color = COLORS.error;
       icon = "alert-circle";
     }

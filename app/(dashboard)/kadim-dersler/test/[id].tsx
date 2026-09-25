@@ -195,7 +195,7 @@ export default function KadimDerslerTestScreen() {
       message = "Bilgeliğin artıyor ancak zihnin hala dalgalanıyor. Sonraki dereceye geçmek için tam idrak (100) gereklidir.";
     } else {
       title = "Arayışta";
-      message = "Henüz sırlar okulunun başındasın. Öğretileri sessizlikte tekrar dinlemeli ve idrak etmelisin.";
+      message = "Henüz bu kadim yolun başındasın. Öğretileri sessizlikte tekrar dinlemeli ve idrak etmelisin.";
       color = COLORS.error;
     }
 

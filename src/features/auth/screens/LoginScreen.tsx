@@ -41,7 +41,7 @@ export default function LoginScreen() {
         <View style={styles.content}>
           <Image source={GOLD_LOGO} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>7LAYERS</Text>
-          <Text style={styles.schoolSubtitle}>ANCIENT KNOWLEDGE SCHOOL</Text>
+          <Text style={styles.realmSubtitle}>ANCIENT KNOWLEDGE REALM</Text>
           <Text style={styles.subtitle}>Gizemli yolculuğa hoş geldin.</Text>
 
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 10,
   },
-  schoolSubtitle: {
+  realmSubtitle: {
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 3,

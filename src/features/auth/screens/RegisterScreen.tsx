@@ -118,7 +118,7 @@ export default function RegisterScreen() {
           {/* Branding Header */}
           <View style={styles.brandHeader}>
             <Image source={GOLD_LOGO} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.brandSub}>ANCIENT KNOWLEDGE SCHOOL</Text>
+            <Text style={styles.brandSub}>ANCIENT KNOWLEDGE REALM</Text>
             <Text style={styles.title}>{step === 'form' ? 'İnisiyasyon' : 'E-Posta Doğrulama'}</Text>
             <Text style={styles.subtitle}>
               {step === 'form' 
