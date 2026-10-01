@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { COLORS, SIZES } from '@/src/theme';
 import { 
   DRUID_TREES, 
@@ -21,6 +22,7 @@ import {
   DruidTree, 
   DruidTreeAnalysis 
 } from '@/src/features/astrology/engine/DruidTreeEngine';
+import { getDruidTreeGif } from '@/src/features/astrology/assets/druidTreeGifs';
 
 const { width } = Dimensions.get('window');
 
@@ -69,9 +71,13 @@ export default function KeltDruidAgaciScreen() {
         `✨ Ruhsal Karakter: ${currentTree.archetype}\n` +
         `🪐 Yönetici Güç: ${currentTree.rulingPlanets} | Element: ${currentTree.element}\n` +
         `📜 Druid Bilgeliği: "${currentTree.druidicProverb}"\n\n` +
-        `Sen de kendi kutsal Kelt ağacını keşfet: 7layers.tr/analysis/druid-tree`;
+        `Canlı Şirin Maskot & Detaylar: https://7layers.tr/analysis/druid-tree\n` +
+        `Sen de kendi kutsal Kelt ağacını hemen keşfet!`;
 
-      await Share.share({ message });
+      await Share.share({ 
+        message,
+        url: 'https://7layers.tr/analysis/druid-tree'
+      });
     } catch (error) {
       console.error('Paylaşım hatası:', error);
     }
@@ -177,6 +183,39 @@ export default function KeltDruidAgaciScreen() {
           {/* Analiz Sonucu */}
           {currentTree && (
             <View style={styles.resultContainer}>
+              {/* Canlı Şirin Ağaç Maskot Kartı */}
+              <View style={styles.mascotCard}>
+                <View style={styles.mascotBadge}>
+                  <Ionicons name="sparkles" size={14} color="#FDE047" />
+                  <Text style={styles.mascotBadgeText}>CANLI RUH AĞACI MASKOTUN</Text>
+                </View>
+
+                <View style={styles.mascotImageWrapper}>
+                  <Image
+                    source={getDruidTreeGif(currentTree.id)}
+                    style={styles.mascotImage}
+                    contentFit="contain"
+                    autoplay
+                  />
+                </View>
+
+                <Text style={styles.mascotCaption}>
+                  {analyzedName ? `${analyzedName} İçin: ` : ''}{currentTree.name} Maskotu
+                </Text>
+                <Text style={styles.mascotSubCaption}>
+                  Instagram Story ve WhatsApp Durumunuzda paylaşarak ağacınızın neşesini yayın!
+                </Text>
+
+                <TouchableOpacity 
+                  style={styles.mascotShareBtn}
+                  onPress={handleShare}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="share-social" size={18} color="#FFFFFF" />
+                  <Text style={styles.mascotShareBtnText}>Hikayede & Sosyal Medyada Paylaş</Text>
+                </TouchableOpacity>
+              </View>
+
               {/* Ana Ağaç Totem Kartı */}
               <View style={styles.treeCard}>
                 <View style={styles.treeHeader}>
@@ -338,18 +377,22 @@ export default function KeltDruidAgaciScreen() {
                 activeOpacity={0.7}
               >
                 <View style={styles.miniCardHeader}>
-                  <View style={styles.miniOgham}>
-                    <Text style={styles.miniOghamText}>{tree.oghamSymbol}</Text>
+                  <View style={styles.miniMascotWrapper}>
+                    <Image 
+                      source={getDruidTreeGif(tree.id)} 
+                      style={styles.miniMascotImage} 
+                      contentFit="cover" 
+                    />
                   </View>
                   <View style={styles.miniInfo}>
-                    <Text style={styles.miniTitle}>{tree.name}</Text>
+                    <Text style={styles.miniTitle}>{tree.name} ({tree.oghamSymbol})</Text>
                     <Text style={styles.miniSub}>{tree.oghamName} • {tree.rulingPlanets}</Text>
                   </View>
                 </View>
                 <Text style={styles.miniArchetype} numberOfLines={2}>{tree.archetype}</Text>
                 <Text style={styles.miniPeriod}>{tree.periods[0]?.label}</Text>
                 <View style={styles.miniFooter}>
-                  <Text style={styles.miniActionText}>Detayları İncele</Text>
+                  <Text style={styles.miniActionText}>Maskotu & Detayları Gör</Text>
                   <Ionicons name="arrow-forward" size={14} color="#10B981" />
                 </View>
               </TouchableOpacity>
@@ -440,11 +483,16 @@ export default function KeltDruidAgaciScreen() {
               {selectedModalTree && (
                 <ScrollView showsVerticalScrollIndicator={false}>
                   <View style={styles.detailModalHeader}>
-                    <View style={styles.oghamBadge}>
-                      <Text style={styles.oghamSymbol}>{selectedModalTree.oghamSymbol}</Text>
+                    <View style={styles.detailMascotWrapper}>
+                      <Image
+                        source={getDruidTreeGif(selectedModalTree.id)}
+                        style={styles.detailMascotImage}
+                        contentFit="contain"
+                        autoplay
+                      />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.oghamNameText}>Ogham: {selectedModalTree.oghamName}</Text>
+                      <Text style={styles.oghamNameText}>Ogham: {selectedModalTree.oghamName} ({selectedModalTree.oghamSymbol})</Text>
                       <Text style={styles.detailModalTitle}>{selectedModalTree.name}</Text>
                       <Text style={styles.botanicalName}>{selectedModalTree.botanicalName}</Text>
                     </View>
@@ -1059,5 +1107,114 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 14,
     fontWeight: '700',
+  },
+  // Canlı Şirin Maskot Stilleri
+  mascotCard: {
+    backgroundColor: 'rgba(6, 24, 20, 0.75)',
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: 'rgba(52, 211, 153, 0.4)',
+    padding: 18,
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  mascotBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 211, 153, 0.4)',
+    marginBottom: 14,
+  },
+  mascotBadgeText: {
+    color: '#6EE7B7',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.8,
+  },
+  mascotImageWrapper: {
+    width: width - 80,
+    maxWidth: 320,
+    height: 340,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#030A09',
+    borderWidth: 1,
+    borderColor: 'rgba(52, 211, 153, 0.25)',
+    marginBottom: 12,
+  },
+  mascotImage: {
+    width: '100%',
+    height: '100%',
+  },
+  mascotCaption: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  mascotSubCaption: {
+    color: '#9CA3AF',
+    fontSize: 11,
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: 14,
+    paddingHorizontal: 10,
+  },
+  mascotShareBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#059669',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    width: '100%',
+    shadowColor: '#059669',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+  },
+  mascotShareBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  miniMascotWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  miniMascotImage: {
+    width: '100%',
+    height: '100%',
+  },
+  detailMascotWrapper: {
+    width: 68,
+    height: 68,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(52, 211, 153, 0.4)',
+  },
+  detailMascotImage: {
+    width: '100%',
+    height: '100%',
   },
 });
