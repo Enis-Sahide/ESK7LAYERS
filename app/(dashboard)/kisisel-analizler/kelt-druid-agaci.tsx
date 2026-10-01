@@ -224,7 +224,7 @@ export default function KeltDruidAgaciScreen() {
                   </View>
                   <View style={styles.treeTitleContainer}>
                     <Text style={styles.oghamNameText}>
-                      Ogham: {currentTree.oghamName}
+                      Keltçe İsmi (Ogham): {currentTree.oghamName} ({currentTree.oghamSymbol})
                     </Text>
                     <Text style={styles.treeName}>
                       {analyzedName ? `${analyzedName} İçin: ` : ''}{currentTree.name}
@@ -492,7 +492,7 @@ export default function KeltDruidAgaciScreen() {
                       />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.oghamNameText}>Ogham: {selectedModalTree.oghamName} ({selectedModalTree.oghamSymbol})</Text>
+                      <Text style={styles.oghamNameText}>Keltçe İsmi (Ogham): {selectedModalTree.oghamName} ({selectedModalTree.oghamSymbol})</Text>
                       <Text style={styles.detailModalTitle}>{selectedModalTree.name}</Text>
                       <Text style={styles.botanicalName}>{selectedModalTree.botanicalName}</Text>
                     </View>
