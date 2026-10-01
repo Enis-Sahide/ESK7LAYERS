@@ -1144,7 +1144,7 @@ const styles = StyleSheet.create({
   mascotImageWrapper: {
     width: width - 80,
     maxWidth: 320,
-    height: 340,
+    height: 426,
     borderRadius: 20,
     overflow: 'hidden',
     backgroundColor: '#030A09',
@@ -1193,7 +1193,7 @@ const styles = StyleSheet.create({
   },
   miniMascotWrapper: {
     width: 48,
-    height: 48,
+    height: 56,
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1205,8 +1205,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   detailMascotWrapper: {
-    width: 68,
-    height: 68,
+    width: 70,
+    height: 90,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: 'rgba(16, 185, 129, 0.15)',

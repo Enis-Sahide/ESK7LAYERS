@@ -1,23 +1,46 @@
 /**
- * 7Layers - Kelt Druid Ağacı Canlı Maskot GIF Kaynakları
+ * 7Layers - Kelt Druid Ağacı Yüksek Çözünürlüklü Karakter ve Hikaye Kartı Kaynakları
  */
 
-export const DRUID_TREE_GIFS: Record<string, any> = {
-  birch: require('@/assets/druid-tree-gifs/birch.gif'),
-  rowan: require('@/assets/druid-tree-gifs/rowan.gif'),
-  ash: require('@/assets/druid-tree-gifs/ash.gif'),
-  alder: require('@/assets/druid-tree-gifs/alder.gif'),
-  willow: require('@/assets/druid-tree-gifs/willow.gif'),
-  hawthorn: require('@/assets/druid-tree-gifs/hawthorn.gif'),
-  oak: require('@/assets/druid-tree-gifs/oak.gif'),
-  holly: require('@/assets/druid-tree-gifs/holly.gif'),
-  hazel: require('@/assets/druid-tree-gifs/hazel.gif'),
-  vine: require('@/assets/druid-tree-gifs/vine.gif'),
-  ivy: require('@/assets/druid-tree-gifs/ivy.gif'),
-  reed: require('@/assets/druid-tree-gifs/reed.gif'),
-  elder: require('@/assets/druid-tree-gifs/elder.gif'),
+export const DRUID_TREE_IMAGES: Record<string, any> = {
+  birch: require('@/assets/druid-trees/birch.jpg'),
+  rowan: require('@/assets/druid-trees/rowan.jpg'),
+  ash: require('@/assets/druid-trees/ash.jpg'),
+  alder: require('@/assets/druid-trees/alder.jpg'),
+  willow: require('@/assets/druid-trees/willow.jpg'),
+  hawthorn: require('@/assets/druid-trees/hawthorn.jpg'),
+  oak: require('@/assets/druid-trees/oak.jpg'),
+  holly: require('@/assets/druid-trees/holly.jpg'),
+  hazel: require('@/assets/druid-trees/hazel.jpg'),
+  vine: require('@/assets/druid-trees/vine.jpg'),
+  ivy: require('@/assets/druid-trees/ivy.jpg'),
+  reed: require('@/assets/druid-trees/reed.jpg'),
+  elder: require('@/assets/druid-trees/elder.jpg'),
 };
 
-export function getDruidTreeGif(id: string): any {
-  return DRUID_TREE_GIFS[id] || { uri: `https://7layers.tr/druid-tree-gifs/${id}.gif` };
+export const DRUID_TREE_CARDS: Record<string, any> = {
+  birch: require('@/assets/druid-trees/birch-card.jpg'),
+  rowan: require('@/assets/druid-trees/rowan-card.jpg'),
+  ash: require('@/assets/druid-trees/ash-card.jpg'),
+  alder: require('@/assets/druid-trees/alder-card.jpg'),
+  willow: require('@/assets/druid-trees/willow-card.jpg'),
+  hawthorn: require('@/assets/druid-trees/hawthorn-card.jpg'),
+  oak: require('@/assets/druid-trees/oak-card.jpg'),
+  holly: require('@/assets/druid-trees/holly-card.jpg'),
+  hazel: require('@/assets/druid-trees/hazel-card.jpg'),
+  vine: require('@/assets/druid-trees/vine-card.jpg'),
+  ivy: require('@/assets/druid-trees/ivy-card.jpg'),
+  reed: require('@/assets/druid-trees/reed-card.jpg'),
+  elder: require('@/assets/druid-trees/elder-card.jpg'),
+};
+
+export function getDruidTreeImage(id: string): any {
+  return DRUID_TREE_IMAGES[id] || { uri: `https://7layers.tr/druid-trees/${id}.jpg` };
 }
+
+export function getDruidTreeCard(id: string): any {
+  return DRUID_TREE_CARDS[id] || { uri: `https://7layers.tr/druid-trees/${id}-card.jpg` };
+}
+
+// Geriye dönük uyumluluk
+export const getDruidTreeGif = getDruidTreeCard;
