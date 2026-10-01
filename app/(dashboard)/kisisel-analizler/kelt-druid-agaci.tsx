@@ -67,12 +67,13 @@ export default function KeltDruidAgaciScreen() {
   const handleShare = async () => {
     if (!currentTree) return;
     try {
-      const message = `🌲 Kelt Druid Ağacı Analizim: ${currentTree.name} (${currentTree.oghamSymbol} ${currentTree.oghamName})\n` +
+      const cleanPrefix = analyzedName ? `${analyzedName}'in ` : '';
+      const message = `🌲 ${cleanPrefix}Kelt Druid Ağacı: ${currentTree.name} (${currentTree.oghamSymbol} ${currentTree.oghamName})\n` +
         `✨ Ruhsal Karakter: ${currentTree.archetype}\n` +
         `🪐 Yönetici Güç: ${currentTree.rulingPlanets} | Element: ${currentTree.element}\n` +
         `📜 Druid Bilgeliği: "${currentTree.druidicProverb}"\n\n` +
-        `Canlı Şirin Maskot & Detaylar: https://7layers.tr/analysis/druid-tree\n` +
-        `Sen de kendi kutsal Kelt ağacını hemen keşfet!`;
+        `Canlı Druid Ağacı & Detaylar: https://7layers.tr/analysis/druid-tree\n` +
+        `Sen de kendi kutsal Druid ağacını hemen keşfet!`;
 
       await Share.share({ 
         message,
