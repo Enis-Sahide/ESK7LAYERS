@@ -447,8 +447,16 @@ export default function KabbalahAnalysisScreen() {
                       {kabbalahAnalysis.activeConsciousness.cosmicChallenge || kabbalahAnalysis.activeConsciousness.explanation}
                     </Text>
                     <View style={styles.acTriggerBox}>
+                      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: 'rgba(56, 189, 248, 0.2)'}}>
+                        <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
+                          <Ionicons name="sparkles" size={14} color="#38BDF8" />
+                          <Text style={{fontSize: 12, fontWeight: '700', color: '#38BDF8', letterSpacing: 0.5}}>GÖKSEL REHBERLİK</Text>
+                        </View>
+                        <View style={{backgroundColor: 'rgba(56, 189, 248, 0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.25)'}}>
+                          <Text style={{fontSize: 9, color: '#38BDF8', fontWeight: '600'}}>Aktif Transit</Text>
+                        </View>
+                      </View>
                       <Text style={styles.acTriggerText}>
-                        <Text style={{fontWeight: 'bold', color: '#38BDF8'}}>⚡ Göksel Rehberlik: </Text>
                         {kabbalahAnalysis.activeConsciousness.transitSummary || kabbalahAnalysis.activeConsciousness.reason}
                       </Text>
                     </View>
