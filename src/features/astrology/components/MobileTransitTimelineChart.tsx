@@ -136,9 +136,9 @@ export default function MobileTransitTimelineChart({
           <View style={styles.rangeButtonGroup}>
             {[
               { id: '1m', label: '1 Ay', isLocked: false },
-              { id: '3m', label: '3 Ay', isLocked: !isPremium },
-              { id: '6m', label: '6 Ay', isLocked: !isPremium },
-              { id: '1y', label: '1 Yıl', isLocked: !isPremium },
+              { id: '3m', label: '3 Ay', isLocked: false },
+              { id: '6m', label: '6 Ay', isLocked: false },
+              { id: '1y', label: '1 Yıl', isLocked: false },
             ].map(r => (
               <TouchableOpacity
                 key={r.id}
@@ -469,68 +469,31 @@ export default function MobileTransitTimelineChart({
                   <Text style={styles.summaryContent}>{selectedItem.summary}</Text>
                 </View>
 
-                {/* 2. 7Layers Çakra & Derin Dinamikler (Premium veya Kilitli) */}
-                {isPremium ? (
-                  <View style={{ gap: 12 }}>
-                    {/* 7Layers Chakra Card */}
-                    <View style={styles.chakraCard}>
-                      <Ionicons name="layers" size={20} color="#C084FC" style={{ marginTop: 2, marginRight: 8 }} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.chakraTitle}>7Layers İnisiyasyon & Katman Etkisi</Text>
-                        <Text style={styles.chakraText}>{selectedItem.chakraLayer}</Text>
-                      </View>
-                    </View>
-
-                    {/* Deep Interpretation */}
-                    <View style={styles.deepCard}>
-                      <Text style={styles.deepTitle}>KADİRSEL & PSİKOLOJİK DİNAMİK</Text>
-                      <Text style={styles.deepContent}>{selectedItem.details}</Text>
-                    </View>
-
-                    {/* Advice */}
-                    {selectedItem.advice && (
-                      <View style={styles.adviceCard}>
-                        <Text style={styles.adviceTitle}>REHBERLİK & TAVSİYE</Text>
-                        <Text style={styles.adviceContent}>{selectedItem.advice}</Text>
-                      </View>
-                    )}
-                  </View>
-                ) : (
-                  /* Kilitli Freemium Kartı */
-                  <View style={styles.lockBox}>
-                    <View style={styles.lockBlurSim}>
-                      <View style={{ height: 16, width: '60%', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4, marginBottom: 8 }} />
-                      <View style={{ height: 12, width: '90%', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 4, marginBottom: 6 }} />
-                      <View style={{ height: 12, width: '75%', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 4 }} />
-                    </View>
-
-                    <View style={styles.lockOverlay}>
-                      <View style={styles.lockIconCircle}>
-                        <Ionicons name="lock-closed" size={22} color="#D4AF37" />
-                      </View>
-                      <Text style={styles.lockTitle}>7Layers İnisiyasyon & Derin Rehberlik Kilitli</Text>
-                      <Text style={styles.lockDesc}>
-                        Bu kadersel transitin Çakra/Sefirot katman etkisi, derin psikolojik dinamikleri ve eylem adımları Çıraklık (Apprentice) ve üzeri seviyelere özeldir.
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setSelectedItem(null);
-                          onRequirePremium?.();
-                        }}
-                        style={styles.upgradeBtn}
-                      >
-                        <LinearGradient
-                          colors={['#D4AF37', '#0EA5E9']}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 0 }}
-                          style={styles.upgradeBtnGrad}
-                        >
-                          <Text style={styles.upgradeBtnText}>Seviyeni Yükselt & Kilidi Aç</Text>
-                        </LinearGradient>
-                      </TouchableOpacity>
+                {/* 2. 7Layers Çakra & Derin Dinamikler (Herkese Açık) */}
+                <View style={{ gap: 12 }}>
+                  {/* 7Layers Chakra Card */}
+                  <View style={styles.chakraCard}>
+                    <Ionicons name="layers" size={20} color="#C084FC" style={{ marginTop: 2, marginRight: 8 }} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.chakraTitle}>7Layers İnisiyasyon & Katman Etkisi</Text>
+                      <Text style={styles.chakraText}>{selectedItem.chakraLayer}</Text>
                     </View>
                   </View>
-                )}
+
+                  {/* Deep Interpretation */}
+                  <View style={styles.deepCard}>
+                    <Text style={styles.deepTitle}>KADİRSEL & PSİKOLOJİK DİNAMİK</Text>
+                    <Text style={styles.deepContent}>{selectedItem.details}</Text>
+                  </View>
+
+                  {/* Advice */}
+                  {selectedItem.advice && (
+                    <View style={styles.adviceCard}>
+                      <Text style={styles.adviceTitle}>REHBERLİK & TAVSİYE</Text>
+                      <Text style={styles.adviceContent}>{selectedItem.advice}</Text>
+                    </View>
+                  )}
+                </View>
 
                 <TouchableOpacity
                   onPress={() => setSelectedItem(null)}

@@ -1048,8 +1048,7 @@ export default function AnlikGokyuzuScreen() {
                         fetchSkyTimeline(newRange);
                       }}
                       isLoading={isSkyTimelineLoading}
-                      isPremium={isApprenticeOrAbove}
-                      onRequirePremium={() => setShowLockModal(true)}
+                      isPremium={true}
                       isMundane={true}
                       userTimezone={skyTimelineData?.timeZone || userTz}
                       tzOffsetHours={skyTimelineData?.tzOffsetHours ?? tzOffsetHours}
@@ -1365,8 +1364,7 @@ export default function AnlikGokyuzuScreen() {
                         fetchTimeline(newRange);
                       }}
                       isLoading={isTimelineLoading}
-                      isPremium={isApprenticeOrAbove}
-                      onRequirePremium={() => setShowLockModal(true)}
+                      isPremium={true}
                       userTimezone={timelineData?.timeZone || userTz}
                       tzOffsetHours={timelineData?.tzOffsetHours ?? tzOffsetHours}
                     />
