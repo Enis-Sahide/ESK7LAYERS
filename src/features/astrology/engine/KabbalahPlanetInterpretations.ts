@@ -533,7 +533,7 @@ export function getEsotericHouseInterpretation(
   let housePrefix = `${houseNum}. Ev`;
   if (houseNum === 1) housePrefix = `1. Ev (ASC - Yükselen)`;
   else if (houseNum === 10) housePrefix = `10. Ev (MC - Tepe Noktası)`;
-  else if (houseNum === 4) housePrefix = `4. Ev (IC - Ayak Ucu)`;
+  else if (houseNum === 4) housePrefix = `4. Ev (IC - Dip Noktası)`;
   else if (houseNum === 7) housePrefix = `7. Ev (DSC - Alçalan)`;
 
   const title = `${housePrefix} - ${signName} Burcunda${titleSuffix}`;

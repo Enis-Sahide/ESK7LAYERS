@@ -251,7 +251,7 @@ export function getHouseCuspInterpretation(houseNum: number, signName: ZodiacSig
   let title = `${houseNum}. Ev Girişi - ${signName}`;
   if (houseNum === 1) title = `Yükselen (ASC) - 1. Ev - ${signName}`;
   if (houseNum === 10) title = `Tepe Noktası (MC) - 10. Ev - ${signName}`;
-  if (houseNum === 4) title = `Ayak Ucu (IC) - 4. Ev - ${signName}`;
+  if (houseNum === 4) title = `Dip Noktası (IC) - 4. Ev - ${signName}`;
   if (houseNum === 7) title = `Alçalan (DSC) - 7. Ev - ${signName}`;
 
   const content = `BÜTÜNLEŞİK YAŞAMSAL ANALİZ:\n` +
