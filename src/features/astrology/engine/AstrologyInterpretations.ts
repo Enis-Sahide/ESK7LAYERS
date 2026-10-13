@@ -237,9 +237,7 @@ export function getFullPlanetInterpretation(planetName: string, signName: Zodiac
 
   const content = `BÜTÜNLEŞİK YAŞAMSAL ANALİZ:\n` +
     `Hayatta en çok ${house.arena} ${sign.nature} bir duruş sergilediğinizde parlarsınız. ${planet.drive}; ${sign.behavior}\n\n` +
-    `Bu yaklaşımınız, ${house.arena} ${house.experience} sağlar. Bu alanda yüzeysel kurallar veya geçici hevesler yerine kendi hakiki mizacınızı ortaya koyduğunuzda; ${planet.action}.\n\n` +
-    `EZOTERİK ANLAM:\n` +
-    `Geleneksel okumanın ötesinde, bu yerleşim çok daha derin bir spiritüel gerçeği fısıldar. ${planetName} enerjisi (${planet.esoteric}), ${signName} formunda vücut bularak (${sign.esoteric}) ruhun tekamülüne hizmet etmektedir. Bu kadersel mühür, ${houseNum}. evin sırlarını çözmeniz ve potansiyelinizi uyandırmanız için değerli bir anahtardır.`;
+    `Bu yaklaşımınız, ${house.arena} ${house.experience} sağlar. Bu alanda yüzeysel kurallar veya geçici hevesler yerine kendi hakiki mizacınızı ortaya koyduğunuzda; ${planet.action}.`;
 
   return { title, content };
 }
@@ -258,9 +256,7 @@ export function getHouseCuspInterpretation(houseNum: number, signName: ZodiacSig
 
   const content = `BÜTÜNLEŞİK YAŞAMSAL ANALİZ:\n` +
     `Yaşamınızda en çok ${house.arena}; ${sign.nature} bir yaklaşımla hareket edersiniz. ${sign.behavior}\n\n` +
-    `Bu doğal duruşunuz, ${house.arena} ${house.experience} sağlar. Olayları karşılarken kendi doğallığınızı ve içsel dengenizi koruduğunuzda, bu yaşam alanında karşılaştığınız her deneyim sizi olgunlaştıran ve kişisel gücünüzü artıran değerli bir fırsata dönüşür.\n\n` +
-    `EZOTERİK ANLAM:\n` +
-    `Ruhsal tekamül perspektifinden bakıldığında; ${sign.esoteric} Bu yaşam alanına yaklaştığınızda, derin ruhsal bilgeliği tecrübe edebilir ve yaşamınıza katarak içsel bütünlüğünüzü güçlendirebilirsiniz.`;
+    `Bu doğal duruşunuz, ${house.arena} ${house.experience} sağlar. Olayları karşılarken kendi doğallığınızı ve içsel dengenizi koruduğunuzda, bu yaşam alanında karşılaştığınız her deneyim sizi olgunlaştıran ve kişisel gücünüzü artıran değerli bir fırsata dönüşür.`;
 
   return { title, content };
 }
@@ -285,9 +281,7 @@ export function getAspectInterpretation(planet1Name: string, planet2Name: string
 
   const content = `BÜTÜNLEŞİK DİNAMİK ANALİZİ:\n` +
     `İç dünyanızda ${p1.drive} ile ${p2.drive} birbiriyle doğrudan rezonansa girer. Bu etkileşim, ${aspect.meaning} gösterir.\n\n` +
-    `Günlük hayatınızda bu iki enerjiyi bir arada deneyimlerken bir taraftan ${p1.action}, diğer taraftan ${p2.action}. Bu iki güç arasında kuracağınız bilinçli denge, karakterinizdeki en belirgin, yaratıcı ve dönüştürücü potansiyellerden birini açığa çıkarır.\n\n` +
-    `EZOTERİK ANLAM (KARMİK DİNAMİK):\n` +
-    `${aspect.esoteric} Ruhsal tekamülünüzde ${planet1Name} (${p1.esoteric}) ile ${planet2Name} (${p2.esoteric}) arasındaki bu kozmik senkronizasyon, kaderinizin eşsiz ve dönüştürücü bir anahtarını temsil etmektedir.`;
+    `Günlük hayatınızda bu iki enerjiyi bir arada deneyimlerken bir taraftan ${p1.action}, diğer taraftan ${p2.action}. Bu iki güç arasında kuracağınız bilinçli denge, karakterinizdeki en belirgin, yaratıcı ve dönüştürücü potansiyellerden birini açığa çıkarır.`;
 
   return { title, content };
 }
