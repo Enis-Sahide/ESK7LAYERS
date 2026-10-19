@@ -86,6 +86,23 @@ const renderMobileContent = (content: string) => {
       continue;
     }
 
+    // Markdown Image handling (![alt](url))
+    const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+    if (imgMatch) {
+      const altText = imgMatch[1];
+      const rawUrl = imgMatch[2];
+      const sourceUri = rawUrl.startsWith('/') ? API_BASE_URL + rawUrl : rawUrl;
+      elements.push(
+        <View key={`img-${i}`} style={styles.contentImageWrapper}>
+          <Image source={{ uri: sourceUri }} style={styles.contentImage} />
+          {altText ? (
+            <Text style={styles.contentImageCaption}>{altText}</Text>
+          ) : null}
+        </View>
+      );
+      continue;
+    }
+
     // Markdown Table handling (| ... |)
     if (trimmed.startsWith('|') && trimmed.includes('|')) {
       const tableLines: string[] = [];
@@ -225,7 +242,7 @@ export default function BlogDetailScreen() {
   const { slug } = useLocalSearchParams();
 
   // Fetch article details from API
-  const { data: post, loading, error } = useContent<any>(slug ? `/api/content/blog/${slug}` : null);
+  const { data: post, loading, error } = useContent<any>(slug ? `/api/content/blog/${slug}` : '');
 
   const handleShare = async () => {
     if (!post) return;
@@ -610,5 +627,27 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  contentImageWrapper: {
+    marginVertical: 16,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  contentImage: {
+    width: '100%',
+    height: 220,
+    resizeMode: 'cover',
+  },
+  contentImageCaption: {
+    textAlign: 'center',
+    fontSize: 11,
+    color: COLORS.textMuted,
+    fontStyle: 'italic',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(0,0,0,0.6)',
   }
 });
