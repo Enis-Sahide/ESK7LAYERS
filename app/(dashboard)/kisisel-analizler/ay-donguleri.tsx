@@ -1,13 +1,13 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
-
-const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
+import { apiFetch } from '@/src/core/config';
+import MobileLunationCard, { LunationBackendData } from '@/src/features/astrology/components/MobileLunationCard';
 
 interface MoonPhaseEvent {
   utcDate: string;
@@ -18,15 +18,43 @@ interface MoonPhaseEvent {
   degree: string;
 }
 
-// MOON_PHASES_2026 içeriği DB'den gelir (/api/content/moon-phases)
-
 export default function MoonCyclesScreen() {
   const router = useRouter();
   const [filter, setFilter] = useState<'all' | 'new_moon' | 'full_moon' | 'eclipse'>('all');
   const [isTurkeyTime, setIsTurkeyTime] = useState(true);
   const [nextPhase, setNextPhase] = useState<MoonPhaseEvent | null>(null);
+  const [selectedUtcDate, setSelectedUtcDate] = useState<string | null>(null);
+  const [lunationDetail, setLunationDetail] = useState<LunationBackendData | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
   const { data: moonData } = useContent<MoonPhaseEvent[]>('/api/content/moon-phases');
   const MOON_PHASES_2026 = moonData ?? [];
+
+  // Backend API'den aktif veya seçilen ay fazı detayını çek
+  const fetchLunationDetail = async (utcDate?: string) => {
+    setIsLoadingDetail(true);
+    try {
+      const url = utcDate 
+        ? `/api/astrology/lunation?eventUtcDate=${encodeURIComponent(utcDate)}`
+        : `/api/astrology/lunation`;
+      const res = await apiFetch(url);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.success) {
+          setLunationDetail(json.data);
+          setSelectedUtcDate(json.data.event.utcDate);
+        }
+      }
+    } catch (err) {
+      console.error('Lunation detail fetch error:', err);
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLunationDetail();
+  }, []);
 
   const getFormattedData = (utcDateStr: string) => {
     const dateObj = new Date(utcDateStr);
@@ -120,11 +148,8 @@ export default function MoonCyclesScreen() {
     }
   };
 
-  const nextPhaseData = nextPhase ? getFormattedData(nextPhase.utcDate) : null;
-
   return (
     <SacredBackground>
-
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={28} color={COLORS.primary} />
@@ -155,31 +180,15 @@ export default function MoonCyclesScreen() {
           </View>
         </View>
 
-        {/* Sıradaki Ay Fazı Highlight Card */}
-        {nextPhase && nextPhaseData && (
-          <BlurView intensity={40} tint="dark" style={styles.highlightCard}>
-            <View style={styles.highlightHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Ionicons name="sparkles" size={14} color={COLORS.primary} style={{ marginRight: 5 }} />
-                <Text style={styles.highlightSub}>SIRADAKI AY FAZI</Text>
-              </View>
-              <Text style={styles.highlightDate}>{nextPhaseData.fullDate}</Text>
-            </View>
-            <View style={styles.highlightBody}>
-              <View>
-                <Text style={styles.highlightTitle}>
-                  {getPhaseIcon(nextPhase.phase)}  {nextPhase.phaseName}
-                </Text>
-                <Text style={styles.highlightTime}>
-                  Saat: {nextPhaseData.time} ({isTurkeyTime ? 'TRT' : 'UTC'})
-                </Text>
-              </View>
-              <Text style={styles.highlightSign}>
-                {nextPhase.signSymbol} {nextPhase.sign} ({nextPhase.degree})
-              </Text>
-            </View>
-          </BlurView>
-        )}
+        {/* ☀️ 6 Aylık Kadersel Çatı & Güncel Faz MobileLunationCard (Backend'den Çekilir) */}
+        {isLoadingDetail && !lunationDetail ? (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="small" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Kozmik ay fazı verileri yükleniyor...</Text>
+          </View>
+        ) : lunationDetail ? (
+          <MobileLunationCard data={lunationDetail} isCompact={false} />
+        ) : null}
 
         {/* Filter Tabs */}
         <View style={styles.filterTabs}>
@@ -206,22 +215,30 @@ export default function MoonCyclesScreen() {
 
         {/* List of Phases */}
         <View style={styles.listContainer}>
+          <Text style={styles.listSectionHint}>
+            (Detayını ve 6 aylık çatı etkisini incelemek istediğiniz olaya dokunun)
+          </Text>
+
           {filteredPhases.map((item, idx) => {
+            const isSelected = selectedUtcDate === item.utcDate;
             const isNext = nextPhase && item.utcDate === nextPhase.utcDate;
             const data = getFormattedData(item.utcDate);
             const phaseColors = getPhaseColors(item.phase);
 
             return (
-              <View
+              <TouchableOpacity
                 key={idx}
+                activeOpacity={0.7}
+                onPress={() => fetchLunationDetail(item.utcDate)}
                 style={[
                   styles.eventCard,
-                  isNext && styles.eventCardActive
+                  isSelected && styles.eventCardSelected,
+                  isNext && !isSelected && styles.eventCardActive
                 ]}
               >
                 {/* Left: Date & Time */}
                 <View>
-                  <Text style={[styles.eventDate, isNext && { color: COLORS.primary, fontWeight: 'bold' }]}>
+                  <Text style={[styles.eventDate, (isSelected || isNext) && { color: COLORS.primary, fontWeight: 'bold' }]}>
                     {data.dayMonth}
                   </Text>
                   <Text style={styles.eventTime}>
@@ -253,7 +270,7 @@ export default function MoonCyclesScreen() {
                     <Text style={styles.signDegree}>{item.degree}</Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -417,6 +434,33 @@ const styles = StyleSheet.create({
   eventCardActive: {
     backgroundColor: 'rgba(212, 175, 55, 0.08)',
     borderColor: 'rgba(212, 175, 55, 0.4)',
+  },
+  eventCardSelected: {
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderColor: '#D4AF37',
+    borderWidth: 1.5,
+  },
+  listSectionHint: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.45)',
+    textAlign: 'center',
+    marginBottom: 6,
+    fontStyle: 'italic',
+  },
+  loadingBox: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(20, 20, 25, 0.7)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.2)',
+    marginBottom: 16,
+  },
+  loadingText: {
+    color: COLORS.textMuted,
+    fontSize: 12,
+    marginTop: 8,
   },
   eventDate: {
     color: COLORS.text,

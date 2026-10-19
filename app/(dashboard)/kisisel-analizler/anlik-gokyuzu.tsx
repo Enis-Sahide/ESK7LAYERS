@@ -18,6 +18,7 @@ import { getSkyPlanetSignInterpretation, getSkyAspectInterpretation } from '@/sr
 import { ASTRO_CITIES } from '@/src/features/astrology/api/astrologyClient';
 import { generateAstrologyChart } from '@/src/features/astrology/engine/AstrologyEngine';
 import { LinearGradient } from 'expo-linear-gradient';
+import MobileLunationCard, { LunationBackendData } from '@/src/features/astrology/components/MobileLunationCard';
 
 const { width } = Dimensions.get('window');
 const CHART_SIZE = width - 20;
@@ -166,6 +167,27 @@ export default function AnlikGokyuzuScreen() {
   const [isMundanePlanetsExpanded, setIsMundanePlanetsExpanded] = useState(true);
   const [isMundaneAspectsExpanded, setIsMundaneAspectsExpanded] = useState(true);
 
+  // Backend API'den çekilen Ay Fazı ve 6 Aylık Güneş Tutulması Çatısı Verileri
+  const [mundaneLunationData, setMundaneLunationData] = useState<LunationBackendData | null>(null);
+  const [personalLunationData, setPersonalLunationData] = useState<LunationBackendData | null>(null);
+
+  // Sayfa açıldığında kolektif ay fazını backend'den getir
+  useEffect(() => {
+    (async () => {
+      try {
+        const lRes = await apiFetch('/api/astrology/lunation');
+        if (lRes.ok) {
+          const lJson = await lRes.json();
+          if (lJson && lJson.success) {
+            setMundaneLunationData(lJson.data);
+          }
+        }
+      } catch (e) {
+        // sessiz geçiş
+      }
+    })();
+  }, []);
+
   const [skyTimelineData, setSkyTimelineData] = useState<any>(null);
   const [skyTimelineRange, setSkyTimelineRange] = useState<'1m' | '3m' | '6m' | '1y'>('1m');
   const [isSkyTimelineLoading, setIsSkyTimelineLoading] = useState(false);
@@ -200,6 +222,19 @@ export default function AnlikGokyuzuScreen() {
         houses: skyChart.houses,
         aspects: enrichedAspects
       });
+
+      // Kolektif ay fazı ve tutulma çatısını backend API'den güncelle
+      try {
+        const lRes = await apiFetch(`/api/astrology/lunation?date=${dStr}`);
+        if (lRes.ok) {
+          const lJson = await lRes.json();
+          if (lJson && lJson.success) {
+            setMundaneLunationData(lJson.data);
+          }
+        }
+      } catch (lErr) {
+        console.warn('Mundane lunation fetch error:', lErr);
+      }
     } catch (e) {
       console.error('Sky chart local calculation error:', e);
     } finally {
@@ -451,6 +486,32 @@ export default function AnlikGokyuzuScreen() {
 
       setTransitData(result.data);
       fetchTimeline('1m');
+
+      // Backend API'den 6 Aylık Güneş Tutulması Çatısı ve Kişisel Ev Portalı Çek
+      if (result.data?.natalChart?.houses) {
+        try {
+          const natalHouses = result.data.natalChart.houses.map((h: any) => ({
+            house: h.house,
+            sign: h.sign
+          }));
+          const pRes = await apiFetch('/api/astrology/lunation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              targetDate: transitDateStr,
+              natalHouses
+            })
+          });
+          if (pRes.ok) {
+            const pJson = await pRes.json();
+            if (pJson && pJson.success) {
+              setPersonalLunationData(pJson.data);
+            }
+          }
+        } catch (err) {
+          console.warn('Personal lunation fetch error:', err);
+        }
+      }
     } catch (error: any) {
       console.error(error);
       Alert.alert("Hata", error.message || "Transitler hesaplanırken bir hata oluştu.");
@@ -812,6 +873,11 @@ export default function AnlikGokyuzuScreen() {
                   </View>
                 ) : (
                   <View>
+                    {/* ☀️ Kolektif Aktif Ay Fazı & 6 Aylık Güneş Tutulması Çatısı */}
+                    {mundaneLunationData && (
+                      <MobileLunationCard data={mundaneLunationData} isCompact={true} />
+                    )}
+
                     {/* Sky Date Toolbar */}
                     <View style={styles.skyDateToolbar}>
                       <View style={styles.skyDateBadge}>
@@ -842,7 +908,7 @@ export default function AnlikGokyuzuScreen() {
                       aspects={skyChartData?.aspects || []}
                       ascendant={skyChartData?.ascendant}
                       onSelectPlanet={(p) => {
-                        const pDeg = Math.floor(p.degreeInSign ?? p.degree ?? 0);
+                        const pDeg = Math.floor(p.degreeInSign ?? (p as any).degree ?? 0);
                         const pMin = (p.minutes !== undefined && !isNaN(p.minutes))
                           ? Math.round(Number(p.minutes))
                           : Math.floor(((p.degreeInSign ?? 0) - pDeg) * 60);
@@ -1263,6 +1329,11 @@ export default function AnlikGokyuzuScreen() {
 
               {activeTab === 'BIWHEEL' ? (
                 <>
+                  {/* ☀️ Kişisel Harita 6 Aylık Güneş Tutulması Çatısı & Ezoterik Ev Portalı */}
+                  {personalLunationData && (
+                    <MobileLunationCard data={personalLunationData} isCompact={false} />
+                  )}
+
                   {/* Dual Wheel Chart */}
               {renderBiWheel()}
 
