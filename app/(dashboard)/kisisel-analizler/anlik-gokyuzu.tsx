@@ -1081,7 +1081,9 @@ export default function AnlikGokyuzuScreen() {
                                       <Text style={[styles.aspectBadge, { color: ASPECT_COLORS[aspect.type] || '#FFF' }]}>
                                         {ASPECT_SYMBOLS[aspect.type] || ''} {aspect.type}
                                       </Text>
-                                      <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Orb: {aspect.orb.toFixed(1)}° {aspect.isExact ? '(Tam)' : ''}</Text>
+                                      <Text style={{ fontSize: 10, color: aspect.orb <= 1.0 ? '#32D74B' : aspect.orb <= 2.5 ? '#0EA5E9' : COLORS.textMuted, fontWeight: aspect.orb <= 1.0 ? 'bold' : 'normal' }}>
+                                        Orb: {aspect.orb.toFixed(1)}° {aspect.orb <= 1.0 ? '★ Pik' : aspect.orb <= 2.5 ? '• Aktif' : ''}
+                                      </Text>
                                     </View>
 
                                     <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1 }]}>
