@@ -205,9 +205,18 @@ export default function AnlikGokyuzuScreen() {
 
       const mObj = moment.tz(`${dStr} ${tStr}:00`, 'YYYY-MM-DD HH:mm:ss', city.tz);
       const dateObj = mObj.toDate();
-      const skyChart = generateAstrologyChart(dateObj, city, false);
+      // Mundane / Anlık Gökyüzü için katı orb filtresi (Ay maks 4.5°, diğerleri maks 3.5°, Görmeyen maks 2.0°)
+      const mundaneAspects = (skyChart.aspects || []).filter((asp: any) => {
+        const hasMoon = asp.planet1 === 'Ay' || asp.planet2 === 'Ay';
+        if (asp.type === 'Görmeyen') return asp.orb <= 2.0;
+        const maxOrb = hasMoon ? 4.5 : 3.5;
+        return asp.orb <= maxOrb;
+      });
 
-      const enrichedAspects = (skyChart.aspects || []).map((asp: any) => ({
+      // Kesinlik önceliğine göre küçükten büyüğe sırala (0.0° en başta)
+      mundaneAspects.sort((a: any, b: any) => a.orb - b.orb);
+
+      const enrichedAspects = mundaneAspects.map((asp: any) => ({
         ...asp,
         interpretation: getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type)
       }));
