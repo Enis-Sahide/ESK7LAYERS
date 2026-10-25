@@ -205,6 +205,7 @@ export default function AnlikGokyuzuScreen() {
 
       const mObj = moment.tz(`${dStr} ${tStr}:00`, 'YYYY-MM-DD HH:mm:ss', city.tz);
       const dateObj = mObj.toDate();
+      const skyChart: any = generateAstrologyChart(dateObj, city);
       // Mundane / Anlık Gökyüzü için katı orb filtresi (Ay maks 4.5°, diğerleri maks 3.5°, Görmeyen maks 2.0°)
       const mundaneAspects = (skyChart.aspects || []).filter((asp: any) => {
         const hasMoon = asp.planet1 === 'Ay' || asp.planet2 === 'Ay';

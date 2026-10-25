@@ -63,7 +63,8 @@ export default function MobileLunationCard({
   data,
   isCompact = false,
 }: MobileLunationCardProps) {
-  const [expanded, setExpanded] = useState(!isCompact);
+  const [isSolarOpen, setIsSolarOpen] = useState(false);
+  const [isLunarOpen, setIsLunarOpen] = useState(false);
 
   if (!data || !data.event) return null;
 
@@ -108,9 +109,13 @@ export default function MobileLunationCard({
           colors={['rgba(255,255,255,0.04)', 'rgba(0,0,0,0.85)']}
           style={styles.gradientContainer}
         >
-          {/* ☀️ 6 Aylık Kadersel Güneş Tutulması Çatısı (Umbrella) */}
+          {/* ☀️ 6 Aylık Kadersel Güneş Tutulması Çatısı (Umbrella - Tıklanabilir Açılır Kapsül) */}
           {showSolarUmbrella && (
-            <View style={styles.umbrellaBanner}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setIsSolarOpen(!isSolarOpen)}
+              style={styles.umbrellaBanner}
+            >
               <View style={styles.umbrellaHeaderRow}>
                 <View style={styles.umbrellaIconWrapper}>
                   <Ionicons name="sunny" size={18} color="#FBBF24" />
@@ -121,16 +126,31 @@ export default function MobileLunationCard({
                     {activeSolarEclipse.event.sign} Güneş Tutulması ({activeSolarEclipse.event.signSymbol} {activeSolarEclipse.event.degree})
                   </Text>
                 </View>
+                <Ionicons
+                  name={isSolarOpen ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color="#FBBF24"
+                />
               </View>
-              <View style={styles.umbrellaStatusBadge}>
-                <Ionicons name="time-outline" size={12} color="#FBBF24" style={{ marginRight: 4 }} />
-                <Text style={styles.umbrellaStatusText}>{activeSolarEclipse.statusText}</Text>
-              </View>
-            </View>
+
+              {isSolarOpen && (
+                <View style={[styles.umbrellaStatusBadge, { marginTop: 8 }]}>
+                  <Ionicons name="time-outline" size={12} color="#FBBF24" style={{ marginRight: 4 }} />
+                  <Text style={styles.umbrellaStatusText}>{activeSolarEclipse.statusText}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
           )}
 
-          {/* Güncel Faz Ana Başlık & Rozetler */}
-          <View style={styles.headerSection}>
+          {/* 🌙 Güncel Faz Ana Başlık (Tıklanabilir Açılır Kapsül) */}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setIsLunarOpen(!isLunarOpen)}
+            style={[
+              styles.headerSection,
+              !isLunarOpen && { borderBottomWidth: 0, paddingBottom: 0, marginBottom: 0 }
+            ]}
+          >
             <View style={styles.headerTopRow}>
               <View style={[styles.phaseIconBox, { backgroundColor: phaseColors.bg, borderColor: phaseColors.border }]}>
                 <Ionicons name={phaseColors.icon} size={24} color={phaseColors.text} />
@@ -151,124 +171,122 @@ export default function MobileLunationCard({
                   <Ionicons name="calendar-outline" size={11} color="rgba(255,255,255,0.5)" /> {formattedDate}
                 </Text>
               </View>
-            </View>
 
-            {/* Süre Rozetleri */}
-            <View style={styles.durationRow}>
-              <View style={styles.durationPill}>
-                <Ionicons name="time-outline" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
-                <Text style={styles.durationText}>
-                  Etki: <Text style={{ color: '#FFF', fontWeight: 'bold' }}>{durationInfo.totalDuration}</Text>
-                </Text>
-              </View>
-              <Text style={styles.peakText}>Pik: {durationInfo.peakWindow}</Text>
-            </View>
-
-            {statusText ? (
-              <Text style={styles.statusLiveText}>● {statusText}</Text>
-            ) : null}
-          </View>
-
-          {/* Kolektif Gökyüzü Teması */}
-          {signInterpretation && (
-            <View style={styles.collectiveSection}>
-              <View style={styles.sectionHeaderRow}>
-                <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 6 }} />
-                <Text style={styles.collectiveSectionTitle}>
-                  Kolektif Gökyüzü: {signInterpretation.title}
-                </Text>
-              </View>
-              <Text style={styles.collectiveBodyText}>{signInterpretation.collective}</Text>
-              {durationInfo.description ? (
-                <Text style={styles.durationDescText}>{durationInfo.description}</Text>
-              ) : null}
-            </View>
-          )}
-
-          {/* 🏛️ Kişisel Harita Ezoterik İnisiyasyon Portalı (Varsa) */}
-          {personal && (
-            <View style={styles.personalPortalBox}>
-              <View style={styles.portalHeaderRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.portalOverline}>KİŞİSEL DOĞUM HARİTASI PORTALI</Text>
-                  <Text style={styles.portalNameText}>{personal.portalName || personal.title}</Text>
-                </View>
-                <View style={styles.houseBadge}>
-                  <Text style={styles.houseBadgeText}>{personal.houseNumber}. Evinizde</Text>
-                </View>
-              </View>
-
-              {personal.portalMeaning ? (
-                <Text style={styles.portalMeaningText}>{personal.portalMeaning}</Text>
-              ) : null}
-
-              {/* İki Katmanlı Bilinç Matrisi */}
-              <View style={styles.consciousnessGrid}>
-                {/* ⚠️ Alt Bilinç / Gölge Hali */}
-                <View style={styles.shadowCard}>
-                  <View style={styles.stateTitleRow}>
-                    <Ionicons name="warning-outline" size={14} color="#F87171" style={{ marginRight: 5 }} />
-                    <Text style={styles.shadowTitle}>Alt Bilinç / Gölge Hali</Text>
-                  </View>
-                  <Text style={styles.shadowBody}>
-                    {personal.shadowState || personal.personalImpact}
-                  </Text>
-                  <Text style={styles.shadowSub}>Ego, korku ve sınav seviyesinde günlük yaşam deneyimi</Text>
-                </View>
-
-                {/* ✨ Üst Bilinç / Ruhsal Boyut */}
-                <View style={styles.elevatedCard}>
-                  <View style={styles.stateTitleRow}>
-                    <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
-                    <Text style={styles.elevatedTitle}>Üst Bilinç / Ruhsal Boyut</Text>
-                  </View>
-                  <Text style={styles.elevatedBody}>
-                    {personal.elevatedState || personal.personalImpact}
-                  </Text>
-                  <Text style={styles.elevatedSub}>7 çakra dengede ve arınmış bilinçle açılan inisiyasyon</Text>
-                </View>
-              </View>
-
-              {/* 🌿 Çakra & Manevi Denge Reçetesi */}
-              <View style={styles.spiritualAdviceBox}>
-                <Ionicons name="leaf-outline" size={16} color="#34D399" style={{ marginRight: 8, marginTop: 2 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.spiritualAdviceTitle}>Çakra & Manevi Denge Reçetesi:</Text>
-                  <Text style={styles.spiritualAdviceText}>
-                    {personal.spiritualAdvice || personal.advice}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Ritüel & Manevi Arınma Tavsiyesi */}
-          {expanded && signInterpretation?.ritual && (
-            <View style={styles.ritualBox}>
-              <Ionicons name="flame-outline" size={18} color="#FBBF24" style={{ marginRight: 8, marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.ritualTitle}>Bu Dönemin Manevi Arınma & Ritüel Tavsiyesi:</Text>
-                <Text style={styles.ritualText}>{signInterpretation.ritual}</Text>
-              </View>
-            </View>
-          )}
-
-          {/* Kompakt Mod Geçiş Butonu */}
-          {isCompact && (
-            <TouchableOpacity
-              onPress={() => setExpanded(!expanded)}
-              style={styles.expandButton}
-            >
-              <Text style={styles.expandButtonText}>
-                {expanded ? 'Daha Az Detay' : 'Tüm Detayları ve Ritüeli Gör'}
-              </Text>
               <Ionicons
-                name={expanded ? 'chevron-up' : 'chevron-down'}
-                size={14}
-                color="#D4AF37"
-                style={{ marginLeft: 4 }}
+                name={isLunarOpen ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color={phaseColors.text}
+                style={{ marginLeft: 6, alignSelf: 'center' }}
               />
-            </TouchableOpacity>
+            </View>
+
+            {/* Süre Rozetleri & Durum - Sadece açıkken */}
+            {isLunarOpen && (
+              <>
+                <View style={styles.durationRow}>
+                  <View style={styles.durationPill}>
+                    <Ionicons name="time-outline" size={13} color="#D4AF37" style={{ marginRight: 4 }} />
+                    <Text style={styles.durationText}>
+                      Etki: <Text style={{ color: '#FFF', fontWeight: 'bold' }}>{durationInfo.totalDuration}</Text>
+                    </Text>
+                  </View>
+                  <Text style={styles.peakText}>Pik: {durationInfo.peakWindow}</Text>
+                </View>
+
+                {statusText ? (
+                  <Text style={styles.statusLiveText}>● {statusText}</Text>
+                ) : null}
+              </>
+            )}
+          </TouchableOpacity>
+
+          {/* Açılır Gövde Bölümü (Kolektif + Kişisel Portal + Ritüel) */}
+          {isLunarOpen && (
+            <>
+              {/* Kolektif Gökyüzü Teması */}
+              {signInterpretation && (
+                <View style={styles.collectiveSection}>
+                  <View style={styles.sectionHeaderRow}>
+                    <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 6 }} />
+                    <Text style={styles.collectiveSectionTitle}>
+                      Kolektif Gökyüzü: {signInterpretation.title}
+                    </Text>
+                  </View>
+                  <Text style={styles.collectiveBodyText}>{signInterpretation.collective}</Text>
+                  {durationInfo.description ? (
+                    <Text style={styles.durationDescText}>{durationInfo.description}</Text>
+                  ) : null}
+                </View>
+              )}
+
+              {/* 🏛️ Kişisel Harita Ezoterik İnisiyasyon Portalı (Varsa) */}
+              {personal && (
+                <View style={styles.personalPortalBox}>
+                  <View style={styles.portalHeaderRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.portalOverline}>KİŞİSEL DOĞUM HARİTASI PORTALI</Text>
+                      <Text style={styles.portalNameText}>{personal.portalName || personal.title}</Text>
+                    </View>
+                    <View style={styles.houseBadge}>
+                      <Text style={styles.houseBadgeText}>{personal.houseNumber}. Evinizde</Text>
+                    </View>
+                  </View>
+
+                  {personal.portalMeaning ? (
+                    <Text style={styles.portalMeaningText}>{personal.portalMeaning}</Text>
+                  ) : null}
+
+                  {/* İki Katmanlı Bilinç Matrisi */}
+                  <View style={styles.consciousnessGrid}>
+                    {/* ⚠️ Alt Bilinç / Gölge Hali */}
+                    <View style={styles.shadowCard}>
+                      <View style={styles.stateTitleRow}>
+                        <Ionicons name="warning-outline" size={14} color="#F87171" style={{ marginRight: 5 }} />
+                        <Text style={styles.shadowTitle}>Alt Bilinç / Gölge Hali</Text>
+                      </View>
+                      <Text style={styles.shadowBody}>
+                        {personal.shadowState || personal.personalImpact}
+                      </Text>
+                      <Text style={styles.shadowSub}>Ego, korku ve sınav seviyesinde günlük yaşam deneyimi</Text>
+                    </View>
+
+                    {/* ✨ Üst Bilinç / Ruhsal Boyut */}
+                    <View style={styles.elevatedCard}>
+                      <View style={styles.stateTitleRow}>
+                        <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
+                        <Text style={styles.elevatedTitle}>Üst Bilinç / Ruhsal Boyut</Text>
+                      </View>
+                      <Text style={styles.elevatedBody}>
+                        {personal.elevatedState || personal.personalImpact}
+                      </Text>
+                      <Text style={styles.elevatedSub}>7 çakra dengede ve arınmış bilinçle açılan inisiyasyon</Text>
+                    </View>
+                  </View>
+
+                  {/* 🌿 Çakra & Manevi Denge Reçetesi */}
+                  <View style={styles.spiritualAdviceBox}>
+                    <Ionicons name="leaf-outline" size={16} color="#34D399" style={{ marginRight: 8, marginTop: 2 }} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.spiritualAdviceTitle}>Çakra & Manevi Denge Reçetesi:</Text>
+                      <Text style={styles.spiritualAdviceText}>
+                        {personal.spiritualAdvice || personal.advice}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Ritüel & Manevi Arınma Tavsiyesi */}
+              {signInterpretation?.ritual && (
+                <View style={styles.ritualBox}>
+                  <Ionicons name="flame-outline" size={18} color="#FBBF24" style={{ marginRight: 8, marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.ritualTitle}>Bu Dönemin Manevi Arınma & Ritüel Tavsiyesi:</Text>
+                    <Text style={styles.ritualText}>{signInterpretation.ritual}</Text>
+                  </View>
+                </View>
+              )}
+            </>
           )}
         </LinearGradient>
       </BlurView>
