@@ -361,7 +361,8 @@ function generateAstrologyChart(birthDate, cityKey, isDraconic) {
         planets.forEach(function (p) { return p.house = getHouseForLon(p.longitude, cuspDegrees); });
         midheaven.house = getHouseForLon(midheaven.longitude, cuspDegrees);
     }
-    var aspects = calculateAspects(planets);
+    var aspectPoints = planets.concat([ascendant, midheaven].filter(Boolean));
+    var aspects = calculateAspects(aspectPoints);
     return {
         planets: planets,
         ascendant: ascendant,
