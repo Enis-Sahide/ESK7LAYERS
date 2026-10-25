@@ -129,8 +129,8 @@ export default function AnlikGokyuzuScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [transitData, setTransitData] = useState<TransitChartData | null>(null);
   const [selectedInterp, setSelectedInterp] = useState<{ title: string, content: string } | null>(null);
-  const [isHousesExpanded, setIsHousesExpanded] = useState(true);
-  const [isAspectsExpanded, setIsAspectsExpanded] = useState(true);
+  const [isHousesExpanded, setIsHousesExpanded] = useState(false);
+  const [isAspectsExpanded, setIsAspectsExpanded] = useState(false);
 
   // User role & Premium check
   const { role } = useProgress();
@@ -669,103 +669,203 @@ export default function AnlikGokyuzuScreen() {
 
   const renderAIRecommendation = () => {
     if (!transitData) return null;
-    const exactAspects = [...transitData.transitAspects].filter(a => a.orb <= 3).sort((a, b) => a.orb - b.orb);
+    const exactAspects = [...transitData.transitAspects].filter(a => a.orb <= 3.5).sort((a, b) => a.orb - b.orb);
 
     const getPlanetTheme = (planetName: string) => {
       const themes: Record<string, string> = {
         'Güneş': 'kimlik ve özgüven',
-        'Ay': 'duygusal dünya ve aile',
+        'Ay': 'duygusal dünya ve içsel huzur',
         'Merkür': 'iletişim ve zihinsel kararlar',
         'Venüs': 'ikili ilişkiler ve maddi değerler',
         'Mars': 'cesaret ve eylemler',
         'Jüpiter': 'inançlar ve vizyon',
         'Satürn': 'sorumluluklar ve sınırlar',
-        'Uranüs': 'özgürlük ve ani değişimler',
-        'Neptün': 'hayaller ve sezgiler',
+        'Uranüs': 'özgürlük ve ani uyanışlar',
+        'Neptün': 'hayaller ve sezgisel derinlik',
         'Plüton': 'krizler ve köklü dönüşümler',
         'Kiron': 'geçmiş yaralar ve şifalanma',
-        'Kuzey Ay Düğümü': 'kadersel yönelimler',
-        'Yükselen (ASC)': 'dış imaj ve başlangıçlar',
-        'Tepe Noktası (MC)': 'kariyer ve toplumsal statü',
-        'Vertex (Vx)': 'kadersel karşılaşmalar',
-        'Şans Noktası (POF)': 'kısmet akışı',
-        'Lilith': 'bastırılmış arzular'
+        'Kuzey Ay Düğümü': 'kadersel yönelimler'
       };
       return themes[planetName] || planetName;
     };
 
-    const getTransitAction = (planetName: string) => {
-      const actions: Record<string, string> = {
-        'Güneş': 'bilinçli farkındalığınızı',
-        'Ay': 'duygusal dalgalanmalarınızı',
-        'Merkür': 'zihinsel trafiğinizi ve düşüncelerinizi',
-        'Venüs': 'sevgi dilinizi ve uyum arayışınızı',
-        'Mars': 'mücadele gücünüzü ve eylem enerjinizi',
-        'Jüpiter': 'büyüme isteğinizi ve iyimserliğinizi',
-        'Satürn': 'sorumluluk duygunuzu ve ciddiyetinizi',
-        'Uranüs': 'uyanışlarınızı ve özgürlük ihtiyacınızı',
-        'Neptün': 'ilhamınızı ve ruhsal derinliğinizi',
-        'Plüton': 'köklü dönüşüm ve güç arzunuzu',
-        'Kiron': 'şifalandırıcı enerjinizi',
-        'Kuzey Ay Düğümü': 'kadersel ilerleyişinizi'
+    // En etkin 3 pik açı ve kesin gezegen dereceleri
+    const topAspectDetails = exactAspects.slice(0, 3).map(asp => {
+      const tPlanet = transitData.transitPlanets.find(p => p.name === asp.transitPlanet);
+      const nPlanet = transitData.natalChart.planets.find(p => p.name === asp.natalPlanet);
+      const nHouse = nPlanet?.house || tPlanet?.house || 1;
+      const isHarmonious = asp.type === 'Üçgen' || asp.type === 'Sekstil' || (asp.type === 'Kavuşum' && !['Satürn', 'Mars', 'Plüton'].includes(asp.transitPlanet));
+
+      return {
+        transitPlanet: asp.transitPlanet,
+        transitSign: tPlanet?.sign || '',
+        transitDegree: tPlanet?.degreeInSign ?? 0,
+        natalPlanet: asp.natalPlanet,
+        natalSign: nPlanet?.sign || '',
+        natalDegree: nPlanet?.degreeInSign ?? 0,
+        natalHouse: nHouse,
+        aspectType: asp.type,
+        orb: asp.orb,
+        isHarmonious,
+        badge: asp.orb <= 0.8 ? `★ Tam Pik (${asp.orb.toFixed(1)}°)` : `${asp.orb.toFixed(1)}° Orb`
       };
-      return actions[planetName] || `${planetName} enerjinizi`;
-    };
+    });
 
-    const getAspectSummary = (tPlanet: string, nPlanet: string, type: string) => {
-      const tAction = getTransitAction(tPlanet);
-      const nTheme = getPlanetTheme(nPlanet);
-      
-      if (type === 'Kavuşum') return `gökyüzündeki ${tPlanet} transiti, haritanızdaki "${nTheme}" alanına doğrudan nüfuz ediyor. Bu durum, ${tAction} tam olarak bu konular üzerinde yoğunlaştırarak hayatınızda yepyeni bir döngü başlatıyor.`;
-      if (type === 'Üçgen' || type === 'Sekstil') return `gökyüzündeki ${tPlanet} transiti, "${nTheme}" konularına çok destekleyici bir akış gönderiyor. ${tAction} bu alanlarda çok rahat kullanabilir, önünüze çıkan sürpriz fırsatları kolayca değerlendirebilirsiniz.`;
-      if (type === 'Kare' || type === 'Karşıt') return `gökyüzündeki ${tPlanet} transiti ile "${nTheme}" alanınız arasında sert bir sürtüşme var. ${tAction} bu konularda bir kriz veya eşik atlama zorunluluğu yaratarak sizi kabuk kırmaya itecektir.`;
-      
-      return `gökyüzündeki ${tPlanet} transiti, "${nTheme}" üzerinde yeni bir farkındalık yaratıyor.`;
-    };
+    // Barometre Puanları Hesaplama
+    let mentalScore = 74;
+    let emotionalScore = 70;
+    let actionScore = 72;
 
-    let paragraphs = [];
-
-    // Paragraph 2: Exact Aspects
-    if (exactAspects.length > 0) {
-      const mainAspect = exactAspects[0];
-      let p2 = `Günün en belirgin kadersel tetiklenmesi ise Transit ${mainAspect.transitPlanet} ile Natal ${mainAspect.natalPlanet} arasındaki ${mainAspect.orb.toFixed(1)}° toleranslı ${mainAspect.type} açısıdır. `;
-      p2 += `Astrolojik olarak bu enerji; ${getAspectSummary(mainAspect.transitPlanet, mainAspect.natalPlanet, mainAspect.type)}`;
-      paragraphs.push(p2);
-
-      const hardAspects = exactAspects.filter(a => a.type === 'Kare' || a.type === 'Karşıt');
-      if (hardAspects.length > 0) {
-        const topHardAspects = hardAspects.slice(0, 3);
-        const affectedThemes = Array.from(new Set(topHardAspects.map(a => getPlanetTheme(a.natalPlanet)).filter(Boolean)));
-        
-        if (affectedThemes.length > 0) {
-           const themesText = affectedThemes.join(', ').replace(/, ([^,]*)$/, ' ve $1');
-           paragraphs.push(`⚠️ Gökyüzünde ayrıca gerilimli etkileşimler devrede. Özellikle "${themesText}" konularında dışarıdan gelen baskılara karşı bugün ani tepkiler vermekten veya fevri kararlar almaktan kaçınmalısınız. Olaylara daha geniş bir perspektiften bakmak ve sabırlı kalmak size çok şey kazandıracaktır.`);
-        } else {
-           paragraphs.push(`⚠️ Gökyüzünde ayrıca bazı sert etkileşimler devrede olduğu için, bugün genel olarak ani tepkiler vermekten veya fevri kararlar almaktan kaçınmanız çok önemli. Sabırlı olmak size kazandıracaktır.`);
-        }
+    topAspectDetails.forEach(asp => {
+      if (asp.isHarmonious) {
+        mentalScore += 5;
+        actionScore += 4;
       } else {
-        paragraphs.push(`✨ Gökyüzündeki bu uyumlu akış, size yenilikler ve fırsatlar sunmak için destekleyici bir enerji veriyor. Harekete geçmek için harika bir gün!`);
+        emotionalScore += 6;
+        actionScore += 2;
       }
-    } else {
-      paragraphs.push(`Bugün gökyüzü natal gezegenlerinizle çok sert veya kadersel bir çarpışma yapmıyor. Evrensel enerjiler sizi zorlamadan, daha sakin, stabil ve içe dönük bir gün geçirmenize olanak tanıyor.`);
-    }
+    });
+
+    mentalScore = Math.min(95, Math.max(45, mentalScore));
+    emotionalScore = Math.min(96, Math.max(48, emotionalScore));
+    actionScore = Math.min(95, Math.max(46, actionScore));
+
+    const mainAspect = topAspectDetails[0];
+    const harmoniousAspects = topAspectDetails.filter(a => a.isHarmonious);
+    const challengingAspects = topAspectDetails.filter(a => !a.isHarmonious);
+
+    const headline = mainAspect
+      ? (mainAspect.isHarmonious
+          ? `Akıcı & Destekleyici Enerjiler: T.${mainAspect.transitPlanet} ➔ N.${mainAspect.natalPlanet} (${mainAspect.aspectType})`
+          : `Farkındalık & Sınır Çizme Zamanı: T.${mainAspect.transitPlanet} ➔ N.${mainAspect.natalPlanet} (${mainAspect.aspectType})`)
+      : 'Haritanızda Sakin ve Dengeli Kozmik Akış';
+
+    const narrative = mainAspect
+      ? `Günün en belirgin kadersel teması; Transit ${mainAspect.transitPlanet} (${mainAspect.transitSign} ${mainAspect.transitDegree}°) ile ${mainAspect.natalHouse}. evinizdeki Natal ${mainAspect.natalPlanet} (${mainAspect.natalSign} ${mainAspect.natalDegree}°) arasındaki ${mainAspect.aspectType} açısıdır (${mainAspect.orb.toFixed(1)}° tolerans). Bu etkileşim doğrudan "${getPlanetTheme(mainAspect.natalPlanet)}" konularında bilinçli adımlar atmanızı gerektiriyor.`
+      : 'Bugün gezegen geçişleri natal gezegenlerinize sert bir sürtüşme yapmıyor; daha sakin ve içe dönük bir gün geçirebilirsiniz.';
+
+    const lifeAdvice = mainAspect
+      ? (mainAspect.isHarmonious
+          ? `${mainAspect.natalHouse}. evinizin sunduğu uyumlu akışı değerlendirin; önünüze çıkan fırsatları ertelemeden hayata geçirin.`
+          : `${mainAspect.natalHouse}. evinizdeki sürtüşmeleri bir kriz değil, sınırlarınızı korumanız ve olgunlaşmanız için bir fırsat olarak görün.`)
+      : 'Günün sakinliğini hedeflerinizi sadeleştirmek ve içsel huzuru tazelemek için değerlendirin.';
 
     return (
       <View style={styles.guidanceCard}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Ionicons name="sparkles" size={24} color={COLORS.primary} style={{ marginRight: 8 }} />
-          <Text style={styles.guidanceTitle}>Günlük Gökyüzü Rehberi</Text>
-        </View>
-        {paragraphs.map((par, idx) => {
-          let customColor = COLORS.text;
-          if (idx === paragraphs.length - 1 && par.includes('⚠️')) customColor = '#FCA5A5';
-          if (idx === paragraphs.length - 1 && par.includes('✨')) customColor = '#38BDF8';
-          return (
-            <Text key={idx} style={[styles.guidanceText, { color: customColor, marginTop: idx > 0 ? 10 : 0 }]}>
-              {par}
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+          <Ionicons name="sparkles" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 10, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
+              BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
             </Text>
-          );
-        })}
+            <Text style={styles.guidanceTitle}>{headline}</Text>
+          </View>
+        </View>
+
+        {/* Narrative */}
+        <Text style={styles.guidanceText}>{narrative}</Text>
+
+        {/* 3 Boyutlu Enerji & Akış Barometresi */}
+        <View style={{ marginTop: 14, padding: 12, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10, letterSpacing: 0.5 }}>
+            KİŞİSEL ENERJİ BAROMETRESİ
+          </Text>
+
+          {/* Zihinsel */}
+          <View style={{ marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Zihinsel Netlik & Karar</Text>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#38BDF8' }}>%{mentalScore}</Text>
+            </View>
+            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${mentalScore}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
+            </View>
+          </View>
+
+          {/* Duygusal */}
+          <View style={{ marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Duygusal Denge & İç Huzur</Text>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#34D399' }}>%{emotionalScore}</Text>
+            </View>
+            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${emotionalScore}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 3 }} />
+            </View>
+          </View>
+
+          {/* Eylem */}
+          <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Eylem & İlerleme Enerjisi</Text>
+              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FBBF24' }}>%{actionScore}</Text>
+            </View>
+            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${actionScore}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 3 }} />
+            </View>
+          </View>
+        </View>
+
+        {/* Fırsatlar & Sınavlar */}
+        <View style={{ marginTop: 12 }}>
+          {harmoniousAspects.length > 0 && (
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.25)', marginBottom: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#34D399', marginBottom: 4 }}>
+                🌟 Bugün Sizin İçin Fırsatlar:
+              </Text>
+              {harmoniousAspects.map((asp, idx) => (
+                <Text key={`hop-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • T.{asp.transitPlanet} - N.{asp.natalPlanet} ({asp.aspectType}): {asp.natalHouse}. evinizde bereketli bir akış açıyor.
+                </Text>
+              ))}
+            </View>
+          )}
+
+          {challengingAspects.length > 0 && (
+            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', marginBottom: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#F87171', marginBottom: 4 }}>
+                ⚠️ Dikkat Edilmesi Gereken Sınavlar:
+              </Text>
+              {challengingAspects.map((asp, idx) => (
+                <Text key={`hch-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • T.{asp.transitPlanet} - N.{asp.natalPlanet} ({asp.aspectType}): {asp.natalHouse}. ev konularında fevri kararlardan kaçının; sınırlarınızı koruyun.
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* En Güçlü Kişisel Tetikleyiciler (Kesin Derecelerle) */}
+        {topAspectDetails.length > 0 && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 6, letterSpacing: 0.5 }}>
+              ⚡ EN ETKİN KİŞİSEL TETİKLEYİCİLER (PİK TRANSİTLER)
+            </Text>
+            {topAspectDetails.map((asp, idx) => (
+              <View key={`tap-${idx}`} style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF' }}>
+                    T.{asp.transitPlanet} {asp.aspectType} N.{asp.natalPlanet}
+                  </Text>
+                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: COLORS.secondary }}>
+                    {asp.badge}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                  T: {asp.transitSign} {asp.transitDegree}° ➔ N: {asp.natalSign} {asp.natalDegree}° ({asp.natalHouse}. Evinizde)
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Günün Reçetesi */}
+        <View style={{ marginTop: 10, padding: 10, backgroundColor: 'rgba(212, 175, 55, 0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.25)' }}>
+          <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 16 }}>
+            <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>Günün Yaşam Reçetesi: </Text>
+            {lifeAdvice}
+          </Text>
+        </View>
       </View>
     );
   };
