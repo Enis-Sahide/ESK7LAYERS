@@ -816,24 +816,6 @@ export default function AnlikGokyuzuScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Frekans Aynası Mini Banner */}
-          <TouchableOpacity 
-            style={styles.frekansMiniBanner} 
-            activeOpacity={0.8}
-            onPress={() => router.push('/(dashboard)/kisisel-analizler/frekans-aynasi' as any)}
-          >
-            <View style={{flexDirection: 'row', alignItems: 'center', flex: 1}}>
-              <View style={styles.frekansMiniIconWrap}>
-                <Ionicons name="sparkles" size={16} color="#0EA5E9" />
-              </View>
-              <View style={{flex: 1, marginLeft: 10}}>
-                <Text style={styles.frekansMiniTitle}>Kozmik Sınav & Frekans Aynanız</Text>
-                <Text style={styles.frekansMiniSub}>Bugün hangi haritanızı çalıştırıyorsunuz?</Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color="#0EA5E9" />
-          </TouchableOpacity>
-
           {analysisMode === 'MUNDANE' ? (
             <View style={{ marginTop: 6 }}>
               {/* Mundane Sub-Tab Switcher: Çark vs Zaman Çizelgesi */}
