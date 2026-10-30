@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, Linking } from 'react-native';
+import { Alert } from 'react-native';
 import { useProgress } from '@/src/context/ProgressContext';
 import { apiFetch, isAuthenticated } from '@/src/core/api/client';
 
@@ -67,19 +67,11 @@ export function useAnalysisAccess(analysisType: string) {
 export function showAnalysisLockedAlert(title = "Detaylı Analiz Kilitli") {
   Alert.alert(
     title,
-    "Detaylı analiz yorumlarına erişebilmek için analiz raporunun satın alınması gerekmektedir. Mobil uygulama üzerinden satın alma yapılamadığı için lütfen 7layers.tr web sitemiz üzerinden analiz yapınız.",
+    "Bu bölüm Kapsamlı Analiz Raporu kapsamında sunulmaktadır. Hesabınızda aktif bir rapor tanımlı değildir. Raporlarınızı ve hesap durumunuzu yönetmek için platformumuzu web tarayıcınız üzerinden ziyaret edebilirsiniz.",
     [
       {
-        text: "Vazgeç",
-        style: "cancel",
-      },
-      {
-        text: "Web Sitesine Git",
-        onPress: () => {
-          Linking.openURL('https://7layers.tr').catch((err) => {
-            console.error('Web sitesi açılamadı:', err);
-          });
-        },
+        text: "Tamam",
+        style: "default",
       },
     ]
   );

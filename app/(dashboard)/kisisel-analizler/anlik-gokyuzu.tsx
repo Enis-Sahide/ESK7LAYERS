@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, Keyboard, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, Keyboard, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
@@ -1566,13 +1566,10 @@ export default function AnlikGokyuzuScreen() {
               </View>
               <Text style={styles.lockModalTitle}>Detaylı Analiz Kilitli</Text>
               <Text style={styles.lockModalDesc}>
-                Uzun vadeli kozmik zaman çizelgeleri ve derin çakra analizleri detaylı analiz raporuna özeldir. Detaylı analiz için web sitemiz üzerinden analiz yapabilirsiniz.
+                Uzun vadeli kozmik zaman çizelgeleri ve derin çakra analizleri Kapsamlı Rapor kapsamında sunulmaktadır. Hesabınızda aktif bir rapor tanımlı değildir. Hesap ve rapor yönetimi için platformumuzu web tarayıcınız üzerinden ziyaret edebilirsiniz.
               </Text>
               <TouchableOpacity
-                onPress={() => {
-                  setShowLockModal(false);
-                  Linking.openURL('https://7layers.tr').catch(err => console.error('Web sitesi açılamadı:', err));
-                }}
+                onPress={() => setShowLockModal(false)}
                 style={styles.modalUpgradeBtn}
               >
                 <LinearGradient
@@ -1581,12 +1578,8 @@ export default function AnlikGokyuzuScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.modalUpgradeBtnGrad}
                 >
-                  <Text style={styles.modalUpgradeBtnText}>Web Sitesine Git</Text>
+                  <Text style={styles.modalUpgradeBtnText}>Tamam</Text>
                 </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setShowLockModal(false)} style={{ marginTop: 14 }}>
-                <Text style={{ color: '#9CA3AF', fontSize: 12 }}>Vazgeç</Text>
               </TouchableOpacity>
             </View>
           </View>
