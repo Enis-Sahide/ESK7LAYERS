@@ -9,6 +9,17 @@ import moment from 'moment-timezone';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
 import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@/src/features/astrology/engine/TransitInterpretations';
+import {
+  generateUnifiedPlanetTransit,
+  UnifiedPlanetTransit,
+  generateUnifiedSkyPlanets,
+  UnifiedSkyPlanet,
+  generateCurrentSkyOverview,
+  CurrentSkyOverview,
+  generatePersonalTransitOverview,
+  PersonalTransitOverview,
+} from '@/src/features/astrology/engine/TransitSynthesisEngine';
+import { AstroPoint, TransitAspect } from '@/src/features/astrology/engine/AstrologyConstants';
 
 import { API_BASE_URL, apiFetch } from '@/src/core/config';
 import MobileTransitTimelineChart from '@/src/features/astrology/components/MobileTransitTimelineChart';
@@ -69,24 +80,6 @@ const ASPECT_COLORS: Record<string, string> = {
 const ASPECT_SYMBOLS: Record<string, string> = {
   'Kavuşum': '☌', 'Sekstil': '⚹', 'Kare': '□', 'Üçgen': '△', 'Karşıt': '☍', 'Görmeyen': '⚻'
 };
-
-interface AstroPoint {
-  name: string;
-  longitude: number;
-  sign: string;
-  degreeInSign: number;
-  minutes: number;
-  house: number;
-  isRetrograde?: boolean;
-}
-
-interface TransitAspect {
-  transitPlanet: string;
-  natalPlanet: string;
-  type: string;
-  orb: number;
-  isExact: boolean;
-}
 
 interface TransitChartData {
   natalChart: {
@@ -158,11 +151,47 @@ export default function AnlikGokyuzuScreen() {
   // Mode: PERSONAL (Doğum Haritası Üzerine) vs MUNDANE (Kolektif Gökyüzü)
   const [analysisMode, setAnalysisMode] = useState<'PERSONAL' | 'MUNDANE'>('PERSONAL');
   const [skySubTab, setSkySubTab] = useState<'WHEEL' | 'TIMELINE'>('WHEEL');
+  const [skyViewMode, setSkyViewMode] = useState<'OVERVIEW' | 'SYNTHESIS' | 'LIST'>('OVERVIEW');
+  const [personalViewMode, setPersonalViewMode] = useState<'OVERVIEW' | 'PLANETS' | 'TABLES'>('OVERVIEW');
   const [skyChartData, setSkyChartData] = useState<any>(null);
   const [isSkyChartLoading, setIsSkyChartLoading] = useState(false);
   const [skyAspectFilter, setSkyAspectFilter] = useState<'ALL' | 'HARMONIOUS' | 'CHALLENGING' | 'CONJUNCTION'>('ALL');
   const [isMundanePlanetsExpanded, setIsMundanePlanetsExpanded] = useState(true);
   const [isMundaneAspectsExpanded, setIsMundaneAspectsExpanded] = useState(true);
+
+  // Mundane Sentez Memos (Kozmik Hava Durumu ve 13 Gezegen Kartı)
+  const currentSkyOverview = React.useMemo(() => {
+    if (!skyChartData?.planets || !skyChartData?.aspects) return null;
+    return generateCurrentSkyOverview(skyChartData.planets, skyChartData.aspects);
+  }, [skyChartData]);
+
+  const unifiedSkyPlanets = React.useMemo(() => {
+    if (!skyChartData?.planets || !skyChartData?.aspects) return [];
+    return generateUnifiedSkyPlanets(skyChartData.planets, skyChartData.aspects, 'orb');
+  }, [skyChartData]);
+
+  // Kişisel Transit Sentez Memos (Bütünleşik Özet ve 10 Gezegen Kartı)
+  const personalOverview = React.useMemo(() => {
+    if (!transitData) return null;
+    return generatePersonalTransitOverview(
+      transitData.transitPlanets,
+      transitData.transitAspects,
+      transitData.natalChart.planets,
+      transitData.natalChart.houses
+    );
+  }, [transitData]);
+
+  const unifiedPersonalPlanets = React.useMemo(() => {
+    if (!transitData) return [];
+    return transitData.transitPlanets.map(p =>
+      generateUnifiedPlanetTransit(
+        p,
+        transitData.transitAspects,
+        transitData.natalChart.planets,
+        transitData.natalChart.houses
+      )
+    );
+  }, [transitData]);
 
   // Backend API'den çekilen Ay Fazı ve 6 Aylık Güneş Tutulması Çatısı Verileri
   const [mundaneLunationData, setMundaneLunationData] = useState<LunationBackendData | null>(null);
@@ -664,182 +693,399 @@ export default function AnlikGokyuzuScreen() {
     );
   };
 
-  const renderAIRecommendation = () => {
-    if (!transitData) return null;
-    const exactAspects = [...transitData.transitAspects].filter(a => a.orb <= 3.5).sort((a, b) => a.orb - b.orb);
-
-    const getPlanetTheme = (planetName: string) => {
-      const themes: Record<string, string> = {
-        'Güneş': 'kimlik ve özgüven',
-        'Ay': 'duygusal dünya ve içsel huzur',
-        'Merkür': 'iletişim ve zihinsel kararlar',
-        'Venüs': 'ikili ilişkiler ve maddi değerler',
-        'Mars': 'cesaret ve eylemler',
-        'Jüpiter': 'inançlar ve vizyon',
-        'Satürn': 'sorumluluklar ve sınırlar',
-        'Uranüs': 'özgürlük ve ani uyanışlar',
-        'Neptün': 'hayaller ve sezgisel derinlik',
-        'Plüton': 'krizler ve köklü dönüşümler',
-        'Kiron': 'geçmiş yaralar ve şifalanma',
-        'Kuzey Ay Düğümü': 'kadersel yönelimler'
-      };
-      return themes[planetName] || planetName;
-    };
-
-    // En etkin 3 pik açı ve kesin gezegen dereceleri
-    const topAspectDetails = exactAspects.slice(0, 3).map(asp => {
-      const tPlanet = transitData.transitPlanets.find(p => p.name === asp.transitPlanet);
-      const nPlanet = transitData.natalChart.planets.find(p => p.name === asp.natalPlanet);
-      const nHouse = nPlanet?.house || tPlanet?.house || 1;
-      const isHarmonious = asp.type === 'Üçgen' || asp.type === 'Sekstil' || (asp.type === 'Kavuşum' && !['Satürn', 'Mars', 'Plüton'].includes(asp.transitPlanet));
-
-      return {
-        transitPlanet: asp.transitPlanet,
-        transitSign: tPlanet?.sign || '',
-        transitDegree: tPlanet?.degreeInSign ?? 0,
-        natalPlanet: asp.natalPlanet,
-        natalSign: nPlanet?.sign || '',
-        natalDegree: nPlanet?.degreeInSign ?? 0,
-        natalHouse: nHouse,
-        aspectType: asp.type,
-        orb: asp.orb,
-        isHarmonious,
-        badge: asp.orb <= 0.8 ? `★ Tam Pik (${asp.orb.toFixed(1)}°)` : `${asp.orb.toFixed(1)}° Orb`
-      };
-    });
-
-    // Barometre Puanları Hesaplama
-    let mentalScore = 74;
-    let emotionalScore = 70;
-    let actionScore = 72;
-
-    topAspectDetails.forEach(asp => {
-      if (asp.isHarmonious) {
-        mentalScore += 5;
-        actionScore += 4;
-      } else {
-        emotionalScore += 6;
-        actionScore += 2;
-      }
-    });
-
-    mentalScore = Math.min(95, Math.max(45, mentalScore));
-    emotionalScore = Math.min(96, Math.max(48, emotionalScore));
-    actionScore = Math.min(95, Math.max(46, actionScore));
-
-    const mainAspect = topAspectDetails[0];
-    const harmoniousAspects = topAspectDetails.filter(a => a.isHarmonious);
-    const challengingAspects = topAspectDetails.filter(a => !a.isHarmonious);
-
-    const headline = mainAspect
-      ? (mainAspect.isHarmonious
-          ? `Akıcı & Destekleyici Enerjiler: T.${mainAspect.transitPlanet} ➔ N.${mainAspect.natalPlanet} (${mainAspect.aspectType})`
-          : `Farkındalık & Sınır Çizme Zamanı: T.${mainAspect.transitPlanet} ➔ N.${mainAspect.natalPlanet} (${mainAspect.aspectType})`)
-      : 'Haritanızda Sakin ve Dengeli Kozmik Akış';
-
-    const narrative = mainAspect
-      ? `Günün en belirgin kadersel teması; Transit ${mainAspect.transitPlanet} (${mainAspect.transitSign} ${mainAspect.transitDegree}°) ile ${mainAspect.natalHouse}. evinizdeki Natal ${mainAspect.natalPlanet} (${mainAspect.natalSign} ${mainAspect.natalDegree}°) arasındaki ${mainAspect.aspectType} açısıdır (${mainAspect.orb.toFixed(1)}° tolerans). Bu etkileşim doğrudan "${getPlanetTheme(mainAspect.natalPlanet)}" konularında bilinçli adımlar atmanızı gerektiriyor.`
-      : 'Bugün gezegen geçişleri natal gezegenlerinize sert bir sürtüşme yapmıyor; daha sakin ve içe dönük bir gün geçirebilirsiniz.';
-
-    const lifeAdvice = mainAspect
-      ? (mainAspect.isHarmonious
-          ? `${mainAspect.natalHouse}. evinizin sunduğu uyumlu akışı değerlendirin; önünüze çıkan fırsatları ertelemeden hayata geçirin.`
-          : `${mainAspect.natalHouse}. evinizdeki sürtüşmeleri bir kriz değil, sınırlarınızı korumanız ve olgunlaşmanız için bir fırsat olarak görün.`)
-      : 'Günün sakinliğini hedeflerinizi sadeleştirmek ve içsel huzuru tazelemek için değerlendirin.';
-
+  const renderCurrentSkyOverview = () => {
+    if (!currentSkyOverview) return null;
     return (
       <View style={styles.guidanceCard}>
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <Ionicons name="sparkles" size={20} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <Ionicons name="sparkles" size={18} color="#0EA5E9" style={{ marginRight: 8 }} />
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 10, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
-              BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 10, fontWeight: '900', color: '#0EA5E9', letterSpacing: 0.5 }}>
+                GÜNÜN KOZMİK HAVA DURUMU
+              </Text>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: '#9CA3AF' }}>
+                {currentSkyOverview.subHeadline}
+              </Text>
+            </View>
+            <Text style={[styles.guidanceTitle, { color: '#FFF', fontSize: 16, marginTop: 3 }]}>
+              {currentSkyOverview.headline}
             </Text>
-            <Text style={styles.guidanceTitle}>{headline}</Text>
           </View>
         </View>
 
-        {/* Narrative */}
-        <Text style={styles.guidanceText}>{narrative}</Text>
+        <Text style={[styles.guidanceText, { color: '#E0E0E0', fontSize: 13, lineHeight: 20 }]}>
+          {currentSkyOverview.vibeNarrative}
+        </Text>
 
-        {/* 3 Boyutlu Enerji & Akış Barometresi */}
+        {/* 3D Kozmik Frekans Barometresi */}
         <View style={{ marginTop: 14, padding: 12, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10, letterSpacing: 0.5 }}>
-            KİŞİSEL ENERJİ BAROMETRESİ
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 10, letterSpacing: 0.5 }}>
+            KOZMİK FREKANS BAROMETRESİ
           </Text>
 
           {/* Zihinsel */}
           <View style={{ marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Zihinsel Netlik & Karar</Text>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#38BDF8' }}>%{mentalScore}</Text>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>🧠 Zihinsel Odak: {currentSkyOverview.barometer.mental.label}</Text>
+              <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>{currentSkyOverview.barometer.mental.tone}</Text>
             </View>
-            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${mentalScore}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
             </View>
           </View>
 
           {/* Duygusal */}
           <View style={{ marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Duygusal Denge & İç Huzur</Text>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#34D399' }}>%{emotionalScore}</Text>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>🌊 Duygusal Akış: {currentSkyOverview.barometer.emotional.label}</Text>
+              <Text style={{ fontSize: 10, color: '#A855F7', fontWeight: 'bold' }}>{currentSkyOverview.barometer.emotional.tone}</Text>
             </View>
-            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${emotionalScore}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 3 }} />
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#A855F7', borderRadius: 3 }} />
             </View>
           </View>
 
           {/* Eylem */}
           <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Eylem & İlerleme Enerjisi</Text>
-              <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#FBBF24' }}>%{actionScore}</Text>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>⚡ Eylem & Atılım: {currentSkyOverview.barometer.action.label}</Text>
+              <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>{currentSkyOverview.barometer.action.tone}</Text>
             </View>
-            <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${actionScore}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 3 }} />
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#D4AF37', borderRadius: 3 }} />
+            </View>
+          </View>
+        </View>
+
+        {/* Fırsatlar & Dikkat Edilmesi Gerekenler */}
+        <View style={{ marginTop: 12 }}>
+          {currentSkyOverview.opportunities.length > 0 && (
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.25)', marginBottom: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#34D399', marginBottom: 4 }}>
+                🌟 Bugünün Fırsatları:
+              </Text>
+              {currentSkyOverview.opportunities.map((item, idx) => (
+                <Text key={`sko-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • {item}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          {currentSkyOverview.cautions.length > 0 && (
+            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', marginBottom: 8 }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#F87171', marginBottom: 4 }}>
+                ⚠️ Neden Kaçınmalı?
+              </Text>
+              {currentSkyOverview.cautions.map((item, idx) => (
+                <Text key={`skc-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • {item}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+
+        {/* Pik Yapan Kilit Açılar */}
+        {currentSkyOverview.topAspects.length > 0 && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 6, letterSpacing: 0.5 }}>
+              ⚡ ŞU AN GÖKYÜZÜNDE PİK YAPAN KİLİT AÇILAR
+            </Text>
+            {currentSkyOverview.topAspects.map((asp, idx) => (
+              <TouchableOpacity
+                key={`skap-${idx}`}
+                activeOpacity={0.7}
+                onPress={() => setSelectedInterp({
+                  title: `${asp.p1} - ${asp.p2} (${asp.aspectType})`,
+                  content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})`
+                })}
+                style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24' }}>
+                    {asp.p1} {asp.aspectType} {asp.p2}
+                  </Text>
+                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9' }}>
+                    {asp.badge}
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 10, color: '#D1D5DB', lineHeight: 14 }}>
+                  {asp.summary}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* 13 Gezegen Detayına Geçiş Butonu */}
+        <TouchableOpacity
+          onPress={() => setSkyViewMode('SYNTHESIS')}
+          style={{ marginTop: 12, backgroundColor: 'rgba(14, 165, 233, 0.15)', borderWidth: 1, borderColor: '#0EA5E9', borderRadius: 10, paddingVertical: 10, alignItems: 'center' }}
+        >
+          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0EA5E9' }}>
+            Tüm Gezegenlerin (13 Cismin) Detaylı Kartlarını Gör →
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderUnifiedSkyPlanets = () => {
+    return (
+      <View style={{ marginTop: 10 }}>
+        {/* Header bar */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 }}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>13 Gezegenin Bütünleşik Konumları</Text>
+          <TouchableOpacity onPress={() => setSkyViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="arrow-back" size={14} color="#D4AF37" style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#D4AF37' }}>Sade Özete Dön</Text>
+          </TouchableOpacity>
+        </View>
+
+        {unifiedSkyPlanets.map((sp, idx) => (
+          <View
+            key={`usp-${idx}`}
+            style={{
+              backgroundColor: 'rgba(20,20,25,0.7)',
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.08)',
+              marginBottom: 12,
+            }}
+          >
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 10, marginBottom: 10 }}>
+              <Text style={{ fontSize: 26, width: 34, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
+                {PLANET_SYMBOLS[sp.planetName] || '★'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF', lineHeight: 18 }}>
+                  {sp.humanThemeTitle}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                  <View style={{ backgroundColor: 'rgba(212,175,55,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)' }}>
+                    <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>
+                      {sp.planetName} ({ZODIAC_SYMBOLS[sp.sign] || ''} {sp.sign} {sp.degreeInSign}°)
+                    </Text>
+                  </View>
+                  <View style={{ backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>{sp.ingressPhase.badge}</Text>
+                  </View>
+                  {sp.hdGateInfo && (
+                    <View style={{ backgroundColor: 'rgba(52,211,153,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(52,211,153,0.3)' }}>
+                      <Text style={{ fontSize: 10, color: '#34D399', fontWeight: '600' }}>
+                        🧬 Kapı {sp.hdGateInfo.gate}: {sp.hdGateInfo.title}
+                      </Text>
+                    </View>
+                  )}
+                  {sp.minOrb !== undefined ? (
+                    <View style={{ backgroundColor: sp.minOrb <= 1.0 ? 'rgba(52,211,153,0.15)' : 'rgba(14,165,233,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: sp.minOrb <= 1.0 ? '#34D399' : '#0EA5E9' }}>
+                      <Text style={{ fontSize: 10, color: sp.minOrb <= 1.0 ? '#34D399' : '#0EA5E9', fontWeight: 'bold' }}>
+                        ★ Orb: {sp.minOrb.toFixed(1)}° {sp.minOrb <= 1.0 ? '(Pik)' : ''}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                      <Text style={{ fontSize: 10, color: '#6B7280' }}>Majör Açı Yok</Text>
+                    </View>
+                  )}
+                  {sp.isRetrograde && (
+                    <View style={{ backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#EF4444' }}>
+                      <Text style={{ fontSize: 10, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            {/* Narrative Box */}
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 4, letterSpacing: 0.5 }}>
+                7LAYERS YAŞAM ALANI ÖZETİ
+              </Text>
+              <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 18 }}>
+                {sp.humanNarrative}
+              </Text>
+              {sp.hdGateInfo && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
+                  <Text style={{ fontSize: 10, color: '#F87171' }}>▲ Gölge: {sp.hdGateInfo.shadow}</Text>
+                  <Text style={{ fontSize: 10, color: '#6B7280' }}>➔</Text>
+                  <Text style={{ fontSize: 10, color: '#34D399' }}>✨ Hediye: {sp.hdGateInfo.gift}</Text>
+                </View>
+              )}
+            </View>
+
+            {/* Active Aspects */}
+            {sp.aspects.length > 0 && (
+              <View style={{ marginTop: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 4 }}>
+                  EŞZAMANLI AÇILAR:
+                </Text>
+                {sp.aspects.map((asp, aIdx) => (
+                  <TouchableOpacity
+                    key={`usp-asp-${aIdx}`}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedInterp({
+                      title: `${sp.planetName} - ${asp.targetPlanet} (${asp.aspectType})`,
+                      content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.orbStrength || 'Aktif'})`
+                    })}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: 7, borderRadius: 6, marginBottom: 4 }}
+                  >
+                    <Text style={{ fontSize: 11, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
+                      {asp.aspectType} {asp.targetPlanet}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                      Orb: {asp.orb.toFixed(1)}°
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            {/* Daily Advice */}
+            {sp.dailyAdvice && (
+              <View style={{ marginTop: 6, padding: 8, backgroundColor: 'rgba(212,175,55,0.06)', borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.2)' }}>
+                <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 15 }}>
+                  <Text style={{ fontWeight: 'bold', color: '#D4AF37' }}>Tavsiye: </Text>
+                  {sp.dailyAdvice}
+                </Text>
+              </View>
+            )}
+          </View>
+        ))}
+      </View>
+    );
+  };
+
+  const renderPersonalTransitOverview = () => {
+    if (!personalOverview) return null;
+    return (
+      <View style={styles.guidanceCard}>
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+          <Ionicons name="sparkles" size={18} color={COLORS.primary} style={{ marginRight: 8 }} />
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Text style={{ fontSize: 10, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
+                BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
+              </Text>
+              <Text style={{ fontSize: 11, fontWeight: '600', color: COLORS.primary }}>
+                {personalOverview.subHeadline}
+              </Text>
+            </View>
+            <Text style={[styles.guidanceTitle, { marginTop: 3 }]}>{personalOverview.headline}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.guidanceText}>{personalOverview.themeDescription}</Text>
+
+        {/* Bugünün Odak Yaşam Alanları */}
+        {personalOverview.focusHouses.length > 0 && (
+          <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#38BDF8', marginBottom: 8, letterSpacing: 0.5 }}>
+              BUGÜNÜN ODAK YAŞAM ALANLARI
+            </Text>
+            {personalOverview.focusHouses.map((fh, idx) => (
+              <View key={`pfh-${idx}`} style={{ marginBottom: 6, paddingBottom: 6, borderBottomWidth: idx < personalOverview.focusHouses.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.05)' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF' }}>{fh.title}</Text>
+                  <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>{fh.planetNames.join(', ')}</Text>
+                </View>
+                <Text style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{fh.description}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* 3 Boyutlu Kişisel Enerji Barometresi */}
+        <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10, letterSpacing: 0.5 }}>
+            KİŞİSEL ENERJİ & AKIŞ BAROMETRESİ
+          </Text>
+
+          {/* Zihinsel */}
+          <View style={{ marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Zihinsel Netlik: {personalOverview.barometer.mental.label}</Text>
+              <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>{personalOverview.barometer.mental.tone} (%{personalOverview.barometer.mental.score})</Text>
+            </View>
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
+            </View>
+          </View>
+
+          {/* Duygusal */}
+          <View style={{ marginBottom: 8 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Duygusal Denge: {personalOverview.barometer.emotional.label}</Text>
+              <Text style={{ fontSize: 10, color: '#34D399', fontWeight: 'bold' }}>{personalOverview.barometer.emotional.tone} (%{personalOverview.barometer.emotional.score})</Text>
+            </View>
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 3 }} />
+            </View>
+          </View>
+
+          {/* Eylem */}
+          <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
+              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Eylem & İlerleme: {personalOverview.barometer.action.label}</Text>
+              <Text style={{ fontSize: 10, color: '#FBBF24', fontWeight: 'bold' }}>{personalOverview.barometer.action.tone} (%{personalOverview.barometer.action.score})</Text>
+            </View>
+            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 3 }} />
             </View>
           </View>
         </View>
 
         {/* Fırsatlar & Sınavlar */}
         <View style={{ marginTop: 12 }}>
-          {harmoniousAspects.length > 0 && (
+          {personalOverview.opportunities.length > 0 && (
             <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.25)', marginBottom: 8 }}>
               <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#34D399', marginBottom: 4 }}>
-                🌟 Bugün Sizin İçin Fırsatlar:
+                🌟 Bugün Sizin İçin Fırsatlar & Destekler:
               </Text>
-              {harmoniousAspects.map((asp, idx) => (
-                <Text key={`hop-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
-                  • T.{asp.transitPlanet} - N.{asp.natalPlanet} ({asp.aspectType}): {asp.natalHouse}. evinizde bereketli bir akış açıyor.
+              {personalOverview.opportunities.map((opp, idx) => (
+                <Text key={`popp-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • {opp}
                 </Text>
               ))}
             </View>
           )}
 
-          {challengingAspects.length > 0 && (
+          {personalOverview.cautions.length > 0 && (
             <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', marginBottom: 8 }}>
               <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#F87171', marginBottom: 4 }}>
                 ⚠️ Dikkat Edilmesi Gereken Sınavlar:
               </Text>
-              {challengingAspects.map((asp, idx) => (
-                <Text key={`hch-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
-                  • T.{asp.transitPlanet} - N.{asp.natalPlanet} ({asp.aspectType}): {asp.natalHouse}. ev konularında fevri kararlardan kaçının; sınırlarınızı koruyun.
+              {personalOverview.cautions.map((cau, idx) => (
+                <Text key={`pcau-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                  • {cau}
                 </Text>
               ))}
             </View>
           )}
         </View>
 
-        {/* En Güçlü Kişisel Tetikleyiciler (Kesin Derecelerle) */}
-        {topAspectDetails.length > 0 && (
+        {/* En Etkin Kişisel Tetikleyiciler (Pik Transitler) */}
+        {personalOverview.topAspects.length > 0 && (
           <View style={{ marginTop: 8 }}>
             <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 6, letterSpacing: 0.5 }}>
               ⚡ EN ETKİN KİŞİSEL TETİKLEYİCİLER (PİK TRANSİTLER)
             </Text>
-            {topAspectDetails.map((asp, idx) => (
-              <View key={`tap-${idx}`} style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}>
+            {personalOverview.topAspects.map((asp, idx) => (
+              <TouchableOpacity
+                key={`ptap-${idx}`}
+                activeOpacity={0.7}
+                onPress={() => setSelectedInterp({
+                  title: `T.${asp.transitPlanet} ${asp.aspectType} N.${asp.natalPlanet}`,
+                  content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})\nT: ${asp.transitSign} ${asp.transitDegree}° ➔ N: ${asp.natalSign} ${asp.natalDegree}° (${asp.natalHouse}. Evinizde)`
+                })}
+                style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}
+              >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                   <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF' }}>
                     T.{asp.transitPlanet} {asp.aspectType} N.{asp.natalPlanet}
@@ -848,21 +1094,157 @@ export default function AnlikGokyuzuScreen() {
                     {asp.badge}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                <Text style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 3 }}>
                   T: {asp.transitSign} {asp.transitDegree}° ➔ N: {asp.natalSign} {asp.natalDegree}° ({asp.natalHouse}. Evinizde)
                 </Text>
-              </View>
+                <Text style={{ fontSize: 11, color: '#D1D5DB', lineHeight: 15 }}>
+                  {asp.summary}
+                </Text>
+              </TouchableOpacity>
             ))}
           </View>
         )}
 
-        {/* Günün Reçetesi */}
+        {/* Günün Yaşam Reçetesi & Gezegen Kartları Butonu */}
         <View style={{ marginTop: 10, padding: 10, backgroundColor: 'rgba(212, 175, 55, 0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.25)' }}>
           <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 16 }}>
             <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>Günün Yaşam Reçetesi: </Text>
-            {lifeAdvice}
+            {personalOverview.lifeAdvice}
           </Text>
+          <TouchableOpacity
+            onPress={() => setPersonalViewMode('PLANETS')}
+            style={{ marginTop: 8, alignSelf: 'flex-end' }}
+          >
+            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0EA5E9' }}>
+              10 Gezegen Kartını Gör →
+            </Text>
+          </TouchableOpacity>
         </View>
+      </View>
+    );
+  };
+
+  const renderUnifiedPersonalPlanets = () => {
+    return (
+      <View style={{ marginTop: 10 }}>
+        {/* Header Bar */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 }}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>10 Kişisel Gezegen Kartı</Text>
+          <TouchableOpacity onPress={() => setPersonalViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="arrow-back" size={14} color={COLORS.primary} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.primary }}>Sade Özete Dön</Text>
+          </TouchableOpacity>
+        </View>
+
+        {unifiedPersonalPlanets.map((ut, idx) => (
+          <View
+            key={`upt-${idx}`}
+            style={{
+              backgroundColor: 'rgba(20,20,25,0.7)',
+              borderRadius: 16,
+              padding: 14,
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.08)',
+              marginBottom: 12,
+            }}
+          >
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 10, marginBottom: 10 }}>
+              <Text style={{ fontSize: 26, width: 34, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
+                {PLANET_SYMBOLS[ut.planetName] || '★'}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF', lineHeight: 18 }}>
+                  {ut.humanThemeTitle}
+                </Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                  <View style={{ backgroundColor: 'rgba(212,175,55,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)' }}>
+                    <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>
+                      {ut.planetName} ({ZODIAC_SYMBOLS[ut.sign] || ''} {ut.sign} {ut.degreeInSign}°)
+                    </Text>
+                  </View>
+                  <View style={{ backgroundColor: 'rgba(14,165,233,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(14,165,233,0.3)' }}>
+                    <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>
+                      🏠 {ut.houseTitle.split(':')[1]?.trim() || ut.houseTitle}
+                    </Text>
+                  </View>
+                  {ut.hdGateInfo && (
+                    <View style={{ backgroundColor: 'rgba(52,211,153,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(52,211,153,0.3)' }}>
+                      <Text style={{ fontSize: 10, color: '#34D399', fontWeight: '600' }}>
+                        🧬 Kapı {ut.hdGateInfo.gate}: {ut.hdGateInfo.title}
+                      </Text>
+                    </View>
+                  )}
+                  {ut.isRetrograde && (
+                    <View style={{ backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#EF4444' }}>
+                      <Text style={{ fontSize: 10, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </View>
+
+            {/* Narrative Box */}
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 4, letterSpacing: 0.5 }}>
+                7LAYERS YAŞAM ALANI ÖZETİ
+              </Text>
+              <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 18 }}>
+                {ut.humanNarrative}
+              </Text>
+              {ut.hdGateInfo && (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
+                  <Text style={{ fontSize: 10, color: '#F87171' }}>▲ Gölge: {ut.hdGateInfo.shadow}</Text>
+                  <Text style={{ fontSize: 10, color: '#6B7280' }}>➔</Text>
+                  <Text style={{ fontSize: 10, color: '#34D399' }}>✨ Hediye: {ut.hdGateInfo.gift}</Text>
+                </View>
+              )}
+            </View>
+
+            {/* Active Natal Aspects */}
+            {ut.aspects.length > 0 ? (
+              <View style={{ marginTop: 4 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 4 }}>
+                  EŞZAMANLI NATAL AÇILAR:
+                </Text>
+                {ut.aspects.map((asp, aIdx) => (
+                  <TouchableOpacity
+                    key={`upt-asp-${aIdx}`}
+                    activeOpacity={0.7}
+                    onPress={() => setSelectedInterp({
+                      title: `T.${ut.planetName} - N.${asp.natalPlanet} (${asp.aspectType})`,
+                      content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}°${asp.natalHouse ? ` (${asp.natalHouse}. Ev)` : ''}`
+                    })}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: 7, borderRadius: 6, marginBottom: 4 }}
+                  >
+                    <Text style={{ fontSize: 11, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
+                      {asp.aspectType} Natal {asp.natalPlanet} {asp.natalHouse ? `[${asp.natalHouse}. Ev]` : ''}
+                    </Text>
+                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                      Orb: {asp.orb.toFixed(1)}°
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: 6, borderRadius: 6 }}>
+                <Text style={{ fontSize: 10, color: '#6B7280', fontStyle: 'italic' }}>
+                  Şu anda doğrudan majör bir natal gezegene açı yapmıyor; {ut.house}. evinizin genel atmosferini dönüştürüyor.
+                </Text>
+              </View>
+            )}
+
+            {/* Action Advice */}
+            {ut.actionAdvice && (
+              <View style={{ marginTop: 6, padding: 8, backgroundColor: 'rgba(212,175,55,0.06)', borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.2)' }}>
+                <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 15 }}>
+                  <Text style={{ fontWeight: 'bold', color: '#D4AF37' }}>Eylem Tavsiyesi: </Text>
+                  {ut.actionAdvice}
+                </Text>
+              </View>
+            )}
+          </View>
+        ))}
       </View>
     );
   };
@@ -1024,7 +1406,44 @@ export default function AnlikGokyuzuScreen() {
                       }}
                     />
 
-                    {/* Section 1: Anlık Gezegen Yerleşimleri */}
+                    {/* Mundane 3-View Switcher: Günün Özeti | 13 Gezegen | Açı Listesi */}
+                    <View style={styles.subViewSwitcher}>
+                      <TouchableOpacity
+                        onPress={() => setSkyViewMode('OVERVIEW')}
+                        style={[styles.subViewBtn, skyViewMode === 'OVERVIEW' && styles.subViewBtnActiveCyan]}
+                      >
+                        <Ionicons name="sparkles" size={13} color={skyViewMode === 'OVERVIEW' ? '#000' : '#0EA5E9'} style={{ marginRight: 4 }} />
+                        <Text style={[styles.subViewBtnText, skyViewMode === 'OVERVIEW' && styles.subViewBtnTextActive]}>
+                          Günün Özeti
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => setSkyViewMode('SYNTHESIS')}
+                        style={[styles.subViewBtn, skyViewMode === 'SYNTHESIS' && styles.subViewBtnActiveCyan]}
+                      >
+                        <Ionicons name="planet-outline" size={13} color={skyViewMode === 'SYNTHESIS' ? '#000' : '#0EA5E9'} style={{ marginRight: 4 }} />
+                        <Text style={[styles.subViewBtnText, skyViewMode === 'SYNTHESIS' && styles.subViewBtnTextActive]}>
+                          13 Gezegen
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => setSkyViewMode('LIST')}
+                        style={[styles.subViewBtn, skyViewMode === 'LIST' && styles.subViewBtnActiveCyan]}
+                      >
+                        <Ionicons name="list" size={13} color={skyViewMode === 'LIST' ? '#000' : '#0EA5E9'} style={{ marginRight: 4 }} />
+                        <Text style={[styles.subViewBtnText, skyViewMode === 'LIST' && styles.subViewBtnTextActive]}>
+                          Açı Listesi
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {skyViewMode === 'OVERVIEW' && renderCurrentSkyOverview()}
+                    {skyViewMode === 'SYNTHESIS' && renderUnifiedSkyPlanets()}
+                    {skyViewMode === 'LIST' && (
+                      <>
+                        {/* Section 1: Anlık Gezegen Yerleşimleri */}
                     <TouchableOpacity 
                       style={styles.listSectionHeader}
                       activeOpacity={0.7}
@@ -1179,6 +1598,8 @@ export default function AnlikGokyuzuScreen() {
                         </>
                       );
                     })()}
+                      </>
+                    )}
                   </View>
                 )
               ) : (
@@ -1426,81 +1847,117 @@ export default function AnlikGokyuzuScreen() {
                   )}
 
                   {/* Dual Wheel Chart */}
-              {renderBiWheel()}
+                  {renderBiWheel()}
 
-              {/* AI Guidance Text */}
-              {renderAIRecommendation()}
+                  {/* Personal 3-View Switcher: Bütünleşik Özet | 10 Gezegen | Ayrık Tablolar */}
+              <View style={styles.subViewSwitcher}>
+                <TouchableOpacity
+                  onPress={() => setPersonalViewMode('OVERVIEW')}
+                  style={[styles.subViewBtn, personalViewMode === 'OVERVIEW' && styles.subViewBtnActiveGold]}
+                >
+                  <Ionicons name="sparkles" size={13} color={personalViewMode === 'OVERVIEW' ? '#000' : '#D4AF37'} style={{ marginRight: 4 }} />
+                  <Text style={[styles.subViewBtnText, personalViewMode === 'OVERVIEW' && styles.subViewBtnTextActive]}>
+                    Bütünleşik Özet
+                  </Text>
+                </TouchableOpacity>
 
-              {/* Lists of Transit House placements */}
-              <TouchableOpacity 
-                style={styles.listSectionHeader}
-                activeOpacity={0.7}
-                onPress={() => setIsHousesExpanded(!isHousesExpanded)}
-              >
-                <Text style={styles.listSectionTitle}>Transit Gezegenler & Natal Evler</Text>
-                <Ionicons name={isHousesExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setPersonalViewMode('PLANETS')}
+                  style={[styles.subViewBtn, personalViewMode === 'PLANETS' && styles.subViewBtnActiveGold]}
+                >
+                  <Ionicons name="planet-outline" size={13} color={personalViewMode === 'PLANETS' ? '#000' : '#D4AF37'} style={{ marginRight: 4 }} />
+                  <Text style={[styles.subViewBtnText, personalViewMode === 'PLANETS' && styles.subViewBtnTextActive]}>
+                    10 Gezegen
+                  </Text>
+                </TouchableOpacity>
 
-              {isHousesExpanded && (
-                <View style={styles.listCard}>
-                  {transitData.transitPlanets.map((p, i) => (
-                    <TouchableOpacity 
-                      key={`th-${i}`} 
-                      style={styles.listRow}
-                      activeOpacity={0.7}
-                      onPress={() => setSelectedInterp(getTransitHouseInterpretation(p.name, p.house))}
-                    >
-                      <View style={styles.listRowLeft}>
-                        <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
-                        <Text style={styles.listRowMain}>Transit {p.name}</Text>
-                      </View>
-                      <Text style={styles.listRowMiddle}>{p.house}. Evinizde</Text>
-                      <Text style={[styles.listRowRight, { color: ZODIAC_COLORS[p.sign] || COLORS.textMuted }]}>{p.sign}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+                <TouchableOpacity
+                  onPress={() => setPersonalViewMode('TABLES')}
+                  style={[styles.subViewBtn, personalViewMode === 'TABLES' && styles.subViewBtnActiveGold]}
+                >
+                  <Ionicons name="grid-outline" size={13} color={personalViewMode === 'TABLES' ? '#000' : '#D4AF37'} style={{ marginRight: 4 }} />
+                  <Text style={[styles.subViewBtnText, personalViewMode === 'TABLES' && styles.subViewBtnTextActive]}>
+                    Ayrık Tablolar
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-              {/* Lists of Transit aspects */}
-              <TouchableOpacity 
-                style={styles.listSectionHeader}
-                activeOpacity={0.7}
-                onPress={() => setIsAspectsExpanded(!isAspectsExpanded)}
-              >
-                <Text style={styles.listSectionTitle}>Transit - Natal Açıları</Text>
-                <Ionicons name={isAspectsExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
-              </TouchableOpacity>
+              {personalViewMode === 'OVERVIEW' && renderPersonalTransitOverview()}
+              {personalViewMode === 'PLANETS' && renderUnifiedPersonalPlanets()}
+              {personalViewMode === 'TABLES' && (
+                <>
+                  {/* Lists of Transit House placements */}
+                  <TouchableOpacity 
+                    style={styles.listSectionHeader}
+                    activeOpacity={0.7}
+                    onPress={() => setIsHousesExpanded(!isHousesExpanded)}
+                  >
+                    <Text style={styles.listSectionTitle}>Transit Gezegenler & Natal Evler</Text>
+                    <Ionicons name={isHousesExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+                  </TouchableOpacity>
 
-              {isAspectsExpanded && (
-                <View style={styles.listCard}>
-                  {transitData.transitAspects.length === 0 ? (
-                    <Text style={styles.emptyText}>Gezegen geçişlerinin şu an doğum gezegenlerinizle majör bir açısı bulunmuyor.</Text>
-                  ) : (
-                    transitData.transitAspects.sort((a, b) => a.orb - b.orb).map((aspect, i) => (
-                      <TouchableOpacity 
-                        key={`ta-${i}`} 
-                        style={styles.listRow}
-                        activeOpacity={0.7}
-                        onPress={() => setSelectedInterp(getTransitAspectInterpretation(aspect.transitPlanet, aspect.natalPlanet, aspect.type))}
-                      >
-                        <View style={styles.listRowLeft}>
-                          <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[aspect.transitPlanet] || '★'}</Text>
-                          <Text style={styles.listRowMain}>T.{aspect.transitPlanet}</Text>
-                        </View>
-                        
-                        <View style={{ alignItems: 'center', flex: 1.2 }}>
-                          <Text style={[styles.aspectBadge, { color: ASPECT_COLORS[aspect.type] || '#FFF' }]}>{aspect.type}</Text>
-                          <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Orb: {aspect.orb.toFixed(1)}° {aspect.isExact ? '(Tam)' : ''}</Text>
-                        </View>
-
-                        <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1 }]}>
-                          <Text style={[styles.listRowMain, { marginRight: 6 }]}>N.{aspect.natalPlanet}</Text>
-                          <Text style={[styles.planetSymbolIcon, { color: COLORS.primary }]}>{PLANET_SYMBOLS[aspect.natalPlanet] || '★'}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))
+                  {isHousesExpanded && (
+                    <View style={styles.listCard}>
+                      {transitData.transitPlanets.map((p, i) => (
+                        <TouchableOpacity 
+                          key={`th-${i}`} 
+                          style={styles.listRow}
+                          activeOpacity={0.7}
+                          onPress={() => setSelectedInterp(getTransitHouseInterpretation(p.name, p.house))}
+                        >
+                          <View style={styles.listRowLeft}>
+                            <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[p.name] || '★'}</Text>
+                            <Text style={styles.listRowMain}>Transit {p.name}</Text>
+                          </View>
+                          <Text style={styles.listRowMiddle}>{p.house}. Evinizde</Text>
+                          <Text style={[styles.listRowRight, { color: ZODIAC_COLORS[p.sign] || COLORS.textMuted }]}>{p.sign}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   )}
-                </View>
+
+                  {/* Lists of Transit aspects */}
+                  <TouchableOpacity 
+                    style={styles.listSectionHeader}
+                    activeOpacity={0.7}
+                    onPress={() => setIsAspectsExpanded(!isAspectsExpanded)}
+                  >
+                    <Text style={styles.listSectionTitle}>Transit - Natal Açıları</Text>
+                    <Ionicons name={isAspectsExpanded ? "chevron-up" : "chevron-down"} size={20} color={COLORS.primary} />
+                  </TouchableOpacity>
+
+                  {isAspectsExpanded && (
+                    <View style={styles.listCard}>
+                      {transitData.transitAspects.length === 0 ? (
+                        <Text style={styles.emptyText}>Gezegen geçişlerinin şu an doğum gezegenlerinizle majör bir açısı bulunmuyor.</Text>
+                      ) : (
+                        transitData.transitAspects.sort((a, b) => a.orb - b.orb).map((aspect, i) => (
+                          <TouchableOpacity 
+                            key={`ta-${i}`} 
+                            style={styles.listRow}
+                            activeOpacity={0.7}
+                            onPress={() => setSelectedInterp(getTransitAspectInterpretation(aspect.transitPlanet, aspect.natalPlanet, aspect.type))}
+                          >
+                            <View style={styles.listRowLeft}>
+                              <Text style={[styles.planetSymbolIcon, { color: COLORS.secondary }]}>{PLANET_SYMBOLS[aspect.transitPlanet] || '★'}</Text>
+                              <Text style={styles.listRowMain}>T.{aspect.transitPlanet}</Text>
+                            </View>
+                            
+                            <View style={{ alignItems: 'center', flex: 1.2 }}>
+                              <Text style={[styles.aspectBadge, { color: ASPECT_COLORS[aspect.type] || '#FFF' }]}>{aspect.type}</Text>
+                              <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Orb: {aspect.orb.toFixed(1)}° {aspect.isExact ? '(Tam)' : ''}</Text>
+                            </View>
+
+                            <View style={[styles.listRowRight, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', flex: 1 }]}>
+                              <Text style={[styles.listRowMain, { marginRight: 6 }]}>N.{aspect.natalPlanet}</Text>
+                              <Text style={[styles.planetSymbolIcon, { color: COLORS.primary }]}>{PLANET_SYMBOLS[aspect.natalPlanet] || '★'}</Text>
+                            </View>
+                          </TouchableOpacity>
+                        ))
+                      )}
+                    </View>
+                  )}
+                </>
               )}
                 </>
               ) : (
@@ -1773,5 +2230,37 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     fontSize: 11,
     marginTop: 1,
+  },
+  subViewSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(20, 20, 25, 0.85)',
+    borderRadius: 12,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 12,
+  },
+  subViewBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 9,
+  },
+  subViewBtnActiveCyan: {
+    backgroundColor: '#0EA5E9',
+  },
+  subViewBtnActiveGold: {
+    backgroundColor: '#D4AF37',
+  },
+  subViewBtnText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#9CA3AF',
+  },
+  subViewBtnTextActive: {
+    color: '#000',
+    fontWeight: 'bold',
   },
 });

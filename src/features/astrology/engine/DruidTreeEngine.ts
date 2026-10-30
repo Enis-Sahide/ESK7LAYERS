@@ -841,3 +841,34 @@ export function getAllDruidTrees(): DruidTree[] {
 export function getDruidTreeById(id: string): DruidTree | undefined {
   return DRUID_TREES.find(t => t.id === id);
 }
+
+/**
+ * Türkçe büyük ünlü ve ses uyumuna göre isme tam uygun iyelik eki oluşturur
+ * Örnek: Baha -> BAHA'NIN DRUİD AĞACI, Emre -> EMRE'NİN DRUİD AĞACI
+ */
+export function formatTurkishPossessive(name: string): string {
+  const clean = name.trim();
+  if (!clean) return 'KUTSAL DRUİD AĞACI';
+
+  const vowels = ['a', 'e', 'ı', 'i', 'o', 'ö', 'u', 'ü'];
+  const lastChar = clean.slice(-1).toLocaleLowerCase('tr-TR');
+
+  let lastVowel = '';
+  for (let i = clean.length - 1; i >= 0; i--) {
+    const char = clean[i].toLocaleLowerCase('tr-TR');
+    if (vowels.includes(char)) {
+      lastVowel = char;
+      break;
+    }
+  }
+  if (!lastVowel) lastVowel = 'a';
+
+  const isLastCharVowel = vowels.includes(lastChar);
+  let suffix = '';
+  if (['a', 'ı'].includes(lastVowel)) suffix = isLastCharVowel ? 'NIN' : 'IN';
+  else if (['e', 'i'].includes(lastVowel)) suffix = isLastCharVowel ? 'NİN' : 'İN';
+  else if (['o', 'u'].includes(lastVowel)) suffix = isLastCharVowel ? 'NUN' : 'UN';
+  else if (['ö', 'ü'].includes(lastVowel)) suffix = isLastCharVowel ? 'NÜN' : 'ÜN';
+
+  return `${clean.toLocaleUpperCase('tr-TR')}'${suffix} DRUİD AĞACI`;
+}

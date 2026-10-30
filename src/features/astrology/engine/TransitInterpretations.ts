@@ -12,7 +12,8 @@ export function getTransitHouseInterpretation(transitPlanet: string, house: numb
     'Uranüs': 'hayatınızdaki ani sürprizler, uyanışlar ve özgürleşme alanınız',
     'Neptün': 'hayal gücünüz, sezgileriniz, ruhsal derinliğiniz ve bazen kafa karışıklıklarınız',
     'Plüton': 'derin dönüşümleriniz, küllerinden yeniden doğma gücünüz ve krizleri aşma enerjiniz',
-    'Kiron': 'ruhun en derin hassasiyetleri, şifalanma kapılarınız ve hassas yönleriniz'
+    'Kiron': 'ruhun en derin hassasiyetleri, şifalanma kapılarınız ve hassas yönleriniz',
+    'Lilith': 'bastırılmış gölge gücünüz, tabuları yıkan vahşi doğanız ve otantik özgürlük arayışınız'
   };
 
   const houseThemes: Record<number, string> = {
@@ -20,7 +21,7 @@ export function getTransitHouseInterpretation(transitPlanet: string, house: numb
     2: 'maddi konulara, kazançlarınıza, sahip olduklarınıza ve özgüveninize odaklanıyor. Bütçenizi düzene sokmak, yeni gelir kapıları aramak ve kendi değerinizi sorgulamak bu dönemin ana konularıdır.',
     3: 'yakın çevre ilişkilerinize, kardeşlerinize, alacağınız eğitimlere ve zihinsel projelere kayıyor. Bol bol konuşacağınız, yazacağınız, yeni şeyler öğreneceğiniz ve kısa seyahatlere çıkacağınız hareketli bir dönemdesiniz.',
     4: 'evinize, ailenize, yuvanıza ve içsel huzurunuza odaklanıyor. Bu süreçte evde vakit geçirmek, aile içi ilişkileri düzenlemek, gayrimenkul işleriyle uğraşmak veya kendi ruhsal köklerinize dönmek isteyebilirsiniz.',
-    5: 'aşk hayatınız, yaratıcılığınız, çocuklarla ilgili konulara ve hayattan aldığınız keyifli aktivitelere yöneliyor. Sahneye çıkma, hobilerinize vakit ayırma, flört etme ve neşenizi dışarı yansıtma zamanıdır.',
+    5: 'aşk hayatınıza, yaratıcı projelere, çocuklarla ilgili konulara ve hayattan aldığınız keyifli aktivitelere yöneliyor. Sahneye çıkma, hobilerinize vakit ayırma, flört etme ve neşenizi dışarı yansıtma zamanıdır.',
     6: 'günlük rutinlerinize, iş hayatınıza, sağlığınıza ve düzen kurma konularına odaklanıyor. Bedeninize iyi bakmak, diyet/spor başlamak, iş ortamınızı düzenlemek ve birikmiş işleri toparlamak için mükemmel bir süreçtir.',
     7: 'ilişkilerinize, evliliğinize, ortaklıklarınıza ve birebir kurduğunuz bağlara yöneliyor. Bu dönemde tek başınıza hareket etmek yerine ortak kararlar almak, ilişkileri şifalandırmak veya yeni iş birlikleri kurmak ön planda olacaktır.',
     8: 'paylaşılan paralara, miras/kredi/borç konularına ve derin psikolojik dönüşümlere odaklanıyor. İçsel korkularınızla yüzleşmek, hayatınızdaki fazlalıklardan arınmak ve eşin/ortağın kaynaklarını yönetmek bu dönemin temasıdır.',
@@ -78,6 +79,7 @@ export function getTransitAspectInterpretation(tPlanet: string, nPlanet: string,
 
   return {
     title: `Transit ${tPlanet} ${aspect} Natal ${nPlanet}`,
-    content: `Gökyüzünde şu an hareket eden (Transit) ${tPlanet}, doğduğunuz andaki (Natal) ${nPlanet} ile ${interaction}\n\n${tPlanet}'in getirdiği güncel etkiler, ${nPlanet}'in temsil ettiği doğuştan gelen kadersel temaları güçlü bir şekilde tetikliyor. Bu açının kesinleştiği günlerde bu etkiyi yaşamınızda en yoğun haliyle hissedersiniz.`
+    content: `Gökyüzünde şu an hareket eden (Transit) ${tPlanet}, doğduğunuz andaki (Natal) ${nPlanet} ile ${interaction}\n\n${tPlanet}'in getirdiği güncel etkiler, ${nPlanet}'in temsil ettiği doğuştan gelen karakter özelliklerinizi ve kadersel temalarınızı güçlü bir şekilde tetikliyor. Bu açının kesinleştiği günlerde bu etkiyi yaşamınızda en yoğun haliyle hissedersiniz.`
   };
 }
+
