@@ -698,18 +698,20 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={styles.guidanceCard}>
         {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Ionicons name="sparkles" size={22} color="#0EA5E9" style={{ marginRight: 8 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
+          <Ionicons name="sparkles" size={24} color="#0EA5E9" style={{ marginRight: 10, marginTop: 2 }} />
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#0EA5E9', letterSpacing: 0.5 }}>
-                GÜNÜN KOZMİK HAVA DURUMU
-              </Text>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: '#D1D5DB' }}>
-                {currentSkyOverview.subHeadline}
-              </Text>
-            </View>
-            <Text style={[styles.guidanceTitle, { color: '#FFF', fontSize: 18, lineHeight: 24, marginTop: 2 }]}>
+            <Text style={{ fontSize: 12, fontWeight: '900', color: '#0EA5E9', letterSpacing: 0.8, marginBottom: 4 }}>
+              GÜNÜN KOZMİK HAVA DURUMU
+            </Text>
+            {currentSkyOverview.subHeadline ? (
+              <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(14, 165, 233, 0.12)', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(14, 165, 233, 0.3)', marginBottom: 6 }}>
+                <Text style={{ fontSize: 12.5, fontWeight: '700', color: '#38BDF8', lineHeight: 17 }}>
+                  {currentSkyOverview.subHeadline}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={[styles.guidanceTitle, { color: '#FFF', fontSize: 18, lineHeight: 25 }]}>
               {currentSkyOverview.headline}
             </Text>
           </View>
@@ -805,7 +807,7 @@ export default function AnlikGokyuzuScreen() {
                 style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
               >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24' }}>
+                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24', flex: 1, marginRight: 8 }}>
                     {asp.p1} {asp.aspectType} {asp.p2}
                   </Text>
                   <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#38BDF8' }}>
@@ -966,18 +968,22 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={styles.guidanceCard}>
         {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-          <Ionicons name="sparkles" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
+          <Ionicons name="sparkles" size={24} color={COLORS.primary} style={{ marginRight: 10, marginTop: 2 }} />
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Text style={{ fontSize: 11.5, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
-                BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
-              </Text>
-              <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.primary }}>
-                {personalOverview.subHeadline}
-              </Text>
-            </View>
-            <Text style={[styles.guidanceTitle, { fontSize: 18, lineHeight: 24, marginTop: 2 }]}>{personalOverview.headline}</Text>
+            <Text style={{ fontSize: 12, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.8, marginBottom: 4 }}>
+              BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
+            </Text>
+            {personalOverview.subHeadline ? (
+              <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(212, 175, 55, 0.12)', paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.35)', marginBottom: 6 }}>
+                <Text style={{ fontSize: 12.5, fontWeight: '700', color: COLORS.primary, lineHeight: 18 }}>
+                  {personalOverview.subHeadline}
+                </Text>
+              </View>
+            ) : null}
+            <Text style={[styles.guidanceTitle, { fontSize: 18, lineHeight: 25 }]}>
+              {personalOverview.headline}
+            </Text>
           </View>
         </View>
 
@@ -990,12 +996,18 @@ export default function AnlikGokyuzuScreen() {
               BUGÜNÜN ODAK YAŞAM ALANLARI
             </Text>
             {personalOverview.focusHouses.map((fh, idx) => (
-              <View key={`pfh-${idx}`} style={{ marginBottom: 8, paddingBottom: 8, borderBottomWidth: idx < personalOverview.focusHouses.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>{fh.title}</Text>
-                  <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: 'bold' }}>{fh.planetNames.join(', ')}</Text>
+              <View key={`pfh-${idx}`} style={{ marginBottom: 10, paddingBottom: 10, borderBottomWidth: idx < personalOverview.focusHouses.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF', flexShrink: 1, marginRight: 6 }}>
+                    {fh.title}
+                  </Text>
+                  <View style={{ backgroundColor: 'rgba(212, 175, 55, 0.15)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}>
+                    <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: 'bold' }}>
+                      {fh.planetNames.join(', ')}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={{ fontSize: 13, color: '#D1D5DB', marginTop: 3, lineHeight: 18 }}>{fh.description}</Text>
+                <Text style={{ fontSize: 13, color: '#D1D5DB', marginTop: 2, lineHeight: 19 }}>{fh.description}</Text>
               </View>
             ))}
           </View>
@@ -1087,7 +1099,7 @@ export default function AnlikGokyuzuScreen() {
                 style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
               >
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF' }}>
+                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF', flex: 1, marginRight: 8 }}>
                     T.{asp.transitPlanet} {asp.aspectType} N.{asp.natalPlanet}
                   </Text>
                   <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.secondary }}>
