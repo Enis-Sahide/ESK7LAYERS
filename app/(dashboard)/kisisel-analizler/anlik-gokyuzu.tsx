@@ -698,76 +698,76 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={styles.guidanceCard}>
         {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <Ionicons name="sparkles" size={18} color="#0EA5E9" style={{ marginRight: 8 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Ionicons name="sparkles" size={22} color="#0EA5E9" style={{ marginRight: 8 }} />
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 10, fontWeight: '900', color: '#0EA5E9', letterSpacing: 0.5 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#0EA5E9', letterSpacing: 0.5 }}>
                 GÜNÜN KOZMİK HAVA DURUMU
               </Text>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: '#9CA3AF' }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: '#D1D5DB' }}>
                 {currentSkyOverview.subHeadline}
               </Text>
             </View>
-            <Text style={[styles.guidanceTitle, { color: '#FFF', fontSize: 16, marginTop: 3 }]}>
+            <Text style={[styles.guidanceTitle, { color: '#FFF', fontSize: 18, lineHeight: 24, marginTop: 2 }]}>
               {currentSkyOverview.headline}
             </Text>
           </View>
         </View>
 
-        <Text style={[styles.guidanceText, { color: '#E0E0E0', fontSize: 13, lineHeight: 20 }]}>
+        <Text style={[styles.guidanceText, { color: '#E5E7EB', fontSize: 15, lineHeight: 23 }]}>
           {currentSkyOverview.vibeNarrative}
         </Text>
 
         {/* 3D Kozmik Frekans Barometresi */}
-        <View style={{ marginTop: 14, padding: 12, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-          <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 10, letterSpacing: 0.5 }}>
+        <View style={{ marginTop: 16, padding: 14, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 12, letterSpacing: 0.5 }}>
             KOZMİK FREKANS BAROMETRESİ
           </Text>
 
           {/* Zihinsel */}
-          <View style={{ marginBottom: 8 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>🧠 Zihinsel Odak: {currentSkyOverview.barometer.mental.label}</Text>
-              <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>{currentSkyOverview.barometer.mental.tone}</Text>
+          <View style={{ marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>🧠 Zihinsel Odak: {currentSkyOverview.barometer.mental.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#38BDF8', fontWeight: 'bold' }}>{currentSkyOverview.barometer.mental.tone}</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
             </View>
           </View>
 
           {/* Duygusal */}
-          <View style={{ marginBottom: 8 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>🌊 Duygusal Akış: {currentSkyOverview.barometer.emotional.label}</Text>
-              <Text style={{ fontSize: 10, color: '#A855F7', fontWeight: 'bold' }}>{currentSkyOverview.barometer.emotional.tone}</Text>
+          <View style={{ marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>🌊 Duygusal Akış: {currentSkyOverview.barometer.emotional.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#C084FC', fontWeight: 'bold' }}>{currentSkyOverview.barometer.emotional.tone}</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#A855F7', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#A855F7', borderRadius: 4 }} />
             </View>
           </View>
 
           {/* Eylem */}
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>⚡ Eylem & Atılım: {currentSkyOverview.barometer.action.label}</Text>
-              <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>{currentSkyOverview.barometer.action.tone}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>⚡ Eylem & Atılım: {currentSkyOverview.barometer.action.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#FCD34D', fontWeight: 'bold' }}>{currentSkyOverview.barometer.action.tone}</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#D4AF37', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${currentSkyOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#D4AF37', borderRadius: 4 }} />
             </View>
           </View>
         </View>
 
         {/* Fırsatlar & Dikkat Edilmesi Gerekenler */}
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 14 }}>
           {currentSkyOverview.opportunities.length > 0 && (
-            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.25)', marginBottom: 8 }}>
-              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#34D399', marginBottom: 4 }}>
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.3)', marginBottom: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 6 }}>
                 🌟 Bugünün Fırsatları:
               </Text>
               {currentSkyOverview.opportunities.map((item, idx) => (
-                <Text key={`sko-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                <Text key={`sko-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
                   • {item}
                 </Text>
               ))}
@@ -775,12 +775,12 @@ export default function AnlikGokyuzuScreen() {
           )}
 
           {currentSkyOverview.cautions.length > 0 && (
-            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', marginBottom: 8 }}>
-              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#F87171', marginBottom: 4 }}>
+            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', marginBottom: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 6 }}>
                 ⚠️ Neden Kaçınmalı?
               </Text>
               {currentSkyOverview.cautions.map((item, idx) => (
-                <Text key={`skc-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                <Text key={`skc-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
                   • {item}
                 </Text>
               ))}
@@ -790,8 +790,8 @@ export default function AnlikGokyuzuScreen() {
 
         {/* Pik Yapan Kilit Açılar */}
         {currentSkyOverview.topAspects.length > 0 && (
-          <View style={{ marginTop: 8 }}>
-            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 6, letterSpacing: 0.5 }}>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 8, letterSpacing: 0.5 }}>
               ⚡ ŞU AN GÖKYÜZÜNDE PİK YAPAN KİLİT AÇILAR
             </Text>
             {currentSkyOverview.topAspects.map((asp, idx) => (
@@ -802,17 +802,17 @@ export default function AnlikGokyuzuScreen() {
                   title: `${asp.p1} - ${asp.p2} (${asp.aspectType})`,
                   content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})`
                 })}
-                style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}
+                style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24' }}>
                     {asp.p1} {asp.aspectType} {asp.p2}
                   </Text>
-                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9' }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#38BDF8' }}>
                     {asp.badge}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 10, color: '#D1D5DB', lineHeight: 14 }}>
+                <Text style={{ fontSize: 13, color: '#E5E7EB', lineHeight: 18 }}>
                   {asp.summary}
                 </Text>
               </TouchableOpacity>
@@ -823,9 +823,9 @@ export default function AnlikGokyuzuScreen() {
         {/* 13 Gezegen Detayına Geçiş Butonu */}
         <TouchableOpacity
           onPress={() => setSkyViewMode('SYNTHESIS')}
-          style={{ marginTop: 12, backgroundColor: 'rgba(14, 165, 233, 0.15)', borderWidth: 1, borderColor: '#0EA5E9', borderRadius: 10, paddingVertical: 10, alignItems: 'center' }}
+          style={{ marginTop: 14, backgroundColor: 'rgba(14, 165, 233, 0.18)', borderWidth: 1.2, borderColor: '#0EA5E9', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
         >
-          <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#0EA5E9' }}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#38BDF8' }}>
             Tüm Gezegenlerin (13 Cismin) Detaylı Kartlarını Gör →
           </Text>
         </TouchableOpacity>
@@ -837,11 +837,11 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={{ marginTop: 10 }}>
         {/* Header bar */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 }}>
-          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>13 Gezegenin Bütünleşik Konumları</Text>
-          <TouchableOpacity onPress={() => setSkyViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="arrow-back" size={14} color="#D4AF37" style={{ marginRight: 4 }} />
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#D4AF37' }}>Sade Özete Dön</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, paddingHorizontal: 4 }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFF' }}>13 Gezegenin Bütünleşik Konumları</Text>
+          <TouchableOpacity onPress={() => setSkyViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center', padding: 4 }}>
+            <Ionicons name="arrow-back" size={16} color="#D4AF37" style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#D4AF37' }}>Sade Özete Dön</Text>
           </TouchableOpacity>
         </View>
 
@@ -849,53 +849,53 @@ export default function AnlikGokyuzuScreen() {
           <View
             key={`usp-${idx}`}
             style={{
-              backgroundColor: 'rgba(20,20,25,0.7)',
-              borderRadius: 16,
-              padding: 14,
+              backgroundColor: 'rgba(20,20,25,0.75)',
+              borderRadius: 18,
+              padding: 16,
               borderWidth: 1,
               borderColor: 'rgba(255,255,255,0.08)',
-              marginBottom: 12,
+              marginBottom: 14,
             }}
           >
             {/* Header */}
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 10, marginBottom: 10 }}>
-              <Text style={{ fontSize: 26, width: 34, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)', paddingBottom: 12, marginBottom: 12 }}>
+              <Text style={{ fontSize: 28, width: 38, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
                 {PLANET_SYMBOLS[sp.planetName] || '★'}
               </Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF', lineHeight: 18 }}>
+                <Text style={{ fontSize: 16.5, fontWeight: 'bold', color: '#FFF', lineHeight: 22 }}>
                   {sp.humanThemeTitle}
                 </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                  <View style={{ backgroundColor: 'rgba(212,175,55,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)' }}>
-                    <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  <View style={{ backgroundColor: 'rgba(212,175,55,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.35)' }}>
+                    <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: 'bold' }}>
                       {sp.planetName} ({ZODIAC_SYMBOLS[sp.sign] || ''} {sp.sign} {sp.degreeInSign}°)
                     </Text>
                   </View>
-                  <View style={{ backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
-                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>{sp.ingressPhase.badge}</Text>
+                  <View style={{ backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' }}>
+                    <Text style={{ fontSize: 12, color: '#D1D5DB' }}>{sp.ingressPhase.badge}</Text>
                   </View>
                   {sp.hdGateInfo && (
-                    <View style={{ backgroundColor: 'rgba(52,211,153,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(52,211,153,0.3)' }}>
-                      <Text style={{ fontSize: 10, color: '#34D399', fontWeight: '600' }}>
+                    <View style={{ backgroundColor: 'rgba(52,211,153,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(52,211,153,0.35)' }}>
+                      <Text style={{ fontSize: 12, color: '#34D399', fontWeight: '600' }}>
                         🧬 Kapı {sp.hdGateInfo.gate}: {sp.hdGateInfo.title}
                       </Text>
                     </View>
                   )}
                   {sp.minOrb !== undefined ? (
-                    <View style={{ backgroundColor: sp.minOrb <= 1.0 ? 'rgba(52,211,153,0.15)' : 'rgba(14,165,233,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: sp.minOrb <= 1.0 ? '#34D399' : '#0EA5E9' }}>
-                      <Text style={{ fontSize: 10, color: sp.minOrb <= 1.0 ? '#34D399' : '#0EA5E9', fontWeight: 'bold' }}>
+                    <View style={{ backgroundColor: sp.minOrb <= 1.0 ? 'rgba(52,211,153,0.18)' : 'rgba(14,165,233,0.18)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: sp.minOrb <= 1.0 ? '#34D399' : '#0EA5E9' }}>
+                      <Text style={{ fontSize: 12, color: sp.minOrb <= 1.0 ? '#34D399' : '#38BDF8', fontWeight: 'bold' }}>
                         ★ Orb: {sp.minOrb.toFixed(1)}° {sp.minOrb <= 1.0 ? '(Pik)' : ''}
                       </Text>
                     </View>
                   ) : (
-                    <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                      <Text style={{ fontSize: 10, color: '#6B7280' }}>Majör Açı Yok</Text>
+                    <View style={{ backgroundColor: 'rgba(255,255,255,0.05)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }}>
+                      <Text style={{ fontSize: 11.5, color: '#9CA3AF' }}>Majör Açı Yok</Text>
                     </View>
                   )}
                   {sp.isRetrograde && (
-                    <View style={{ backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#EF4444' }}>
-                      <Text style={{ fontSize: 10, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
+                    <View style={{ backgroundColor: 'rgba(239,68,68,0.18)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: '#EF4444' }}>
+                      <Text style={{ fontSize: 12, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
                     </View>
                   )}
                 </View>
@@ -903,26 +903,26 @@ export default function AnlikGokyuzuScreen() {
             </View>
 
             {/* Narrative Box */}
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
-              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 4, letterSpacing: 0.5 }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#38BDF8', marginBottom: 6, letterSpacing: 0.5 }}>
                 7LAYERS YAŞAM ALANI ÖZETİ
               </Text>
-              <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 18 }}>
+              <Text style={{ fontSize: 14, color: '#E5E7EB', lineHeight: 21 }}>
                 {sp.humanNarrative}
               </Text>
               {sp.hdGateInfo && (
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
-                  <Text style={{ fontSize: 10, color: '#F87171' }}>▲ Gölge: {sp.hdGateInfo.shadow}</Text>
-                  <Text style={{ fontSize: 10, color: '#6B7280' }}>➔</Text>
-                  <Text style={{ fontSize: 10, color: '#34D399' }}>✨ Hediye: {sp.hdGateInfo.gift}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+                  <Text style={{ fontSize: 12.5, color: '#F87171' }}>▲ Gölge: {sp.hdGateInfo.shadow}</Text>
+                  <Text style={{ fontSize: 12.5, color: '#9CA3AF' }}>➔</Text>
+                  <Text style={{ fontSize: 12.5, color: '#34D399', fontWeight: '600' }}>✨ Hediye: {sp.hdGateInfo.gift}</Text>
                 </View>
               )}
             </View>
 
             {/* Active Aspects */}
             {sp.aspects.length > 0 && (
-              <View style={{ marginTop: 4 }}>
-                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 4 }}>
+              <View style={{ marginTop: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 6 }}>
                   EŞZAMANLI AÇILAR:
                 </Text>
                 {sp.aspects.map((asp, aIdx) => (
@@ -933,12 +933,12 @@ export default function AnlikGokyuzuScreen() {
                       title: `${sp.planetName} - ${asp.targetPlanet} (${asp.aspectType})`,
                       content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.orbStrength || 'Aktif'})`
                     })}
-                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: 7, borderRadius: 6, marginBottom: 4 }}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.35)', padding: 9, borderRadius: 8, marginBottom: 5 }}
                   >
-                    <Text style={{ fontSize: 11, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
+                    <Text style={{ fontSize: 13, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
                       {asp.aspectType} {asp.targetPlanet}
                     </Text>
-                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                    <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
                       Orb: {asp.orb.toFixed(1)}°
                     </Text>
                   </TouchableOpacity>
@@ -948,8 +948,8 @@ export default function AnlikGokyuzuScreen() {
 
             {/* Daily Advice */}
             {sp.dailyAdvice && (
-              <View style={{ marginTop: 6, padding: 8, backgroundColor: 'rgba(212,175,55,0.06)', borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.2)' }}>
-                <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 15 }}>
+              <View style={{ marginTop: 8, padding: 10, backgroundColor: 'rgba(212,175,55,0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
+                <Text style={{ fontSize: 13, color: '#FDE68A', lineHeight: 19 }}>
                   <Text style={{ fontWeight: 'bold', color: '#D4AF37' }}>Tavsiye: </Text>
                   {sp.dailyAdvice}
                 </Text>
@@ -966,90 +966,90 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={styles.guidanceCard}>
         {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <Ionicons name="sparkles" size={18} color={COLORS.primary} style={{ marginRight: 8 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Ionicons name="sparkles" size={22} color={COLORS.primary} style={{ marginRight: 8 }} />
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 10, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <Text style={{ fontSize: 11.5, fontWeight: '900', color: COLORS.secondary, letterSpacing: 0.5 }}>
                 BÜTÜNLEŞİK KİŞİSEL TRANSİT ANALİZİ
               </Text>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: COLORS.primary }}>
+              <Text style={{ fontSize: 13, fontWeight: '700', color: COLORS.primary }}>
                 {personalOverview.subHeadline}
               </Text>
             </View>
-            <Text style={[styles.guidanceTitle, { marginTop: 3 }]}>{personalOverview.headline}</Text>
+            <Text style={[styles.guidanceTitle, { fontSize: 18, lineHeight: 24, marginTop: 2 }]}>{personalOverview.headline}</Text>
           </View>
         </View>
 
-        <Text style={styles.guidanceText}>{personalOverview.themeDescription}</Text>
+        <Text style={[styles.guidanceText, { color: '#E5E7EB', fontSize: 15, lineHeight: 23 }]}>{personalOverview.themeDescription}</Text>
 
         {/* Bugünün Odak Yaşam Alanları */}
         {personalOverview.focusHouses.length > 0 && (
-          <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#38BDF8', marginBottom: 8, letterSpacing: 0.5 }}>
+          <View style={{ marginTop: 14, padding: 14, backgroundColor: 'rgba(0,0,0,0.35)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#38BDF8', marginBottom: 10, letterSpacing: 0.5 }}>
               BUGÜNÜN ODAK YAŞAM ALANLARI
             </Text>
             {personalOverview.focusHouses.map((fh, idx) => (
-              <View key={`pfh-${idx}`} style={{ marginBottom: 6, paddingBottom: 6, borderBottomWidth: idx < personalOverview.focusHouses.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.05)' }}>
+              <View key={`pfh-${idx}`} style={{ marginBottom: 8, paddingBottom: 8, borderBottomWidth: idx < personalOverview.focusHouses.length - 1 ? 1 : 0, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF' }}>{fh.title}</Text>
-                  <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>{fh.planetNames.join(', ')}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>{fh.title}</Text>
+                  <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: 'bold' }}>{fh.planetNames.join(', ')}</Text>
                 </View>
-                <Text style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{fh.description}</Text>
+                <Text style={{ fontSize: 13, color: '#D1D5DB', marginTop: 3, lineHeight: 18 }}>{fh.description}</Text>
               </View>
             ))}
           </View>
         )}
 
         {/* 3 Boyutlu Kişisel Enerji Barometresi */}
-        <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-          <Text style={{ fontSize: 11, fontWeight: 'bold', color: COLORS.primary, marginBottom: 10, letterSpacing: 0.5 }}>
+        <View style={{ marginTop: 16, padding: 14, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+          <Text style={{ fontSize: 13, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12, letterSpacing: 0.5 }}>
             KİŞİSEL ENERJİ & AKIŞ BAROMETRESİ
           </Text>
 
           {/* Zihinsel */}
-          <View style={{ marginBottom: 8 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Zihinsel Netlik: {personalOverview.barometer.mental.label}</Text>
-              <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>{personalOverview.barometer.mental.tone} (%{personalOverview.barometer.mental.score})</Text>
+          <View style={{ marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Zihinsel Netlik: {personalOverview.barometer.mental.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#38BDF8', fontWeight: 'bold' }}>{personalOverview.barometer.mental.tone} (%{personalOverview.barometer.mental.score})</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
             </View>
           </View>
 
           {/* Duygusal */}
-          <View style={{ marginBottom: 8 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Duygusal Denge: {personalOverview.barometer.emotional.label}</Text>
-              <Text style={{ fontSize: 10, color: '#34D399', fontWeight: 'bold' }}>{personalOverview.barometer.emotional.tone} (%{personalOverview.barometer.emotional.score})</Text>
+          <View style={{ marginBottom: 10 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Duygusal Denge: {personalOverview.barometer.emotional.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#34D399', fontWeight: 'bold' }}>{personalOverview.barometer.emotional.tone} (%{personalOverview.barometer.emotional.score})</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 4 }} />
             </View>
           </View>
 
           {/* Eylem */}
           <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3 }}>
-              <Text style={{ fontSize: 11, color: '#D1D5DB' }}>Eylem & İlerleme: {personalOverview.barometer.action.label}</Text>
-              <Text style={{ fontSize: 10, color: '#FBBF24', fontWeight: 'bold' }}>{personalOverview.barometer.action.tone} (%{personalOverview.barometer.action.score})</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Eylem & İlerleme: {personalOverview.barometer.action.label}</Text>
+              <Text style={{ fontSize: 12.5, color: '#FCD34D', fontWeight: 'bold' }}>{personalOverview.barometer.action.tone} (%{personalOverview.barometer.action.score})</Text>
             </View>
-            <View style={{ height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 3 }} />
+            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
+              <View style={{ width: `${personalOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 4 }} />
             </View>
           </View>
         </View>
 
         {/* Fırsatlar & Sınavlar */}
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 14 }}>
           {personalOverview.opportunities.length > 0 && (
-            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.25)', marginBottom: 8 }}>
-              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#34D399', marginBottom: 4 }}>
+            <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.3)', marginBottom: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 6 }}>
                 🌟 Bugün Sizin İçin Fırsatlar & Destekler:
               </Text>
               {personalOverview.opportunities.map((opp, idx) => (
-                <Text key={`popp-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                <Text key={`popp-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
                   • {opp}
                 </Text>
               ))}
@@ -1057,12 +1057,12 @@ export default function AnlikGokyuzuScreen() {
           )}
 
           {personalOverview.cautions.length > 0 && (
-            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.25)', marginBottom: 8 }}>
-              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#F87171', marginBottom: 4 }}>
+            <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', marginBottom: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 6 }}>
                 ⚠️ Dikkat Edilmesi Gereken Sınavlar:
               </Text>
               {personalOverview.cautions.map((cau, idx) => (
-                <Text key={`pcau-${idx}`} style={{ fontSize: 11, color: '#E5E7EB', lineHeight: 16 }}>
+                <Text key={`pcau-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
                   • {cau}
                 </Text>
               ))}
@@ -1072,8 +1072,8 @@ export default function AnlikGokyuzuScreen() {
 
         {/* En Etkin Kişisel Tetikleyiciler (Pik Transitler) */}
         {personalOverview.topAspects.length > 0 && (
-          <View style={{ marginTop: 8 }}>
-            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 6, letterSpacing: 0.5 }}>
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 8, letterSpacing: 0.5 }}>
               ⚡ EN ETKİN KİŞİSEL TETİKLEYİCİLER (PİK TRANSİTLER)
             </Text>
             {personalOverview.topAspects.map((asp, idx) => (
@@ -1084,20 +1084,20 @@ export default function AnlikGokyuzuScreen() {
                   title: `T.${asp.transitPlanet} ${asp.aspectType} N.${asp.natalPlanet}`,
                   content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})\nT: ${asp.transitSign} ${asp.transitDegree}° ➔ N: ${asp.natalSign} ${asp.natalDegree}° (${asp.natalHouse}. Evinizde)`
                 })}
-                style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', marginBottom: 6 }}
+                style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF' }}>
                     T.{asp.transitPlanet} {asp.aspectType} N.{asp.natalPlanet}
                   </Text>
-                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: COLORS.secondary }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.secondary }}>
                     {asp.badge}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 3 }}>
+                <Text style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>
                   T: {asp.transitSign} {asp.transitDegree}° ➔ N: {asp.natalSign} {asp.natalDegree}° ({asp.natalHouse}. Evinizde)
                 </Text>
-                <Text style={{ fontSize: 11, color: '#D1D5DB', lineHeight: 15 }}>
+                <Text style={{ fontSize: 13, color: '#E5E7EB', lineHeight: 18 }}>
                   {asp.summary}
                 </Text>
               </TouchableOpacity>
@@ -1106,16 +1106,16 @@ export default function AnlikGokyuzuScreen() {
         )}
 
         {/* Günün Yaşam Reçetesi & Gezegen Kartları Butonu */}
-        <View style={{ marginTop: 10, padding: 10, backgroundColor: 'rgba(212, 175, 55, 0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.25)' }}>
-          <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 16 }}>
+        <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}>
+          <Text style={{ fontSize: 13.5, color: '#FDE68A', lineHeight: 20 }}>
             <Text style={{ fontWeight: 'bold', color: COLORS.primary }}>Günün Yaşam Reçetesi: </Text>
             {personalOverview.lifeAdvice}
           </Text>
           <TouchableOpacity
             onPress={() => setPersonalViewMode('PLANETS')}
-            style={{ marginTop: 8, alignSelf: 'flex-end' }}
+            style={{ marginTop: 10, alignSelf: 'flex-end', padding: 4 }}
           >
-            <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#0EA5E9' }}>
+            <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#38BDF8' }}>
               10 Gezegen Kartını Gör →
             </Text>
           </TouchableOpacity>
@@ -1128,11 +1128,11 @@ export default function AnlikGokyuzuScreen() {
     return (
       <View style={{ marginTop: 10 }}>
         {/* Header Bar */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingHorizontal: 4 }}>
-          <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF' }}>10 Kişisel Gezegen Kartı</Text>
-          <TouchableOpacity onPress={() => setPersonalViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Ionicons name="arrow-back" size={14} color={COLORS.primary} style={{ marginRight: 4 }} />
-            <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.primary }}>Sade Özete Dön</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, paddingHorizontal: 4 }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#FFF' }}>10 Kişisel Gezegen Kartı</Text>
+          <TouchableOpacity onPress={() => setPersonalViewMode('OVERVIEW')} style={{ flexDirection: 'row', alignItems: 'center', padding: 4 }}>
+            <Ionicons name="arrow-back" size={16} color={COLORS.primary} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: COLORS.primary }}>Sade Özete Dön</Text>
           </TouchableOpacity>
         </View>
 
@@ -1140,44 +1140,44 @@ export default function AnlikGokyuzuScreen() {
           <View
             key={`upt-${idx}`}
             style={{
-              backgroundColor: 'rgba(20,20,25,0.7)',
-              borderRadius: 16,
-              padding: 14,
+              backgroundColor: 'rgba(20,20,25,0.75)',
+              borderRadius: 18,
+              padding: 16,
               borderWidth: 1,
               borderColor: 'rgba(255,255,255,0.08)',
-              marginBottom: 12,
+              marginBottom: 14,
             }}
           >
             {/* Header */}
-            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 10, marginBottom: 10 }}>
-              <Text style={{ fontSize: 26, width: 34, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)', paddingBottom: 12, marginBottom: 12 }}>
+              <Text style={{ fontSize: 28, width: 38, textAlign: 'center', color: '#0EA5E9', fontWeight: 'bold', marginRight: 10 }}>
                 {PLANET_SYMBOLS[ut.planetName] || '★'}
               </Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#FFF', lineHeight: 18 }}>
+                <Text style={{ fontSize: 16.5, fontWeight: 'bold', color: '#FFF', lineHeight: 22 }}>
                   {ut.humanThemeTitle}
                 </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                  <View style={{ backgroundColor: 'rgba(212,175,55,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(212,175,55,0.3)' }}>
-                    <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: 'bold' }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  <View style={{ backgroundColor: 'rgba(212,175,55,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.35)' }}>
+                    <Text style={{ fontSize: 12, color: '#D4AF37', fontWeight: 'bold' }}>
                       {ut.planetName} ({ZODIAC_SYMBOLS[ut.sign] || ''} {ut.sign} {ut.degreeInSign}°)
                     </Text>
                   </View>
-                  <View style={{ backgroundColor: 'rgba(14,165,233,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(14,165,233,0.3)' }}>
-                    <Text style={{ fontSize: 10, color: '#38BDF8', fontWeight: 'bold' }}>
+                  <View style={{ backgroundColor: 'rgba(14,165,233,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(14,165,233,0.35)' }}>
+                    <Text style={{ fontSize: 12, color: '#38BDF8', fontWeight: 'bold' }}>
                       🏠 {ut.houseTitle.split(':')[1]?.trim() || ut.houseTitle}
                     </Text>
                   </View>
                   {ut.hdGateInfo && (
-                    <View style={{ backgroundColor: 'rgba(52,211,153,0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: 'rgba(52,211,153,0.3)' }}>
-                      <Text style={{ fontSize: 10, color: '#34D399', fontWeight: '600' }}>
+                    <View style={{ backgroundColor: 'rgba(52,211,153,0.12)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: 'rgba(52,211,153,0.35)' }}>
+                      <Text style={{ fontSize: 12, color: '#34D399', fontWeight: '600' }}>
                         🧬 Kapı {ut.hdGateInfo.gate}: {ut.hdGateInfo.title}
                       </Text>
                     </View>
                   )}
                   {ut.isRetrograde && (
-                    <View style={{ backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#EF4444' }}>
-                      <Text style={{ fontSize: 10, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
+                    <View style={{ backgroundColor: 'rgba(239,68,68,0.18)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: '#EF4444' }}>
+                      <Text style={{ fontSize: 12, color: '#F87171', fontWeight: 'bold' }}>Rx Retro</Text>
                     </View>
                   )}
                 </View>
@@ -1185,26 +1185,26 @@ export default function AnlikGokyuzuScreen() {
             </View>
 
             {/* Narrative Box */}
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 10, marginBottom: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}>
-              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 4, letterSpacing: 0.5 }}>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+              <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#38BDF8', marginBottom: 6, letterSpacing: 0.5 }}>
                 7LAYERS YAŞAM ALANI ÖZETİ
               </Text>
-              <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 18 }}>
+              <Text style={{ fontSize: 14, color: '#E5E7EB', lineHeight: 21 }}>
                 {ut.humanNarrative}
               </Text>
               {ut.hdGateInfo && (
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6, paddingTop: 6, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
-                  <Text style={{ fontSize: 10, color: '#F87171' }}>▲ Gölge: {ut.hdGateInfo.shadow}</Text>
-                  <Text style={{ fontSize: 10, color: '#6B7280' }}>➔</Text>
-                  <Text style={{ fontSize: 10, color: '#34D399' }}>✨ Hediye: {ut.hdGateInfo.gift}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+                  <Text style={{ fontSize: 12.5, color: '#F87171' }}>▲ Gölge: {ut.hdGateInfo.shadow}</Text>
+                  <Text style={{ fontSize: 12.5, color: '#9CA3AF' }}>➔</Text>
+                  <Text style={{ fontSize: 12.5, color: '#34D399', fontWeight: '600' }}>✨ Hediye: {ut.hdGateInfo.gift}</Text>
                 </View>
               )}
             </View>
 
             {/* Active Natal Aspects */}
             {ut.aspects.length > 0 ? (
-              <View style={{ marginTop: 4 }}>
-                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#9CA3AF', marginBottom: 4 }}>
+              <View style={{ marginTop: 6 }}>
+                <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 6 }}>
                   EŞZAMANLI NATAL AÇILAR:
                 </Text>
                 {ut.aspects.map((asp, aIdx) => (
@@ -1215,20 +1215,20 @@ export default function AnlikGokyuzuScreen() {
                       title: `T.${ut.planetName} - N.${asp.natalPlanet} (${asp.aspectType})`,
                       content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}°${asp.natalHouse ? ` (${asp.natalHouse}. Ev)` : ''}`
                     })}
-                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: 7, borderRadius: 6, marginBottom: 4 }}
+                    style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.35)', padding: 9, borderRadius: 8, marginBottom: 5 }}
                   >
-                    <Text style={{ fontSize: 11, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
+                    <Text style={{ fontSize: 13, color: asp.isHarmonious ? '#34D399' : '#FBBF24', fontWeight: 'bold' }}>
                       {asp.aspectType} Natal {asp.natalPlanet} {asp.natalHouse ? `[${asp.natalHouse}. Ev]` : ''}
                     </Text>
-                    <Text style={{ fontSize: 10, color: '#9CA3AF' }}>
+                    <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
                       Orb: {asp.orb.toFixed(1)}°
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
             ) : (
-              <View style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: 6, borderRadius: 6 }}>
-                <Text style={{ fontSize: 10, color: '#6B7280', fontStyle: 'italic' }}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: 8, borderRadius: 8 }}>
+                <Text style={{ fontSize: 12, color: '#9CA3AF', fontStyle: 'italic' }}>
                   Şu anda doğrudan majör bir natal gezegene açı yapmıyor; {ut.house}. evinizin genel atmosferini dönüştürüyor.
                 </Text>
               </View>
@@ -1236,8 +1236,8 @@ export default function AnlikGokyuzuScreen() {
 
             {/* Action Advice */}
             {ut.actionAdvice && (
-              <View style={{ marginTop: 6, padding: 8, backgroundColor: 'rgba(212,175,55,0.06)', borderRadius: 8, borderWidth: 1, borderColor: 'rgba(212,175,55,0.2)' }}>
-                <Text style={{ fontSize: 11, color: '#FDE68A', lineHeight: 15 }}>
+              <View style={{ marginTop: 8, padding: 10, backgroundColor: 'rgba(212,175,55,0.08)', borderRadius: 10, borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
+                <Text style={{ fontSize: 13, color: '#FDE68A', lineHeight: 19 }}>
                   <Text style={{ fontWeight: 'bold', color: '#D4AF37' }}>Eylem Tavsiyesi: </Text>
                   {ut.actionAdvice}
                 </Text>
@@ -2049,7 +2049,7 @@ export default function AnlikGokyuzuScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { padding: 15, paddingTop: 60 },
+  scrollContent: { padding: 15, paddingTop: Platform.OS === 'android' ? 72 : 60 },
   header: { marginBottom: 20, alignItems: 'center' },
   title: { fontSize: 26, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4 },
   subtitle: { fontSize: 13, color: COLORS.textMuted, fontStyle: 'italic' },
@@ -2100,15 +2100,15 @@ const styles = StyleSheet.create({
   tabSelector: { flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 14, padding: 3, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', marginBottom: 16 },
   tabBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 11 },
   tabBtnActive: { backgroundColor: COLORS.primary },
-  tabBtnText: { fontSize: 12, fontWeight: 'bold', color: '#9CA3AF' },
+  tabBtnText: { fontSize: 13, fontWeight: 'bold', color: '#9CA3AF' },
   tabBtnTextActive: { color: '#000' },
 
   lockModalIcon: { width: 56, height: 56, borderRadius: 18, backgroundColor: 'rgba(212,175,55,0.15)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.4)', alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   lockModalTitle: { fontSize: 17, fontWeight: 'bold', color: '#FFF', marginBottom: 6, textAlign: 'center' },
-  lockModalDesc: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', lineHeight: 18, marginBottom: 16, paddingHorizontal: 10 },
+  lockModalDesc: { fontSize: 13, color: '#9CA3AF', textAlign: 'center', lineHeight: 19, marginBottom: 16, paddingHorizontal: 10 },
   modalUpgradeBtn: { width: '100%', borderRadius: 12, overflow: 'hidden' },
   modalUpgradeBtnGrad: { paddingVertical: 12, alignItems: 'center', justifyContent: 'center' },
-  modalUpgradeBtnText: { fontSize: 13, fontWeight: 'bold', color: '#000' },
+  modalUpgradeBtnText: { fontSize: 14, fontWeight: 'bold', color: '#000' },
 
   modeSwitchContainer: {
     flexDirection: 'row',
@@ -2131,7 +2131,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37'
   },
   modeSwitchText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#9CA3AF'
   },
@@ -2147,7 +2147,7 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
@@ -2158,7 +2158,7 @@ const styles = StyleSheet.create({
     borderColor: '#0EA5E9',
   },
   filterChipText: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: '#9CA3AF',
     fontWeight: '600',
   },
@@ -2183,7 +2183,7 @@ const styles = StyleSheet.create({
   },
   skyDateText: {
     color: '#FFF',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     marginLeft: 6,
   },
@@ -2192,14 +2192,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(14, 165, 233, 0.2)',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#0EA5E9',
   },
   refreshSkyBtnText: {
     color: '#0EA5E9',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 'bold',
     marginLeft: 4,
   },
@@ -2223,12 +2223,12 @@ const styles = StyleSheet.create({
   },
   frekansMiniTitle: {
     color: '#0EA5E9',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
   },
   frekansMiniSub: {
     color: '#9CA3AF',
-    fontSize: 11,
+    fontSize: 12,
     marginTop: 1,
   },
   subViewSwitcher: {
@@ -2245,7 +2245,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 9,
     borderRadius: 9,
   },
   subViewBtnActiveCyan: {
@@ -2255,7 +2255,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
   },
   subViewBtnText: {
-    fontSize: 11,
+    fontSize: 12.5,
     fontWeight: '600',
     color: '#9CA3AF',
   },
