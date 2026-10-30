@@ -8,8 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '@/src/theme';
 import { apiFetch } from '@/src/core/api/client';
 import { API_BASE_URL } from '@/src/core/config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useProgress } from '@/src/context/ProgressContext';
 import Slider from '@react-native-community/slider';
 
 interface KpHistoryItem {
@@ -51,8 +49,6 @@ interface KpData {
 
 export default function SchumannScreen() {
   const router = useRouter();
-  const { role, isAdmin } = useProgress();
-  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
   const [data, setData] = useState<KpData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

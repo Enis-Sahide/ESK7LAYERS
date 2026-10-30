@@ -11,7 +11,7 @@ import tzlookup from 'tz-lookup';
 import { ASTRO_CITIES, AstroCity, ZodiacSign, NatalChartData } from '@/src/features/astrology/api/astrologyClient';
 // Interpretations are fetched from the backend API.
 import { apiFetch } from '@/src/core/api/client';
-import { useProgress } from '@/src/context/ProgressContext';
+import { useAnalysisAccess, showAnalysisLockedAlert } from '@/src/hooks/useAnalysisAccess';
 import { COLORS, SIZES } from '@/src/theme';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -61,17 +61,13 @@ const ASPECT_COLORS: Record<string, string> = {
 
 export default function KabbalahAnalysisScreen() {
   const router = useRouter();
-  const { role, isAdmin } = useProgress();
-  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
+  const { isUnlocked } = useAnalysisAccess('kabbalah');
 
   const handleInterpClick = (interp: any) => {
-    if (isApprenticeOrAbove) {
+    if (isUnlocked) {
       setSelectedInterp(interp || null);
     } else {
-      Alert.alert(
-        "Detaylı Analiz Kilitli",
-        "Kabalistik gezegen yerleşimlerinin derin ezoterik analizleri Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir."
-      );
+      showAnalysisLockedAlert("Kabalistik Analiz Kilitli");
     }
   };
 

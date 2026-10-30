@@ -4,7 +4,6 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'rea
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
-import { useProgress } from '@/src/context/ProgressContext';
 
 interface AnalysisTool {
   id: string;
@@ -14,7 +13,6 @@ interface AnalysisTool {
   route: string;
   color: string;
   isAvailable: boolean;
-  minRole?: 'master' | 'apprentice';
 }
 
 const ANALYSIS_TOOLS: AnalysisTool[] = [
@@ -103,18 +101,9 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
 
 export default function AnalysisHubScreen() {
   const router = useRouter();
-  const { role, isAdmin } = useProgress();
-  const isMasterOrAdmin = role === 'master' || role === 'admin' || isAdmin;
 
   const handlePress = (tool: AnalysisTool) => {
     if (!tool.isAvailable) return;
-    if (tool.minRole === 'master' && !isMasterOrAdmin) {
-      Alert.alert(
-        "Usta Seviyesi Gerekli",
-        "Bu derin ezoterik analiz Usta Seviyesi (Master) üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır."
-      );
-      return;
-    }
     router.push(tool.route as any);
   };
 
@@ -148,16 +137,11 @@ export default function AnalysisHubScreen() {
             <View style={styles.cardContent}>
               <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6}}>
                 <Text style={[styles.cardTitle, { color: tool.color, flexShrink: 1 }]}>{tool.title}</Text>
-                {!tool.isAvailable ? (
+                {!tool.isAvailable && (
                   <View style={styles.soonBadge}>
                     <Text style={styles.soonText}>Yakında</Text>
                   </View>
-                ) : tool.minRole === 'master' && !isMasterOrAdmin ? (
-                  <View style={styles.masterBadge}>
-                    <Ionicons name="lock-closed" size={10} color={COLORS.primary} style={{ marginRight: 3 }} />
-                    <Text style={styles.masterBadgeText}>Usta Seviyesi Gerekli</Text>
-                  </View>
-                ) : null}
+                )}
               </View>
               <Text style={styles.cardDesc}>{tool.description}</Text>
             </View>
@@ -230,21 +214,6 @@ const styles = StyleSheet.create({
   soonText: {
     fontSize: 10,
     color: COLORS.textMuted,
-    fontWeight: 'bold',
-  },
-  masterBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(212, 175, 55, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.4)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  masterBadgeText: {
-    fontSize: 10,
-    color: COLORS.primary,
     fontWeight: 'bold',
   }
 });

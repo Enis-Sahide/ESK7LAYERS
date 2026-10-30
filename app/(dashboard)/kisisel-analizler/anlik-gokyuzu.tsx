@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, Keyboard, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, Keyboard, ActivityIndicator, Linking } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,7 +11,6 @@ import tzlookup from 'tz-lookup';
 import { getTransitHouseInterpretation, getTransitAspectInterpretation } from '@/src/features/astrology/engine/TransitInterpretations';
 
 import { API_BASE_URL, apiFetch } from '@/src/core/config';
-import { useProgress } from '@/src/context/ProgressContext';
 import MobileTransitTimelineChart from '@/src/features/astrology/components/MobileTransitTimelineChart';
 import MobileMundaneSkyWheel from '@/src/features/astrology/components/MobileMundaneSkyWheel';
 import { getSkyPlanetSignInterpretation, getSkyAspectInterpretation } from '@/src/features/astrology/engine/SkyAspectInterpretations';
@@ -132,9 +131,7 @@ export default function AnlikGokyuzuScreen() {
   const [isHousesExpanded, setIsHousesExpanded] = useState(false);
   const [isAspectsExpanded, setIsAspectsExpanded] = useState(false);
 
-  // User role & Premium check
-  const { role } = useProgress();
-  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin';
+
 
   // Timeline (Gantt) states
   const [activeTab, setActiveTab] = useState<'BIWHEEL' | 'TIMELINE'>('BIWHEEL');
@@ -1567,14 +1564,14 @@ export default function AnlikGokyuzuScreen() {
               <View style={styles.lockModalIcon}>
                 <Ionicons name="lock-closed" size={28} color="#D4AF37" />
               </View>
-              <Text style={styles.lockModalTitle}>Çıraklık Seviyesine Özel</Text>
+              <Text style={styles.lockModalTitle}>Detaylı Analiz Kilitli</Text>
               <Text style={styles.lockModalDesc}>
-                Uzun vadeli kozmik zaman çizelgeleri (3 Ay, 6 Ay, 1 Yıl) ve 7Layers derin çakra reçeteleri Çıraklık (Apprentice) ve üzeri seviyelere özeldir.
+                Uzun vadeli kozmik zaman çizelgeleri ve derin çakra analizleri detaylı analiz raporuna özeldir. Detaylı analiz için web sitemiz üzerinden analiz yapabilirsiniz.
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   setShowLockModal(false);
-                  router.push('/(dashboard)/seviyeler');
+                  Linking.openURL('https://7layers.tr').catch(err => console.error('Web sitesi açılamadı:', err));
                 }}
                 style={styles.modalUpgradeBtn}
               >
@@ -1584,7 +1581,7 @@ export default function AnlikGokyuzuScreen() {
                   end={{ x: 1, y: 0 }}
                   style={styles.modalUpgradeBtnGrad}
                 >
-                  <Text style={styles.modalUpgradeBtnText}>Seviyeleri İncele & Yükselt</Text>
+                  <Text style={styles.modalUpgradeBtnText}>Web Sitesine Git</Text>
                 </LinearGradient>
               </TouchableOpacity>
 

@@ -10,7 +10,7 @@ import * as moment from 'moment-timezone';
 import tzlookup from 'tz-lookup';
 import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign, AstroCity } from '@/src/features/astrology/api/astrologyClient';
 import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '@/src/features/astrology/engine/AstrologyInterpretations';
-import { useProgress } from '@/src/context/ProgressContext';
+import { useAnalysisAccess, showAnalysisLockedAlert } from '@/src/hooks/useAnalysisAccess';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -80,17 +80,13 @@ export default function AstrolojiAnalysisScreen() {
     country?: string;
     autoCalculate?: string;
   }>();
-  const { role, isAdmin } = useProgress();
-  const isApprenticeOrAbove = role === 'apprentice' || role === 'journeyman' || role === 'master' || role === 'admin' || isAdmin;
+  const { isUnlocked } = useAnalysisAccess('astrology');
 
   const handleInterpClick = (interp: any) => {
-    if (isApprenticeOrAbove) {
+    if (isUnlocked) {
       setSelectedInterp(interp || null);
     } else {
-      Alert.alert(
-        "Detaylı Analiz Kilitli",
-        "Doğum haritasındaki gezegen yerleşimleri ve ev yorumlarının detayları Çıraklık Seviyesi (Apprentice) ve üzeri üyelere özeldir. Bu derin analiz seviye sistemine özeldir, yakında açılacaktır."
-      );
+      showAnalysisLockedAlert("Doğum Haritası Detay Analizi Kilitli");
     }
   };
   const [dateStr, setDateStr] = useState('');
