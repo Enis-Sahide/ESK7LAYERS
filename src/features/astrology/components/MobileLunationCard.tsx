@@ -180,15 +180,6 @@ export default function MobileLunationCard({
                 <Text style={styles.dateText}>
                   <Ionicons name="calendar-outline" size={11} color="rgba(255,255,255,0.5)" /> {formattedDate}
                 </Text>
-                {liveLunarPhase && (
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', marginTop: 6, backgroundColor: 'rgba(14,165,233,0.12)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.3)', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, alignSelf: 'flex-start' }}>
-                    <Text style={{ fontSize: 11, fontWeight: 'bold', color: '#7DD3FC' }}>
-                      {liveLunarPhase.phaseIcon} Bugün: {liveLunarPhase.phaseName} (%{liveLunarPhase.illumination} Işık)
-                      {liveLunarPhase.moonSign ? ` • Ay ${liveLunarPhase.moonSign} ${liveLunarPhase.moonDegree ?? 0}°` : ''}
-                      {liveLunarPhase.moonHouse ? ` (${liveLunarPhase.moonHouse}. Evinizde)` : ''}
-                    </Text>
-                  </View>
-                )}
               </View>
 
               <Ionicons
@@ -265,17 +256,13 @@ export default function MobileLunationCard({
               {personal && (
                 <View style={styles.personalPortalBox}>
                   <View style={styles.portalHeaderRow}>
-                    <View style={{ flex: 1, paddingRight: 8 }}>
+                    <View style={{ flex: 1 }}>
                       <Text style={styles.portalOverline}>
-                        {isSolar ? '☀️' : isLunar ? '🌑' : isFullMoon ? '🌕' : '🌑'} {event.sign.toLocaleUpperCase('tr-TR')} {event.phaseName.toLocaleUpperCase('tr-TR')} ({event.signSymbol} {event.degree}) • {durationInfo.totalDuration.toLocaleUpperCase('tr-TR')}LÜK HARİTA ETKİSİ
+                        {isSolar ? '☀️' : isLunar ? '🌑' : isFullMoon ? '🌕' : '🌑'} {event.sign.toLocaleUpperCase('tr-TR')} {event.phaseName.toLocaleUpperCase('tr-TR')} • {personal.houseNumber}. EVİNİZDE
                       </Text>
-                      <Text style={styles.portalNameText}>{personal.portalName || personal.title}</Text>
-                      <Text style={{ fontSize: 11, color: 'rgba(253, 230, 138, 0.85)', marginTop: 3, fontWeight: '500' }}>
-                        Aktif {event.sign} {event.phaseName} süreci ({durationInfo.totalDuration} boyunca) doğum haritanızın {personal.houseNumber}. evini aydınlatıyor:
+                      <Text style={styles.portalNameText}>
+                        {(personal.portalName || personal.title).replace(/^\d+\.\s*Ev:\s*/i, '')}
                       </Text>
-                    </View>
-                    <View style={styles.houseBadge}>
-                      <Text style={styles.houseBadgeText}>{event.phaseName}: {personal.houseNumber}. Evinizde</Text>
                     </View>
                   </View>
 
