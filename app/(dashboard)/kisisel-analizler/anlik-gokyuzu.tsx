@@ -1800,7 +1800,7 @@ export default function AnlikGokyuzuScreen() {
               />
 
               <Text style={styles.label}>Transit Şehri (Opsiyonel)</Text>
-              <View style={{ zIndex: 999, position: 'relative' }}>
+              <View style={{ zIndex: 999, position: 'relative', marginBottom: 14 }}>
                 <TextInput
                   style={styles.input}
                   value={transitSearchQuery}
@@ -1811,8 +1811,8 @@ export default function AnlikGokyuzuScreen() {
                   onFocus={() => {
                     setShowTransitSuggestions(true);
                   }}
-                  placeholder="Arama yapmazsanız doğum şehri kullanılacaktır..."
-                  placeholderTextColor="#666"
+                  placeholder="Boş bırakılırsa doğum şehri alınır..."
+                  placeholderTextColor="#888"
                 />
                 {showTransitSuggestions && transitSearchQuery.length >= 3 && transitSuggestions.length > 0 && (
                   <View style={styles.suggestionsContainer}>
