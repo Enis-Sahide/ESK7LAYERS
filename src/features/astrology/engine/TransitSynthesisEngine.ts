@@ -676,6 +676,9 @@ export interface EsotericSkySignature {
     illumination: number;
     phaseIcon: string;
     esotericSecret: string;
+    moonSign?: string;
+    moonDegree?: number;
+    moonHouse?: number;
   };
   elementBalance: {
     firePct: number;
@@ -990,8 +993,7 @@ function buildDetailedCosmicBarometer(
   const degToRad = (d: number) => (d * Math.PI) / 180;
   const natalSun = isPersonal && natalPlanets ? natalPlanets.find(np => np.name === 'Güneş') : undefined;
   const natalMoon = isPersonal && natalPlanets ? natalPlanets.find(np => np.name === 'Ay') : undefined;
-  const refSunLonForPhase = (isPersonal && natalSun) ? natalSun.longitude : sunLon;
-  const baseLunarPhase = calculateLunarPhaseSignature(refSunLonForPhase, moonLon);
+  const baseLunarPhase = calculateLunarPhaseSignature(sunLon, moonLon);
   const moonPersonalHouse = (isPersonal && moon)
     ? (moon.house || (natalHouses && natalHouses.length > 0 ? getHouseFromLongitude(moon.longitude, natalHouses) : undefined))
     : undefined;
@@ -999,10 +1001,17 @@ function buildDetailedCosmicBarometer(
   const lunarPhase: EsotericSkySignature['lunarPhase'] = (isPersonal && moonPersonalHouse)
     ? {
         ...baseLunarPhase,
-        phaseName: `${baseLunarPhase.phaseName} (${moonPersonalHouse}. Evinizde)`,
-        esotericSecret: `Transit Ay bugün ${moonPersonalHouse}. evinizde (${LIFE_AREA_NAMES[moonPersonalHouse] || ''}) ilerlerken duygusal odağınızı doğrudan ${moonHouseArea} konularına taşıyor${natalMoon ? `; Natal Ay'ınız (${natalMoon.sign}) ile kurduğu rezonans içsel sezgilerinizi bu yaşam alanında harekete geçiriyor.` : '.'}`
+        moonSign: moon?.sign,
+        moonDegree: moon?.degreeInSign,
+        moonHouse: moonPersonalHouse,
+        esotericSecret: `${baseLunarPhase.esotericSecret} Bugün Transit Ay ${moon?.sign || ''} burcunda (${moon?.degreeInSign ?? 0}°) ve ${moonPersonalHouse}. evinizde (${LIFE_AREA_NAMES[moonPersonalHouse] || ''}) ilerlerken duygusal odağınızı doğrudan ${moonHouseArea} konularına taşıyor${natalMoon ? `; Natal Ay'ınız (${natalMoon.sign}) ile kurduğu rezonans içsel sezgilerinizi bu yaşam alanında harekete geçiriyor.` : '.'}`
       }
-    : baseLunarPhase;
+    : {
+        ...baseLunarPhase,
+        moonSign: moon?.sign,
+        moonDegree: moon?.degreeInSign,
+        esotericSecret: `${baseLunarPhase.esotericSecret} Bugün Ay ${moon?.sign || ''} burcunda (${moon?.degreeInSign ?? 0}°) seyahat ederek kolektif duygusal ritmi bu burcun frekansıyla şekillendiriyor.`
+      };
 
   // Active Chakra & Sephirah from the tightest aspect's leading planet (or Moon)
   const sortedByOrb = [...aspects].sort((a, b) => a.orb - b.orb);

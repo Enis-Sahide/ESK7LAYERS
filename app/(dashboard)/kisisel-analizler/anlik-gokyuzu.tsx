@@ -707,26 +707,6 @@ export default function AnlikGokyuzuScreen() {
 
         {/* 1. BÖLÜM: EZOTERİİK GÖKYÜZÜ KİMLİĞİ */}
         <View style={{ gap: 10, marginBottom: 14 }}>
-          {/* Kart A: Gerçek Ay Fazı */}
-          <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)', borderRadius: 14, padding: 12 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-              <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#D4AF37', letterSpacing: 0.5 }}>
-                {esotericSignature.lunarPhase.phaseIcon} AY FAZI & RUHSAL RİTM
-              </Text>
-              <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
-                <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FCD34D' }}>
-                  %{esotericSignature.lunarPhase.illumination} Işık
-                </Text>
-              </View>
-            </View>
-            <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#FFF', marginBottom: 4 }}>
-              {esotericSignature.lunarPhase.phaseName}
-            </Text>
-            <Text style={{ fontSize: 11.5, color: '#D1D5DB', lineHeight: 17 }}>
-              {esotericSignature.lunarPhase.esotericSecret}
-            </Text>
-          </View>
-
           {/* Kart B: 4 Element Dengesi */}
           <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.25)', borderRadius: 14, padding: 12 }}>
             <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#38BDF8', letterSpacing: 0.5, marginBottom: 8 }}>
@@ -1400,7 +1380,7 @@ export default function AnlikGokyuzuScreen() {
                   <View>
                     {/* ☀️ Kolektif Aktif Ay Fazı & 6 Aylık Güneş Tutulması Çatısı */}
                     {mundaneLunationData && (
-                      <MobileLunationCard data={mundaneLunationData} isCompact={true} />
+                      <MobileLunationCard data={mundaneLunationData} isCompact={true} liveLunarPhase={currentSkyOverview?.barometer?.esotericSignature?.lunarPhase} />
                     )}
 
                     {/* Sky Date Toolbar */}
@@ -1904,7 +1884,7 @@ export default function AnlikGokyuzuScreen() {
                 <>
                   {/* ☀️ Kişisel Harita 6 Aylık Güneş Tutulması Çatısı & Ezoterik Ev Portalı */}
                   {personalLunationData && (
-                    <MobileLunationCard data={personalLunationData} isCompact={false} />
+                    <MobileLunationCard data={personalLunationData} isCompact={false} liveLunarPhase={personalOverview?.barometer?.esotericSignature?.lunarPhase} />
                   )}
 
                   {/* Personal 3-View Switcher: Bütünleşik Özet | 10 Gezegen | Ayrık Tablolar */}
