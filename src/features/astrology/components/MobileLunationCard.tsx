@@ -287,9 +287,20 @@ export default function MobileLunationCard({
                 </View>
               )}
 
+              {/* Ritüel & Manevi Arınma Tavsiyesi */}
+              {signInterpretation?.ritual && (
+                <View style={styles.ritualBox}>
+                  <Ionicons name="flame-outline" size={18} color="#FBBF24" style={{ marginRight: 8, marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.ritualTitle}>Bu Dönemin Manevi Arınma & Ritüel Tavsiyesi:</Text>
+                    <Text style={styles.ritualText}>{signInterpretation.ritual}</Text>
+                  </View>
+                </View>
+              )}
+
               {/* 🌗 3. KATMAN: BUGÜNÜN CANLI AY FAZI & ANLIK EV AKIŞI */}
               {liveLunarPhase && (
-                <View style={{ backgroundColor: 'rgba(14,165,233,0.08)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.28)', borderRadius: 14, padding: 12, marginTop: 14, marginBottom: 4 }}>
+                <View style={{ backgroundColor: 'rgba(14,165,233,0.08)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.28)', borderRadius: 14, padding: 12, marginTop: 14 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                     <Text style={{ fontSize: 10.5, fontWeight: '900', color: '#38BDF8', letterSpacing: 0.5 }}>
                       {liveLunarPhase.phaseIcon} BUGÜNÜN CANLI AY FAZI & RUHSAL RİTMİ
@@ -308,17 +319,6 @@ export default function MobileLunationCard({
                   <Text style={{ fontSize: 12, color: '#E5E7EB', lineHeight: 18 }}>
                     {liveLunarPhase.esotericSecret}
                   </Text>
-                </View>
-              )}
-
-              {/* Ritüel & Manevi Arınma Tavsiyesi */}
-              {signInterpretation?.ritual && (
-                <View style={styles.ritualBox}>
-                  <Ionicons name="flame-outline" size={18} color="#FBBF24" style={{ marginRight: 8, marginTop: 2 }} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.ritualTitle}>Bu Dönemin Manevi Arınma & Ritüel Tavsiyesi:</Text>
-                    <Text style={styles.ritualText}>{signInterpretation.ritual}</Text>
-                  </View>
                 </View>
               )}
             </>
