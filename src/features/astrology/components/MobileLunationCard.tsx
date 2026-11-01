@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SIGN_LUNATION_INTERPRETATIONS, HOUSE_LUNATION_INTERPRETATIONS } from '../engine/LunationEngine';
 
 export interface LunationBackendData {
   event: {
@@ -88,26 +87,8 @@ export default function MobileLunationCard({
   // Şemsiye başlığı: eğer mevcut kart güneş tutulmasının kendisi değilse göster
   const showSolarUmbrella = activeSolarEclipse && !isSolar;
 
-  const ZODIAC_TR_ORDER = ['Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'];
-  const solarSignInterp = activeSolarEclipse
-    ? ((activeSolarEclipse as any).signInterpretation || SIGN_LUNATION_INTERPRETATIONS[activeSolarEclipse.event.sign]?.['solar_eclipse'] || null)
-    : null;
-  const solarPersonal = (() => {
-    if (!activeSolarEclipse) return null;
-    if ((activeSolarEclipse as any).personal) return (activeSolarEclipse as any).personal;
-    if (personal) {
-      const eventSignIdx = ZODIAC_TR_ORDER.indexOf(event.sign);
-      const solarSignIdx = ZODIAC_TR_ORDER.indexOf(activeSolarEclipse.event.sign);
-      if (eventSignIdx !== -1 && solarSignIdx !== -1) {
-        const sHouseNum = ((personal.houseNumber - 1 + (solarSignIdx - eventSignIdx) + 12) % 12) + 1;
-        const sInterp = HOUSE_LUNATION_INTERPRETATIONS[sHouseNum]?.['solar_eclipse'];
-        if (sInterp) {
-          return { houseNumber: sHouseNum, ...sInterp };
-        }
-      }
-    }
-    return null;
-  })();
+  const solarSignInterp = activeSolarEclipse ? ((activeSolarEclipse as any).signInterpretation || null) : null;
+  const solarPersonal = activeSolarEclipse ? ((activeSolarEclipse as any).personal || null) : null;
 
   const formattedDate = new Date(event.utcDate).toLocaleDateString('tr-TR', {
     day: 'numeric',
