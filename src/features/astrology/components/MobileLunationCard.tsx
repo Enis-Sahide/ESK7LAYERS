@@ -265,12 +265,17 @@ export default function MobileLunationCard({
               {personal && (
                 <View style={styles.personalPortalBox}>
                   <View style={styles.portalHeaderRow}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.portalOverline}>KİŞİSEL DOĞUM HARİTASI PORTALI</Text>
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <Text style={styles.portalOverline}>
+                        {isSolar ? '☀️' : isLunar ? '🌑' : isFullMoon ? '🌕' : '🌑'} {event.sign.toLocaleUpperCase('tr-TR')} {event.phaseName.toLocaleUpperCase('tr-TR')} ({event.signSymbol} {event.degree}) • {durationInfo.totalDuration.toLocaleUpperCase('tr-TR')}LÜK HARİTA ETKİSİ
+                      </Text>
                       <Text style={styles.portalNameText}>{personal.portalName || personal.title}</Text>
+                      <Text style={{ fontSize: 11, color: 'rgba(253, 230, 138, 0.85)', marginTop: 3, fontWeight: '500' }}>
+                        Aktif {event.sign} {event.phaseName} süreci ({durationInfo.totalDuration} boyunca) doğum haritanızın {personal.houseNumber}. evini aydınlatıyor:
+                      </Text>
                     </View>
                     <View style={styles.houseBadge}>
-                      <Text style={styles.houseBadgeText}>{personal.houseNumber}. Evinizde</Text>
+                      <Text style={styles.houseBadgeText}>{event.phaseName}: {personal.houseNumber}. Evinizde</Text>
                     </View>
                   </View>
 
