@@ -7,7 +7,7 @@ import {
   getSkyAspectInterpretation,
   IngressPhaseInfo
 } from './SkyAspectInterpretations';
-import { getGateAndLine } from '@/src/features/human-design/engine/HumanDesignEngine';
+import { getGateAndLine } from '@/utils/HumanDesignEngine';
 import { GATE_TITLES } from './AstroHumanDesignSynthesis';
 
 export interface UnifiedSkyAspectInfo {
@@ -853,7 +853,8 @@ function buildDetailedCosmicBarometer(
   planets: AstroPoint[],
   aspects: { p1: string; p2: string; aspectType: string; orb: number; isHarmonious: boolean; house1?: number; house2?: number }[],
   isPersonal: boolean,
-  natalHouses?: AstroPoint[]
+  natalHouses?: AstroPoint[],
+  natalPlanets?: AstroPoint[]
 ): DetailedCosmicBarometer {
   const getPlanet = (name: string) => planets.find(p => p.name === name);
   const sun = getPlanet('Güneş');
@@ -878,25 +879,74 @@ function buildDetailedCosmicBarometer(
   const FIXED_SIGNS = ['Boğa', 'Aslan', 'Akrep', 'Kova'];
   const MUTABLE_SIGNS = ['İkizler', 'Başak', 'Yay', 'Balık'];
 
+  const addSignElemAndMod = (sign: string, weight: number, counters: { fire: number; earth: number; air: number; water: number; card: number; fix: number; mut: number }) => {
+    if (FIRE_SIGNS.includes(sign)) counters.fire += weight;
+    else if (EARTH_SIGNS.includes(sign)) counters.earth += weight;
+    else if (AIR_SIGNS.includes(sign)) counters.air += weight;
+    else if (WATER_SIGNS.includes(sign)) counters.water += weight;
+
+    if (CARDINAL_SIGNS.includes(sign)) counters.card += weight;
+    else if (FIXED_SIGNS.includes(sign)) counters.fix += weight;
+    else if (MUTABLE_SIGNS.includes(sign)) counters.mut += weight;
+  };
+
   // 1. Calculate Authentic Weighted Element & Modality Balance
-  let fireWeight = 0, earthWeight = 0, airWeight = 0, waterWeight = 0;
-  let cardinalWeight = 0, fixedWeight = 0, mutableWeight = 0;
+  const counters = { fire: 0, earth: 0, air: 0, water: 0, card: 0, fix: 0, mut: 0 };
 
-  for (const p of planets) {
-    const w = (p.name === 'Güneş' || p.name === 'Ay') ? 2.2
-      : ['Merkür', 'Venüs', 'Mars'].includes(p.name) ? 1.5
-      : ['Jüpiter', 'Satürn'].includes(p.name) ? 1.2
-      : ['Uranüs', 'Neptün', 'Plüton'].includes(p.name) ? 1.0 : 0.6;
+  if (isPersonal && natalPlanets && natalPlanets.length > 0) {
+    // A) Kişinin kendi doğum haritası element imzası (%40 baz)
+    for (const np of natalPlanets) {
+      const nw = (np.name === 'Güneş' || np.name === 'Ay' || np.name === 'Yükselen (ASC)') ? 2.0
+        : ['Merkür', 'Venüs', 'Mars', 'Tepe Noktası (MC)'].includes(np.name) ? 1.3
+        : ['Jüpiter', 'Satürn'].includes(np.name) ? 0.9 : 0.5;
+      addSignElemAndMod(np.sign, nw, counters);
+    }
 
-    if (FIRE_SIGNS.includes(p.sign)) fireWeight += w;
-    else if (EARTH_SIGNS.includes(p.sign)) earthWeight += w;
-    else if (AIR_SIGNS.includes(p.sign)) airWeight += w;
-    else if (WATER_SIGNS.includes(p.sign)) waterWeight += w;
+    // B) Transit gezegenlerin kişinin haritasında tetiklediği kişisel evlerin element karşılığı (%35 aktif ev etkisi)
+    // Ateş Evleri: 1, 5, 9 | Toprak Evleri: 2, 6, 10 | Hava Evleri: 3, 7, 11 | Su Evleri: 4, 8, 12
+    for (const tp of planets) {
+      const h = tp.house || (natalHouses && natalHouses.length > 0 ? getHouseFromLongitude(tp.longitude, natalHouses) : 1);
+      const hw = (tp.name === 'Güneş' || tp.name === 'Ay') ? 2.4
+        : ['Merkür', 'Venüs', 'Mars'].includes(tp.name) ? 1.6
+        : ['Jüpiter', 'Satürn'].includes(tp.name) ? 1.2 : 0.7;
 
-    if (CARDINAL_SIGNS.includes(p.sign)) cardinalWeight += w;
-    else if (FIXED_SIGNS.includes(p.sign)) fixedWeight += w;
-    else if (MUTABLE_SIGNS.includes(p.sign)) mutableWeight += w;
+      if ([1, 5, 9].includes(h)) counters.fire += hw;
+      else if ([2, 6, 10].includes(h)) counters.earth += hw;
+      else if ([3, 7, 11].includes(h)) counters.air += hw;
+      else if ([4, 8, 12].includes(h)) counters.water += hw;
+
+      if ([1, 4, 7, 10].includes(h)) counters.card += hw;
+      else if ([2, 5, 8, 11].includes(h)) counters.fix += hw;
+      else if ([3, 6, 9, 12].includes(h)) counters.mut += hw;
+    }
+
+    // C) O gün tam açı (orb <= 3.5°) alan natal gezegenlerin burç elementi (%25 anlık tetiklenme)
+    for (const asp of aspects) {
+      if (asp.orb > 3.5) continue;
+      const targetNatal = natalPlanets.find(np => np.name === asp.p2);
+      if (targetNatal) {
+        const orbBoost = Math.max(0.4, (3.6 - asp.orb) * 0.9);
+        addSignElemAndMod(targetNatal.sign, orbBoost, counters);
+      }
+    }
+  } else {
+    // Kolektif Gökyüzü (Mundane): Doğrudan gökyüzü gezegenlerinin burç dağılımı
+    for (const p of planets) {
+      const w = (p.name === 'Güneş' || p.name === 'Ay') ? 2.2
+        : ['Merkür', 'Venüs', 'Mars'].includes(p.name) ? 1.5
+        : ['Jüpiter', 'Satürn'].includes(p.name) ? 1.2
+        : ['Uranüs', 'Neptün', 'Plüton'].includes(p.name) ? 1.0 : 0.6;
+      addSignElemAndMod(p.sign, w, counters);
+    }
   }
+
+  const fireWeight = counters.fire;
+  const earthWeight = counters.earth;
+  const airWeight = counters.air;
+  const waterWeight = counters.water;
+  const cardinalWeight = counters.card;
+  const fixedWeight = counters.fix;
+  const mutableWeight = counters.mut;
 
   const totalElemWeight = Math.max(1, fireWeight + earthWeight + airWeight + waterWeight);
   const firePct = Math.round((fireWeight / totalElemWeight) * 100);
@@ -930,11 +980,22 @@ function buildDetailedCosmicBarometer(
   const nepLon = neptune?.longitude ?? 330;
 
   const degToRad = (d: number) => (d * Math.PI) / 180;
-  const lunarPhase = calculateLunarPhaseSignature(sunLon, moonLon);
+  const baseLunarPhase = calculateLunarPhaseSignature(sunLon, moonLon);
+  const moonPersonalHouse = (isPersonal && moon)
+    ? (moon.house || (natalHouses && natalHouses.length > 0 ? getHouseFromLongitude(moon.longitude, natalHouses) : undefined))
+    : undefined;
+  const lunarPhase: EsotericSkySignature['lunarPhase'] = moonPersonalHouse
+    ? {
+        ...baseLunarPhase,
+        phaseName: `${baseLunarPhase.phaseName} (${moonPersonalHouse}. Evinizde)`,
+      }
+    : baseLunarPhase;
 
   // Active Chakra & Sephirah from the tightest aspect's leading planet (or Moon)
   const sortedByOrb = [...aspects].sort((a, b) => a.orb - b.orb);
-  const leadPlanetName = sortedByOrb[0]?.p1 || moon?.name || 'Güneş';
+  const leadPlanetName = (isPersonal
+    ? (CHAKRA_SEPHIRAH_MAP[sortedByOrb[0]?.p2] ? sortedByOrb[0]?.p2 : sortedByOrb[0]?.p1)
+    : sortedByOrb[0]?.p1) || moon?.name || 'Güneş';
   const chakraMeta = CHAKRA_SEPHIRAH_MAP[leadPlanetName] || CHAKRA_SEPHIRAH_MAP['Güneş'];
 
   /**
@@ -1784,7 +1845,7 @@ export function generatePersonalTransitOverview(
     planetNames: item.planetNames
   }));
 
-  // Detaylı Barometre Hesaplama
+  // Detaylı Barometre Hesaplama (Kişisel doğum gezegenleri ve ev yerleşimleri dahil)
   const detailedPersonalBarometer = buildDetailedCosmicBarometer(
     transitPlanets,
     allEnrichedAspects.map(a => ({
@@ -1797,7 +1858,8 @@ export function generatePersonalTransitOverview(
       house2: a.natalHouse
     })),
     true,
-    natalHouses
+    natalHouses,
+    natalPlanets
   );
 
   const peak = topAspects[0];
