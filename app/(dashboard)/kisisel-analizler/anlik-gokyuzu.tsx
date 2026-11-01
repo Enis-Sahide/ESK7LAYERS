@@ -366,6 +366,9 @@ export default function AnlikGokyuzuScreen() {
               }
               return {
                 name,
+                lat: latNum,
+                lon: lonNum,
+                tz,
                 latitude: latNum,
                 longitude: lonNum,
                 timezone: tz,
@@ -418,6 +421,9 @@ export default function AnlikGokyuzuScreen() {
               }
               return {
                 name,
+                lat: latNum,
+                lon: lonNum,
+                tz,
                 latitude: latNum,
                 longitude: lonNum,
                 timezone: tz,
@@ -785,12 +791,9 @@ export default function AnlikGokyuzuScreen() {
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 }}>
             {attributes.map((attr) => {
-              const isEsoteric = Boolean(attr.isEsoteric);
               const scoreVal = attr.score ?? (attr as any).score10 ?? 5;
               const scoreColor =
-                isEsoteric
-                  ? '#C084FC'
-                  : scoreVal >= 8
+                scoreVal >= 8
                   ? '#34D399'
                   : scoreVal >= 6
                   ? '#38BDF8'
@@ -805,9 +808,9 @@ export default function AnlikGokyuzuScreen() {
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    backgroundColor: isEsoteric ? 'rgba(88,28,135,0.22)' : 'rgba(255,255,255,0.04)',
+                    backgroundColor: 'rgba(255,255,255,0.04)',
                     borderWidth: 1,
-                    borderColor: isEsoteric ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.08)',
+                    borderColor: 'rgba(255,255,255,0.08)',
                     borderRadius: 12,
                     paddingHorizontal: 10,
                     paddingVertical: 10,
