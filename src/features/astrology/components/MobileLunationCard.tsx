@@ -203,8 +203,8 @@ export default function MobileLunationCard({
           {/* Açılır Gövde Bölümü (Kolektif + Kişisel Portal + Ritüel) */}
           {isLunarOpen && (
             <>
-              {/* Kolektif Gökyüzü Teması */}
-              {signInterpretation && (
+              {/* Kolektif Gökyüzü Teması (Sadece kolektif modda; kişisel portal varsa gizlenir) */}
+              {!personal && signInterpretation && (
                 <View style={styles.collectiveSection}>
                   <View style={styles.sectionHeaderRow}>
                     <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 6 }} />
