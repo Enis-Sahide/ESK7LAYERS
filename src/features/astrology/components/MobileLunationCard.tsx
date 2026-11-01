@@ -213,29 +213,6 @@ export default function MobileLunationCard({
           {/* Açılır Gövde Bölümü (Canlı Günlük Ay Evresi + Kolektif/Kişisel Portal + Ritüel) */}
           {isLunarOpen && (
             <>
-              {/* 🌗 3. KATMAN: BUGÜNÜN CANLI AY FAZI & ANLIK EV AKIŞI */}
-              {liveLunarPhase && (
-                <View style={{ backgroundColor: 'rgba(14,165,233,0.08)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.28)', borderRadius: 14, padding: 12, marginBottom: 14 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <Text style={{ fontSize: 10.5, fontWeight: '900', color: '#38BDF8', letterSpacing: 0.5 }}>
-                      {liveLunarPhase.phaseIcon} BUGÜNÜN CANLI AY FAZI & RUHSAL RİTMİ
-                    </Text>
-                    <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
-                      <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FCD34D' }}>
-                        %{liveLunarPhase.illumination} Işık
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#FFF', marginBottom: 4 }}>
-                    {liveLunarPhase.phaseName}
-                    {liveLunarPhase.moonSign ? ` • Transit Ay ${liveLunarPhase.moonSign} (${liveLunarPhase.moonDegree ?? 0}°)` : ''}
-                    {liveLunarPhase.moonHouse ? ` — ${liveLunarPhase.moonHouse}. Evinizde` : ''}
-                  </Text>
-                  <Text style={{ fontSize: 12, color: '#E5E7EB', lineHeight: 18 }}>
-                    {liveLunarPhase.esotericSecret}
-                  </Text>
-                </View>
-              )}
               {/* Kolektif Gökyüzü Teması (Sadece kolektif modda; kişisel portal varsa gizlenir) */}
               {!personal && signInterpretation && (
                 <View style={styles.collectiveSection}>
@@ -307,6 +284,30 @@ export default function MobileLunationCard({
                       </Text>
                     </View>
                   </View>
+                </View>
+              )}
+
+              {/* 🌗 3. KATMAN: BUGÜNÜN CANLI AY FAZI & ANLIK EV AKIŞI */}
+              {liveLunarPhase && (
+                <View style={{ backgroundColor: 'rgba(14,165,233,0.08)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.28)', borderRadius: 14, padding: 12, marginTop: 14, marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <Text style={{ fontSize: 10.5, fontWeight: '900', color: '#38BDF8', letterSpacing: 0.5 }}>
+                      {liveLunarPhase.phaseIcon} BUGÜNÜN CANLI AY FAZI & RUHSAL RİTMİ
+                    </Text>
+                    <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                      <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FCD34D' }}>
+                        %{liveLunarPhase.illumination} Işık
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#FFF', marginBottom: 4 }}>
+                    {liveLunarPhase.phaseName}
+                    {liveLunarPhase.moonSign ? ` • Transit Ay ${liveLunarPhase.moonSign} (${liveLunarPhase.moonDegree ?? 0}°)` : ''}
+                    {liveLunarPhase.moonHouse ? ` — ${liveLunarPhase.moonHouse}. Evinizde` : ''}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: '#E5E7EB', lineHeight: 18 }}>
+                    {liveLunarPhase.esotericSecret}
+                  </Text>
                 </View>
               )}
 
