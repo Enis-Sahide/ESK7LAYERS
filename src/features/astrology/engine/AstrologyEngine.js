@@ -299,10 +299,17 @@ function generateAstrologyChart(birthDate, cityKey, isDraconic) {
         { name: 'Plüton', body: astronomy_engine_1.Body.Pluto }
     ];
     var planets = [];
+    var astroTimeNext = new astronomy_engine_1.AstroTime(new Date(birthDate.getTime() + 3600000));
     for (var _i = 0, bodyMap_1 = bodyMap; _i < bodyMap_1.length; _i++) {
         var p = bodyMap_1[_i];
         var vec = (0, astronomy_engine_1.GeoVector)(p.body, astroTime, true);
         var lon = mod360((0, astronomy_engine_1.Ecliptic)(vec).elon);
+        var vecNext = (0, astronomy_engine_1.GeoVector)(p.body, astroTimeNext, true);
+        var lonNext = mod360((0, astronomy_engine_1.Ecliptic)(vecNext).elon);
+        var deltaLon = lonNext - lon;
+        if (deltaLon > 180) deltaLon -= 360;
+        if (deltaLon < -180) deltaLon += 360;
+        var isRetrograde = p.name !== 'Güneş' && p.name !== 'Ay' && deltaLon < 0;
         var data = getSignAndDegree(lon);
         planets.push({
             name: p.name,
@@ -311,7 +318,69 @@ function generateAstrologyChart(birthDate, cityKey, isDraconic) {
             degreeInSign: data.degreeInSign,
             degree: data.degree,
             minutes: data.minutes,
-            house: getHouseForLon(lon, cuspDegrees)
+            house: getHouseForLon(lon, cuspDegrees),
+            isRetrograde: isRetrograde
+        });
+    }
+    // Esoteric & Karmic Points (Kuzey Ay Düğümü, Kiron, Lilith, Şans Noktası, Vertex)
+    var jdNow = getJulianDate(birthDate);
+    var daysSinceJ2000Now = jdNow - 2451545.0;
+    var meanNodeLon = mod360(125.04452 - 0.0529539 * daysSinceJ2000Now);
+    var nodeData = getSignAndDegree(meanNodeLon);
+    planets.push({
+        name: 'Kuzey Ay Düğümü',
+        longitude: meanNodeLon,
+        sign: nodeData.sign,
+        degreeInSign: nodeData.degreeInSign,
+        degree: nodeData.degree,
+        minutes: nodeData.minutes,
+        house: getHouseForLon(meanNodeLon, cuspDegrees),
+        isRetrograde: true
+    });
+    // Approximate Chiron mean orbital position
+    var chironLon = mod360(209.35 + 0.01978 * daysSinceJ2000Now);
+    var chironData = getSignAndDegree(chironLon);
+    planets.push({
+        name: 'Kiron',
+        longitude: chironLon,
+        sign: chironData.sign,
+        degreeInSign: chironData.degreeInSign,
+        degree: chironData.degree,
+        minutes: chironData.minutes,
+        house: getHouseForLon(chironLon, cuspDegrees),
+        isRetrograde: false
+    });
+    // Mean Black Moon Lilith (Lunar Apogee)
+    var lilithLon = mod360(83.3532465 + 0.111403524 * daysSinceJ2000Now);
+    var lilithData = getSignAndDegree(lilithLon);
+    planets.push({
+        name: 'Lilith',
+        longitude: lilithLon,
+        sign: lilithData.sign,
+        degreeInSign: lilithData.degreeInSign,
+        degree: lilithData.degree,
+        minutes: lilithData.minutes,
+        house: getHouseForLon(lilithLon, cuspDegrees),
+        isRetrograde: false
+    });
+    // Pars Fortuna (Şans Noktası)
+    var sunPt = planets.find(function(x) { return x.name === 'Güneş'; });
+    var moonPt = planets.find(function(x) { return x.name === 'Ay'; });
+    if (sunPt && moonPt) {
+        var isDay = sunPt.house >= 7 && sunPt.house <= 12;
+        var pofLon = isDay
+            ? mod360(ascendant.longitude + moonPt.longitude - sunPt.longitude)
+            : mod360(ascendant.longitude + sunPt.longitude - moonPt.longitude);
+        var pofData = getSignAndDegree(pofLon);
+        planets.push({
+            name: 'Şans Noktası (POF)',
+            longitude: pofLon,
+            sign: pofData.sign,
+            degreeInSign: pofData.degreeInSign,
+            degree: pofData.degree,
+            minutes: pofData.minutes,
+            house: getHouseForLon(pofLon, cuspDegrees),
+            isRetrograde: false
         });
     }
     // === DRACONIC CHART TRANSFORMATION ===

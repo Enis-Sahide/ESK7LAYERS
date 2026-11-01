@@ -693,10 +693,169 @@ export default function AnlikGokyuzuScreen() {
     );
   };
 
+  const renderDetailedCosmicBarometer = (barometer: CurrentSkyOverview['barometer'], title: string) => {
+    const { esotericSignature, attributes } = barometer;
+    return (
+      <View style={{ marginBottom: 16, padding: 14, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.08)', paddingBottom: 10, marginBottom: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+            <Ionicons name="sparkles" size={15} color="#D4AF37" style={{ marginRight: 6 }} />
+            <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFF', letterSpacing: 0.6 }}>
+              {title}
+            </Text>
+          </View>
+          <Text style={{ fontSize: 10, color: '#9CA3AF' }}>7Layers Sentezi</Text>
+        </View>
+
+        {/* 1. BÖLÜM: EZOTERİİK GÖKYÜZÜ KİMLİĞİ */}
+        <View style={{ gap: 10, marginBottom: 14 }}>
+          {/* Kart A: Gerçek Ay Fazı */}
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.25)', borderRadius: 14, padding: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#D4AF37', letterSpacing: 0.5 }}>
+                {esotericSignature.lunarPhase.phaseIcon} AY FAZI & RUHSAL RİTM
+              </Text>
+              <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                <Text style={{ fontSize: 10.5, fontWeight: 'bold', color: '#FCD34D' }}>
+                  %{esotericSignature.lunarPhase.illumination} Işık
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#FFF', marginBottom: 4 }}>
+              {esotericSignature.lunarPhase.phaseName}
+            </Text>
+            <Text style={{ fontSize: 11.5, color: '#D1D5DB', lineHeight: 17 }}>
+              {esotericSignature.lunarPhase.esotericSecret}
+            </Text>
+          </View>
+
+          {/* Kart B: 4 Element Dengesi */}
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.25)', borderRadius: 14, padding: 12 }}>
+            <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#38BDF8', letterSpacing: 0.5, marginBottom: 8 }}>
+              🔥🌍💨💧 KOZMİK ELEMENT DENGESİ
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(249,115,22,0.12)', borderWidth: 1, borderColor: 'rgba(249,115,22,0.25)', borderRadius: 8, paddingVertical: 6, alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, color: '#FDBA74', fontWeight: 'bold' }}>Ateş</Text>
+                <Text style={{ fontSize: 12, color: '#FFF', fontWeight: '900' }}>%{esotericSignature.elementBalance.firePct}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(16,185,129,0.12)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.25)', borderRadius: 8, paddingVertical: 6, alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, color: '#6EE7B7', fontWeight: 'bold' }}>Toprak</Text>
+                <Text style={{ fontSize: 12, color: '#FFF', fontWeight: '900' }}>%{esotericSignature.elementBalance.earthPct}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(14,165,233,0.12)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.25)', borderRadius: 8, paddingVertical: 6, alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, color: '#7DD3FC', fontWeight: 'bold' }}>Hava</Text>
+                <Text style={{ fontSize: 12, color: '#FFF', fontWeight: '900' }}>%{esotericSignature.elementBalance.airPct}</Text>
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(168,85,247,0.12)', borderWidth: 1, borderColor: 'rgba(168,85,247,0.25)', borderRadius: 8, paddingVertical: 6, alignItems: 'center' }}>
+                <Text style={{ fontSize: 10, color: '#D8B4FE', fontWeight: 'bold' }}>Su</Text>
+                <Text style={{ fontSize: 12, color: '#FFF', fontWeight: '900' }}>%{esotericSignature.elementBalance.waterPct}</Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 11, color: '#D1D5DB', lineHeight: 16 }}>
+              <Text style={{ fontWeight: 'bold', color: '#FFF' }}>{esotericSignature.elementBalance.dominantLabel.split(':')[0]}: </Text>
+              {esotericSignature.elementBalance.lackingAdvice}
+            </Text>
+          </View>
+
+          {/* Kart C: Aktif Çakra & Hayat Ağacı Frekansı */}
+          <View style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderWidth: 1, borderColor: 'rgba(168,85,247,0.28)', borderRadius: 14, padding: 12 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#D8B4FE', letterSpacing: 0.5 }}>
+                🔮 ÇAKRA & HAYAT AĞACI FREKANSI
+              </Text>
+              <View style={{ backgroundColor: 'rgba(168,85,247,0.15)', borderWidth: 1, borderColor: 'rgba(168,85,247,0.3)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#E9D5FF' }}>
+                  {esotericSignature.chakraResonance.activePlanet} Odağı
+                </Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#FFF' }}>
+              {esotericSignature.chakraResonance.chakraName}
+            </Text>
+            <Text style={{ fontSize: 11.5, fontWeight: '600', color: '#D4AF37', marginBottom: 4 }}>
+              {esotericSignature.chakraResonance.sephirahName}
+            </Text>
+            <Text style={{ fontSize: 11, color: '#D1D5DB', lineHeight: 16 }}>
+              {esotericSignature.chakraResonance.dailyAffirmation}
+            </Text>
+          </View>
+        </View>
+
+        {/* 2. BÖLÜM: YAŞAM & EZOTERİK YETKİNLİK PUANLARI (Sadece Başlık + Puan/10) */}
+        <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 10 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#9CA3AF', letterSpacing: 0.5 }}>
+              GÜNLÜK YAŞAM & EZOTERİK YETKİNLİK PUANLARI
+            </Text>
+            <Text style={{ fontSize: 10, color: '#6B7280' }}>10 Üzerinden</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 }}>
+            {attributes.map((attr) => {
+              const isEsoteric = attr.category === 'esoteric';
+              const scoreColor =
+                isEsoteric
+                  ? '#C084FC'
+                  : attr.score10 >= 8
+                  ? '#34D399'
+                  : attr.score10 >= 6
+                  ? '#38BDF8'
+                  : attr.score10 >= 4
+                  ? '#FBBF24'
+                  : '#FB7185';
+              return (
+                <View
+                  key={attr.id}
+                  style={{
+                    width: '48.5%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: isEsoteric ? 'rgba(88,28,135,0.22)' : 'rgba(255,255,255,0.04)',
+                    borderWidth: 1,
+                    borderColor: isEsoteric ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.08)',
+                    borderRadius: 12,
+                    paddingHorizontal: 10,
+                    paddingVertical: 10,
+                  }}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#FFF', flex: 1, marginRight: 6, lineHeight: 16 }}>
+                    {attr.title}
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: scoreColor + '20',
+                      borderWidth: 1,
+                      borderColor: scoreColor + '50',
+                      borderRadius: 7,
+                      paddingHorizontal: 7,
+                      paddingVertical: 3,
+                    }}
+                  >
+                    <Text style={{ fontSize: 11.5, fontWeight: '900', color: scoreColor }}>
+                      {attr.score10}/10
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
   const renderCurrentSkyOverview = () => {
     if (!currentSkyOverview) return null;
     return (
       <View style={styles.guidanceCard}>
+        {/* EN ÜSTTE: 7Layers Kozmik Frekans & Yetkinlik Barometresi */}
+        {renderDetailedCosmicBarometer(
+          currentSkyOverview.barometer,
+          'KOZMİK FREKANS & YETKİNLİK BAROMETRESİ'
+        )}
+
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
           <Ionicons name="sparkles" size={24} color="#0EA5E9" style={{ marginRight: 10, marginTop: 2 }} />
@@ -721,111 +880,53 @@ export default function AnlikGokyuzuScreen() {
           {currentSkyOverview.vibeNarrative}
         </Text>
 
-        {/* 3D Kozmik Frekans Barometresi */}
-        <View style={{ marginTop: 16, padding: 14, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-          <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#0EA5E9', marginBottom: 12, letterSpacing: 0.5 }}>
-            KOZMİK FREKANS BAROMETRESİ
-          </Text>
-
-          {/* Zihinsel */}
-          <View style={{ marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>🧠 Zihinsel Odak: {currentSkyOverview.barometer.mental.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#38BDF8', fontWeight: 'bold' }}>{currentSkyOverview.barometer.mental.tone}</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
-            </View>
-          </View>
-
-          {/* Duygusal */}
-          <View style={{ marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>🌊 Duygusal Akış: {currentSkyOverview.barometer.emotional.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#C084FC', fontWeight: 'bold' }}>{currentSkyOverview.barometer.emotional.tone}</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#A855F7', borderRadius: 4 }} />
-            </View>
-          </View>
-
-          {/* Eylem */}
-          <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>⚡ Eylem & Atılım: {currentSkyOverview.barometer.action.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#FCD34D', fontWeight: 'bold' }}>{currentSkyOverview.barometer.action.tone}</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${currentSkyOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#D4AF37', borderRadius: 4 }} />
-            </View>
-          </View>
-        </View>
-
-        {/* Fırsatlar & Dikkat Edilmesi Gerekenler */}
+        {/* Fırsatlar & Dikkat Edilmesi Gerekenler (Sentezlenmiş + astroTag) */}
         <View style={{ marginTop: 14 }}>
           {currentSkyOverview.opportunities.length > 0 && (
             <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.3)', marginBottom: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 6 }}>
-                🌟 Bugünün Fırsatları:
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 8 }}>
+                🌟 Bugün Neler İçin Uygun? (Fırsatlar)
               </Text>
               {currentSkyOverview.opportunities.map((item, idx) => (
-                <Text key={`sko-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
-                  • {item}
-                </Text>
+                <View key={`sko-${idx}`} style={{ marginBottom: idx < currentSkyOverview.opportunities.length - 1 ? 10 : 0 }}>
+                  <Text style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20 }}>
+                    ✓ {item.text}
+                  </Text>
+                  <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(16,185,129,0.12)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.28)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginTop: 4 }}>
+                    <Text style={{ fontSize: 10.5, color: '#6EE7B7', fontWeight: '600' }}>
+                      ✦ {item.astroTag}
+                    </Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
 
           {currentSkyOverview.cautions.length > 0 && (
             <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', marginBottom: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 6 }}>
-                ⚠️ Neden Kaçınmalı?
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 8 }}>
+                ⚠️ Bugün Nelerden Kaçınmalı? (Dikkat)
               </Text>
               {currentSkyOverview.cautions.map((item, idx) => (
-                <Text key={`skc-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
-                  • {item}
-                </Text>
+                <View key={`skc-${idx}`} style={{ marginBottom: idx < currentSkyOverview.cautions.length - 1 ? 10 : 0 }}>
+                  <Text style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20 }}>
+                    ! {item.text}
+                  </Text>
+                  <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(239,68,68,0.12)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.28)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginTop: 4 }}>
+                    <Text style={{ fontSize: 10.5, color: '#FCA5A5', fontWeight: '600' }}>
+                      ✦ {item.astroTag}
+                    </Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
         </View>
 
-        {/* Pik Yapan Kilit Açılar */}
-        {currentSkyOverview.topAspects.length > 0 && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 8, letterSpacing: 0.5 }}>
-              ⚡ ŞU AN GÖKYÜZÜNDE PİK YAPAN KİLİT AÇILAR
-            </Text>
-            {currentSkyOverview.topAspects.map((asp, idx) => (
-              <TouchableOpacity
-                key={`skap-${idx}`}
-                activeOpacity={0.7}
-                onPress={() => setSelectedInterp({
-                  title: `${asp.p1} - ${asp.p2} (${asp.aspectType})`,
-                  content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})`
-                })}
-                style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: asp.isHarmonious ? '#34D399' : '#FBBF24', flex: 1, marginRight: 8 }}>
-                    {asp.p1} {asp.aspectType} {asp.p2}
-                  </Text>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#38BDF8' }}>
-                    {asp.badge}
-                  </Text>
-                </View>
-                <Text style={{ fontSize: 13, color: '#E5E7EB', lineHeight: 18 }}>
-                  {asp.summary}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
         {/* 13 Gezegen Detayına Geçiş Butonu */}
         <TouchableOpacity
           onPress={() => setSkyViewMode('SYNTHESIS')}
-          style={{ marginTop: 14, backgroundColor: 'rgba(14, 165, 233, 0.18)', borderWidth: 1.2, borderColor: '#0EA5E9', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+          style={{ marginTop: 12, backgroundColor: 'rgba(14, 165, 233, 0.18)', borderWidth: 1.2, borderColor: '#0EA5E9', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
         >
           <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#38BDF8' }}>
             Tüm Gezegenlerin (13 Cismin) Detaylı Kartlarını Gör →
@@ -967,6 +1068,12 @@ export default function AnlikGokyuzuScreen() {
     if (!personalOverview) return null;
     return (
       <View style={styles.guidanceCard}>
+        {/* EN ÜSTTE: Kişisel Kozmik Yetkinlik Barometresi */}
+        {renderDetailedCosmicBarometer(
+          personalOverview.barometer,
+          'KİŞİSEL KOZMİK YETKİNLİK BAROMETRESİ'
+        )}
+
         {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 14 }}>
           <Ionicons name="sparkles" size={24} color={COLORS.primary} style={{ marginRight: 10, marginTop: 2 }} />
@@ -1013,109 +1120,48 @@ export default function AnlikGokyuzuScreen() {
           </View>
         )}
 
-        {/* 3 Boyutlu Kişisel Enerji Barometresi */}
-        <View style={{ marginTop: 16, padding: 14, backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-          <Text style={{ fontSize: 13, fontWeight: 'bold', color: COLORS.primary, marginBottom: 12, letterSpacing: 0.5 }}>
-            KİŞİSEL ENERJİ & AKIŞ BAROMETRESİ
-          </Text>
-
-          {/* Zihinsel */}
-          <View style={{ marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Zihinsel Netlik: {personalOverview.barometer.mental.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#38BDF8', fontWeight: 'bold' }}>{personalOverview.barometer.mental.tone} (%{personalOverview.barometer.mental.score})</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.mental.score}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: 4 }} />
-            </View>
-          </View>
-
-          {/* Duygusal */}
-          <View style={{ marginBottom: 10 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Duygusal Denge: {personalOverview.barometer.emotional.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#34D399', fontWeight: 'bold' }}>{personalOverview.barometer.emotional.tone} (%{personalOverview.barometer.emotional.score})</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.emotional.score}%`, height: '100%', backgroundColor: '#34D399', borderRadius: 4 }} />
-            </View>
-          </View>
-
-          {/* Eylem */}
-          <View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ fontSize: 13.5, fontWeight: '600', color: '#E5E7EB' }}>Eylem & İlerleme: {personalOverview.barometer.action.label}</Text>
-              <Text style={{ fontSize: 12.5, color: '#FCD34D', fontWeight: 'bold' }}>{personalOverview.barometer.action.tone} (%{personalOverview.barometer.action.score})</Text>
-            </View>
-            <View style={{ height: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 4, overflow: 'hidden' }}>
-              <View style={{ width: `${personalOverview.barometer.action.score}%`, height: '100%', backgroundColor: '#FBBF24', borderRadius: 4 }} />
-            </View>
-          </View>
-        </View>
-
-        {/* Fırsatlar & Sınavlar */}
+        {/* Fırsatlar & Sınavlar (Sentezlenmiş + astroTag) */}
         <View style={{ marginTop: 14 }}>
           {personalOverview.opportunities.length > 0 && (
             <View style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(16, 185, 129, 0.3)', marginBottom: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 6 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#34D399', marginBottom: 8 }}>
                 🌟 Bugün Sizin İçin Fırsatlar & Destekler:
               </Text>
               {personalOverview.opportunities.map((opp, idx) => (
-                <Text key={`popp-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
-                  • {opp}
-                </Text>
+                <View key={`popp-${idx}`} style={{ marginBottom: idx < personalOverview.opportunities.length - 1 ? 10 : 0 }}>
+                  <Text style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20 }}>
+                    ✓ {opp.text}
+                  </Text>
+                  <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(16,185,129,0.12)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.28)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginTop: 4 }}>
+                    <Text style={{ fontSize: 10.5, color: '#6EE7B7', fontWeight: '600' }}>
+                      ✦ {opp.astroTag}
+                    </Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
 
           {personalOverview.cautions.length > 0 && (
             <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 12, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)', marginBottom: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 6 }}>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#F87171', marginBottom: 8 }}>
                 ⚠️ Dikkat Edilmesi Gereken Sınavlar:
               </Text>
               {personalOverview.cautions.map((cau, idx) => (
-                <Text key={`pcau-${idx}`} style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20, marginBottom: 3 }}>
-                  • {cau}
-                </Text>
+                <View key={`pcau-${idx}`} style={{ marginBottom: idx < personalOverview.cautions.length - 1 ? 10 : 0 }}>
+                  <Text style={{ fontSize: 13.5, color: '#F3F4F6', lineHeight: 20 }}>
+                    ! {cau.text}
+                  </Text>
+                  <View style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(239,68,68,0.12)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.28)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, marginTop: 4 }}>
+                    <Text style={{ fontSize: 10.5, color: '#FCA5A5', fontWeight: '600' }}>
+                      ✦ {cau.astroTag}
+                    </Text>
+                  </View>
+                </View>
               ))}
             </View>
           )}
         </View>
-
-        {/* En Etkin Kişisel Tetikleyiciler (Pik Transitler) */}
-        {personalOverview.topAspects.length > 0 && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#D1D5DB', marginBottom: 8, letterSpacing: 0.5 }}>
-              ⚡ EN ETKİN KİŞİSEL TETİKLEYİCİLER (PİK TRANSİTLER)
-            </Text>
-            {personalOverview.topAspects.map((asp, idx) => (
-              <TouchableOpacity
-                key={`ptap-${idx}`}
-                activeOpacity={0.7}
-                onPress={() => setSelectedInterp({
-                  title: `T.${asp.transitPlanet} ${asp.aspectType} N.${asp.natalPlanet}`,
-                  content: `${asp.summary}\n\nTolerans: ${asp.orb.toFixed(1)}° (${asp.badge})\nT: ${asp.transitSign} ${asp.transitDegree}° ➔ N: ${asp.natalSign} ${asp.natalDegree}° (${asp.natalHouse}. Evinizde)`
-                })}
-                style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 11, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', marginBottom: 8 }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF', flex: 1, marginRight: 8 }}>
-                    T.{asp.transitPlanet} {asp.aspectType} N.{asp.natalPlanet}
-                  </Text>
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.secondary }}>
-                    {asp.badge}
-                  </Text>
-                </View>
-                <Text style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>
-                  T: {asp.transitSign} {asp.transitDegree}° ➔ N: {asp.natalSign} {asp.natalDegree}° ({asp.natalHouse}. Evinizde)
-                </Text>
-                <Text style={{ fontSize: 13, color: '#E5E7EB', lineHeight: 18 }}>
-                  {asp.summary}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
 
         {/* Günün Yaşam Reçetesi & Gezegen Kartları Butonu */}
         <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}>
@@ -1385,39 +1431,6 @@ export default function AnlikGokyuzuScreen() {
                       </TouchableOpacity>
                     </View>
 
-                    {/* Mobile Mundane Sky Wheel */}
-                    <MobileMundaneSkyWheel
-                      planets={skyChartData?.planets || []}
-                      aspects={skyChartData?.aspects || []}
-                      ascendant={skyChartData?.ascendant}
-                      onSelectPlanet={(p) => {
-                        const pDeg = Math.floor(p.degreeInSign ?? (p as any).degree ?? 0);
-                        const pMin = (p.minutes !== undefined && !isNaN(p.minutes))
-                          ? Math.round(Number(p.minutes))
-                          : Math.floor(((p.degreeInSign ?? 0) - pDeg) * 60);
-                        const interp = getSkyPlanetSignInterpretation(p.name, p.sign, pDeg, pMin, p.isRetrograde);
-                        setSelectedInterp({
-                          title: interp.title,
-                          content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
-                        });
-                      }}
-                      onSelectAspect={(asp) => {
-                        if ((asp as any).interpretation) {
-                          const interp = (asp as any).interpretation;
-                          setSelectedInterp({
-                            title: interp.title,
-                            content: `${interp.summary}\n\n【Kolektif Tema】\n${interp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${interp.dailyAdvice}\n\n【Çakra Rezonansı】\n${interp.chakraResonance}`
-                          });
-                        } else {
-                          const calcInterp = getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type);
-                          setSelectedInterp({
-                            title: calcInterp.title,
-                            content: `${calcInterp.summary}\n\n【Kolektif Tema】\n${calcInterp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${calcInterp.dailyAdvice}\n\n【Çakra Rezonansı】\n${calcInterp.chakraResonance}`
-                          });
-                        }
-                      }}
-                    />
-
                     {/* Mundane 3-View Switcher: Günün Özeti | 13 Gezegen | Açı Listesi */}
                     <View style={styles.subViewSwitcher}>
                       <TouchableOpacity
@@ -1612,6 +1625,46 @@ export default function AnlikGokyuzuScreen() {
                     })()}
                       </>
                     )}
+
+                    {/* Alt Bölüm: Görsel Referans Gökyüzü Çarkı */}
+                    <View style={{ marginTop: 18 }}>
+                      <View style={{ backgroundColor: 'rgba(14,165,233,0.08)', borderWidth: 1, borderColor: 'rgba(14,165,233,0.25)', borderRadius: 12, padding: 10, marginBottom: 8 }}>
+                        <Text style={{ fontSize: 11.5, color: '#93C5FD', textAlign: 'center', lineHeight: 17 }}>
+                          ℹ️ Aşağıdaki gökyüzü çarkı astronomik görsel referans içindir; tüm detaylı yorumlarınız yukarıdaki analiz kartlarında yer almaktadır.
+                        </Text>
+                      </View>
+                      <MobileMundaneSkyWheel
+                        planets={skyChartData?.planets || []}
+                        aspects={skyChartData?.aspects || []}
+                        ascendant={skyChartData?.ascendant}
+                        onSelectPlanet={(p) => {
+                          const pDeg = Math.floor(p.degreeInSign ?? (p as any).degree ?? 0);
+                          const pMin = (p.minutes !== undefined && !isNaN(p.minutes))
+                            ? Math.round(Number(p.minutes))
+                            : Math.floor(((p.degreeInSign ?? 0) - pDeg) * 60);
+                          const interp = getSkyPlanetSignInterpretation(p.name, p.sign, pDeg, pMin, p.isRetrograde);
+                          setSelectedInterp({
+                            title: interp.title,
+                            content: interp.content + (interp.extra ? `\n\n【Kozmik Rezonans】\n${interp.extra}` : '')
+                          });
+                        }}
+                        onSelectAspect={(asp) => {
+                          if ((asp as any).interpretation) {
+                            const interp = (asp as any).interpretation;
+                            setSelectedInterp({
+                              title: interp.title,
+                              content: `${interp.summary}\n\n【Kolektif Tema】\n${interp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${interp.dailyAdvice}\n\n【Çakra Rezonansı】\n${interp.chakraResonance}`
+                            });
+                          } else {
+                            const calcInterp = getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type);
+                            setSelectedInterp({
+                              title: calcInterp.title,
+                              content: `${calcInterp.summary}\n\n【Kolektif Tema】\n${calcInterp.collectiveTheme}\n\n【Günün Tavsiyesi】\n${calcInterp.dailyAdvice}\n\n【Çakra Rezonansı】\n${calcInterp.chakraResonance}`
+                            });
+                          }
+                        }}
+                      />
+                    </View>
                   </View>
                 )
               ) : (
@@ -1858,9 +1911,6 @@ export default function AnlikGokyuzuScreen() {
                     <MobileLunationCard data={personalLunationData} isCompact={false} />
                   )}
 
-                  {/* Dual Wheel Chart */}
-                  {renderBiWheel()}
-
                   {/* Personal 3-View Switcher: Bütünleşik Özet | 10 Gezegen | Ayrık Tablolar */}
               <View style={styles.subViewSwitcher}>
                 <TouchableOpacity
@@ -1971,6 +2021,16 @@ export default function AnlikGokyuzuScreen() {
                   )}
                 </>
               )}
+
+                  {/* Alt Bölüm: Görsel Referans Çift Çember (Bi-Wheel) */}
+                  <View style={{ marginTop: 18 }}>
+                    <View style={{ backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)', borderRadius: 12, padding: 10, marginBottom: 8 }}>
+                      <Text style={{ fontSize: 11.5, color: '#FDE68A', textAlign: 'center', lineHeight: 17 }}>
+                        ℹ️ Aşağıdaki çift çember haritası astronomik görsel referans içindir; tüm detaylı kişisel yorumlarınız yukarıdaki analiz kartlarında yer almaktadır.
+                      </Text>
+                    </View>
+                    {renderBiWheel()}
+                  </View>
                 </>
               ) : (
                 isTimelineLoading && !timelineData ? (
