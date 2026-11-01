@@ -83,11 +83,7 @@ export default function AstrolojiAnalysisScreen() {
   const { isUnlocked } = useAnalysisAccess('astrology');
 
   const handleInterpClick = (interp: any) => {
-    if (isUnlocked) {
-      setSelectedInterp(interp || null);
-    } else {
-      showAnalysisLockedAlert("Doğum Haritası Detay Analizi Kilitli");
-    }
+    setSelectedInterp(interp || null);
   };
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
