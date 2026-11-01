@@ -7,7 +7,7 @@ import {
   getSkyAspectInterpretation,
   IngressPhaseInfo
 } from './SkyAspectInterpretations';
-import { getGateAndLine } from '@/utils/HumanDesignEngine';
+import { getGateAndLine } from '@/src/utils/HumanDesignEngine';
 import { GATE_TITLES } from './AstroHumanDesignSynthesis';
 
 export interface UnifiedSkyAspectInfo {
