@@ -2,7 +2,7 @@ import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
-import Svg, { Circle, Line, Text as SvgText, G, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Text as SvgText, G, Path, Rect } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as moment from 'moment-timezone';
@@ -23,7 +23,7 @@ const AVAILABLE_COUNTRIES = [
 const { width } = Dimensions.get('window');
 const CHART_SIZE = width - 20;
 const CENTER = CHART_SIZE / 2;
-const RADIUS = CENTER - 50; // Inner working radius
+const RADIUS = CENTER - 64; // Inner working radius with safe outer margin for cusp labels & cardinal badges
 
 const COLORS = {
   background: '#000000',
@@ -56,7 +56,8 @@ const PLANET_SYMBOLS: Record<string, string> = {
   'Güneş': '☉', 'Ay': '☽', 'Merkür': '☿', 'Venüs': '♀', 'Mars': '♂', 
   'Jüpiter': '♃', 'Satürn': '♄', 'Uranüs': '♅', 'Neptün': '♆', 'Plüton': '♇',
   'Yükselen (ASC)': 'ASC', 'Tepe Noktası (MC)': 'MC', 'Kuzey Ay Düğümü': '☊',
-  'Vertex (Vx)': 'Vx', 'Şans Noktası (POF)': '⊗'
+  'Vertex (Vx)': 'Vx', 'Şans Noktası (POF)': '⊗',
+  'Güney Ay Düğümü': '☋', 'Kiron': '⚷', 'Lilith': '⚸', 'Dünya': '⨁'
 };
 
 const ASPECT_SYMBOLS: Record<string, string> = {
@@ -259,13 +260,21 @@ export default function AstrolojiAnalysisScreen() {
     const getX = (lon: number, r: number) => CENTER + r * Math.cos((180 + ascLon - lon) * Math.PI / 180);
     const getY = (lon: number, r: number) => CENTER + r * Math.sin((180 + ascLon - lon) * Math.PI / 180);
 
-    const R_TICKS_OUTER = RADIUS + 40;
-    const R_TICKS_INNER = RADIUS + 35;
-    const R_ZODIAC_OUTER = RADIUS + 35;
+    const R_TICKS_OUTER = RADIUS + 36;
+    const R_TICKS_INNER = RADIUS + 32;
+    const R_ZODIAC_OUTER = RADIUS + 32;
     const R_ZODIAC_INNER = RADIUS + 10;
     const R_CUSP_NUM = RADIUS + 45;
-    const R_PLANETS = RADIUS - 15;
-    const R_ASPECTS = RADIUS - 40;
+    const R_PLANETS = RADIUS - 14;
+    const R_ASPECTS = RADIUS - 42;
+
+    const clampX = (x: number, pad: number) => Math.max(pad, Math.min(CHART_SIZE - pad, x));
+    const clampY = (y: number, padTop: number, padBottom = padTop) => Math.max(padTop, Math.min(CHART_SIZE - padBottom, y));
+
+    const sortedWheelPlanets = chart.planets
+      .filter((p) => !p.name.includes('ASC') && !p.name.includes('MC'))
+      .slice()
+      .sort((a, b) => a.longitude - b.longitude);
 
     return (
       <Svg width={CHART_SIZE} height={CHART_SIZE}>
@@ -346,13 +355,32 @@ export default function AstrolojiAnalysisScreen() {
           );
         })}
 
-        {/* House Lines */}
+        {/* House Lines & Cardinal Angles (ASC, MC, IC, DSC) */}
         {chart.houses.map((h, i) => {
           const x1 = getX(h.longitude, R_ZODIAC_INNER);
           const y1 = getY(h.longitude, R_ZODIAC_INNER);
-          const xOut = getX(h.longitude, R_TICKS_OUTER + 5);
-          const yOut = getY(h.longitude, R_TICKS_OUTER + 5);
-          const isAngle = h.house === 1 || h.house === 4 || h.house === 7 || h.house === 10;
+          const isAsc = h.house === 1;
+          const isMc = h.house === 10;
+          const isIc = h.house === 4;
+          const isDsc = h.house === 7;
+          const isAngle = isAsc || isMc || isIc || isDsc;
+          const angleLabel = isAsc ? 'ASC' : isMc ? 'MC' : isIc ? 'IC' : isDsc ? 'DSC' : '';
+          const extLength = isAngle ? 8 : 4;
+          const xOut = getX(h.longitude, R_TICKS_OUTER + extLength);
+          const yOut = getY(h.longitude, R_TICKS_OUTER + extLength);
+
+          const rawBx = getX(h.longitude, R_CUSP_NUM + 2);
+          const rawBy = getY(h.longitude, R_CUSP_NUM + 2);
+          const bx = clampX(rawBx, 18);
+          const by = clampY(rawBy, 12, 12);
+
+          const degText = `${String(h.degreeInSign).padStart(2, '0')}°${String(h.minutes).padStart(2, '0')}'`;
+          const isLeftRight = isAsc || isDsc;
+          const degX = isLeftRight ? bx : clampX(bx + 29, 22);
+          const degY = isLeftRight ? clampY(by + 16, 12, 6) : by + 3;
+
+          const nonAngleX = clampX(getX(h.longitude, R_CUSP_NUM), 24);
+          const nonAngleY = clampY(getY(h.longitude, R_CUSP_NUM) + 4, 12, 6);
 
           return (
             <G key={`house-${i}`}>
@@ -366,42 +394,64 @@ export default function AstrolojiAnalysisScreen() {
                 strokeDasharray={isAngle ? "" : "4, 4"} 
               />
               <Line x1={getX(h.longitude, R_TICKS_OUTER)} y1={getY(h.longitude, R_TICKS_OUTER)} x2={xOut} y2={yOut} stroke={isAngle ? COLORS.primary : COLORS.border} strokeWidth={isAngle ? "2" : "1"} />
-              <SvgText 
-                x={getX(h.longitude, R_CUSP_NUM + (isAngle ? 5 : 0))} 
-                y={getY(h.longitude, R_CUSP_NUM + (isAngle ? 5 : 0)) + 4} 
-                fontSize={isAngle ? "12" : "10"} 
-                fill={isAngle ? COLORS.primary : COLORS.textMuted} 
-                textAnchor="middle"
-                fontWeight={isAngle ? "bold" : "normal"}
-              >
-                {`${String(h.degreeInSign).padStart(2, '0')}° ${h.house}. ${String(h.minutes).padStart(2, '0')}'`}
-              </SvgText>
+              {isAngle ? (
+                <>
+                  <Rect x={bx - 14} y={by - 8} width={28} height={15} rx={4} fill={COLORS.primary} stroke="#141928" strokeWidth={1} />
+                  <SvgText x={bx} y={by + 3} fontSize="8.5" fill="#000000" textAnchor="middle" fontWeight="bold">
+                    {angleLabel}
+                  </SvgText>
+                  <SvgText x={degX} y={degY} fontSize="8.5" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
+                    {degText}
+                  </SvgText>
+                </>
+              ) : (
+                <SvgText 
+                  x={nonAngleX} 
+                  y={nonAngleY} 
+                  fontSize="9" 
+                  fill={COLORS.textMuted} 
+                  textAnchor="middle"
+                >
+                  {`${String(h.degreeInSign).padStart(2, '0')}° ${h.house}. ${String(h.minutes).padStart(2, '0')}'`}
+                </SvgText>
+              )}
             </G>
           );
         })}
 
         {/* Planets */}
-        {chart.planets.map((p, i) => {
-          // Stagger overlap
-          let rOffset = 0;
-          for(let j=0; j<i; j++) {
-             if (Math.abs(p.longitude - chart.planets[j].longitude) < 5) rOffset += 18;
+        {sortedWheelPlanets.map((p, i, arr) => {
+          let clusterIndex = 0;
+          for (let j = 0; j < i; j++) {
+            const diff = Math.abs(p.longitude - arr[j].longitude);
+            const circularDiff = Math.min(diff, 360 - diff);
+            if (circularDiff < 8) {
+              clusterIndex++;
+            }
           }
-          const px = getX(p.longitude, R_PLANETS - rOffset);
-          const py = getY(p.longitude, R_PLANETS - rOffset);
+          const rOffset = clusterIndex * 22;
+          const displayLon = clusterIndex > 0
+            ? p.longitude + (clusterIndex % 2 === 1 ? 2.5 : -2.5) * Math.ceil(clusterIndex / 2)
+            : p.longitude;
+
+          const px = getX(displayLon, R_PLANETS - rOffset);
+          const py = getY(displayLon, R_PLANETS - rOffset);
+          const symbol = PLANET_SYMBOLS[p.name] || p.name.substring(0, 2);
+          const labelAbove = clusterIndex % 2 === 1;
+          const degY = labelAbove ? py - 12 : py + 18;
           
           return (
-            <G key={`planet-${i}`}>
+            <G key={`planet-${p.name}-${i}`}>
               <Line x1={getX(p.longitude, R_ZODIAC_INNER)} y1={getY(p.longitude, R_ZODIAC_INNER)} x2={px} y2={py} stroke={COLORS.border} strokeWidth="0.5" strokeDasharray="1, 2" />
-              <Circle cx={px} cy={py} r="10" fill={COLORS.background} stroke={COLORS.border} strokeWidth="1" />
-              <SvgText x={px} y={py + 4} fontSize="12" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
-                {PLANET_SYMBOLS[p.name]}
+              <Circle cx={px} cy={py} r="10" fill="#0F172A" stroke={COLORS.primary} strokeWidth="1" />
+              <SvgText x={px} y={py + 4} fontSize="11.5" fill={COLORS.primary} textAnchor="middle" fontWeight="bold">
+                {symbol}
               </SvgText>
-              <SvgText x={px + 15} y={py - 5} fontSize="9" fill={COLORS.textMuted} textAnchor="start">
+              <SvgText x={px} y={degY} fontSize="8.5" fill={COLORS.textMuted} textAnchor="middle">
                 {`${p.degreeInSign}°${String(p.minutes).padStart(2,'0')}'`}
               </SvgText>
               {p.isRetrograde && (
-                <SvgText x={px + 15} y={py + 5} fontSize="9" fill="#FF453A" textAnchor="start" fontWeight="bold">Rx</SvgText>
+                <SvgText x={px + 12} y={py - 4} fontSize="8" fill="#FF453A" textAnchor="start" fontWeight="bold">Rx</SvgText>
               )}
             </G>
           );
@@ -423,6 +473,8 @@ export default function AstrolojiAnalysisScreen() {
       chart.planets.find(p => p.name === 'Uranüs'),
       chart.planets.find(p => p.name === 'Neptün'),
       chart.planets.find(p => p.name === 'Plüton'),
+      chart.planets.find(p => p.name === 'Kiron'),
+      chart.planets.find(p => p.name === 'Lilith'),
       chart.ascendant,
       chart.midheaven
     ].filter(Boolean) as (NatalChartData['planets'][0])[];

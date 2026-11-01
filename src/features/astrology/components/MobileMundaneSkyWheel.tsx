@@ -65,7 +65,7 @@ export default function MobileMundaneSkyWheel({
   const R_ASPECT_CORE = RADIUS - 64;
 
   const visiblePlanets = planets.filter(p => 
-    ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton', 'Kiron'].includes(p.name)
+    ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton', 'Kiron', 'Kuzey Ay Düğümü', 'Lilith'].includes(p.name)
   );
 
   const planetMap = new Map<string, AstroPoint>();
