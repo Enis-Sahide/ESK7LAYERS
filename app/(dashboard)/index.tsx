@@ -497,14 +497,6 @@ export default function DashboardScreen() {
                <Text style={styles.fabMenuText}>Analizler</Text>
              </TouchableOpacity>
 
-             {/* Schumann Rezonansı */}
-             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/schumann'); setIsToolsExpanded(false); }}>
-               <Ionicons name="flash-outline" size={20} color="#00E5FF" style={{ marginRight: 10 }} />
-               <Text style={styles.fabMenuText}>Schumann Rezonansı</Text>
-             </TouchableOpacity>
-
-             <View style={styles.fabMenuDivider} />
-
              {/* Ay Döngüleri */}
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/kisisel-analizler/ay-donguleri'); setIsToolsExpanded(false); }}>
                <Ionicons name="moon-outline" size={20} color="#AF52DE" style={{ marginRight: 10 }} />
