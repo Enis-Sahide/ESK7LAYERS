@@ -54,7 +54,7 @@ export const ASTRO_CITIES: AstroCity[] = [
 
 // Geliştirme aşamasında Expo mobil cihazdan kendi bilgisayarınıza bağlanabilmek için 
 // 'localhost' yerine bilgisayarınızın yerel IP adresini kullanmalısınız.
-import { API_BASE_URL } from '@/src/core/config';
+import { apiFetch } from '@/src/core/config';
 
 export async function fetchAstrologyChart(birthDate: Date, cityInput: string | AstroCity = 'İstanbul'): Promise<NatalChartData> {
   try {
@@ -66,7 +66,7 @@ export async function fetchAstrologyChart(birthDate: Date, cityInput: string | A
     const localDate = m.format('YYYY-MM-DD');
     const localTime = m.format('HH:mm');
 
-    const response = await fetch(`${API_BASE_URL}/api/astrology/calculate`, {
+    const response = await apiFetch('/api/astrology/calculate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
