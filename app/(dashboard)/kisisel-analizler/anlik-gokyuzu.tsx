@@ -26,7 +26,6 @@ import MobileTransitTimelineChart from '@/src/features/astrology/components/Mobi
 import MobileMundaneSkyWheel from '@/src/features/astrology/components/MobileMundaneSkyWheel';
 import { getSkyPlanetSignInterpretation, getSkyAspectInterpretation } from '@/src/features/astrology/engine/SkyAspectInterpretations';
 import { ASTRO_CITIES } from '@/src/features/astrology/api/astrologyClient';
-import { generateAstrologyChart } from '@/src/features/astrology/engine/AstrologyEngine';
 import { LinearGradient } from 'expo-linear-gradient';
 import MobileLunationCard, { LunationBackendData } from '@/src/features/astrology/components/MobileLunationCard';
 
@@ -222,42 +221,34 @@ export default function AnlikGokyuzuScreen() {
     setIsSkyChartLoading(true);
     try {
       const rawCity = selectedTransitCityData || selectedCityData || ASTRO_CITIES.find(c => c.name === 'İstanbul') || ASTRO_CITIES[0];
-      const city = {
-        name: rawCity.name,
+      const cityData = {
+        name: rawCity.name || 'İstanbul',
         lat: rawCity.lat ?? rawCity.latitude ?? 41.0082,
         lon: rawCity.lon ?? rawCity.longitude ?? 28.9784,
+        country: rawCity.country || 'Türkiye',
         tz: rawCity.tz || rawCity.timezone || userTz || 'Europe/Istanbul'
       };
 
-      const mObj = moment.tz(`${dStr} ${tStr}:00`, 'YYYY-MM-DD HH:mm:ss', city.tz);
-      const dateObj = mObj.toDate();
-      const skyChart: any = generateAstrologyChart(dateObj, city);
-      // Mundane / Anlık Gökyüzü için katı orb filtresi (Ay maks 4.5°, diğerleri maks 3.5°, Görmeyen maks 2.0°)
-      const mundaneAspects = (skyChart.aspects || []).filter((asp: any) => {
-        const hasMoon = asp.planet1 === 'Ay' || asp.planet2 === 'Ay';
-        if (asp.type === 'Görmeyen') return asp.orb <= 2.0;
-        const maxOrb = hasMoon ? 4.5 : 3.5;
-        return asp.orb <= maxOrb;
+      const response = await apiFetch('/api/astrology/sky-chart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dateStr: dStr,
+          timeStr: tStr,
+          cityData
+        })
       });
 
-      // Kesinlik önceliğine göre küçükten büyüğe sırala (0.0° en başta)
-      mundaneAspects.sort((a: any, b: any) => a.orb - b.orb);
-
-      const enrichedAspects = mundaneAspects.map((asp: any) => ({
-        ...asp,
-        interpretation: getSkyAspectInterpretation(asp.planet1, asp.planet2, asp.type)
-      }));
-
-      setSkyChartData({
-        date: dStr,
-        time: tStr,
-        city: city.name,
-        planets: skyChart.planets,
-        ascendant: skyChart.ascendant,
-        midheaven: skyChart.midheaven,
-        houses: skyChart.houses,
-        aspects: enrichedAspects
-      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result && result.success && result.data) {
+          setSkyChartData(result.data);
+        } else {
+          throw new Error(result?.error || 'Gökyüzü haritası alınamadı.');
+        }
+      } else {
+        throw new Error('Sunucudan gökyüzü verisi alınamadı.');
+      }
 
       // Kolektif ay fazı ve tutulma çatısını backend API'den güncelle
       try {
@@ -271,8 +262,9 @@ export default function AnlikGokyuzuScreen() {
       } catch (lErr) {
         console.warn('Mundane lunation fetch error:', lErr);
       }
-    } catch (e) {
-      console.error('Sky chart local calculation error:', e);
+    } catch (e: any) {
+      console.error('Sky chart API fetch error:', e);
+      Alert.alert('Bağlantı Hatası', e?.message || 'Anlık gökyüzü verileri sunucudan çekilirken bir hata oluştu.');
     } finally {
       setIsSkyChartLoading(false);
     }
