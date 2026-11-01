@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SIGN_LUNATION_INTERPRETATIONS, HOUSE_LUNATION_INTERPRETATIONS } from '../engine/LunationEngine';
 
 export interface LunationBackendData {
   event: {
@@ -87,6 +88,27 @@ export default function MobileLunationCard({
   // Şemsiye başlığı: eğer mevcut kart güneş tutulmasının kendisi değilse göster
   const showSolarUmbrella = activeSolarEclipse && !isSolar;
 
+  const ZODIAC_TR_ORDER = ['Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak', 'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'];
+  const solarSignInterp = activeSolarEclipse
+    ? ((activeSolarEclipse as any).signInterpretation || SIGN_LUNATION_INTERPRETATIONS[activeSolarEclipse.event.sign]?.['solar_eclipse'] || null)
+    : null;
+  const solarPersonal = (() => {
+    if (!activeSolarEclipse) return null;
+    if ((activeSolarEclipse as any).personal) return (activeSolarEclipse as any).personal;
+    if (personal) {
+      const eventSignIdx = ZODIAC_TR_ORDER.indexOf(event.sign);
+      const solarSignIdx = ZODIAC_TR_ORDER.indexOf(activeSolarEclipse.event.sign);
+      if (eventSignIdx !== -1 && solarSignIdx !== -1) {
+        const sHouseNum = ((personal.houseNumber - 1 + (solarSignIdx - eventSignIdx) + 12) % 12) + 1;
+        const sInterp = HOUSE_LUNATION_INTERPRETATIONS[sHouseNum]?.['solar_eclipse'];
+        if (sInterp) {
+          return { houseNumber: sHouseNum, ...sInterp };
+        }
+      }
+    }
+    return null;
+  })();
+
   const formattedDate = new Date(event.utcDate).toLocaleDateString('tr-TR', {
     day: 'numeric',
     month: 'long',
@@ -144,9 +166,89 @@ export default function MobileLunationCard({
               </View>
 
               {isSolarOpen && (
-                <View style={[styles.umbrellaStatusBadge, { marginTop: 8 }]}>
-                  <Ionicons name="time-outline" size={12} color="#FBBF24" style={{ marginRight: 4 }} />
-                  <Text style={styles.umbrellaStatusText}>{activeSolarEclipse.statusText}</Text>
+                <View style={{ marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(245, 158, 11, 0.2)' }}>
+                  <View style={[styles.umbrellaStatusBadge, { marginBottom: 12 }]}>
+                    <Ionicons name="time-outline" size={12} color="#FBBF24" style={{ marginRight: 4 }} />
+                    <Text style={styles.umbrellaStatusText}>{activeSolarEclipse.statusText} • Etki: 6 Ay (Pik: ±15 Gün)</Text>
+                  </View>
+
+                  {/* Kolektif Güneş Tutulması Teması (Genel Gökyüzü Modunda) */}
+                  {!solarPersonal && solarSignInterp && (
+                    <View style={[styles.collectiveSection, { marginBottom: 10 }]}>
+                      <View style={styles.sectionHeaderRow}>
+                        <Ionicons name="sparkles" size={14} color="#FBBF24" style={{ marginRight: 6 }} />
+                        <Text style={[styles.collectiveSectionTitle, { color: '#FBBF24' }]}>
+                          Kolektif Gökyüzü: {solarSignInterp.title}
+                        </Text>
+                      </View>
+                      <Text style={styles.collectiveBodyText}>{solarSignInterp.collective}</Text>
+                    </View>
+                  )}
+
+                  {/* Kişisel Harita Güneş Tutulması Portalı (Kişisel Modda) */}
+                  {solarPersonal && (
+                    <View style={[styles.personalPortalBox, { marginBottom: 10 }]}>
+                      <View style={styles.portalHeaderRow}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.portalOverline}>
+                            ☀️ {activeSolarEclipse.event.sign.toLocaleUpperCase('tr-TR')} GÜNEŞ TUTULMASI • {solarPersonal.houseNumber}. EVİNİZDE
+                          </Text>
+                          <Text style={styles.portalNameText}>
+                            {(solarPersonal.portalName || solarPersonal.title).replace(/^\d+\.\s*Ev:\s*/i, '')}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {solarPersonal.portalMeaning ? (
+                        <Text style={styles.portalMeaningText}>{solarPersonal.portalMeaning}</Text>
+                      ) : null}
+
+                      <View style={styles.consciousnessGrid}>
+                        <View style={styles.shadowCard}>
+                          <View style={styles.stateTitleRow}>
+                            <Ionicons name="warning-outline" size={14} color="#F87171" style={{ marginRight: 5 }} />
+                            <Text style={styles.shadowTitle}>Alt Bilinç / Gölge Hali</Text>
+                          </View>
+                          <Text style={styles.shadowBody}>
+                            {solarPersonal.shadowState || solarPersonal.personalImpact}
+                          </Text>
+                          <Text style={styles.shadowSub}>Ego, korku ve sınav seviyesinde günlük yaşam deneyimi</Text>
+                        </View>
+
+                        <View style={styles.elevatedCard}>
+                          <View style={styles.stateTitleRow}>
+                            <Ionicons name="sparkles" size={14} color="#D4AF37" style={{ marginRight: 5 }} />
+                            <Text style={styles.elevatedTitle}>Üst Bilinç / Ruhsal Boyut</Text>
+                          </View>
+                          <Text style={styles.elevatedBody}>
+                            {solarPersonal.elevatedState || solarPersonal.personalImpact}
+                          </Text>
+                          <Text style={styles.elevatedSub}>7 çakra dengede ve arınmış bilinçle açılan inisiyasyon</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.spiritualAdviceBox}>
+                        <Ionicons name="leaf-outline" size={16} color="#34D399" style={{ marginRight: 8, marginTop: 2 }} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.spiritualAdviceTitle}>Çakra & Manevi Denge Reçetesi:</Text>
+                          <Text style={styles.spiritualAdviceText}>
+                            {solarPersonal.spiritualAdvice || solarPersonal.advice}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Güneş Tutulması Ritüeli */}
+                  {solarSignInterp?.ritual && (
+                    <View style={styles.ritualBox}>
+                      <Ionicons name="flame-outline" size={18} color="#FBBF24" style={{ marginRight: 8, marginTop: 2 }} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.ritualTitle}>Bu 6 Aylık Tutulma Döneminin Manevi Arınma & Ritüel Tavsiyesi:</Text>
+                        <Text style={styles.ritualText}>{solarSignInterp.ritual}</Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               )}
             </TouchableOpacity>
