@@ -777,7 +777,7 @@ export default function AnlikGokyuzuScreen() {
               {esotericSignature.chakraResonance.sephirahName}
             </Text>
             <Text style={{ fontSize: 11, color: '#D1D5DB', lineHeight: 16 }}>
-              {esotericSignature.chakraResonance.dailyAffirmation}
+              {esotericSignature.chakraResonance.guidance}
             </Text>
           </View>
         </View>
@@ -785,7 +785,7 @@ export default function AnlikGokyuzuScreen() {
         {/* 2. BÖLÜM: YAŞAM & EZOTERİK YETKİNLİK PUANLARI (Sadece Başlık + Puan/10) */}
         <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 10 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#9CA3AF', letterSpacing: 0.5 }}>
+            <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#9CA3AF', letterSpacing: 0.5, flex: 1, marginRight: 8 }}>
               GÜNLÜK YAŞAM & EZOTERİK YETKİNLİK PUANLARI
             </Text>
             <Text style={{ fontSize: 10, color: '#6B7280' }}>10 Üzerinden</Text>
@@ -793,15 +793,16 @@ export default function AnlikGokyuzuScreen() {
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 8 }}>
             {attributes.map((attr) => {
-              const isEsoteric = attr.category === 'esoteric';
+              const isEsoteric = Boolean(attr.isEsoteric);
+              const scoreVal = attr.score ?? (attr as any).score10 ?? 5;
               const scoreColor =
                 isEsoteric
                   ? '#C084FC'
-                  : attr.score10 >= 8
+                  : scoreVal >= 8
                   ? '#34D399'
-                  : attr.score10 >= 6
+                  : scoreVal >= 6
                   ? '#38BDF8'
-                  : attr.score10 >= 4
+                  : scoreVal >= 4
                   ? '#FBBF24'
                   : '#FB7185';
               return (
@@ -834,7 +835,7 @@ export default function AnlikGokyuzuScreen() {
                     }}
                   >
                     <Text style={{ fontSize: 11.5, fontWeight: '900', color: scoreColor }}>
-                      {attr.score10}/10
+                      {scoreVal}/10
                     </Text>
                   </View>
                 </View>

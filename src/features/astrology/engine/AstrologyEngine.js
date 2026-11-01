@@ -120,12 +120,12 @@ function mod360(x) {
 function getSignAndDegree(longitude) {
     var lon = mod360(longitude);
     var signIndex = Math.floor(lon / 30);
-    var degreeInSign = lon % 30;
-    var deg = Math.floor(degreeInSign);
-    var min = Math.floor((degreeInSign - deg) * 60);
+    var decimalDegree = lon % 30;
+    var deg = Math.floor(decimalDegree);
+    var min = Math.floor((decimalDegree - deg) * 60);
     return {
         sign: exports.ZODIAC_SIGNS[signIndex],
-        degreeInSign: degreeInSign,
+        degreeInSign: deg,
         degree: deg,
         minutes: min,
         signIndex: signIndex
