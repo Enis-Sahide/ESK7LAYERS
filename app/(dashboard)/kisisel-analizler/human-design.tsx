@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert,
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Polygon, Rect, Line, Circle, Polyline, Text as SvgText, G, Path, Image as SvgImage } from 'react-native-svg';
-import { generateChart, HumanDesignChart, CenterCode, PLANET_SYMBOLS, CHANNELS } from '@/src/features/human-design/engine/HumanDesignEngine';
+import { HumanDesignChart, CenterCode, PLANET_SYMBOLS, CHANNELS } from '@/src/features/human-design/engine/HumanDesignEngine';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import moment from 'moment-timezone';

@@ -19,16 +19,23 @@ import { BlurView } from 'expo-blur';
 import { COLORS, SIZES } from '@/src/theme';
 import { useContent } from '@/src/core/content/useContent';
 import { API_BASE_URL } from '@/src/core/config';
-import { 
-  PhoneticChakraEngine, 
-  CHAKRA_METADATA, 
-  BODY_CENTERS_METADATA,
-  TargetGoal, 
-  SimulationComparison, 
-  BrandAnalysisResult, 
-  SuggestedNameItem,
-  BodyCenter
-} from '@/src/features/numerology/engine/PhoneticChakraEngine';
+export type TargetGoal = 'wealth' | 'fame' | 'love' | 'spiritual';
+export type BodyCenter = 'heart' | 'stomach' | 'throat' | 'head';
+export type SimulationComparison = any;
+export type BrandAnalysisResult = any;
+export type SuggestedNameItem = any;
+
+const CHAKRA_METADATA: Record<number, { number: number; name: string; sanskrit: string; domain: string; color: string; element: string; planet: string; letters: string[] }> = {
+  1: { number: 1, name: 'Kök Çakra', sanskrit: 'Muladhara', domain: 'Köklenme, Liderlik, Hayatta Kalma, Başlangıç Gücü', color: '#EF4444', element: 'Ateş', planet: 'Güneş / Mars', letters: ['A', 'J', 'S', 'Ş'] },
+  2: { number: 2, name: 'Sakral Çakra', sanskrit: 'Svadhisthana', domain: 'Çekim Gücü, Yaratıcılık, İlişkiler, Müşteri Bağı, Alma-Verme', color: '#F97316', element: 'Su', planet: 'Ay / Venüs', letters: ['B', 'K', 'T'] },
+  3: { number: 3, name: 'Solar Pleksus', sanskrit: 'Manipura', domain: 'İrade, Ticari Eylem, Parayı Yönetme, Özgüven, Büyüme', color: '#EAB308', element: 'Ateş', planet: 'Jüpiter / Güneş', letters: ['C', 'Ç', 'L', 'U', 'Ü'] },
+  4: { number: 4, name: 'Kalp Çakrası', sanskrit: 'Anahata', domain: 'Güven, Sadakat, Sistem Kurma, Topraklanma, Kalıcı Mülk', color: '#22C55E', element: 'Toprak / Hava', planet: 'Venüs / Satürn', letters: ['D', 'M', 'V'] },
+  5: { number: 5, name: 'Boğaz Çakrası', sanskrit: 'Vishuddha', domain: 'İletişim, Medya, Pazarlama, Özgürlük, Hızlı Yayılım', color: '#06B6D4', element: 'Hava / Eter', planet: 'Merkür', letters: ['E', 'N', 'W'] },
+  6: { number: 6, name: 'Üçüncü Göz', sanskrit: 'Ajna', domain: 'Vizyon, Sezgi, Estetik, Prestij, Toplumsal Sorumluluk', color: '#3B82F6', element: 'Işık', planet: 'Venüs / Neptün', letters: ['F', 'O', 'Ö', 'X'] },
+  7: { number: 7, name: 'Taç Çakra', sanskrit: 'Sahasrara', domain: 'Uzmanlık, Derin Analiz, Ruhsallık, Ar-Ge, Bilgelik', color: '#8B5CF6', element: 'Kozmik Enerji', planet: 'Neptün / Ketu', letters: ['G', 'Ğ', 'P', 'Y'] },
+  8: { number: 8, name: 'Aura & Bolluk (8. Merkez)', sanskrit: 'Karmic & Wealth Aura', domain: 'Büyük Finans, Otorite, Güç, Kurumsallaşma, Maddi Hasat', color: '#EC4899', element: 'Toprak / Ateş', planet: 'Satürn / Plüton', letters: ['H', 'Q', 'Z'] },
+  9: { number: 9, name: 'Ruh Yıldızı (9. Merkez)', sanskrit: 'Sutratma', domain: 'Evrensel Ün, Global Etki, Hümanizm, Tamamlanma', color: '#F43F5E', element: 'Eter', planet: 'Mars / Jüpiter', letters: ['I', 'İ', 'R'] }
+};
 import { isAuthenticated, onAuthChange } from '@/src/core/api/client';
 
 // Master numbers
@@ -76,6 +83,7 @@ export default function NumerolojiKisiselAnalizScreen() {
   const [additionalNameInput, setAdditionalNameInput] = useState('');
   const [selectedGoal, setSelectedGoal] = useState<TargetGoal>('wealth');
   const [simulationData, setSimulationData] = useState<SimulationComparison | null>(null);
+  const [recommendedByGoal, setRecommendedByGoal] = useState<Record<string, any[]>>({});
 
   // Brand Inputs & Result
   const [brandName, setBrandName] = useState('');
@@ -135,7 +143,7 @@ export default function NumerolojiKisiselAnalizScreen() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ birthDate: birthDateStr, name }),
+        body: JSON.stringify({ birthDate: birthDateStr, name, additionalName: additionalNameInput }),
       });
 
       if (!response.ok) {
@@ -161,9 +169,8 @@ export default function NumerolojiKisiselAnalizScreen() {
         chakraMatrix: data.nameAnalysis.chakraMatrix
       });
 
-      // Initial simulation with no / existing additional name
-      const sim = PhoneticChakraEngine.simulatePersonalName(name, additionalNameInput);
-      setSimulationData(sim);
+      if (data.simulation) setSimulationData(data.simulation);
+      if (data.recommendedByGoal) setRecommendedByGoal(data.recommendedByGoal);
       
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -176,15 +183,27 @@ export default function NumerolojiKisiselAnalizScreen() {
     }
   };
 
-  const handleAdditionalNameChange = (newAddName: string) => {
+  const handleAdditionalNameChange = async (newAddName: string) => {
     setAdditionalNameInput(newAddName);
     if (name.trim()) {
-      const sim = PhoneticChakraEngine.simulatePersonalName(name, newAddName);
-      setSimulationData(sim);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/numerology`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'simulateName', name, additionalName: newAddName }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.simulation) setSimulationData(data.simulation);
+          if (data.recommendedByGoal) setRecommendedByGoal(data.recommendedByGoal);
+        }
+      } catch (e) {
+        console.warn('Name simulation API error:', e);
+      }
     }
   };
 
-  const calculateBrandNumerology = () => {
+  const calculateBrandNumerology = async () => {
     if (!brandName.trim()) {
       Alert.alert("Eksik Bilgi", "Lütfen marka veya şirket adını girin.");
       return;
@@ -192,8 +211,14 @@ export default function NumerolojiKisiselAnalizScreen() {
     setLoading(true);
     try {
       const fullBrand = brandSlogan.trim() ? `${brandName.trim()} ${brandSlogan.trim()}` : brandName.trim();
-      const res = PhoneticChakraEngine.analyzeBrand(fullBrand);
-      setBrandResult(res);
+      const response = await fetch(`${API_BASE_URL}/api/numerology`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyzeBrand', brandName: fullBrand }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.brandResult) throw new Error('API hatası');
+      setBrandResult(data.brandResult);
       setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 300);
@@ -890,7 +915,7 @@ export default function NumerolojiKisiselAnalizScreen() {
 
                   {/* Recommendations List */}
                   <View style={styles.recommendedCardsList}>
-                    {PhoneticChakraEngine.getRecommendedNamesForMissingChakras(simulationData.originalMissing, selectedGoal).slice(0, 6).map((item, idx) => (
+                    {(recommendedByGoal[selectedGoal] || []).map((item, idx) => (
                       <View key={idx} style={styles.recItemCard}>
                         <View style={styles.recItemHeader}>
                           <Text style={styles.recItemName}>{item.name}</Text>

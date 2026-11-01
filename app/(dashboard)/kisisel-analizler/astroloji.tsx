@@ -9,7 +9,6 @@ import * as moment from 'moment-timezone';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
 import { fetchAstrologyChart, NatalChartData, ASTRO_CITIES, ZodiacSign, AstroCity } from '@/src/features/astrology/api/astrologyClient';
-import { getFullPlanetInterpretation, getHouseCuspInterpretation } from '@/src/features/astrology/engine/AstrologyInterpretations';
 import { useAnalysisAccess, showAnalysisLockedAlert } from '@/src/hooks/useAnalysisAccess';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -572,7 +571,7 @@ export default function AstrolojiAnalysisScreen() {
                       <TouchableOpacity 
                         key={i} 
                         style={styles.tableRow}
-                      onPress={() => handleInterpClick(getFullPlanetInterpretation(p.name, p.sign, p.house))}
+                      onPress={() => handleInterpClick((p as any).interpretation || { title: `${p.name} ${p.sign} Burcunda (${p.house}. Ev)`, content: '' })}
                       >
                         <Text style={styles.tableCell}><Text style={{color: COLORS.primary}}>{PLANET_SYMBOLS[p.name] || ''}</Text> {p.name}</Text>
                         <Text style={[styles.tableCell, {color: ZODIAC_COLORS[p.sign]}]}>{p.sign}</Text>
@@ -601,7 +600,7 @@ export default function AstrolojiAnalysisScreen() {
                       <TouchableOpacity 
                         key={i} 
                         style={styles.tableRow}
-                        onPress={() => handleInterpClick(getHouseCuspInterpretation(h.house, h.sign))}
+                        onPress={() => handleInterpClick((h as any).interpretation || { title: `${h.house}. Ev ${h.sign} Burcunda`, content: '' })}
                       >
                         <Text style={styles.tableCell}>{h.house}. Ev {h.house===1?'(ASC)':h.house===10?'(MC)':h.house===4?'(IC)':h.house===7?'(DSC)':''}</Text>
                         <Text style={[styles.tableCell, {color: ZODIAC_COLORS[h.sign]}]}>{h.sign}</Text>

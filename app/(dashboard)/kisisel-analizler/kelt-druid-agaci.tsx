@@ -1,5 +1,5 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -16,12 +16,40 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { COLORS, SIZES } from '@/src/theme';
-import { 
-  DRUID_TREES, 
-  getDruidTreeAnalysis, 
-  DruidTree, 
-  DruidTreeAnalysis 
-} from '@/src/features/astrology/engine/DruidTreeEngine';
+import { apiFetch } from '@/src/core/config';
+
+export interface DruidTreePeriod {
+  startMonth: number;
+  startDay: number;
+  endMonth: number;
+  endDay: number;
+  label: string;
+}
+export interface DruidTree {
+  id: string;
+  name: string;
+  botanicalName: string;
+  oghamSymbol: string;
+  oghamName: string;
+  periods: DruidTreePeriod[];
+  isCardinalStation?: boolean;
+  stationLabel?: string;
+  archetype: string;
+  element: string;
+  rulingPlanets: string;
+  colorTheme: { primary: string; secondary: string; badgeBg: string };
+  spiritualEssence: string;
+  lightTraits: string[];
+  shadowTraits: string[];
+  natureRitual: { grounding: string; ambientAroma: string; soulPractice: string };
+  relationships: { resonantTrees: string[]; catalystTrees: string[] };
+  druidicProverb: string;
+}
+export interface DruidTreeAnalysis {
+  tree: DruidTree;
+  matchedPeriod: DruidTreePeriod;
+  formattedDate: string;
+}
 import { getDruidTreeGif } from '@/src/features/astrology/assets/druidTreeGifs';
 
 const { width } = Dimensions.get('window');
@@ -45,9 +73,19 @@ export default function KeltDruidAgaciScreen() {
   const [showDayModal, setShowDayModal] = useState(false);
   const [showMonthModal, setShowMonthModal] = useState(false);
 
-  // Ansiklopedi State'i
+  // Ansiklopedi State'i (Backend API'den çekilir)
+  const [druidTrees, setDruidTrees] = useState<DruidTree[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedModalTree, setSelectedModalTree] = useState<DruidTree | null>(null);
+
+  useEffect(() => {
+    apiFetch('/api/astrology/druid-tree-card?mode=list')
+      .then(res => res.json())
+      .then(data => {
+        if (data?.trees) setDruidTrees(data.trees);
+      })
+      .catch(err => console.warn('Druid trees fetch error:', err));
+  }, []);
 
   // Ayın gün sayısı
   const daysInMonth = useMemo(() => {
@@ -56,10 +94,21 @@ export default function KeltDruidAgaciScreen() {
     return 31;
   }, [selectedMonth]);
 
-  const handleCalculate = () => {
-    const analysis = getDruidTreeAnalysis(selectedDay, selectedMonth);
-    setAnalyzedData(analysis);
-    setAnalyzedName(userName.trim());
+  const handleCalculate = async () => {
+    try {
+      const res = await apiFetch('/api/astrology/druid-tree-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ day: selectedDay, month: selectedMonth }),
+      });
+      const data = await res.json();
+      if (data?.analysis) {
+        setAnalyzedData(data.analysis);
+        setAnalyzedName(userName.trim());
+      }
+    } catch (e) {
+      console.error('Druid analysis API error:', e);
+    }
   };
 
   const currentTree: DruidTree | null = analyzedData ? analyzedData.tree : null;
@@ -85,9 +134,9 @@ export default function KeltDruidAgaciScreen() {
   };
 
   const filteredTrees = useMemo(() => {
-    if (!searchTerm.trim()) return DRUID_TREES;
+    if (!searchTerm.trim()) return druidTrees;
     const q = searchTerm.toLowerCase();
-    return DRUID_TREES.filter(t => 
+    return druidTrees.filter(t => 
       t.name.toLowerCase().includes(q) ||
       t.archetype.toLowerCase().includes(q) ||
       t.oghamName.toLowerCase().includes(q) ||
