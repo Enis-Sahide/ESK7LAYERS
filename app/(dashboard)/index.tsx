@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground, ActivityIndicator, Platform, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground, ActivityIndicator, Platform, BackHandler, Modal, Switch } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -59,9 +59,35 @@ const MarqueeText = ({ text }: { text: string }) => {
   );
 };
 
-const PlanetaryHourWidget = () => {
+const getLiveMoonPhaseSummary = (date = new Date()) => {
+  // Known new moon reference: Jan 6, 2000 18:14 UTC
+  const synodicMonth = 29.53058867;
+  const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14, 0);
+  const diffDays = (date.getTime() - knownNewMoon) / (1000 * 60 * 60 * 24);
+  const phaseRatio = ((diffDays % synodicMonth) + synodicMonth) % synodicMonth / synodicMonth;
+  const illumination = Math.round((1 - Math.cos(phaseRatio * 2 * Math.PI)) * 50);
+
+  if (phaseRatio < 0.04 || phaseRatio > 0.96) {
+    return { icon: '🌑', name: 'Yeni Ay Fazı', desc: 'Yeni niyet ve tohum ekmek için kozmik sıfır noktası', illumination };
+  } else if (phaseRatio < 0.22) {
+    return { icon: '🌒', name: 'Hilal (Büyüyen Ay)', desc: 'İvme kazanma, adım atma ve projeleri büyütme enerjisi', illumination };
+  } else if (phaseRatio < 0.28) {
+    return { icon: '🌓', name: 'İlk Dördün', desc: 'Kararlılık, engelleri aşma ve irade ortaya koyma fazı', illumination };
+  } else if (phaseRatio < 0.46) {
+    return { icon: '🌔', name: 'Şişkin Ay', desc: 'Detayları olgunlaştırma, hazırlık ve sabırlı ilerleme', illumination };
+  } else if (phaseRatio < 0.54) {
+    return { icon: '🌕', name: 'Dolunay Fazı', desc: 'Farkındalık zirvesi, tamamlanma ve duygusal aydınlanma', illumination };
+  } else if (phaseRatio < 0.72) {
+    return { icon: '🌖', name: 'Küçülen Şişkin Ay', desc: 'Şükür, paylaşım, içgörü ve deneyimleri sindirme zamanı', illumination };
+  } else if (phaseRatio < 0.78) {
+    return { icon: '🌗', name: 'Son Dördün', desc: 'Arınma, yükleri bırakma ve zihinsel sadeleşme evresi', illumination };
+  }
+  return { icon: '🌘', name: 'Balsamik Ay', desc: 'İçe dönüş, dinlenme, tefekkür ve ruhsal hazırlık', illumination };
+};
+
+const PlanetaryHourWidget = ({ visible = true }: { visible?: boolean }) => {
   const router = useRouter();
-  const [data, setData] = useState<{ hour: PlanetaryHour, info: any, minsLeft: number } | null>(null);
+  const [data, setData] = useState<{ hour: PlanetaryHour, info: any, minsLeft: number, cityName: string } | null>(null);
   
   useFocusEffect(
     useCallback(() => {
@@ -71,31 +97,41 @@ const PlanetaryHourWidget = () => {
       const fetchHour = async () => {
         try {
           const savedWidget = await AsyncStorage.getItem('@show_planetary_widget');
-          if (savedWidget !== 'true' && isActive) {
+          if (savedWidget === 'false' && isActive) {
             setData(null);
             return;
           }
 
           const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
-          if (!savedLocation || !isActive) return;
-          const { lat, lon } = JSON.parse(savedLocation);
+          let lat = 41.0082;
+          let lon = 28.9784;
+          let cityName = 'İstanbul';
+
+          if (savedLocation) {
+            const parsed = JSON.parse(savedLocation);
+            if (typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+              lat = parsed.lat;
+              lon = parsed.lon;
+              cityName = parsed.name ? String(parsed.name).split(',')[0] : 'Seçili Konum';
+            }
+          }
           
           const updateCurrent = () => {
             if (!isActive) return;
             const now = new Date();
-            let data = getPlanetaryHours(now, lat, lon);
+            let pData = getPlanetaryHours(now, lat, lon);
             
-            if (now < data.sunrise) {
+            if (now < pData.sunrise) {
               const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-              data = getPlanetaryHours(yesterday, lat, lon);
+              pData = getPlanetaryHours(yesterday, lat, lon);
             }
             
-            const current = data.hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
+            const current = pData.hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
             
             if (current) {
               const info = getPlanetInfo(current.planet);
               const minsLeft = Math.max(0, Math.floor((current.endTime.getTime() - now.getTime()) / 60000));
-              setData({ hour: current, info, minsLeft });
+              setData({ hour: current, info, minsLeft, cityName });
             } else {
               setData(null);
             }
@@ -114,10 +150,10 @@ const PlanetaryHourWidget = () => {
         isActive = false;
         clearInterval(interval);
       };
-    }, [])
+    }, [visible])
   );
 
-  if (!data) return null; // Don't show if location not set
+  if (!visible || !data) return null;
 
   return (
     <TouchableOpacity 
@@ -129,7 +165,7 @@ const PlanetaryHourWidget = () => {
         <Text style={[styles.planetWidgetIcon, { color: data.info.color }]}>{data.info.symbol}</Text>
       </View>
       <View style={{ flex: 1, marginLeft: 15 }}>
-        <Text style={styles.planetWidgetTitle}>Şu Anki Gezegen Saati</Text>
+        <Text style={styles.planetWidgetTitle}>Şu Anki Gezegen Saati • {data.cityName}</Text>
         <Text style={[styles.planetWidgetName, { color: data.info.color }]}>{data.info.name}</Text>
       </View>
       <View style={{ alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -137,6 +173,46 @@ const PlanetaryHourWidget = () => {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
           <Text style={{ fontSize: 10, color: COLORS.textMuted }}>Tüm Saatler</Text>
           <Ionicons name="chevron-forward" size={12} color={COLORS.textMuted} />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const CosmicMoonWeatherWidget = ({ visible = true }: { visible?: boolean }) => {
+  const router = useRouter();
+  if (!visible) return null;
+
+  const moon = getLiveMoonPhaseSummary(new Date());
+
+  return (
+    <TouchableOpacity
+      style={[styles.schumannWidget, { borderLeftColor: '#38BDF8', marginBottom: 15 }]}
+      onPress={() => router.push('/(dashboard)/kisisel-analizler/ay-donguleri')}
+      activeOpacity={0.75}
+    >
+      <View style={styles.schumannRow}>
+        <View style={[styles.planetIconWrapper, { backgroundColor: 'rgba(56,189,248,0.16)', borderColor: '#38BDF8' }]}>
+          <Text style={{ fontSize: 19 }}>{moon.icon}</Text>
+        </View>
+        <View style={{ flex: 1, marginLeft: 15 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={[styles.schumannTitle, { color: '#7DD3FC' }]}>Kozmik Gökyüzü & Ay Fazı</Text>
+            <View style={{ backgroundColor: 'rgba(56,189,248,0.18)', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 }}>
+              <Text style={{ color: '#7DD3FC', fontSize: 9.5, fontWeight: '800' }}>%{moon.illumination} Aydınlık</Text>
+            </View>
+          </View>
+          <Text style={[styles.schumannStatusName, { color: '#fff' }]}>{moon.name}</Text>
+        </View>
+        <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+          <Ionicons name="arrow-forward" size={14} color="#7DD3FC" />
+        </View>
+      </View>
+      <View style={styles.schumannFooter}>
+        <Text style={styles.schumannFooterText} numberOfLines={1}>✨ {moon.desc}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 10, color: '#7DD3FC', fontWeight: 'bold' }}>Gökyüzü Çarkı</Text>
+          <Ionicons name="chevron-forward" size={12} color="#7DD3FC" style={{ marginLeft: 2 }} />
         </View>
       </View>
     </TouchableOpacity>
@@ -196,6 +272,105 @@ export default function DashboardScreen() {
   const [latestReplyNotif, setLatestReplyNotif] = useState<any | null>(null);
   const seenReplyNotifsRef = useRef<Set<string>>(new Set());
   const initialReplyFetchRef = useRef(false);
+
+  // Widget Visibility States
+  const [showWidgetModal, setShowWidgetModal] = useState(false);
+  const [widgetPrefs, setWidgetPrefs] = useState({
+    planetaryHour: true,
+    cosmicWeather: true,
+    schumann: true,
+    meclis: true,
+    lockScreenNotif: false,
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [pHour, cWeather, sch, mec, lockN] = await Promise.all([
+          AsyncStorage.getItem('@show_planetary_widget'),
+          AsyncStorage.getItem('@show_cosmic_weather_widget'),
+          AsyncStorage.getItem('@show_schumann_widget'),
+          AsyncStorage.getItem('@show_meclis_widget'),
+          AsyncStorage.getItem('@show_lockscreen_widget'),
+        ]);
+        setWidgetPrefs({
+          planetaryHour: pHour !== 'false',
+          cosmicWeather: cWeather !== 'false',
+          schumann: sch !== 'false',
+          meclis: mec !== 'false',
+          lockScreenNotif: lockN === 'true',
+        });
+      } catch {
+        // ignore
+      }
+    })();
+  }, []);
+
+  const syncLockScreenCosmicWidget = useCallback(async (enabled: boolean) => {
+    if (Platform.OS === 'web') return;
+    try {
+      await Notifications.dismissNotificationAsync('cosmic-lockscreen-widget').catch(() => {});
+      if (!enabled) return;
+
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') return;
+
+      const savedLocation = await AsyncStorage.getItem('last_planet_hours_location');
+      let lat = 41.0082;
+      let lon = 28.9784;
+      if (savedLocation) {
+        const parsed = JSON.parse(savedLocation);
+        if (typeof parsed.lat === 'number' && typeof parsed.lon === 'number') {
+          lat = parsed.lat;
+          lon = parsed.lon;
+        }
+      }
+
+      const now = new Date();
+      let pData = getPlanetaryHours(now, lat, lon);
+      if (now < pData.sunrise) {
+        pData = getPlanetaryHours(new Date(now.getTime() - 86400000), lat, lon);
+      }
+      const current = pData.hours.find((h: PlanetaryHour) => now >= h.startTime && now < h.endTime);
+      const pInfo = current ? getPlanetInfo(current.planet) : { symbol: '☉', name: 'Güneş' };
+      const minsLeft = current ? Math.max(0, Math.floor((current.endTime.getTime() - now.getTime()) / 60000)) : 0;
+      const moon = getLiveMoonPhaseSummary(now);
+      const dayInfo = DAY_CHAKRA_MAP[now.getDay()];
+
+      await Notifications.scheduleNotificationAsync({
+        identifier: 'cosmic-lockscreen-widget',
+        content: {
+          title: `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
+          body: `${moon.icon} ${moon.name} (%${moon.illumination}) • ${dayInfo.name}: ${dayInfo.planet}`,
+          sticky: true,
+        },
+        trigger: null,
+      });
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleWidgetPref = async (
+    key: 'planetaryHour' | 'cosmicWeather' | 'schumann' | 'meclis' | 'lockScreenNotif',
+    storageKey: string,
+    val: boolean
+  ) => {
+    setWidgetPrefs((prev) => ({ ...prev, [key]: val }));
+    try {
+      await AsyncStorage.setItem(storageKey, val ? 'true' : 'false');
+      if (key === 'lockScreenNotif') {
+        await syncLockScreenCosmicWidget(val);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   // Ana sayfadayken geri tuşuna basıldığında boşluğa düşme uyarısı vermeden güvenle çık
   useFocusEffect(
@@ -447,10 +622,39 @@ export default function DashboardScreen() {
           )}
         </BlurView>
 
-        <SchumannMiniWidget />
-        <PlanetaryHourWidget />
+        {/* Kozmik Widget Başlığı & Özelleştirme Butonu */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, paddingHorizontal: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="grid-outline" size={15} color={COLORS.primary} />
+            <Text style={{ color: COLORS.primary, fontSize: 12, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 }}>
+              Canlı Kozmik Widget'lar
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowWidgetModal(true)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              backgroundColor: 'rgba(212,175,55,0.12)',
+              borderWidth: 1,
+              borderColor: 'rgba(212,175,55,0.35)',
+              borderRadius: 12,
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+            }}
+          >
+            <Ionicons name="options-outline" size={13} color="#FDE68A" />
+            <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>Widget Ayarları</Text>
+          </TouchableOpacity>
+        </View>
+
+        <PlanetaryHourWidget visible={widgetPrefs.planetaryHour} />
+        <CosmicMoonWeatherWidget visible={widgetPrefs.cosmicWeather} />
+        {widgetPrefs.schumann && <SchumannMiniWidget />}
 
         {/* Ezoterik Meclis & Sohbet Odaları Kartı */}
+        {widgetPrefs.meclis && (
         <TouchableOpacity
           style={[
             styles.schumannWidget,
@@ -529,6 +733,7 @@ export default function DashboardScreen() {
             </View>
           </View>
         </TouchableOpacity>
+        )}
 
         {/* Modüller: Anatomik Çakra Haritası */}
         <Text style={styles.sectionTitle}>7 İnisiyasyon Katmanı</Text>
@@ -595,6 +800,96 @@ export default function DashboardScreen() {
 
       {/* Ekranın Altında Akan Yazı */}
       <MarqueeText text="Gerçek katman katmandır ve yapman gereken unuttuklarını hatırlayarak katmanları açmaktır. Hatırladıkça aydınlık artacak ve ışığın kaynağını bulacaksın..." />
+
+      {/* Kozmik Widget Yöneticisi Modalı */}
+      <Modal
+        visible={showWidgetModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowWidgetModal(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.82)', justifyContent: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: '#0E121D', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(212,175,55,0.45)', padding: 18 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Ionicons name="options" size={18} color="#FDE68A" />
+                <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>Kozmik Widget Merkezi</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowWidgetModal(false)}>
+                <Ionicons name="close" size={22} color="#9CA3AF" />
+              </TouchableOpacity>
+            </View>
+            <Text style={{ color: '#9CA3AF', fontSize: 12, lineHeight: 17, marginBottom: 14 }}>
+              Ana sayfanızda ve telefonunuzun kilit/bildirim ekranında görmek istediğiniz kozmik araçları özelleştirin:
+            </Text>
+
+            {[
+              {
+                key: 'planetaryHour' as const,
+                storageKey: '@show_planetary_widget',
+                title: '🪐 Anlık Gezegen Saati Widget\'ı',
+                sub: 'Bulunduğunuz konuma göre aktif Keldani gezegen saatini ve kalan süreyi gösterir.',
+              },
+              {
+                key: 'cosmicWeather' as const,
+                storageKey: '@show_cosmic_weather_widget',
+                title: '🌙 Gökyüzü & Ay Fazı Widget\'ı',
+                sub: 'Canlı Ay fazını, aydınlanma oranını ve günün kozmik akışını gösterir.',
+              },
+              {
+                key: 'schumann' as const,
+                storageKey: '@show_schumann_widget',
+                title: '⚡ Schumann Rezonansı Widget\'ı',
+                sub: 'Dünya\'nın elektromanyetik kalp atışı spektrogramına hızlı erişim sağlar.',
+              },
+              {
+                key: 'meclis' as const,
+                storageKey: '@show_meclis_widget',
+                title: '🏛️ 7Layers Kadim Meclis Widget\'ı',
+                sub: '8 ezoterik sohbet odasına ve gelen yanıt bildirimlerine hızlı erişim kartı.',
+              },
+              {
+                key: 'lockScreenNotif' as const,
+                storageKey: '@show_lockscreen_widget',
+                title: '📱 Kilit Ekranı & Bildirim Paneli Widget\'ı',
+                sub: 'Telefonun bildirim ve kilit ekranında canlı Gezegen Saati & Ay Fazı pusulası tutar.',
+              },
+            ].map((item) => (
+              <View
+                key={item.key}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 10,
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'rgba(255,255,255,0.06)',
+                }}
+              >
+                <View style={{ flex: 1, paddingRight: 12 }}>
+                  <Text style={{ color: '#F3F4F6', fontSize: 13, fontWeight: '700' }}>{item.title}</Text>
+                  <Text style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>{item.sub}</Text>
+                </View>
+                <Switch
+                  value={widgetPrefs[item.key]}
+                  onValueChange={(val) => toggleWidgetPref(item.key, item.storageKey, val)}
+                  trackColor={{ false: '#374151', true: 'rgba(212,175,55,0.55)' }}
+                  thumbColor={widgetPrefs[item.key] ? '#D4AF37' : '#9CA3AF'}
+                />
+              </View>
+            ))}
+
+            <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
+              <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>
+                💡 Telefon Ana Ekran Widget'ı (Android 4x2)
+              </Text>
+              <Text style={{ color: '#D1D5DB', fontSize: 10.5, marginTop: 2, lineHeight: 15 }}>
+                Telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS Kozmik Pusula&rdquo; seçeneğiyle ana ekranınıza da widget ekleyebilirsiniz.
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Kayan Menü Arka Planı (Açıkken) */}
       {isToolsExpanded && (
