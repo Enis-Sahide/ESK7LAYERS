@@ -365,6 +365,35 @@ export default function DashboardScreen() {
         <SchumannMiniWidget />
         <PlanetaryHourWidget />
 
+        {/* Ezoterik Meclis & Sohbet Odaları Kartı */}
+        <TouchableOpacity
+          style={[styles.schumannWidget, { borderLeftColor: '#A855F7', marginBottom: 20 }]}
+          onPress={() => router.push('/(dashboard)/meclis')}
+          activeOpacity={0.75}
+        >
+          <View style={styles.schumannRow}>
+            <View style={[styles.planetIconWrapper, { backgroundColor: 'rgba(168,85,247,0.18)', borderColor: '#A855F7' }]}>
+              <Ionicons name="chatbubbles-outline" size={18} color="#D8B4FE" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 15 }}>
+              <Text style={[styles.schumannTitle, { color: '#D8B4FE' }]}>7Layers Kadim Meclis</Text>
+              <Text style={[styles.schumannStatusName, { color: '#fff' }]}>
+                Ezoterik Sohbet Odaları (8 Oda)
+              </Text>
+            </View>
+            <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+              <Ionicons name="arrow-forward" size={14} color="#D8B4FE" />
+            </View>
+          </View>
+          <View style={styles.schumannFooter}>
+            <Text style={styles.schumannFooterText}>🏛️ Kabala, Sembolizm, Astroloji & Human Design</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, color: '#D8B4FE', fontWeight: 'bold' }}>Meclise Katıl</Text>
+              <Ionicons name="chevron-forward" size={12} color="#D8B4FE" style={{ marginLeft: 2 }} />
+            </View>
+          </View>
+        </TouchableOpacity>
+
         {/* Modüller: Anatomik Çakra Haritası */}
         <Text style={styles.sectionTitle}>7 İnisiyasyon Katmanı</Text>
         
@@ -479,6 +508,14 @@ export default function DashboardScreen() {
              <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/breathwork'); setIsToolsExpanded(false); }}>
                <Ionicons name="water" size={20} color="#FF9500" style={{ marginRight: 10 }} />
                <Text style={styles.fabMenuText}>Nefes Egzersizi</Text>
+             </TouchableOpacity>
+
+             <View style={styles.fabMenuDivider} />
+
+             {/* Ezoterik Meclis (Sohbet Odaları) */}
+             <TouchableOpacity style={styles.fabMenuItem} onPress={() => { router.push('/(dashboard)/meclis'); setIsToolsExpanded(false); }}>
+               <Ionicons name="chatbubbles-outline" size={20} color="#D8B4FE" style={{ marginRight: 10 }} />
+               <Text style={styles.fabMenuText}>Ezoterik Meclis (Sohbet)</Text>
              </TouchableOpacity>
 
              <View style={styles.fabMenuDivider} />
