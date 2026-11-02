@@ -131,8 +131,7 @@ export default function MobileEsotericCouncilScreen() {
 
   const fetchRooms = useCallback(async () => {
     try {
-      const res = await apiFetch('/api/chat/rooms');
-      const data = await res.json();
+      const data: any = await apiFetch('/api/chat/rooms');
       if (data?.success && Array.isArray(data.rooms)) {
         setRooms(data.rooms);
         if (data.myProfile) {
@@ -152,8 +151,7 @@ export default function MobileEsotericCouncilScreen() {
   const fetchMessages = useCallback(async (roomId: string, silent = false) => {
     if (!silent) setIsLoadingMessages(true);
     try {
-      const res = await apiFetch(`/api/chat/messages?roomId=${encodeURIComponent(roomId)}`);
-      const data = await res.json();
+      const data: any = await apiFetch(`/api/chat/messages?roomId=${encodeURIComponent(roomId)}`);
       if (data?.success && Array.isArray(data.messages)) {
         setMessages(data.messages);
         if (!silent || data.messages.length > prevCountRef.current) {
@@ -171,8 +169,7 @@ export default function MobileEsotericCouncilScreen() {
   const fetchNotifications = useCallback(async () => {
     if (!isLoggedIn) return;
     try {
-      const res = await apiFetch('/api/chat/notifications');
-      const data = await res.json();
+      const data: any = await apiFetch('/api/chat/notifications');
       if (data?.success) {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
@@ -220,7 +217,7 @@ export default function MobileEsotericCouncilScreen() {
 
     setIsSending(true);
     try {
-      const res = await apiFetch('/api/chat/messages', {
+      const data: any = await apiFetch('/api/chat/messages', {
         method: 'POST',
         body: JSON.stringify({
           roomId: activeRoomId,
@@ -228,8 +225,7 @@ export default function MobileEsotericCouncilScreen() {
           replyToId: replyTarget?.id || null,
         }),
       });
-      const data = await res.json();
-      if (!res.ok || !data?.success) {
+      if (!data?.success) {
         Alert.alert('Meclis Uyarısı', data?.error || 'Mesaj gönderilemedi.');
         return;
       }
@@ -246,8 +242,8 @@ export default function MobileEsotericCouncilScreen() {
         );
         scrollToEnd(true);
       }
-    } catch {
-      Alert.alert('Bağlantı Hatası', 'Mesaj gönderilirken sunucuya ulaşılamadı.');
+    } catch (err: any) {
+      Alert.alert('Meclis Uyarısı', err?.message || 'Mesaj gönderilirken sunucuya ulaşılamadı.');
     } finally {
       setIsSending(false);
     }
@@ -261,11 +257,10 @@ export default function MobileEsotericCouncilScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            const res = await apiFetch(`/api/chat/messages?id=${encodeURIComponent(msgId)}`, {
+            const data: any = await apiFetch(`/api/chat/messages?id=${encodeURIComponent(msgId)}`, {
               method: 'DELETE',
             });
-            const data = await res.json();
-            if (res.ok && data?.success) {
+            if (data?.success) {
               setMessages((prev) => prev.filter((m) => m.id !== msgId));
             }
           } catch {
@@ -280,12 +275,11 @@ export default function MobileEsotericCouncilScreen() {
     if (isSavingNickname) return;
     setIsSavingNickname(true);
     try {
-      const res = await apiFetch('/api/chat/nickname', {
+      const data: any = await apiFetch('/api/chat/nickname', {
         method: 'POST',
         body: JSON.stringify({ nickname: nicknameInput.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok || !data?.success) {
+      if (!data?.success) {
         Alert.alert('Uyarı', data?.error || 'Rumuz kaydedilemedi.');
         return;
       }
@@ -301,8 +295,8 @@ export default function MobileEsotericCouncilScreen() {
       );
       setShowNicknameModal(false);
       fetchMessages(activeRoomId, true);
-    } catch {
-      Alert.alert('Hata', 'Rumuz güncellenirken bir sorun oluştu.');
+    } catch (err: any) {
+      Alert.alert('Uyarı', err?.message || 'Rumuz güncellenirken bir sorun oluştu.');
     } finally {
       setIsSavingNickname(false);
     }

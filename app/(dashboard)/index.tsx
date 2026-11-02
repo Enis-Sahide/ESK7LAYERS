@@ -282,8 +282,7 @@ export default function DashboardScreen() {
 
     const pollChatNotifications = async () => {
       try {
-        const res = await apiFetch('/api/chat/notifications');
-        const data = await res.json();
+        const data: any = await apiFetch('/api/chat/notifications');
         if (!active || !data?.success) return;
 
         const list: any[] = data.notifications || [];
