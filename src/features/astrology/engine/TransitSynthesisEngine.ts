@@ -769,31 +769,6 @@ const CHAKRA_SEPHIRAH_MAP: Record<string, { chakra: string; sephirah: string; gu
     chakra: 'Üçüncü Göz & Kalp Çakrası',
     sephirah: 'Tekamül Yolu (Ruhsal Kader Pusulası)',
     guidance: 'Alışkın olduğunuz konfor alanından çıkıp ruhunuzu büyüten yeni deneyime adım atın.'
-  },
-  'Lilith': {
-    chakra: 'Sakral & Kök Çakra (Kundalini Öz-Güç)',
-    sephirah: 'Gevurah & Malkuth (Otantik Gölge Entegrasyonu & Egemenlik)',
-    guidance: 'Bastırdığınız otantik gerçeğinizi sahiplenin; kimseye yaranmak için özünüzden taviz vermeyin.'
-  },
-  'Vertex (Vx)': {
-    chakra: 'Kalp & Üçüncü Göz Çakrası',
-    sephirah: 'Tiferet & Keter (Kadersel Kesişme & Eşzamanlılık Kapısı)',
-    guidance: 'Beklenmedik karşılaşmalara ve kadersel işaretlere dikkat edin; hayat size yeni bir yön gösteriyor.'
-  },
-  'Şans Noktası (POF)': {
-    chakra: 'Kalp & Güneş Sinirağı Çakrası',
-    sephirah: 'Chesed & Netzach (Doğal Kısmet, Neşe & Zahmetsiz Akış)',
-    guidance: 'Ruhunuzun neşe ve huzur bulduğu yerde doğal bereket kapıları kendiliğinden açılır.'
-  },
-  'Yükselen (ASC)': {
-    chakra: 'Kök & Güneş Sinirağı Çakrası',
-    sephirah: 'Malkuth & Tiferet (Bedenlenme, Öz-İrade & Görünürlük)',
-    guidance: 'Dış dünyadaki duruşunuzu netleştirin; niyetinizi beden diliniz ve cesur adımlarınızla somutlaştırın.'
-  },
-  'Tepe Noktası (MC)': {
-    chakra: 'Taç & Boğaz Çakrası',
-    sephirah: 'Keter & Hod (Toplumsal Misyon, Zirve & İtibar)',
-    guidance: 'Uzun vadeli yaşam amacınıza ve topluma sunduğunuz değere odaklanarak sorumluluk alın.'
   }
 };
 
@@ -863,18 +838,16 @@ function calculateLunarPhaseSignature(sunLon: number, moonLon: number): Esoteric
 
 // Essential Dignities (Rulership, Exaltation, Detriment, Fall) per planet & sign (-12 to +12)
 const PLANET_SIGN_DIGNITY: Record<string, Record<string, number>> = {
-  'Güneş': { 'Aslan': 12, 'Koç': 10, 'Yay': 6, 'Kova': -8, 'Terazi': -10 },
-  'Ay': { 'Yengeç': 12, 'Boğa': 10, 'Balık': 7, 'Aslan': 4, 'Oğlak': -8, 'Akrep': -10 },
-  'Merkür': { 'İkizler': 12, 'Başak': 12, 'Kova': 8, 'Terazi': 5, 'Yay': -8, 'Balık': -10 },
-  'Venüs': { 'Boğa': 12, 'Terazi': 12, 'Balık': 10, 'Yengeç': 5, 'Koç': -8, 'Akrep': -8, 'Başak': -10 },
-  'Mars': { 'Koç': 12, 'Akrep': 11, 'Oğlak': 10, 'Aslan': 6, 'Yay': 5, 'Boğa': -8, 'Terazi': -8, 'Yengeç': -10 },
-  'Jüpiter': { 'Yay': 12, 'Balık': 11, 'Yengeç': 10, 'Koç': 6, 'Aslan': 6, 'İkizler': -8, 'Başak': -8, 'Oğlak': -10 },
-  'Satürn': { 'Oğlak': 12, 'Kova': 11, 'Terazi': 10, 'Boğa': 5, 'Başak': 4, 'Yengeç': -8, 'Aslan': -8, 'Koç': -8 },
-  'Uranüs': { 'Kova': 12, 'İkizler': 8, 'Akrep': 7, 'Koç': 5, 'Boğa': -6, 'Aslan': -8 },
-  'Neptün': { 'Balık': 12, 'Yengeç': 8, 'Yay': 6, 'Koç': 6, 'Kova': 5, 'Başak': -8, 'Oğlak': -5 },
-  'Plüton': { 'Akrep': 12, 'Kova': 9, 'Koç': 7, 'Aslan': 7, 'Oğlak': 5, 'Boğa': -8, 'Terazi': -5 },
-  'Kiron': { 'Yay': 10, 'Başak': 10, 'Balık': 8, 'Koç': 7, 'Yengeç': 6, 'Akrep': 6 },
-  'Kuzey Ay Düğümü': { 'İkizler': 8, 'Kova': 8, 'Balık': 8, 'Koç': 6, 'Boğa': 6, 'Yengeç': 6, 'Aslan': 6, 'Başak': 6, 'Terazi': 6, 'Akrep': 6, 'Yay': 6, 'Oğlak': 6 }
+  'Güneş': { 'Aslan': 12, 'Koç': 10, 'Yay': 5, 'Kova': -10, 'Terazi': -12 },
+  'Ay': { 'Yengeç': 12, 'Boğa': 10, 'Balık': 6, 'Oğlak': -10, 'Akrep': -12 },
+  'Merkür': { 'İkizler': 12, 'Başak': 12, 'Kova': 6, 'Terazi': 4, 'Yay': -10, 'Balık': -12 },
+  'Venüs': { 'Boğa': 12, 'Terazi': 12, 'Balık': 10, 'Yengeç': 4, 'Koç': -10, 'Akrep': -10, 'Başak': -12 },
+  'Mars': { 'Koç': 12, 'Akrep': 11, 'Oğlak': 10, 'Aslan': 5, 'Boğa': -10, 'Terazi': -10, 'Yengeç': -12 },
+  'Jüpiter': { 'Yay': 12, 'Balık': 11, 'Yengeç': 10, 'Koç': 4, 'İkizler': -10, 'Başak': -10, 'Oğlak': -12 },
+  'Satürn': { 'Oğlak': 12, 'Kova': 11, 'Terazi': 10, 'Boğa': 4, 'Yengeç': -10, 'Aslan': -10, 'Koç': -12 },
+  'Uranüs': { 'Kova': 11, 'İkizler': 6, 'Akrep': 6, 'Boğa': -8, 'Aslan': -10 },
+  'Neptün': { 'Balık': 12, 'Yengeç': 7, 'Yay': 5, 'Başak': -10, 'Oğlak': -6 },
+  'Plüton': { 'Akrep': 12, 'Koç': 6, 'Oğlak': 5, 'Boğa': -10, 'Terazi': -6 }
 };
 
 function getPlanetDignityScore(planet: AstroPoint | undefined, allowRetroBonus = false): number {
@@ -1060,11 +1033,22 @@ function buildDetailedCosmicBarometer(
    * Normalized Orb-Weighted Aspect Evaluator (-26 to +26)
    * Prevents cumulative runaway inflation when there are many aspects!
    */
+  // Classical "İntikal-i Nur" (Translation of Light):
+  // Slow outer-planet pairs only act as a full daily event on days when a Fast/Personal planet (Sun, Moon, Mercury, Venus, Mars) aspects one of them!
+  const FAST_LIGHT_CARRIERS = ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Yükselen (ASC)', 'Tepe Noktası (MC)'];
+  const SLOW_GENERATIONAL = ['Uranüs', 'Neptün', 'Plüton', 'Kiron', 'Kuzey Ay Düğümü', 'Lilith'];
+  const litSlowPlanets = new Set<string>();
+  for (const asp of aspects) {
+    if (asp.orb > 3.2) continue;
+    if (FAST_LIGHT_CARRIERS.includes(asp.p1) && SLOW_GENERATIONAL.includes(asp.p2)) litSlowPlanets.add(asp.p2);
+    if (FAST_LIGHT_CARRIERS.includes(asp.p2) && SLOW_GENERATIONAL.includes(asp.p1)) litSlowPlanets.add(asp.p1);
+  }
+
   const evalNormalizedAspectImpact = (
     primaryPlanets: string[],
     disruptorPlanets: string[] = [],
     conjunctionBenefics: string[] = ['Jüpiter', 'Venüs', 'Güneş', 'Şans Noktası (POF)'],
-    catharsisHealingMode = false
+    isHealingChannel = false
   ): { scoreDelta: number; netTrend: number } => {
     let weightedValenceSum = 0;
     let totalOrbWeight = 0;
@@ -1075,45 +1059,45 @@ function buildDetailedCosmicBarometer(
       const p2Match = primaryPlanets.includes(asp.p2);
       if (!p1Match && !p2Match) continue;
 
-      const involvesChironOrNode = ['Kiron', 'Kuzey Ay Düğümü', 'Vertex (Vx)'].includes(asp.p1) || ['Kiron', 'Kuzey Ay Düğümü', 'Vertex (Vx)'].includes(asp.p2);
-      const involvesTranspersonal = ['Uranüs', 'Neptün', 'Plüton'].includes(asp.p1) && ['Uranüs', 'Neptün', 'Plüton', 'Güneş', 'Ay', 'Kuzey Ay Düğümü'].includes(asp.p2)
-        || ['Uranüs', 'Neptün', 'Plüton'].includes(asp.p2) && ['Uranüs', 'Neptün', 'Plüton', 'Güneş', 'Ay', 'Kuzey Ay Düğümü'].includes(asp.p1);
+      // İntikal-i Nur: If both planets are slow generational planets in mundane sky, only give full weight if a fast planet is translating light to them today (or orb <= 0.3°)
+      const bothSlow = !isPersonal && SLOW_GENERATIONAL.includes(asp.p1) && SLOW_GENERATIONAL.includes(asp.p2);
+      const isLitToday = litSlowPlanets.has(asp.p1) || litSlowPlanets.has(asp.p2) || asp.orb <= 0.3;
+      const lightTranslationFactor = (bothSlow && !isLitToday) ? 0.15 : 1.0;
 
-      // Primary relevance: both planets in group = 1.35x (1.5x if transpersonal in healing mode), one planet in group = 1.0x
-      const relevance = (p1Match && p2Match)
-        ? (catharsisHealingMode && involvesTranspersonal ? 1.55 : 1.35)
-        : 1.0;
+      // Primary relevance: both planets in group = 1.25x, one planet in group = 1.0x
+      const relevance = ((p1Match && p2Match) ? 1.25 : 1.0) * lightTranslationFactor;
       const orbProximity = Math.pow(Math.max(0, (4.2 - asp.orb) / 4.2), 1.25);
       const w = orbProximity * relevance;
+
+      const involvesChiron = asp.p1 === 'Kiron' || asp.p2 === 'Kiron';
 
       let valence = 0;
       if (asp.aspectType === 'Üçgen') {
         valence = 1.0;
       } else if (asp.aspectType === 'Sekstil') {
-        valence = catharsisHealingMode && involvesTranspersonal ? 0.92 : 0.80;
+        valence = 0.78;
       } else if (asp.aspectType === 'Kare') {
-        // In spiritual healing/catharsis mode, Chiron/Node squares trigger deep shadow release & awakening rather than blocking healing
-        valence = (catharsisHealingMode && involvesChironOrNode) ? 0.35 : -1.0;
+        valence = (isHealingChannel && involvesChiron) ? 0.25 : -1.0;
       } else if (asp.aspectType === 'Karşıt') {
-        // Chiron/Node oppositions (e.g. Venus opposite Chiron 0.1°) mirror the wound to activate cathartic healing (+0.48 in healing channel)
-        valence = (catharsisHealingMode && involvesChironOrNode) ? 0.48 : -0.88;
+        // Chiron oppositions trigger cathartic wound-healing awareness in the healing dimension (while penalizing relational/personal comfort elsewhere)
+        valence = (isHealingChannel && involvesChiron) ? 0.35 : -0.88;
       } else if (asp.aspectType === 'Görmeyen') {
-        valence = -0.60;
+        valence = -0.65;
       } else if (asp.aspectType === 'Kavuşum') {
         const otherP = p1Match ? asp.p2 : asp.p1;
         if (conjunctionBenefics.includes(otherP)) {
-          valence = 0.92;
+          valence = 0.9;
         } else if (['Satürn', 'Mars', 'Plüton', 'Kiron', 'Lilith'].includes(otherP)) {
-          valence = catharsisHealingMode ? 0.65 : -0.75;
+          valence = -0.8;
         } else {
-          valence = 0.35;
+          valence = 0.25;
         }
       }
 
       // If a disruptor planet is hitting our primary planet with a hard aspect, amplify the penalty
       const involvesDisruptor = disruptorPlanets.includes(asp.p1) || disruptorPlanets.includes(asp.p2);
       if (involvesDisruptor && valence < 0) {
-        valence *= 1.22;
+        valence *= 1.25;
       }
 
       weightedValenceSum += valence * w;
@@ -1124,53 +1108,14 @@ function buildDetailedCosmicBarometer(
       return { scoreDelta: 0, netTrend: 0 };
     }
 
-    const normalizedRatio = clampNum(weightedValenceSum / (totalOrbWeight + 0.38), -1.0, 1.0);
+    // Damped average: divides by (totalOrbWeight + 0.75) so a single weak aspect doesn't swing 100%,
+    // and 10 aspects don't snowball above 1.0!
+    const normalizedRatio = clampNum(weightedValenceSum / (totalOrbWeight + 0.42), -1.0, 1.0);
     return {
-      scoreDelta: normalizedRatio * 30,
+      scoreDelta: normalizedRatio * 29,
       netTrend: normalizedRatio
     };
   };
-
-  // ==========================================================================
-  // TRANSPERSONAL POWER ACTIVATION & SPIRITUAL PORTAL DETECTOR
-  // Detects Uranus-Neptune-Pluto (+ Sun/Moon/Node) harmonious corridors (Mini Grand Trine / Cradle)
-  // ==========================================================================
-  const TRANSPERSONAL_DRIVERS = ['Uranüs', 'Neptün', 'Plüton'];
-  const AWAKENING_PARTNERS = ['Uranüs', 'Neptün', 'Plüton', 'Güneş', 'Ay', 'Kuzey Ay Düğümü', 'Kiron'];
-  let transpersonalHarmoniousLinks = 0;
-  let transpersonalStrengthSum = 0;
-
-  for (const asp of aspects) {
-    if (asp.orb > 4.0) continue;
-    const isHarm = asp.aspectType === 'Üçgen' || asp.aspectType === 'Sekstil' || asp.aspectType === 'Kavuşum';
-    if (!isHarm) continue;
-    const p1Trans = TRANSPERSONAL_DRIVERS.includes(asp.p1);
-    const p2Trans = TRANSPERSONAL_DRIVERS.includes(asp.p2);
-    if ((p1Trans && AWAKENING_PARTNERS.includes(asp.p2)) || (p2Trans && AWAKENING_PARTNERS.includes(asp.p1))) {
-      transpersonalHarmoniousLinks++;
-      const pairMultiplier = (p1Trans && p2Trans) ? 1.35 : 1.0;
-      transpersonalStrengthSum += ((4.2 - asp.orb) / 4.2) * pairMultiplier;
-    }
-  }
-
-  // Synergy bonus when multiple outer-planet awakening aspects are active simultaneously
-  const transpersonalSynergyBonus = transpersonalHarmoniousLinks >= 3
-    ? clampNum(10 + transpersonalStrengthSum * 4.2, 12, 22)
-    : transpersonalHarmoniousLinks === 2
-    ? clampNum(6 + transpersonalStrengthSum * 3.5, 7, 15)
-    : transpersonalHarmoniousLinks === 1
-    ? clampNum(transpersonalStrengthSum * 4.0, 2, 7)
-    : 0;
-
-  // Esoteric Lunar Phase Modulators (Dolunay, Yeniay, Balsamik, Büyüyen/Küçülen Ay)
-  const lunarAngle = ((moonLon - sunLon) % 360 + 360) % 360;
-  const isFullMoonWindow = lunarAngle >= 157.5 && lunarAngle < 202.5;
-  const isNewMoonWindow = lunarAngle < 22.5 || lunarAngle >= 337.5;
-  const isBalsamicWindow = lunarAngle >= 292.5 && lunarAngle < 337.5;
-  const isWaxingActionWindow = lunarAngle >= 22.5 && lunarAngle < 157.5;
-
-  const lunarSpiritualBonus = isFullMoonWindow ? 7 : isBalsamicWindow ? 7 : isNewMoonWindow ? 6 : 2;
-  const lunarActionBonus = isWaxingActionWindow ? 4 : isFullMoonWindow ? 3 : 0;
 
   // ==========================================================================
   // A) 4 CORE FREQUENCY CHANNELS (Neutral Base = 54, Range = 22% to 92%)
@@ -1178,12 +1123,7 @@ function buildDetailedCosmicBarometer(
   const fizAspect = evalNormalizedAspectImpact(['Güneş', 'Mars'], ['Satürn', 'Neptün']);
   const duyAspect = evalNormalizedAspectImpact(['Ay', 'Venüs'], ['Satürn', 'Plüton', 'Mars']);
   const entAspect = evalNormalizedAspectImpact(['Merkür', 'Uranüs'], ['Neptün', 'Mars']);
-  const ruhAspect = evalNormalizedAspectImpact(
-    ['Neptün', 'Plüton', 'Uranüs', 'Ay', 'Kiron', 'Kuzey Ay Düğümü'],
-    ['Satürn'],
-    ['Jüpiter', 'Venüs', 'Neptün', 'Plüton', 'Uranüs', 'Kuzey Ay Düğümü', 'Güneş'],
-    true
-  );
+  const ruhAspect = evalNormalizedAspectImpact(['Neptün', 'Plüton', 'Ay', 'Kiron', 'Kuzey Ay Düğümü'], ['Satürn'], ['Jüpiter', 'Venüs', 'Neptün', 'Plüton', 'Kuzey Ay Düğümü'], true);
 
   const getPersonalOrSkyDignity = (tp: AstroPoint | undefined, favHouses: number[], chalHouses: number[], allowRetro = false) => {
     const tDig = getPlanetDignityScore(tp, allowRetro);
@@ -1202,10 +1142,9 @@ function buildDetailedCosmicBarometer(
   const marsDig = getPersonalOrSkyDignity(mars, [1, 3, 5, 6, 10, 11], [4, 7, 12]);
   const jupDig = getPersonalOrSkyDignity(jupiter, [1, 2, 4, 5, 7, 9, 10, 11], [6, 8, 12]);
   const satDig = getPersonalOrSkyDignity(saturn, [2, 3, 6, 10, 11], [1, 4, 5, 7, 12]);
-  const uraDig = getPersonalOrSkyDignity(uranus, [1, 3, 5, 9, 11], [2, 4, 8], true);
+  const uraDig = getPersonalOrSkyDignity(uranus, [1, 3, 5, 9, 11], [2, 4, 8]);
   const nepDig = getPersonalOrSkyDignity(neptune, [4, 5, 9, 11, 12], [2, 6], true);
-  const pluDig = getPersonalOrSkyDignity(pluto, [1, 8, 10, 11], [4, 7], true);
-  const chiDig = getPersonalOrSkyDignity(chiron, [4, 6, 8, 9, 12], [2], true);
+  const pluDig = getPersonalOrSkyDignity(pluto, [1, 8, 10], [4, 7], true);
 
   const personalPhaseSeed = (isPersonal && natalSun && natalMoon)
     ? ((natalSun.longitude + natalMoon.longitude) * 0.65)
@@ -1221,13 +1160,11 @@ function buildDetailedCosmicBarometer(
   const fireEarthDev = ((firePct + earthPct) - 50) * 0.22;
   const waterDev = (waterPct - 25) * 0.32;
   const airDev = (airPct - 25) * 0.32;
-  // Spiritual awakening is supported both by Water depth and by Fire+Air transpersonal inspiration (never penalized when Water is low)
-  const spiritualElemSupport = Math.max(0, waterPct - 22) * 0.28 + Math.max(0, (firePct + airPct) - 52) * 0.18;
 
-  let fizRaw = 54 + fizAspect.scoreDelta + (sunDig + marsDig) * 0.55 + fireEarthDev + lunarActionBonus + microFiz;
+  let fizRaw = 54 + fizAspect.scoreDelta + (sunDig + marsDig) * 0.55 + fireEarthDev + microFiz;
   let duyRaw = 54 + duyAspect.scoreDelta + (moonDig + venDig) * 0.55 + waterDev + microDuy;
-  let entRaw = 54 + entAspect.scoreDelta + (mercDig + uraDig) * 0.55 + airDev + (transpersonalSynergyBonus * 0.25) + microEnt;
-  let ruhRaw = 55 + ruhAspect.scoreDelta + (nepDig * 0.45 + pluDig * 0.35 + moonDig * 0.30) + spiritualElemSupport + (transpersonalSynergyBonus * 0.75) + lunarSpiritualBonus + microRuh;
+  let entRaw = 54 + entAspect.scoreDelta + (mercDig + uraDig) * 0.55 + airDev + microEnt;
+  let ruhRaw = 54 + ruhAspect.scoreDelta + (nepDig + moonDig) * 0.50 + waterDev * 0.8 + microRuh;
 
   // Personal House adjustments for Moon/Sun
   if (isPersonal && natalHouses && natalHouses.length > 0 && moon) {
@@ -1241,7 +1178,7 @@ function buildDetailedCosmicBarometer(
   const fizScore = Math.round(clampNum(fizRaw, 22, 92));
   const duyScore = Math.round(clampNum(duyRaw, 20, 92));
   const entScore = Math.round(clampNum(entRaw, 22, 92));
-  const ruhScore = Math.round(clampNum(ruhRaw, 24, 94));
+  const ruhScore = Math.round(clampNum(ruhRaw, 24, 93));
 
   const coreEnergies: CosmicCoreEnergyItem[] = [
     {
@@ -1273,22 +1210,21 @@ function buildDetailedCosmicBarometer(
       label: 'Ruhsal Uyanış & Sezgi',
       statusText: ruhScore >= 70 ? 'Güçlü Eşzamanlılık & İlhâm' : ruhScore >= 48 ? 'İç Sese & İşaretlere Açık' : 'Topraklanma & Merkezlenme',
       score: ruhScore,
-      trend: (ruhAspect.netTrend >= -0.05 || transpersonalSynergyBonus >= 7) ? 'up' : 'down',
+      trend: ruhAspect.netTrend >= -0.05 ? 'up' : 'down',
       colorHex: '#A855F7'
     }
   ];
 
   // ==========================================================================
-  // B) 8 DISTINCT PLANETARY LIFE DIMENSIONS (Esoteric & Astronomical Synthesis)
+  // B) 8 DISTINCT PLANETARY LIFE DIMENSIONS (Zero Overlap Between Rulers)
   // ==========================================================================
 
-  // 1. Özgüven & İrade Duruşu (Yönetici: Güneş & Yükselen — Öz-değer, görünür irade ve yaratıcı güç)
-  const infAsp = evalNormalizedAspectImpact(['Güneş', 'Yükselen (ASC)'], ['Satürn', 'Neptün'], ['Jüpiter', 'Venüs', 'Plüton', 'Güneş']);
+  // 1. Özgüven & İrade Duruşu (Yönetici: Güneş & Yükselen — Öz-değer ve görünür irade)
+  const infAsp = evalNormalizedAspectImpact(['Güneş', 'Yükselen (ASC)'], ['Satürn', 'Neptün']);
   const attrInfluence = 56
     + infAsp.scoreDelta
     + sunDig * 0.85
     + (firePct - 25) * 0.22
-    + lunarActionBonus * 0.6
     + Math.sin(degToRad(sunLon * 2)) * 3;
 
   // 2. Eylem & İş Bitirme Gücü (Yönetici: Mars & Tepe Noktası — Cesaret, somut atılım ve hedef)
@@ -1297,11 +1233,10 @@ function buildDetailedCosmicBarometer(
     + progAsp.scoreDelta
     + marsDig * 0.85
     + (cardinalPct - 33.3) * 0.22
-    + lunarActionBonus * 0.8
     + Math.cos(degToRad(marsLon * 2)) * 3;
 
   // 3. Zihinsel Analiz & Odak (Yönetici: Merkür — Düşünce berraklığı, öğrenme ve strateji)
-  const cogAsp = evalNormalizedAspectImpact(['Merkür'], ['Neptün', 'Mars'], ['Güneş', 'Uranüs', 'Jüpiter', 'Satürn']);
+  const cogAsp = evalNormalizedAspectImpact(['Merkür'], ['Neptün', 'Mars']);
   const attrCognition = 56
     + cogAsp.scoreDelta
     + mercDig * 0.85
@@ -1316,22 +1251,21 @@ function buildDetailedCosmicBarometer(
     + ((airPct + waterPct) - 50) * 0.16
     + Math.cos(degToRad(venLon * 2)) * 3;
 
-  // 5. Sabır & Sınır Kalkanı (Yönetici: Satürn & Plüton — Öz disiplin, irade direnci ve ruhsal sınır koruma)
-  const endAsp = evalNormalizedAspectImpact(['Satürn', 'Plüton'], ['Mars'], ['Güneş', 'Jüpiter', 'Satürn', 'Plüton']);
+  // 5. Sabır & Sınır Kalkanı (Yönetici: Satürn — Öz disiplin, istikrar ve ruhsal sınır koruma)
+  const endAsp = evalNormalizedAspectImpact(['Satürn'], ['Uranüs', 'Mars']);
   const attrEndurance = 56
     + endAsp.scoreDelta
-    + (satDig * 0.45 + pluDig * 0.40)
-    + Math.max(-3, (earthPct - 25) * 0.20)
-    + (fixedPct - mutablePct) * 0.16
+    + satDig * 0.85
+    + (earthPct - 25) * 0.25
+    + (fixedPct - mutablePct) * 0.18
     + Math.sin(degToRad(satLon * 2)) * 3;
 
-  // 6. Değişime & Yeniliğe Uyum (Yönetici: Uranüs — Esneklik, çeviklik, uyanış ve ani manevra kabiliyeti)
-  const mobAsp = evalNormalizedAspectImpact(['Uranüs'], ['Satürn'], ['Güneş', 'Merkür', 'Plüton', 'Neptün', 'Jüpiter']);
+  // 6. Değişime & Yeniliğe Uyum (Yönetici: Uranüs — Esneklik, çeviklik ve ani manevra kabiliyeti)
+  const mobAsp = evalNormalizedAspectImpact(['Uranüs'], ['Satürn']);
   const attrMobility = 56
     + mobAsp.scoreDelta
-    + uraDig * 0.80
-    + (transpersonalSynergyBonus * 0.35)
-    + (mutablePct - fixedPct) * 0.24
+    + uraDig * 0.85
+    + (mutablePct - fixedPct) * 0.28
     + Math.cos(degToRad((uranus?.longitude ?? 60) * 2 + moonLon)) * 3;
 
   // 7. Bereket & Doğal Kısmet (Yönetici: Jüpiter & Şans Noktası — Fırsatlar, büyüme ve bolluk)
@@ -1341,20 +1275,13 @@ function buildDetailedCosmicBarometer(
     + jupDig * 0.85
     + Math.sin(degToRad(jupLon * 2 + venLon)) * 3.5;
 
-  // 8. Ruhsal Şifa & Kadersel Akış (Yönetici: Neptün, Plüton, Uranüs, Kiron, K. Ay Düğümü & Vertex — Güç aktivasyonu, arınma ve eşzamanlılık)
-  const healAsp = evalNormalizedAspectImpact(
-    ['Neptün', 'Plüton', 'Uranüs', 'Kiron', 'Kuzey Ay Düğümü', 'Vertex (Vx)'],
-    ['Satürn'],
-    ['Venüs', 'Jüpiter', 'Neptün', 'Plüton', 'Uranüs', 'Güneş', 'Ay', 'Kuzey Ay Düğümü', 'Kiron'],
-    true
-  );
-  const attrHealing = 57
+  // 8. Ruhsal Şifa & Kadersel Akış (Yönetici: Neptün, Plüton, Kiron, K. Ay Düğümü & Vertex — Arınma ve eşzamanlılık)
+  const healAsp = evalNormalizedAspectImpact(['Kiron', 'Neptün', 'Plüton', 'Kuzey Ay Düğümü', 'Vertex (Vx)'], ['Mars', 'Satürn'], ['Venüs', 'Jüpiter', 'Neptün', 'Plüton', 'Güneş', 'Kuzey Ay Düğümü'], true);
+  const attrHealing = 56
     + healAsp.scoreDelta
-    + (nepDig * 0.42 + pluDig * 0.38 + chiDig * 0.20)
-    + spiritualElemSupport
-    + (transpersonalSynergyBonus * 0.85)
-    + lunarSpiritualBonus
-    + Math.cos(degToRad((chiron?.longitude ?? 0) + nepLon + moonLon)) * 3;
+    + (nepDig * 0.55 + pluDig * 0.30)
+    + Math.max(0, waterPct - 25) * 0.25
+    + Math.cos(degToRad((chiron?.longitude ?? 0) + nepLon + moonLon)) * 3.5;
 
   const toGauge = (
     id: CosmicAttributeGauge['id'],
@@ -1366,7 +1293,7 @@ function buildDetailedCosmicBarometer(
     lowSub: string,
     isEsoteric = false
   ): CosmicAttributeGauge => {
-    const pct = Math.round(clampNum(rawVal, 20, 92));
+    const pct = Math.round(clampNum(rawVal, 20, 90));
     const score10 = clampNum(Math.round(pct / 10), 2, 9);
     const subtitle = score10 >= 7 ? highSub : score10 >= 5 ? midSub : lowSub;
     return {
@@ -1385,10 +1312,10 @@ function buildDetailedCosmicBarometer(
     toGauge('progress', 'Eylem & İş Bitirme Gücü', 'Mars • Tepe Noktası', attrProgress, 'Cesur Atılım & Somut Sonuç', 'Adım Adım Kararlı İlerleme', 'Enerjiyi Zorlamadan Koruyun'),
     toGauge('cognition', 'Zihinsel Analiz & Odak', 'Merkür', attrCognition, 'Keskin İdrak & Net Karar', 'Dengeli & Analitik Düşünce', 'Zihinsel Dağınıklığa Dikkat'),
     toGauge('diplomacy', 'Sosyal Ahenk & İlişkiler', 'Venüs', attrDiplomacy, 'Tatlı Dil, Uzlaşı & Çekim', 'Yapıcı & Dengeli Diyalog', 'İlişkilerde Alınganlığa Dikkat'),
-    toGauge('endurance', 'Sabır & Sınır Kalkanı', 'Satürn • Plüton', attrEndurance, 'Sağlam Disiplin & Ruhsal Sınır', 'Sabırlı & Kontrollü Koruma', 'Ağır Sorumluluklarla Yüklenmeyin'),
+    toGauge('endurance', 'Sabır & Sınır Kalkanı', 'Satürn', attrEndurance, 'Sağlam Disiplin & Ruhsal Sınır', 'Sabırlı & Kontrollü Koruma', 'Ağır Sorumluluklarla Yüklenmeyin'),
     toGauge('mobility', 'Değişime & Yeniliğe Uyum', 'Uranüs • Değişken Nitelik', attrMobility, 'Çevik & Esnek Manevra Gücü', 'Akışla Uyumlu Tempo', 'Sabit Fikirlilikten Kaçının'),
     toGauge('luck', 'Bereket & Doğal Kısmet', 'Jüpiter • Şans Noktası', attrLuck, 'Açık Kısmet & Büyüme Fırsatı', 'Emeğin Karşılığını Alma', 'Risk Yerine Garanti Adımlar Atın'),
-    toGauge('healing', 'Ruhsal Şifa & Kadersel Akış', 'Neptün • Plüton • Kiron • KAD', attrHealing, 'Yüksek Ruhsal Aktivasyon & Şifa', 'İçsel Onarım & İşaretleri Okuma', 'Zihni Dinlendirip Akışta Kalın', true)
+    toGauge('healing', 'Ruhsal Şifa & Kadersel Akış', 'Neptün • Kiron • K. Ay Düğümü', attrHealing, 'Yüksek Sezgi & Blokaj Çözümü', 'İçsel Onarım & İşaretleri Okuma', 'Zihni Dinlendirip Akışta Kalın', true)
   ];
 
   const mentalTone = entScore >= 70 ? 'Yüksek & Berrak' : entScore >= 50 ? 'Stratejik & Dengeli' : 'Dağınık / Dinlenme Gerek';
@@ -1467,7 +1394,7 @@ const SIGN_FLAVORS: Record<string, { adj: string; style: string }> = {
   'Aslan': { adj: 'özgüvenli, yaratıcı ve sıcak', style: 'kendi ışığınızı ortaya koyarak ve yürekten ifade ederek' },
   'Başak': { adj: 'analitik, özenli ve çözüm odaklı', style: 'detayları sadeleştirerek ve pratik düzen kurarak' },
   'Terazi': { adj: 'uzlaşmacı, zarif ve denge arayan', style: 'adil bir diyalog ve karşılıklı uyum kurarak' },
-  'Akrep': { adj: 'derin, sezgisel ve dönüştürücü', style: 'yüzeyin altındaki gerçeği görerek ve stratejik hareket ederek' },
+  'Akrep': { adj: 'derin, sezgisel ve dönüştürücü', style: 'yüzeyin altındaki gerçeği görerek ve stratejik adımlar atarak' },
   'Yay': { adj: 'vizyoner, iyimser ve özgürlükçü', style: 'ufkunuzu genişleterek ve büyük resme odaklanarak' },
   'Oğlak': { adj: 'disiplinli, kararlı ve gerçekçi', style: 'uzun vadeli sorumluluk alarak ve sağlam sınırlar çizerek' },
   'Kova': { adj: 'yenilikçi, özgün ve ezber bozan', style: 'alışılmış kalıpların dışına çıkarak ve bağımsız düşünerek' },
@@ -1675,8 +1602,26 @@ export function generateCurrentSkyOverview(
 
   const moonData = MOON_MOODS[moonSign] || MOON_MOODS['Koç'];
 
-  // Açıları dar orb'a göre filtrele ve sırala
-  const validAspects = (allSkyAspects || []).filter(a => a.orb <= 3.2);
+  // İntikal-i Nur (Işığın Taşınması): İki ağır kuşak gezegeni arasındaki aylarca süren açılar,
+  // yalnızca o gün hızlı/kişisel bir gezegen (Güneş, Ay, Merkür, Venüs, Mars) o noktaya açı yapıp ışığı taşıyorsa (veya <= 0.3° tam pik ise) günün aktif olayı sayılır.
+  const FAST_DAILY_PLANETS = ['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars'];
+  const SLOW_OUTER_PLANETS = ['Uranüs', 'Neptün', 'Plüton', 'Kiron', 'Kuzey Ay Düğümü', 'Lilith'];
+  const dailyLitOuterPlanets = new Set<string>();
+  for (const a of (allSkyAspects || [])) {
+    if (a.orb > 3.2) continue;
+    if (FAST_DAILY_PLANETS.includes(a.planet1) && SLOW_OUTER_PLANETS.includes(a.planet2)) dailyLitOuterPlanets.add(a.planet2);
+    if (FAST_DAILY_PLANETS.includes(a.planet2) && SLOW_OUTER_PLANETS.includes(a.planet1)) dailyLitOuterPlanets.add(a.planet1);
+  }
+
+  // Açıları dar orb'a ve İntikal-i Nur kuralına göre filtrele ve sırala
+  const validAspects = (allSkyAspects || []).filter(a => {
+    if (a.orb > 3.2) return false;
+    const bothOuter = SLOW_OUTER_PLANETS.includes(a.planet1) && SLOW_OUTER_PLANETS.includes(a.planet2);
+    if (bothOuter && a.orb > 0.35 && !dailyLitOuterPlanets.has(a.planet1) && !dailyLitOuterPlanets.has(a.planet2)) {
+      return false;
+    }
+    return true;
+  });
   validAspects.sort((a, b) => a.orb - b.orb);
 
   const enrichSkyAspect = (asp: any): EnrichedSkyAspectItem => {
@@ -1738,13 +1683,7 @@ export function generateCurrentSkyOverview(
 
   // Genel Anlatı (Alttaki Fırsat/Dikkat maddelerini kopyalamadan günün sentez özeti)
   const sunFlavor = SIGN_FLAVORS[sunSign] || { adj: 'odaklı', style: 'farkındalıkla ilerleyerek' };
-  const transpersonalActiveCount = allEnrichedSkyAspects.filter(
-    a => a.isHarmonious && (['Uranüs', 'Neptün', 'Plüton'].includes(a.p1) || ['Uranüs', 'Neptün', 'Plüton'].includes(a.p2))
-  ).length;
-  const transpersonalPortalNote = transpersonalActiveCount >= 2
-    ? ' Gökyüzünde aynı anda aktifleşen Uranüs, Neptün ve Plüton arasındaki uyumlu açı koridoru; sıradan akışın ötesinde güçlü bir ruhsal şifa, bilinç sıçraması ve içsel güç aktivasyonu başlatıyor.'
-    : '';
-  const vibeNarrative = `Güneş'in ${sunSign} burcundaki ${sunFlavor.adj} doğası ile Ay'ın ${moonSign} burcundaki ${moonData.energy.toLowerCase()} ritmi birleşiyor.${transpersonalPortalNote} Bugün kararlarınızda ${sunFlavor.style} hareket etmek ve duygusal tepkilerde aşırılıklardan kaçınmak günün potansiyelini en verimli şekilde kullanmanızı sağlayacaktır.`;
+  const vibeNarrative = `Güneş'in ${sunSign} burcundaki ${sunFlavor.adj} doğası ile Ay'ın ${moonSign} burcundaki ${moonData.energy.toLowerCase()} ritmi birleşiyor. Bugün kararlarınızda ${sunFlavor.style} hareket etmek ve duygusal tepkilerde aşırılıklardan kaçınmak günün potansiyelini en verimli şekilde kullanmanızı sağlayacaktır.`;
 
   const harmoniousSky = allEnrichedSkyAspects.filter(a => a.isHarmonious);
   const challengingSky = allEnrichedSkyAspects.filter(a => !a.isHarmonious);
