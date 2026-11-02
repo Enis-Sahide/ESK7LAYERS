@@ -13,6 +13,22 @@ import { getPlanetaryHours, getPlanetInfo, PlanetaryHour, PLANET_DAY_GUIDELINES 
 import SacredBackground from '@/components/SacredBackground';
 import * as Notifications from 'expo-notifications';
 
+if (Platform.OS !== 'web') {
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+  } catch {
+    // ignore
+  }
+}
+
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
 const { width } = Dimensions.get('window');
@@ -286,6 +302,14 @@ export default function DashboardScreen() {
   useEffect(() => {
     (async () => {
       try {
+        if (Platform.OS === 'android') {
+          await Notifications.setNotificationChannelAsync('cosmic-widget-channel', {
+            name: '7Layers Kozmik Pusula',
+            importance: Notifications.AndroidImportance.HIGH,
+            lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+            sound: null,
+          }).catch(() => {});
+        }
         const [pHour, cWeather, sch, mec, lockN] = await Promise.all([
           AsyncStorage.getItem('@show_planetary_widget'),
           AsyncStorage.getItem('@show_cosmic_weather_widget'),
@@ -293,13 +317,17 @@ export default function DashboardScreen() {
           AsyncStorage.getItem('@show_meclis_widget'),
           AsyncStorage.getItem('@show_lockscreen_widget'),
         ]);
+        const isLockEnabled = lockN !== 'false';
         setWidgetPrefs({
           planetaryHour: pHour !== 'false',
           cosmicWeather: cWeather !== 'false',
           schumann: sch !== 'false',
           meclis: mec !== 'false',
-          lockScreenNotif: lockN === 'true',
+          lockScreenNotif: isLockEnabled,
         });
+        if (isLockEnabled) {
+          void syncLockScreenCosmicWidget(true);
+        }
       } catch {
         // ignore
       }
@@ -348,6 +376,7 @@ export default function DashboardScreen() {
           title: `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
           body: `${moon.icon} ${moon.name} (%${moon.illumination}) • ${dayInfo.name}: ${dayInfo.planet}`,
           sticky: true,
+          ...(Platform.OS === 'android' ? { channelId: 'cosmic-widget-channel' } : {}),
         },
         trigger: null,
       });
