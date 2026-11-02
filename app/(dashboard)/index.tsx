@@ -11,6 +11,7 @@ import { useProgress } from '@/src/context/ProgressContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour, PLANET_DAY_GUIDELINES } from '@/src/features/astrology/engine/PlanetaryHours';
 import SacredBackground from '@/components/SacredBackground';
+import * as Notifications from 'expo-notifications';
 
 const ESOTERIC_BG = require('@/assets/images/esoteric_bg_indigo.webp');
 
@@ -191,6 +192,10 @@ export default function DashboardScreen() {
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isLessonsExpanded, setIsLessonsExpanded] = useState(false);
   const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
+  const [unreadChatReplies, setUnreadChatReplies] = useState(0);
+  const [latestReplyNotif, setLatestReplyNotif] = useState<any | null>(null);
+  const seenReplyNotifsRef = useRef<Set<string>>(new Set());
+  const initialReplyFetchRef = useRef(false);
 
   // Ana sayfadayken geri tuşuna basıldığında boşluğa düşme uyarısı vermeden güvenle çık
   useFocusEffect(
@@ -238,6 +243,87 @@ export default function DashboardScreen() {
     };
     loadUser();
   }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setUnreadChatReplies(0);
+      setLatestReplyNotif(null);
+      return;
+    }
+
+    let active = true;
+
+    (async () => {
+      try {
+        if (Platform.OS !== 'web') {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus === 'granted') {
+            const tokenRes = await Notifications.getExpoPushTokenAsync();
+            if (tokenRes?.data) {
+              await apiFetch('/api/chat/notifications', {
+                method: 'POST',
+                body: JSON.stringify({
+                  action: 'register_push_token',
+                  expoPushToken: tokenRes.data,
+                }),
+              });
+            }
+          }
+        }
+      } catch {
+        // Ignore on simulator / Expo Go without push entitlement
+      }
+    })();
+
+    const pollChatNotifications = async () => {
+      try {
+        const res = await apiFetch('/api/chat/notifications');
+        const data = await res.json();
+        if (!active || !data?.success) return;
+
+        const list: any[] = data.notifications || [];
+        const unread = list.filter((n) => !n.isRead);
+        setUnreadChatReplies(data.unreadCount || 0);
+        setLatestReplyNotif(unread[0] || null);
+
+        if (!initialReplyFetchRef.current) {
+          list.forEach((n) => seenReplyNotifsRef.current.add(n.id));
+          initialReplyFetchRef.current = true;
+        } else {
+          const newest = unread.find((n) => !seenReplyNotifsRef.current.has(n.id));
+          list.forEach((n) => seenReplyNotifsRef.current.add(n.id));
+          if (newest && Platform.OS !== 'web') {
+            try {
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: `${newest.roomIcon || '🏛️'} ${newest.roomTitle} • Yeni Yanıt`,
+                  body: `@${newest.senderName}: "${newest.messagePreview}"`,
+                  data: { roomId: newest.roomId },
+                },
+                trigger: null,
+              });
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    void pollChatNotifications();
+    const timer = setInterval(pollChatNotifications, 9000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [isLoggedIn]);
 
   const handleLogout = async () => {
     await apiLogout();
@@ -367,29 +453,80 @@ export default function DashboardScreen() {
 
         {/* Ezoterik Meclis & Sohbet Odaları Kartı */}
         <TouchableOpacity
-          style={[styles.schumannWidget, { borderLeftColor: '#A855F7', marginBottom: 20 }]}
-          onPress={() => router.push('/(dashboard)/meclis')}
+          style={[
+            styles.schumannWidget,
+            {
+              borderLeftColor: unreadChatReplies > 0 ? '#F59E0B' : '#A855F7',
+              marginBottom: 20,
+            },
+          ]}
+          onPress={() =>
+            router.push(
+              latestReplyNotif?.roomId
+                ? (`/(dashboard)/meclis?room=${encodeURIComponent(latestReplyNotif.roomId)}` as any)
+                : '/(dashboard)/meclis'
+            )
+          }
           activeOpacity={0.75}
         >
           <View style={styles.schumannRow}>
-            <View style={[styles.planetIconWrapper, { backgroundColor: 'rgba(168,85,247,0.18)', borderColor: '#A855F7' }]}>
-              <Ionicons name="chatbubbles-outline" size={18} color="#D8B4FE" />
+            <View
+              style={[
+                styles.planetIconWrapper,
+                {
+                  backgroundColor:
+                    unreadChatReplies > 0 ? 'rgba(245,158,11,0.22)' : 'rgba(168,85,247,0.18)',
+                  borderColor: unreadChatReplies > 0 ? '#F59E0B' : '#A855F7',
+                },
+              ]}
+            >
+              <Ionicons
+                name={unreadChatReplies > 0 ? 'notifications' : 'chatbubbles-outline'}
+                size={18}
+                color={unreadChatReplies > 0 ? '#FCD34D' : '#D8B4FE'}
+              />
             </View>
             <View style={{ flex: 1, marginLeft: 15 }}>
-              <Text style={[styles.schumannTitle, { color: '#D8B4FE' }]}>7Layers Kadim Meclis</Text>
-              <Text style={[styles.schumannStatusName, { color: '#fff' }]}>
-                Ezoterik Sohbet Odaları (8 Oda)
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={[styles.schumannTitle, { color: '#D8B4FE' }]}>
+                  7Layers Kadim Meclis
+                </Text>
+                {unreadChatReplies > 0 && (
+                  <View
+                    style={{
+                      backgroundColor: '#F59E0B',
+                      borderRadius: 10,
+                      paddingHorizontal: 7,
+                      paddingVertical: 1.5,
+                    }}
+                  >
+                    <Text style={{ color: '#000', fontSize: 10, fontWeight: '900' }}>
+                      {unreadChatReplies} Yeni Yanıt
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[styles.schumannStatusName, { color: '#fff' }]} numberOfLines={1}>
+                {latestReplyNotif
+                  ? `@${latestReplyNotif.senderName}: "${latestReplyNotif.messagePreview}"`
+                  : 'Ezoterik Sohbet Odaları (8 Oda)'}
               </Text>
             </View>
             <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
-              <Ionicons name="arrow-forward" size={14} color="#D8B4FE" />
+              <Ionicons name="arrow-forward" size={14} color={unreadChatReplies > 0 ? '#FCD34D' : '#D8B4FE'} />
             </View>
           </View>
           <View style={styles.schumannFooter}>
-            <Text style={styles.schumannFooterText}>🏛️ Kabala, Sembolizm, Astroloji & Human Design</Text>
+            <Text style={styles.schumannFooterText} numberOfLines={1}>
+              {latestReplyNotif
+                ? `${latestReplyNotif.roomIcon || '🏛️'} ${latestReplyNotif.roomTitle} odasında mesajınıza yanıt geldi`
+                : '🏛️ Kabala, Sembolizm, Astroloji & Human Design'}
+            </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 10, color: '#D8B4FE', fontWeight: 'bold' }}>Meclise Katıl</Text>
-              <Ionicons name="chevron-forward" size={12} color="#D8B4FE" style={{ marginLeft: 2 }} />
+              <Text style={{ fontSize: 10, color: unreadChatReplies > 0 ? '#FCD34D' : '#D8B4FE', fontWeight: 'bold' }}>
+                {unreadChatReplies > 0 ? 'Yanıtı Gör' : 'Meclise Katıl'}
+              </Text>
+              <Ionicons name="chevron-forward" size={12} color={unreadChatReplies > 0 ? '#FCD34D' : '#D8B4FE'} style={{ marginLeft: 2 }} />
             </View>
           </View>
         </TouchableOpacity>

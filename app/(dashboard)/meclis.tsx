@@ -12,11 +12,23 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import SacredBackground from '@/components/SacredBackground';
 import { apiFetch, getMe } from '@/src/core/api/client';
 import { COLORS } from '@/src/theme';
+
+interface ChatNotificationItem {
+  id: string;
+  roomId: string;
+  roomTitle: string;
+  roomIcon: string;
+  senderName: string;
+  messageId: string;
+  messagePreview: string;
+  isRead: boolean;
+  createdAt: string;
+}
 
 interface ChatRoom {
   id: string;
@@ -64,11 +76,12 @@ const ROLE_COLORS: Record<string, { bg: string; border: string; text: string }> 
 
 export default function MobileEsotericCouncilScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ room?: string }>();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
-  const [activeRoomId, setActiveRoomId] = useState<string>('genel-meydan');
+  const [activeRoomId, setActiveRoomId] = useState<string>(params.room || 'genel-meydan');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [myProfile, setMyProfile] = useState<MyChatProfile | null>(null);
 
@@ -82,6 +95,16 @@ export default function MobileEsotericCouncilScreen() {
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState('');
   const [isSavingNickname, setIsSavingNickname] = useState(false);
+
+  const [notifications, setNotifications] = useState<ChatNotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+
+  useEffect(() => {
+    if (params.room && typeof params.room === 'string') {
+      setActiveRoomId(params.room);
+    }
+  }, [params.room]);
 
   const scrollRef = useRef<ScrollView>(null);
   const prevCountRef = useRef<number>(0);
@@ -145,21 +168,51 @@ export default function MobileEsotericCouncilScreen() {
     }
   }, []);
 
+  const fetchNotifications = useCallback(async () => {
+    if (!isLoggedIn) return;
+    try {
+      const res = await apiFetch('/api/chat/notifications');
+      const data = await res.json();
+      if (data?.success) {
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch {
+      // silent
+    }
+  }, [isLoggedIn]);
+
   useEffect(() => {
     fetchRooms();
   }, [fetchRooms]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchNotifications();
+    const timer = setInterval(fetchNotifications, 8000);
+    return () => clearInterval(timer);
+  }, [isLoggedIn, fetchNotifications]);
 
   useEffect(() => {
     prevCountRef.current = 0;
     setReplyTarget(null);
     fetchMessages(activeRoomId, false);
 
+    if (isLoggedIn && activeRoomId) {
+      apiFetch('/api/chat/notifications', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'mark_read', roomId: activeRoomId }),
+      })
+        .then(() => fetchNotifications())
+        .catch(() => {});
+    }
+
     const timer = setInterval(() => {
       fetchMessages(activeRoomId, true);
     }, 4500);
 
     return () => clearInterval(timer);
-  }, [activeRoomId, fetchMessages]);
+  }, [activeRoomId, fetchMessages, isLoggedIn, fetchNotifications]);
 
   const handleSend = async () => {
     const trimmed = inputText.trim();
@@ -281,6 +334,44 @@ export default function MobileEsotericCouncilScreen() {
             <Text style={styles.headerTitle}>Ezoterik Meclis</Text>
             <Text style={styles.headerSub}>Kadim İlimler & Sohbet Odaları</Text>
           </View>
+          {isLoggedIn && (
+            <TouchableOpacity
+              onPress={() => setShowNotifModal(true)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 12,
+                backgroundColor: 'rgba(212,175,55,0.12)',
+                borderWidth: 1,
+                borderColor: 'rgba(212,175,55,0.35)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 8,
+              }}
+            >
+              <Ionicons name="notifications-outline" size={18} color="#FDE68A" />
+              {unreadCount > 0 && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    minWidth: 17,
+                    height: 17,
+                    borderRadius: 9,
+                    backgroundColor: '#F59E0B',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingHorizontal: 3,
+                  }}
+                >
+                  <Text style={{ color: '#000', fontSize: 9.5, fontWeight: '900' }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
           {isLoggedIn && myProfile && (
             <TouchableOpacity
               style={styles.nicknameBtn}
@@ -570,6 +661,79 @@ export default function MobileEsotericCouncilScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Notifications Modal */}
+        <Modal
+          visible={showNotifModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowNotifModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalCard, { maxHeight: '75%' }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Ionicons name="notifications" size={18} color="#FDE68A" />
+                  <Text style={styles.modalTitle}>Meclis Yanıt Bildirimleri</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowNotifModal(false)}>
+                  <Ionicons name="close" size={22} color="#9CA3AF" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={{ maxHeight: 360 }}>
+                {notifications.length === 0 ? (
+                  <Text style={[styles.modalDesc, { textAlign: 'center', paddingVertical: 24 }]}>
+                    Henüz mesajlarınıza gelen bir yanıt bildirimi bulunmuyor.
+                  </Text>
+                ) : (
+                  notifications.map((n) => (
+                    <TouchableOpacity
+                      key={n.id}
+                      onPress={async () => {
+                        setShowNotifModal(false);
+                        setActiveRoomId(n.roomId);
+                        try {
+                          await apiFetch('/api/chat/notifications', {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'mark_read', notificationId: n.id }),
+                          });
+                          fetchNotifications();
+                        } catch {
+                          // ignore
+                        }
+                      }}
+                      style={{
+                        paddingVertical: 10,
+                        paddingHorizontal: 10,
+                        borderRadius: 12,
+                        marginBottom: 8,
+                        backgroundColor: !n.isRead ? 'rgba(245,158,11,0.14)' : 'rgba(255,255,255,0.04)',
+                        borderWidth: 1,
+                        borderColor: !n.isRead ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800' }}>
+                          {n.roomIcon} @{n.senderName} yanıtladı
+                        </Text>
+                        {!n.isRead && (
+                          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#F59E0B' }} />
+                        )}
+                      </View>
+                      <Text style={{ color: '#E5E7EB', fontSize: 12, marginTop: 4 }} numberOfLines={2}>
+                        &ldquo;{n.messagePreview}&rdquo;
+                      </Text>
+                      <Text style={{ color: '#9CA3AF', fontSize: 10, marginTop: 4 }}>
+                        {n.roomTitle} Odasına Git →
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -891,3 +1055,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#D4AF37',
   },
 });
+
