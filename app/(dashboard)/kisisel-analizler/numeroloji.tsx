@@ -64,6 +64,7 @@ interface NumerologyResults {
 }
 
 export default function NumerolojiKisiselAnalizScreen() {
+  const { isUnlocked } = useAnalysisAccess('numerology');
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const dayRef = useRef<TextInput>(null);
@@ -1210,6 +1211,9 @@ export default function NumerolojiKisiselAnalizScreen() {
         {/* RESULTS: DATE ONLY TAB */}
         {dateResults && activeTab === 'date' && (
           <View style={styles.resultsContainer}>
+            {!isUnlocked && (
+              <WebLockedAnalysisCard title="Numeroloji Kapsamlı Görünüm" />
+            )}
             <Text style={styles.mainHeading}>DOĞUM TARİHİ SAYISAL ANALİZİ</Text>
             
             {/* Yaşam Yolu Numarası */}
