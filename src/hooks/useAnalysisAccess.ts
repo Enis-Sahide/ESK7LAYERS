@@ -67,7 +67,7 @@ export function useAnalysisAccess(analysisType: string) {
 export function showAnalysisLockedAlert(title = "Kapsamlı Analiz Görünümü") {
   Alert.alert(
     title,
-    "Mobil uygulamada analizlerin ekran boyutuna uyarlanmış özet katmanları sunulmaktadır. Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.",
+    "Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.",
     [
       {
         text: "Tamam",

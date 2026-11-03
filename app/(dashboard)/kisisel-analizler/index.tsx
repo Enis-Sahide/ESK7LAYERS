@@ -236,8 +236,7 @@ export default function AnalysisHubScreen() {
             </View>
             <Text style={styles.modalTitle}>{selectedWebTool?.title}</Text>
             <Text style={styles.modalDesc}>
-              Bu kapsamlı sentez analizi çok katmanlı geniş grafik ve tablolar içerdiğinden mobil ekranda gösterilememektedir.{'\n\n'}
-              Daha detaylı analiz için lütfen <Text style={{ color: '#FDE68A', fontWeight: '700' }}>7Layers web sitesini</Text> ziyaret edin.
+              Daha detaylı analiz ve tüm katmanları incelemek için lütfen <Text style={{ color: '#FDE68A', fontWeight: '700' }}>7Layers web sitesini</Text> ziyaret edin.
             </Text>
             <TouchableOpacity
               style={styles.modalCloseBtn}

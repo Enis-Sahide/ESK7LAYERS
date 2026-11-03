@@ -471,7 +471,7 @@ export default function KariyerAnaliziScreen() {
                         7 Sektör Dağılımı, 10 Gezegen Mesleki Deşifresi ve 6 Kadim Modül Kilitlidir
                       </Text>
                       <Text style={{ fontSize: 12.5, color: '#D1D5DB', textAlign: 'center', lineHeight: 18 }}>
-                        Mobil uygulamada analizlerin özet katmanları sunulmaktadır. Daha detaylı analiz ve tüm kariyer modüllerini incelemek için 7Layers web sitesini ziyaret edin.
+                        Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.
                       </Text>
                     </TouchableOpacity>
                   ) : null}
