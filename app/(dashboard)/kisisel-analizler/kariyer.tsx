@@ -369,80 +369,98 @@ export default function KariyerAnaliziScreen() {
 
               {activeLayer === 'material' ? (
                 <>
-                  {/* 1. Kozmik Kariyer Kimliği */}
-                  {result.coreIdentity && (
+                  {/* 1. Kozmik Kariyer Kimliği & 4 Temel Özet Rozeti */}
+                  {result.summaryBadges ? (
                     <View style={styles.card}>
-                      <Text style={styles.cardTag}>KOZMİK KARİYER KİMLİĞİ</Text>
-                      <Text style={styles.cardHeadline}>{result.coreIdentity.archetypeTitle}</Text>
-                      <Text style={styles.cardBody}>{result.coreIdentity.executiveSummary}</Text>
+                      <Text style={styles.cardTag}>KOZMİK KARİYER KİMLİĞİ & ÖZET İMZA</Text>
+                      <Text style={styles.cardHeadline}>{result.summaryBadges.leadershipStyle}</Text>
 
-                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                         <View style={styles.SignatureChip}>
-                          <Text style={styles.SignatureChipLabel}>MC (Tepe Noktası)</Text>
-                          <Text style={styles.SignatureChipVal}>{result.coreIdentity.mcSign}</Text>
+                          <Text style={styles.SignatureChipLabel}>Çalışma Dinamiği</Text>
+                          <Text style={styles.SignatureChipVal}>{result.summaryBadges.workDynamic}</Text>
                         </View>
                         <View style={styles.SignatureChip}>
-                          <Text style={styles.SignatureChipLabel}>Yükselen</Text>
-                          <Text style={styles.SignatureChipVal}>{result.coreIdentity.ascSign}</Text>
+                          <Text style={styles.SignatureChipLabel}>Temel Yetkinlik</Text>
+                          <Text style={styles.SignatureChipVal}>{result.summaryBadges.coreAsset}</Text>
                         </View>
                         <View style={styles.SignatureChip}>
-                          <Text style={styles.SignatureChipLabel}>Güneş & Ay</Text>
-                          <Text style={styles.SignatureChipVal}>
-                            {result.coreIdentity.sunSign} / {result.coreIdentity.moonSign}
-                          </Text>
+                          <Text style={styles.SignatureChipLabel}>Karar Mekanizması</Text>
+                          <Text style={styles.SignatureChipVal}>{result.summaryBadges.decisionMotto}</Text>
                         </View>
                       </View>
-                    </View>
-                  )}
 
-                  {/* 2. En Güçlü Meslek Alanları (Top Professions) */}
-                  {result.topProfessions && result.topProfessions.length > 0 && (
+                      {result.summaryBadges.decisionExplanation ? (
+                        <Text style={styles.cardBody}>{result.summaryBadges.decisionExplanation}</Text>
+                      ) : null}
+                    </View>
+                  ) : null}
+
+                  {/* 2. En Güçlü Meslek Alanları (Top Sectors) */}
+                  {(result.topSectors || result.topProfessions) && (result.topSectors || result.topProfessions).length > 0 ? (
                     <View style={styles.card}>
                       <Text style={styles.cardTag}>ÖNE ÇIKAN MESLEKİ POTANSİYELLER</Text>
                       <Text style={styles.cardHeadline}>En Yüksek Uyumlu Kariyer Alanlarınız</Text>
-                      {result.topProfessions.slice(0, isEffectiveUnlocked ? 10 : 2).map((prof: any, idx: number) => (
+                      {(result.topSectors || result.topProfessions).slice(0, isEffectiveUnlocked ? 10 : 2).map((prof: any, idx: number) => (
                         <View key={`prof-${idx}`} style={styles.subCard}>
                           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                             <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF', flex: 1 }}>
                               {prof.title || prof.category}
                             </Text>
-                            {prof.matchScore && (
+                            {(prof.percentage || prof.fitScore || prof.matchScore) ? (
                               <View style={styles.scorePill}>
-                                <Text style={styles.scorePillText}>%{prof.matchScore} Uyum</Text>
+                                <Text style={styles.scorePillText}>%{prof.percentage || prof.fitScore || prof.matchScore} Uyum</Text>
                               </View>
-                            )}
+                            ) : null}
                           </View>
-                          {prof.specificRoles && (
+                          {(prof.recommendedRoles || prof.specificRoles) ? (
                             <Text style={{ fontSize: 12.5, color: COLORS.primary, fontWeight: '600', marginBottom: 4 }}>
-                              Önerilen Roller: {Array.isArray(prof.specificRoles) ? prof.specificRoles.join(' • ') : prof.specificRoles}
+                              Önerilen Roller: {Array.isArray(prof.recommendedRoles || prof.specificRoles) ? (prof.recommendedRoles || prof.specificRoles).join(' • ') : (prof.recommendedRoles || prof.specificRoles)}
                             </Text>
-                          )}
+                          ) : null}
                           <Text style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 19 }}>
-                            {prof.astroReason || prof.description}
+                            {prof.description || prof.astroReason}
                           </Text>
                         </View>
                       ))}
                     </View>
-                  )}
+                  ) : null}
 
-                  {/* 3. Çalışma & Odak Modeli + Servet Rotası */}
-                  {result.workStyle && (
+                  {/* 3. İdeal Çalışma Modeli & Odak Stratejisi */}
+                  {(result.idealWorkModel || result.focusStrategy) ? (
                     <View style={styles.card}>
                       <Text style={styles.cardTag}>ODAK & ÇALIŞMA STRATEJİSİ</Text>
-                      <Text style={styles.cardHeadline}>{result.workStyle.idealEnvironment}</Text>
-                      <Text style={styles.cardBody}>{result.workStyle.leadershipStyle}</Text>
+                      {result.idealWorkModel ? (
+                        <View style={{ marginBottom: result.focusStrategy ? 12 : 0 }}>
+                          <Text style={styles.cardHeadline}>
+                            {result.idealWorkModel.type} (%{result.idealWorkModel.percentage})
+                          </Text>
+                          <Text style={styles.cardBody}>{result.idealWorkModel.explanation}</Text>
+                        </View>
+                      ) : null}
+                      {result.focusStrategy ? (
+                        <View style={styles.subCard}>
+                          <Text style={{ fontSize: 14, fontWeight: 'bold', color: COLORS.primary, marginBottom: 4 }}>
+                            {result.focusStrategy.type} • {result.focusStrategy.motto}
+                          </Text>
+                          <Text style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 19 }}>
+                            {result.focusStrategy.explanation}
+                          </Text>
+                        </View>
+                      ) : null}
                     </View>
-                  )}
+                  ) : null}
 
-                  {result.wealthBlueprint && (
+                  {/* 4. Maddi Bereket & Rızık Mıknatısı */}
+                  {result.wealthMagnet ? (
                     <View style={styles.card}>
-                      <Text style={[styles.cardTag, { color: COLORS.emerald }]}>MADDİ BEREKET & SERVET ROTASI</Text>
-                      <Text style={styles.cardHeadline}>{result.wealthBlueprint.moneyArchetype}</Text>
-                      <Text style={styles.cardBody}>{result.wealthBlueprint.incomeStrategy}</Text>
+                      <Text style={[styles.cardTag, { color: COLORS.emerald }]}>MADDİ BEREKET & RIZIK MIKNATISI</Text>
+                      <Text style={styles.cardHeadline}>{result.wealthMagnet.channelTitle}</Text>
+                      <Text style={styles.cardBody}>{result.wealthMagnet.mechanism}</Text>
                     </View>
-                  )}
+                  ) : null}
 
-                  {!isEffectiveUnlocked && (
+                  {!isEffectiveUnlocked ? (
                     <TouchableOpacity
                       style={styles.lockedBanner}
                       activeOpacity={0.85}
@@ -456,7 +474,7 @@ export default function KariyerAnaliziScreen() {
                         Mobil uygulamada analizlerin özet katmanları sunulmaktadır. Daha detaylı analiz ve tüm kariyer modüllerini incelemek için 7Layers web sitesini ziyaret edin.
                       </Text>
                     </TouchableOpacity>
-                  )}
+                  ) : null}
                 </>
               ) : (
                 /* Ruhsal & Drakonik Kariyer Katmanı */
@@ -464,12 +482,46 @@ export default function KariyerAnaliziScreen() {
                   <View style={styles.card}>
                     <Text style={[styles.cardTag, { color: '#C084FC' }]}>DRAKONİK RUH HARİTASI & İLAHİ ÇAĞRI</Text>
                     <Text style={styles.cardHeadline}>
-                      {result.soulCareer.soulMissionTitle || 'Ruhsal Enkarnasyon Misyonunuz'}
+                      {result.soulCareer.soulMidheaven?.title || result.soulCareer.soulMissionTitle || 'Ruhsal Enkarnasyon Misyonunuz'}
                     </Text>
+                    {result.soulCareer.soulMidheaven?.sign ? (
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                        <View style={styles.SignatureChip}>
+                          <Text style={styles.SignatureChipLabel}>Drakonik MC (İlahi Çağrı)</Text>
+                          <Text style={[styles.SignatureChipVal, { color: '#C084FC' }]}>{result.soulCareer.soulMidheaven.sign}</Text>
+                        </View>
+                        {result.soulCareer.soulSun?.sign ? (
+                          <View style={styles.SignatureChip}>
+                            <Text style={styles.SignatureChipLabel}>Drakonik Güneş</Text>
+                            <Text style={[styles.SignatureChipVal, { color: '#C084FC' }]}>{result.soulCareer.soulSun.sign}</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    ) : null}
                     <Text style={styles.cardBody}>
-                      {result.soulCareer.soulCallingSummary || result.soulCareer.draconicMcInterpretation}
+                      {result.soulCareer.soulMidheaven?.calling || result.soulCareer.soulCallingSummary || result.soulCareer.draconicMcInterpretation}
                     </Text>
-                    {!isEffectiveUnlocked && (
+                    {result.soulCareer.soulSun?.mission ? (
+                      <View style={styles.subCard}>
+                        <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#C084FC', marginBottom: 4 }}>
+                          Ruhsal Güneş Misyonunuz
+                        </Text>
+                        <Text style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 19 }}>
+                          {result.soulCareer.soulSun.mission}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {result.soulCareer.soulTopSectors && result.soulCareer.soulTopSectors.length > 0 ? (
+                      <View style={styles.subCard}>
+                        <Text style={{ fontSize: 13.5, fontWeight: 'bold', color: '#FFF', marginBottom: 4 }}>
+                          Öne Çıkan Ruhsal Alan: {result.soulCareer.soulTopSectors[0].title} (%{result.soulCareer.soulTopSectors[0].percentage})
+                        </Text>
+                        <Text style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 19 }}>
+                          {result.soulCareer.soulTopSectors[0].description}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {!isEffectiveUnlocked ? (
                       <TouchableOpacity
                         style={[styles.lockedBanner, { marginTop: 14 }]}
                         onPress={() => showAnalysisLockedAlert('Drakonik Ruh Kariyeri Kilitli')}
@@ -479,7 +531,7 @@ export default function KariyerAnaliziScreen() {
                           Ruh & Madde Sentez Köprüsü ve kilitli bölümleri detaylı görmek için 7Layers web sitesini ziyaret edin
                         </Text>
                       </TouchableOpacity>
-                    )}
+                    ) : null}
                   </View>
                 ) : null
               )}
@@ -729,4 +781,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
