@@ -1,4 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
+import WebLockedAnalysisCard from '@/components/WebLockedAnalysisCard';
+import { useAnalysisAccess } from '@/src/hooks/useAnalysisAccess';
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
@@ -1302,6 +1304,9 @@ export default function NumerolojiKisiselAnalizScreen() {
                 </Text>
               </View>
             </CollapsibleCard>
+            {!isUnlocked && (
+              <WebLockedAnalysisCard title="Kapsamlı Numeroloji Analizi & Kilitli Bölümler" />
+            )}
           </View>
         )}
 

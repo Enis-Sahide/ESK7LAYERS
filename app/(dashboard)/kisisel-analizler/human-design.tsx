@@ -314,6 +314,7 @@ const getIncarnationCrossDetails = (cross: string) => {
 };
 
 export default function HumanDesignScreen() {
+  const { isUnlocked } = useAnalysisAccess('human-design');
   const router = useRouter();
   const [dateStr, setDateStr] = useState('');
   const [timeStr, setTimeStr] = useState('');
@@ -918,9 +919,11 @@ export default function HumanDesignScreen() {
                 >
                   <Text style={styles.textLabel}>Enkarnasyon Haçı:</Text>
                   <Text style={styles.textValue}>{chart.incarnationCross}</Text>
-                </TouchableOpacity>
-              </BlurView>
+                </TouchableOpacity>  </BlurView>
 
+              {!isUnlocked && (
+                <WebLockedAnalysisCard title="Kapsamlı Human Design & Kilitli Bölümler" />
+              )}
             </View>
           )}
         </ScrollView>

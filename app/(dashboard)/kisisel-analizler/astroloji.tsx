@@ -1,4 +1,5 @@
 import SacredBackground from '@/components/SacredBackground';
+import WebLockedAnalysisCard from '@/components/WebLockedAnalysisCard';
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -660,6 +661,9 @@ export default function AstrolojiAnalysisScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
+                )}
+                {!isUnlocked && (
+                  <WebLockedAnalysisCard title="Kapsamlı Doğum Haritası & Kilitli Bölümler" />
                 )}
               </View>
             </View>

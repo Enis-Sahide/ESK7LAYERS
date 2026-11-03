@@ -1,4 +1,5 @@
 import SacredBackground from '@/components/SacredBackground';
+import WebLockedAnalysisCard from '@/components/WebLockedAnalysisCard';
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ImageBackground, KeyboardAvoidingView, Platform, Dimensions, Modal, LayoutAnimation, UIManager, ActivityIndicator, Keyboard } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -626,13 +627,15 @@ export default function KabbalahAnalysisScreen() {
                           </View>
                         </TouchableOpacity>
                       ))}
-                    </View>
-                  </View>
-                );
-              })()}
+                    </View>                    </View>
+                  );
+                })()}
 
-            </View>
-          )}
+                {!isUnlocked && (
+                  <WebLockedAnalysisCard title="Kabalistik 4 Alem Kilitli Gezegen & Sefirot Detayları" />
+                )}
+              </View>
+            )}
 
           <View style={{height: 100}} />
         </ScrollView>

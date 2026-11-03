@@ -448,7 +448,7 @@ export default function KariyerAnaliziScreen() {
                         7 Sektör Dağılımı, 10 Gezegen Mesleki Deşifresi ve 6 Kadim Modül Kilitlidir
                       </Text>
                       <Text style={{ fontSize: 12.5, color: '#D1D5DB', textAlign: 'center', lineHeight: 18 }}>
-                        Tüm kilitli kariyer modüllerine ve indirilebilir özel PDF raporuna erişmek için kapsamlı raporunuzu aktif edebilirsiniz.
+                        Kilitli kariyer modüllerini detaylı görmek, tek ödeme ile sınırsız sorgulama yapmak ve özel PDF raporuna erişmek için 7Layers web sitesini ziyaret edin.
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -471,7 +471,7 @@ export default function KariyerAnaliziScreen() {
                       >
                         <Ionicons name="lock-closed" size={24} color={COLORS.gold} style={{ marginBottom: 6 }} />
                         <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#FFF', textAlign: 'center' }}>
-                          Ruh & Madde Bütünsel Sentez Köprüsü Kapsamlı Rapora Dahildir
+                          Ruh & Madde Sentez Köprüsü ve kilitli bölümleri detaylı görmek için 7Layers web sitesini ziyaret edin
                         </Text>
                       </TouchableOpacity>
                     )}

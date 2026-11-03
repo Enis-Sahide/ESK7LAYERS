@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
@@ -13,6 +13,7 @@ interface AnalysisTool {
   route: string;
   color: string;
   isAvailable: boolean;
+  isWebExclusive?: boolean;
 }
 
 const ANALYSIS_TOOLS: AnalysisTool[] = [
@@ -107,6 +108,26 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     isAvailable: true,
   },
   {
+    id: 'cosmic-matrix',
+    title: '7Layers Kozmik Matris',
+    description: 'Astroloji, Kabalistik 4 Alem, Human Design ve Kadim Rune sentezini tek matriste inceleyin.',
+    icon: 'layers-outline',
+    route: '',
+    color: '#F59E0B',
+    isAvailable: true,
+    isWebExclusive: true,
+  },
+  {
+    id: 'incarnation',
+    title: 'Karmik & Enkarnasyon',
+    description: 'Önceki enkarnasyon kimliğiniz, karmik borçlarınız, Kraliyet Yıldızları ve Drakonik ruh hafızanız.',
+    icon: 'flame-outline',
+    route: '',
+    color: '#FFD700',
+    isAvailable: true,
+    isWebExclusive: true,
+  },
+  {
     id: 'druidtree',
     title: 'Kelt Druid Ağacı Analizi',
     description: '13 kutsal Ogham ağacındaki ruhsal arketipinizi, Ogham harfinizi ve topraklanma ritüelinizi analiz edin.',
@@ -137,9 +158,14 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
 
 export default function AnalysisHubScreen() {
   const router = useRouter();
+  const [selectedWebTool, setSelectedWebTool] = useState<AnalysisTool | null>(null);
 
   const handlePress = (tool: AnalysisTool) => {
     if (!tool.isAvailable) return;
+    if (tool.isWebExclusive) {
+      setSelectedWebTool(tool);
+      return;
+    }
     router.push(tool.route as any);
   };
 
@@ -151,7 +177,7 @@ export default function AnalysisHubScreen() {
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
           <Text style={styles.headerTitle}>Ruhsal Analiz Merkezi</Text>
-          <Text style={styles.headerSubtitle}>Astroloji, Kabala, Numeroloji & Human Design</Text>
+          <Text style={styles.headerSubtitle}>Astroloji, Kabala, Numeroloji &amp; Human Design</Text>
         </View>
         <View style={{ width: 28 }} />
       </View>
@@ -171,9 +197,10 @@ export default function AnalysisHubScreen() {
             <View style={styles.cardContent}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                 <Text style={[styles.cardTitle, { color: '#FFFFFF', flexShrink: 1 }]}>{tool.title}</Text>
-                {!tool.isAvailable && (
-                  <View style={styles.soonBadge}>
-                    <Text style={styles.soonText}>Yakında</Text>
+                {tool.isWebExclusive && (
+                  <View style={styles.webBadge}>
+                    <Ionicons name="lock-closed" size={10} color="#FDE68A" />
+                    <Text style={styles.webBadgeText}>Özel Analiz</Text>
                   </View>
                 )}
               </View>
@@ -183,12 +210,45 @@ export default function AnalysisHubScreen() {
             </View>
 
             {tool.isAvailable && (
-              <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} style={{ marginLeft: 8 }} />
+              <Ionicons
+                name={tool.isWebExclusive ? 'lock-closed-outline' : 'chevron-forward'}
+                size={18}
+                color={tool.isWebExclusive ? '#D4AF37' : COLORS.textMuted}
+                style={{ marginLeft: 8 }}
+              />
             )}
           </TouchableOpacity>
         ))}
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* 7Layers Kozmik Matris & Karmik Enkarnasyon Uyarı Penceresi */}
+      <Modal
+        visible={!!selectedWebTool}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedWebTool(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconBox}>
+              <Ionicons name="lock-closed" size={28} color="#D4AF37" />
+            </View>
+            <Text style={styles.modalTitle}>{selectedWebTool?.title}</Text>
+            <Text style={styles.modalDesc}>
+              Bu analizi kullanabilmek için ödeme yapmanız gerekir. Tek ödeme ile sınırsız sorgulama yapabilirsiniz.{'\n\n'}
+              Daha detaylı analiz ve işlem için lütfen <Text style={{ color: '#FDE68A', fontWeight: '700' }}>7Layers web sitesini</Text> ziyaret edin.
+            </Text>
+            <TouchableOpacity
+              style={styles.modalCloseBtn}
+              onPress={() => setSelectedWebTool(null)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalCloseBtnText}>Tamam</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SacredBackground>
   );
 }
@@ -240,15 +300,74 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     lineHeight: 17,
   },
-  soonBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  webBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(212, 175, 55, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
+    paddingVertical: 2.5,
+    borderRadius: 8,
   },
-  soonText: {
+  webBadgeText: {
     fontSize: 10,
-    color: COLORS.textMuted,
+    color: '#FDE68A',
+    fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.82)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#0F111A',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.45)',
+    padding: 24,
+    alignItems: 'center',
+  },
+  modalIconBox: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  modalDesc: {
+    fontSize: 13.5,
+    color: '#D1D5DB',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  modalCloseBtn: {
+    width: '100%',
+    backgroundColor: '#D4AF37',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalCloseBtnText: {
+    color: '#000000',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

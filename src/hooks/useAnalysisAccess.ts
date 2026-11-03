@@ -67,7 +67,7 @@ export function useAnalysisAccess(analysisType: string) {
 export function showAnalysisLockedAlert(title = "Detaylı Analiz Kilitli") {
   Alert.alert(
     title,
-    "Bu bölüm Kapsamlı Analiz Raporu kapsamında sunulmaktadır. Hesabınızda aktif bir rapor tanımlı değildir. Raporlarınızı ve hesap durumunuzu yönetmek için platformumuzu web tarayıcınız üzerinden ziyaret edebilirsiniz.",
+    "Mobil uygulamada analizlerin özet katmanları sunulmaktadır. Kilitli kısımları detaylı görmek, tek ödeme ile sınırsız sorgulama yapabilmek ve kapsamlı PDF raporlarına ulaşmak için lütfen 7Layers web sitesini ziyaret edin.",
     [
       {
         text: "Tamam",
