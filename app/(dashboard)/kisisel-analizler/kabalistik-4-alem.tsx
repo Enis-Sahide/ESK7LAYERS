@@ -631,7 +631,8 @@ export default function KabbalahAnalysisScreen() {
                           </View>
                         </TouchableOpacity>
                       ))}
-                    </View>                    </View>
+                    </View>
+                  </View>
                   );
                 })()}
               </View>
