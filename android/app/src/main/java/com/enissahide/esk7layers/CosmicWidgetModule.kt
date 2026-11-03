@@ -22,6 +22,10 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
         element: String,
         rulingPlanet: String,
         lifePath: Int,
+        chartMode: String,
+        soulZodiacSign: String,
+        soulElement: String,
+        soulRulingPlanet: String,
         promise: Promise
     ) {
         try {
@@ -36,6 +40,10 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
                 .putString("element", element.trim())
                 .putString("rulingPlanet", rulingPlanet.trim())
                 .putInt("lifePath", lifePath)
+                .putString("chartMode", chartMode.trim().ifEmpty { "soul" })
+                .putString("soulZodiacSign", soulZodiacSign.trim())
+                .putString("soulElement", soulElement.trim())
+                .putString("soulRulingPlanet", soulRulingPlanet.trim())
                 .apply()
 
             CosmicWidgetHelper.refreshAllWidgets(reactApplicationContext)

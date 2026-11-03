@@ -101,13 +101,43 @@ const getLiveMoonPhaseSummary = (date = new Date()) => {
   return { icon: '🌘', name: 'Balsamik Ay', desc: 'İçe dönüş, dinlenme, tefekkür ve ruhsal hazırlık', illumination };
 };
 
+export type WidgetChartMode = 'body' | 'soul' | 'synthesis';
+
+interface ZodiacMeta {
+  sign: string;
+  symbol: string;
+  element: string;
+  ruler: string;
+}
+
+const ZODIAC_SECTORS: ZodiacMeta[] = [
+  { sign: 'Koç', symbol: '♈', element: 'Ateş', ruler: 'Mars' },
+  { sign: 'Boğa', symbol: '♉', element: 'Toprak', ruler: 'Venüs' },
+  { sign: 'İkizler', symbol: '♊', element: 'Hava', ruler: 'Merkür' },
+  { sign: 'Yengeç', symbol: '♋', element: 'Su', ruler: 'Ay' },
+  { sign: 'Aslan', symbol: '♌', element: 'Ateş', ruler: 'Güneş' },
+  { sign: 'Başak', symbol: '♍', element: 'Toprak', ruler: 'Merkür' },
+  { sign: 'Terazi', symbol: '♎', element: 'Hava', ruler: 'Venüs' },
+  { sign: 'Akrep', symbol: '♏', element: 'Su', ruler: 'Plüton/Mars' },
+  { sign: 'Yay', symbol: '♐', element: 'Ateş', ruler: 'Jüpiter' },
+  { sign: 'Oğlak', symbol: '♑', element: 'Toprak', ruler: 'Satürn' },
+  { sign: 'Kova', symbol: '♒', element: 'Hava', ruler: 'Uranüs/Satürn' },
+  { sign: 'Balık', symbol: '♓', element: 'Su', ruler: 'Neptün/Jüpiter' },
+];
+
 interface WidgetBirthProfile {
   birthDate: string;
   birthTime: string;
+  chartMode: WidgetChartMode;
   zodiacSign: string;
   zodiacSymbol: string;
   element: string;
   rulingPlanet: string;
+  soulZodiacSign: string;
+  soulZodiacSymbol: string;
+  soulElement: string;
+  soulRulingPlanet: string;
+  northNodeSign: string;
   lifePath: number;
   personalDay: number;
   personalDo: string;
@@ -127,46 +157,76 @@ const reduceDigit = (num: number): number => {
   return n === 0 ? 1 : n;
 };
 
-const PERSONAL_DAY_THEMES: Record<number, { doText: string; avoidText: string }> = {
+const PERSONAL_DAY_THEMES: Record<
+  number,
+  {
+    bodyDo: string;
+    bodyAvoid: string;
+    soulDo: string;
+    soulAvoid: string;
+  }
+> = {
   1: {
-    doText: 'Yeni başlangıçlar, bireysel inisiyatif alma ve niyet tohumu ekme',
-    avoidText: 'Kararsızlık, başkalarının onayını bekleme ve erteleme',
+    bodyDo: 'Yeni başlangıçlar, bireysel inisiyatif alma ve somut adım atma',
+    bodyAvoid: 'Kararsızlık, başkalarının onayını bekleme ve erteleme',
+    soulDo: 'İlahi iradeyle hizalanma, yüksek benlik niyeti koyma ve öz-uyanış',
+    soulAvoid: 'Beden haritasının ego dürtüsü, sabırsızlık ve mekanik onay arayışı',
   },
   2: {
-    doText: 'Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge',
-    avoidText: 'Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma',
+    bodyDo: 'Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge',
+    bodyAvoid: 'Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma',
+    soulDo: 'Kalp gözüyle dinleme, dualiteyi aşma ve yüksek empati frekansı',
+    soulAvoid: 'Beden otomatizminin duygusal bağımlılık, alınganlık ve şüphe tuzağı',
   },
   3: {
-    doText: 'Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım',
-    avoidText: 'Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı',
+    bodyDo: 'Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım',
+    bodyAvoid: 'Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı',
+    soulDo: 'Boğaz çakrasından hakikati konuşma, ilahi ilhamı tezahür ettirme',
+    soulAvoid: 'Alt zihnin dedikodu, zihinsel dağınıklık ve yüzeysel onay kalıpları',
   },
   4: {
-    doText: 'Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama',
-    avoidText: 'Aşırı katılık, tembellik ve detaylarda boğulma',
+    bodyDo: 'Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama',
+    bodyAvoid: 'Aşırı katılık, tembellik ve detaylarda boğulma',
+    soulDo: 'Ruhsal disiplini maddeye indirme, kutsal geometri ve içsel merkezlenme',
+    soulAvoid: 'Beden haritasının korku odaklı kontrolcülüğü ve maddeye hapsolma',
   },
   5: {
-    doText: 'Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler',
-    avoidText: 'Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması',
+    bodyDo: 'Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler',
+    bodyAvoid: 'Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması',
+    soulDo: 'Eski karmik kalıpları kırma, bilinç sıçraması ve ruhsal özgürleşme',
+    soulAvoid: 'Fiziksel dürtüsellik, duyusal kaçışlar ve enerjiyi dışarı saçma',
   },
   6: {
-    doText: 'Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik',
-    avoidText: 'Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı',
+    bodyDo: 'Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik',
+    bodyAvoid: 'Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı',
+    soulDo: 'Koşulsuz sevgi frekansı, karmik bağları şifalandırma ve hizmet bilinci',
+    soulAvoid: 'Kurtarıcı rolü oynama, suçluluk duygusu ve beklentili fedakarlık',
   },
   7: {
-    doText: 'Derin tefekkür, ezoterik araştırma, içe dönüş ve ruhsal analiz',
-    avoidText: 'Zihinsel aşırı yüklenme, izolasyon ve şüphecilik',
+    bodyDo: 'Derin tefekkür, ezoterik araştırma, içe dönüş ve zihinsel analiz',
+    bodyAvoid: 'Zihinsel aşırı yüklenme, izolasyon ve şüphecilik',
+    soulDo: 'Sessizlikte gelen üst-bilinç bilgeliği, rüya/sembol okuması ve tefekkür',
+    soulAvoid: 'Analitik zihnin aşırı sorgulaması, yabancılaşma ve ruhsal kibir',
   },
   8: {
-    doText: 'Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge',
-    avoidText: 'Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik',
+    bodyDo: 'Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge',
+    bodyAvoid: 'Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik',
+    soulDo: 'Ruhsal otoriteyi eline alma, karmik denge ve ilahi bolluk akışı',
+    soulAvoid: 'Beden egosunun güç savaşları, maddi kaygı ve kontrol hırsı',
   },
   9: {
-    doText: 'Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat',
-    avoidText: 'Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç',
+    bodyDo: 'Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat',
+    bodyAvoid: 'Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç',
+    soulDo: 'Karmik döngüyü bilgelikle mühürleme, tam teslimiyet ve evrensel şefkat',
+    soulAvoid: 'Eski kimliğe ve geçmişin duygusal tortularına mekanik tutunma',
   },
 };
 
-const computeWidgetBirthProfile = (birthDateStr: string, birthTimeStr = ''): WidgetBirthProfile | null => {
+const computeWidgetBirthProfile = (
+  birthDateStr: string,
+  birthTimeStr = '',
+  chartMode: WidgetChartMode = 'soul'
+): WidgetBirthProfile | null => {
   const cleaned = birthDateStr.trim();
   const parts = cleaned.split(/[./-]/);
   if (parts.length !== 3) return null;
@@ -177,59 +237,89 @@ const computeWidgetBirthProfile = (birthDateStr: string, birthTimeStr = ''): Wid
     return null;
   }
 
-  let zodiacSign = 'Koç';
-  let zodiacSymbol = '♈';
-  let element = 'Ateş';
-  let rulingPlanet = 'Mars';
-
-  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) {
-    zodiacSign = 'Koç'; zodiacSymbol = '♈'; element = 'Ateş'; rulingPlanet = 'Mars';
-  } else if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) {
-    zodiacSign = 'Boğa'; zodiacSymbol = '♉'; element = 'Toprak'; rulingPlanet = 'Venüs';
-  } else if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) {
-    zodiacSign = 'İkizler'; zodiacSymbol = '♊'; element = 'Hava'; rulingPlanet = 'Merkür';
-  } else if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) {
-    zodiacSign = 'Yengeç'; zodiacSymbol = '♋'; element = 'Su'; rulingPlanet = 'Ay';
-  } else if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) {
-    zodiacSign = 'Aslan'; zodiacSymbol = '♌'; element = 'Ateş'; rulingPlanet = 'Güneş';
-  } else if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) {
-    zodiacSign = 'Başak'; zodiacSymbol = '♍'; element = 'Toprak'; rulingPlanet = 'Merkür';
-  } else if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) {
-    zodiacSign = 'Terazi'; zodiacSymbol = '♎'; element = 'Hava'; rulingPlanet = 'Venüs';
-  } else if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) {
-    zodiacSign = 'Akrep'; zodiacSymbol = '♏'; element = 'Su'; rulingPlanet = 'Mars';
-  } else if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) {
-    zodiacSign = 'Yay'; zodiacSymbol = '♐'; element = 'Ateş'; rulingPlanet = 'Jüpiter';
-  } else if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) {
-    zodiacSign = 'Oğlak'; zodiacSymbol = '♑'; element = 'Toprak'; rulingPlanet = 'Satürn';
-  } else if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) {
-    zodiacSign = 'Kova'; zodiacSymbol = '♒'; element = 'Hava'; rulingPlanet = 'Satürn';
-  } else {
-    zodiacSign = 'Balık'; zodiacSymbol = '♓'; element = 'Su'; rulingPlanet = 'Jüpiter';
+  let hour = 12;
+  let minute = 0;
+  if (birthTimeStr.trim().includes(':')) {
+    const tParts = birthTimeStr.trim().split(':');
+    const h = parseInt(tParts[0], 10);
+    const m = parseInt(tParts[1], 10);
+    if (!isNaN(h) && h >= 0 && h <= 23) hour = h;
+    if (!isNaN(m) && m >= 0 && m <= 59) minute = m;
   }
+
+  // Astronomical Julian Day & Tropical / Draconic Sun calculation (Yetzirah: North Node = 0° Aries)
+  const y = month <= 2 ? year - 1 : year;
+  const m = month <= 2 ? month + 12 : month;
+  const A = Math.floor(y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  const utHours = hour - 3 + minute / 60;
+  const jd =
+    Math.floor(365.25 * (y + 4716)) +
+    Math.floor(30.6001 * (m + 1)) +
+    day +
+    utHours / 24 +
+    B -
+    1524.5;
+  const T = (jd - 2451545.0) / 36525.0;
+
+  const L0 = (((280.46646 + 36000.76983 * T + 0.0003032 * T * T) % 360) + 360) % 360;
+  const M = (((357.52911 + 35999.05029 * T - 0.0001537 * T * T) % 360) + 360) % 360;
+  const Mrad = (M * Math.PI) / 180;
+  const C =
+    (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(Mrad) +
+    (0.019993 - 0.000101 * T) * Math.sin(2 * Mrad) +
+    0.000289 * Math.sin(3 * Mrad);
+
+  const sunTropicalLon = (((L0 + C) % 360) + 360) % 360;
+  const northNodeLon = (((125.04452 - 1934.136261 * T + 0.0020708 * T * T) % 360) + 360) % 360;
+  const sunDraconicLon = (((sunTropicalLon - northNodeLon) % 360) + 360) % 360;
+
+  const bodyMeta = ZODIAC_SECTORS[Math.floor(sunTropicalLon / 30) % 12] || ZODIAC_SECTORS[0];
+  const soulMeta = ZODIAC_SECTORS[Math.floor(sunDraconicLon / 30) % 12] || ZODIAC_SECTORS[0];
+  const nodeMeta = ZODIAC_SECTORS[Math.floor(northNodeLon / 30) % 12] || ZODIAC_SECTORS[0];
 
   const lifePath = reduceDigit(reduceDigit(day) + reduceDigit(month) + reduceDigit(year));
   const now = new Date();
   const personalDay = reduceDigit(
     reduceDigit(day) +
-    reduceDigit(month) +
-    reduceDigit(now.getDate()) +
-    reduceDigit(now.getMonth() + 1) +
-    reduceDigit(now.getFullYear())
+      reduceDigit(month) +
+      reduceDigit(now.getDate()) +
+      reduceDigit(now.getMonth() + 1) +
+      reduceDigit(now.getFullYear())
   );
 
   const themes = PERSONAL_DAY_THEMES[personalDay] || PERSONAL_DAY_THEMES[1];
+
+  let personalDo = '';
+  let personalAvoid = '';
+  if (chartMode === 'soul') {
+    personalDo = `✓ Ruh Haritası (${soulMeta.sign} • Gün ${personalDay}): ${themes.soulDo} (${soulMeta.ruler} üst oktavı)`;
+    personalAvoid = `✗ Beden Gölgesi (${bodyMeta.sign} / ${bodyMeta.element} Otomatiği): ${themes.soulAvoid}`;
+  } else if (chartMode === 'synthesis') {
+    personalDo = `✓ Sentez (Beden ${bodyMeta.sign} → Ruh ${soulMeta.sign} • Gün ${personalDay}): ${themes.soulDo}`;
+    personalAvoid = `✗ Gölge Uyarısı (${bodyMeta.element} → ${soulMeta.element}): ${themes.bodyAvoid}`;
+  } else {
+    personalDo = `✓ Beden Haritası (${bodyMeta.sign} • Gün ${personalDay}): ${themes.bodyDo} (${bodyMeta.ruler} uyumu)`;
+    personalAvoid = `✗ Kaçının (${bodyMeta.element} Elementi): ${themes.bodyAvoid}`;
+  }
+
   return {
     birthDate: `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`,
     birthTime: birthTimeStr.trim(),
-    zodiacSign,
-    zodiacSymbol,
-    element,
-    rulingPlanet,
+    chartMode,
+    zodiacSign: bodyMeta.sign,
+    zodiacSymbol: bodyMeta.symbol,
+    element: bodyMeta.element,
+    rulingPlanet: bodyMeta.ruler,
+    soulZodiacSign: soulMeta.sign,
+    soulZodiacSymbol: soulMeta.symbol,
+    soulElement: soulMeta.element,
+    soulRulingPlanet: soulMeta.ruler,
+    northNodeSign: nodeMeta.sign,
     lifePath,
     personalDay,
-    personalDo: `✓ Kişisel (${zodiacSign} • Gün ${personalDay}): ${themes.doText} (${rulingPlanet} uyumu)`,
-    personalAvoid: `✗ Kaçının (${element} Elementi): ${themes.avoidText}`,
+    personalDo,
+    personalAvoid,
   };
 };
 
@@ -425,6 +515,7 @@ export default function DashboardScreen() {
   const [showWidgetModal, setShowWidgetModal] = useState(false);
   const [widgetBirthDate, setWidgetBirthDate] = useState('');
   const [widgetBirthTime, setWidgetBirthTime] = useState('');
+  const [widgetChartMode, setWidgetChartMode] = useState<WidgetChartMode>('soul');
   const [savedBirthProfile, setSavedBirthProfile] = useState<WidgetBirthProfile | null>(null);
   const [widgetPrefs, setWidgetPrefs] = useState({
     planetaryHour: true,
@@ -445,7 +536,7 @@ export default function DashboardScreen() {
             sound: null,
           }).catch(() => {});
         }
-        const [pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime] = await Promise.all([
+        const [pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
           AsyncStorage.getItem('@show_planetary_widget'),
           AsyncStorage.getItem('@show_cosmic_weather_widget'),
           AsyncStorage.getItem('@show_schumann_widget'),
@@ -453,11 +544,17 @@ export default function DashboardScreen() {
           AsyncStorage.getItem('@show_lockscreen_widget'),
           AsyncStorage.getItem('@widget_birth_date'),
           AsyncStorage.getItem('@widget_birth_time'),
+          AsyncStorage.getItem('@widget_chart_mode'),
         ]);
+        const activeMode: WidgetChartMode =
+          savedCMode === 'body' || savedCMode === 'soul' || savedCMode === 'synthesis'
+            ? savedCMode
+            : 'soul';
+        setWidgetChartMode(activeMode);
         if (savedBDate) {
           setWidgetBirthDate(savedBDate);
           if (savedBTime) setWidgetBirthTime(savedBTime);
-          const computed = computeWidgetBirthProfile(savedBDate, savedBTime || '');
+          const computed = computeWidgetBirthProfile(savedBDate, savedBTime || '', activeMode);
           if (computed) {
             setSavedBirthProfile(computed);
             if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveBirthProfile) {
@@ -467,7 +564,11 @@ export default function DashboardScreen() {
                 computed.zodiacSign,
                 computed.element,
                 computed.rulingPlanet,
-                computed.lifePath
+                computed.lifePath,
+                computed.chartMode,
+                computed.soulZodiacSign,
+                computed.soulElement,
+                computed.soulRulingPlanet
               ).catch(() => {});
             }
           }
@@ -509,8 +610,36 @@ export default function DashboardScreen() {
     setWidgetBirthTime(formatted);
   };
 
+  const handleSelectChartMode = async (mode: WidgetChartMode) => {
+    setWidgetChartMode(mode);
+    await AsyncStorage.setItem('@widget_chart_mode', mode).catch(() => {});
+    const targetDate = widgetBirthDate.trim() || savedBirthProfile?.birthDate || '';
+    const targetTime = widgetBirthTime.trim() || savedBirthProfile?.birthTime || '';
+    if (!targetDate) return;
+    const computed = computeWidgetBirthProfile(targetDate, targetTime, mode);
+    if (!computed) return;
+    setSavedBirthProfile(computed);
+    if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveBirthProfile) {
+      await NativeModules.CosmicWidgetModule.saveBirthProfile(
+        computed.birthDate,
+        computed.birthTime,
+        computed.zodiacSign,
+        computed.element,
+        computed.rulingPlanet,
+        computed.lifePath,
+        computed.chartMode,
+        computed.soulZodiacSign,
+        computed.soulElement,
+        computed.soulRulingPlanet
+      ).catch(() => {});
+    }
+    if (widgetPrefs.lockScreenNotif) {
+      await syncLockScreenCosmicWidget(true);
+    }
+  };
+
   const handleSaveWidgetBirthProfile = async () => {
-    const computed = computeWidgetBirthProfile(widgetBirthDate, widgetBirthTime);
+    const computed = computeWidgetBirthProfile(widgetBirthDate, widgetBirthTime, widgetChartMode);
     if (!computed) {
       Alert.alert('Geçersiz Tarih', 'Lütfen doğum tarihinizi GG.AA.YYYY formatında (örneğin 15.05.1992) girin.');
       return;
@@ -519,6 +648,7 @@ export default function DashboardScreen() {
       await Promise.all([
         AsyncStorage.setItem('@widget_birth_date', computed.birthDate),
         AsyncStorage.setItem('@widget_birth_time', computed.birthTime),
+        AsyncStorage.setItem('@widget_chart_mode', computed.chartMode),
       ]);
       setSavedBirthProfile(computed);
       if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveBirthProfile) {
@@ -528,15 +658,25 @@ export default function DashboardScreen() {
           computed.zodiacSign,
           computed.element,
           computed.rulingPlanet,
-          computed.lifePath
+          computed.lifePath,
+          computed.chartMode,
+          computed.soulZodiacSign,
+          computed.soulElement,
+          computed.soulRulingPlanet
         );
       }
       if (widgetPrefs.lockScreenNotif) {
         await syncLockScreenCosmicWidget(true);
       }
+      const modeTitle =
+        computed.chartMode === 'soul'
+          ? `✨ Ruh Haritası (${computed.soulZodiacSymbol} ${computed.soulZodiacSign})`
+          : computed.chartMode === 'synthesis'
+          ? `☯️ Sentez (Beden: ${computed.zodiacSign} → Ruh: ${computed.soulZodiacSign})`
+          : `🌍 Beden Haritası (${computed.zodiacSymbol} ${computed.zodiacSign})`;
       Alert.alert(
         '✨ Kişisel Widget Aktif',
-        `${computed.zodiacSymbol} ${computed.zodiacSign} (${computed.element} Elementi • Yaşam Yolu ${computed.lifePath}) bilgilerinize göre ana ekran ve kilit ekranı widget'larınız kişiselleştirildi!`
+        `${modeTitle} • Yaşam Yolu ${computed.lifePath} • Kişisel Gün ${computed.personalDay}\n\nBeden Burcu: ${computed.zodiacSymbol} ${computed.zodiacSign} (${computed.element})\nRuh Burcu (Drakonik): ${computed.soulZodiacSymbol} ${computed.soulZodiacSign} (${computed.soulElement})\n\nAna ekran ve kilit ekranı widget'larınız seçtiğiniz harita katmanına göre güncellendi!`
       );
     } catch {
       Alert.alert('Bilgi', 'Doğum bilgileriniz kaydedildi.');
@@ -600,13 +740,24 @@ export default function DashboardScreen() {
       const dayInfo = DAY_CHAKRA_MAP[now.getDay()];
       const bDate = await AsyncStorage.getItem('@widget_birth_date');
       const bTime = await AsyncStorage.getItem('@widget_birth_time');
-      const bProfile = bDate ? computeWidgetBirthProfile(bDate, bTime || '') : null;
+      const cModeRaw = await AsyncStorage.getItem('@widget_chart_mode');
+      const cMode: WidgetChartMode =
+        cModeRaw === 'body' || cModeRaw === 'soul' || cModeRaw === 'synthesis' ? cModeRaw : 'soul';
+      const bProfile = bDate ? computeWidgetBirthProfile(bDate, bTime || '', cMode) : null;
+
+      const activeSignLabel = bProfile
+        ? bProfile.chartMode === 'soul'
+          ? `✨ Ruh: ${bProfile.soulZodiacSymbol} ${bProfile.soulZodiacSign}`
+          : bProfile.chartMode === 'synthesis'
+          ? `☯️ ${bProfile.zodiacSign}→${bProfile.soulZodiacSign}`
+          : `🌍 Beden: ${bProfile.zodiacSymbol} ${bProfile.zodiacSign}`
+        : '';
 
       await Notifications.scheduleNotificationAsync({
         identifier: 'cosmic-lockscreen-widget',
         content: {
           title: bProfile
-            ? `${pInfo.symbol} ${pInfo.name} (${minsLeft} dk) • ${bProfile.zodiacSymbol} ${bProfile.zodiacSign} (Gün ${bProfile.personalDay})`
+            ? `${pInfo.symbol} ${pInfo.name} (${minsLeft} dk) • ${activeSignLabel} (Gün ${bProfile.personalDay})`
             : `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
           body: bProfile
             ? `${bProfile.personalDo} | ${moon.icon} ${moon.name} (%${moon.illumination})`
@@ -1097,17 +1248,57 @@ export default function DashboardScreen() {
               }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                   <Text style={{ color: '#FDE68A', fontSize: 13, fontWeight: '800' }}>
-                    🎯 Widget Kişisel Doğum Bilgisi
+                    🎯 Widget Kişisel Doğum &amp; Harita Katmanı
                   </Text>
                   {savedBirthProfile && (
                     <View style={{ backgroundColor: 'rgba(16,185,129,0.18)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.45)', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 2 }}>
-                      <Text style={{ color: '#34D399', fontSize: 9.5, fontWeight: '800' }}>KİŞİSEL MOD AKTİF</Text>
+                      <Text style={{ color: '#34D399', fontSize: 9.5, fontWeight: '800' }}>
+                        {savedBirthProfile.chartMode === 'soul'
+                          ? 'RUH HARİTASI AKTİF'
+                          : savedBirthProfile.chartMode === 'synthesis'
+                          ? 'SENTEZ MOD AKTİF'
+                          : 'BEDEN HARİTASI AKTİF'}
+                      </Text>
                     </View>
                   )}
                 </View>
                 <Text style={{ color: '#D1D5DB', fontSize: 11, lineHeight: 15, marginBottom: 10 }}>
-                  Widget&apos;lardaki günlük &ldquo;Önerilen / Kaçının&rdquo; analiz özetlerinin kendi burcunuz, elementiniz ve kişisel numerolojik gününüze göre hesaplanması için doğum tarihinizi girin:
+                  Doğum tarihinize göre hem <Text style={{ color: '#FDE68A', fontWeight: '700' }}>Beden Haritası (Tropikal)</Text> hem de <Text style={{ color: '#A78BFA', fontWeight: '700' }}>Ruh Haritası (Drakonik / Kuzey Ay Düğümü 0° Koç)</Text> burcunuz hesaplanır. Çalıştırdığınız harita katmanını seçin:
                 </Text>
+
+                {/* Harita Katmanı Seçici: Beden vs Ruh vs Sentez */}
+                <View style={{ flexDirection: 'row', gap: 6, marginBottom: 10 }}>
+                  {([
+                    { mode: 'body' as const, label: '🌍 Beden', sub: 'Tropikal' },
+                    { mode: 'soul' as const, label: '✨ Ruh Haritası', sub: 'Drakonik' },
+                    { mode: 'synthesis' as const, label: '☯️ Sentez', sub: 'Beden + Ruh' },
+                  ]).map((opt) => {
+                    const isSelected = widgetChartMode === opt.mode;
+                    return (
+                      <TouchableOpacity
+                        key={opt.mode}
+                        onPress={() => handleSelectChartMode(opt.mode)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: isSelected ? 'rgba(212,175,55,0.22)' : 'rgba(0,0,0,0.4)',
+                          borderWidth: 1,
+                          borderColor: isSelected ? '#D4AF37' : 'rgba(255,255,255,0.12)',
+                          borderRadius: 10,
+                          paddingVertical: 6,
+                          paddingHorizontal: 4,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text style={{ color: isSelected ? '#FDE68A' : '#E5E7EB', fontSize: 10.5, fontWeight: '800' }}>
+                          {opt.label}
+                        </Text>
+                        <Text style={{ color: isSelected ? '#D4AF37' : '#9CA3AF', fontSize: 9, marginTop: 1 }}>
+                          {opt.sub}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
 
                 <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
                   <View style={{ flex: 2 }}>
@@ -1157,9 +1348,37 @@ export default function DashboardScreen() {
                 </View>
 
                 {savedBirthProfile && (
-                  <View style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 10, padding: 9, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
-                    <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '800', marginBottom: 3 }}>
-                      {savedBirthProfile.zodiacSymbol} {savedBirthProfile.zodiacSign} • {savedBirthProfile.element} Elementi • Yaşam Yolu {savedBirthProfile.lifePath} • Bugün Kişisel Gün {savedBirthProfile.personalDay}
+                  <View style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 10, padding: 9, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+                    <View style={{ flexDirection: 'row', gap: 6, marginBottom: 6 }}>
+                      <View style={{
+                        flex: 1,
+                        backgroundColor: savedBirthProfile.chartMode === 'body' ? 'rgba(212,175,55,0.16)' : 'rgba(255,255,255,0.04)',
+                        borderRadius: 8,
+                        padding: 6,
+                        borderWidth: 1,
+                        borderColor: savedBirthProfile.chartMode === 'body' ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.08)',
+                      }}>
+                        <Text style={{ color: '#9CA3AF', fontSize: 9, fontWeight: '700' }}>🌍 BEDEN HARİTASI (ASSİAH)</Text>
+                        <Text style={{ color: '#FDE68A', fontSize: 11.5, fontWeight: '800', marginTop: 1 }}>
+                          {savedBirthProfile.zodiacSymbol} {savedBirthProfile.zodiacSign} ({savedBirthProfile.element})
+                        </Text>
+                      </View>
+                      <View style={{
+                        flex: 1,
+                        backgroundColor: savedBirthProfile.chartMode === 'soul' ? 'rgba(167,139,250,0.18)' : 'rgba(255,255,255,0.04)',
+                        borderRadius: 8,
+                        padding: 6,
+                        borderWidth: 1,
+                        borderColor: savedBirthProfile.chartMode === 'soul' ? 'rgba(167,139,250,0.55)' : 'rgba(255,255,255,0.08)',
+                      }}>
+                        <Text style={{ color: '#C4B5FD', fontSize: 9, fontWeight: '700' }}>✨ RUH HARİTASI (DRAKONİK)</Text>
+                        <Text style={{ color: '#DDD6FE', fontSize: 11.5, fontWeight: '800', marginTop: 1 }}>
+                          {savedBirthProfile.soulZodiacSymbol} {savedBirthProfile.soulZodiacSign} ({savedBirthProfile.soulElement})
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={{ color: '#FDE68A', fontSize: 10.5, fontWeight: '800', marginBottom: 3 }}>
+                      Yaşam Yolu {savedBirthProfile.lifePath} • Bugün Kişisel Gün {savedBirthProfile.personalDay} • KAD: {savedBirthProfile.northNodeSign}
                     </Text>
                     <Text style={{ color: '#34D399', fontSize: 10.5, fontWeight: '700', lineHeight: 14 }}>
                       {savedBirthProfile.personalDo}

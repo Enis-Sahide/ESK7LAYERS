@@ -78,17 +78,69 @@ object CosmicWidgetHelper {
         return if (n == 0) 1 else n
     }
 
-    private fun getPersonalDayThemes(personalDay: Int): Pair<String, String> {
+    data class PersonalDayTheme(
+        val bodyDo: String,
+        val bodyAvoid: String,
+        val soulDo: String,
+        val soulAvoid: String
+    )
+
+    private fun getPersonalDayThemes(personalDay: Int): PersonalDayTheme {
         return when (personalDay) {
-            1 -> "Yeni başlangıçlar, bireysel inisiyatif alma ve niyet tohumu ekme" to "Kararsızlık, başkalarının onayını bekleme ve erteleme"
-            2 -> "Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge" to "Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma"
-            3 -> "Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım" to "Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı"
-            4 -> "Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama" to "Aşırı katılık, tembellik ve detaylarda boğulma"
-            5 -> "Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler" to "Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması"
-            6 -> "Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik" to "Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı"
-            7 -> "Derin tefekkür, ezoterik araştırma, içe dönüş ve ruhsal analiz" to "Zihinsel aşırı yüklenme, izolasyon ve şüphecilik"
-            8 -> "Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge" to "Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik"
-            else -> "Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat" to "Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç"
+            1 -> PersonalDayTheme(
+                "Yeni başlangıçlar, bireysel inisiyatif alma ve somut adım atma",
+                "Kararsızlık, başkalarının onayını bekleme ve erteleme",
+                "İlahi iradeyle hizalanma, yüksek benlik niyeti koyma ve öz-uyanış",
+                "Beden haritasının ego dürtüsü, sabırsızlık ve mekanik onay arayışı"
+            )
+            2 -> PersonalDayTheme(
+                "Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge",
+                "Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma",
+                "Kalp gözüyle dinleme, dualiteyi aşma ve yüksek empati frekansı",
+                "Beden otomatizminin duygusal bağımlılık, alınganlık ve şüphe tuzağı"
+            )
+            3 -> PersonalDayTheme(
+                "Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım",
+                "Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı",
+                "Boğaz çakrasından hakikati konuşma, ilahi ilhamı tezahür ettirme",
+                "Alt zihnin dedikodu, zihinsel dağınıklık ve yüzeysel onay kalıpları"
+            )
+            4 -> PersonalDayTheme(
+                "Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama",
+                "Aşırı katılık, tembellik ve detaylarda boğulma",
+                "Ruhsal disiplini maddeye indirme, kutsal geometri ve içsel merkezlenme",
+                "Beden haritasının korku odaklı kontrolcülüğü ve maddeye hapsolma"
+            )
+            5 -> PersonalDayTheme(
+                "Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler",
+                "Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması",
+                "Eski karmik kalıpları kırma, bilinç sıçraması ve ruhsal özgürleşme",
+                "Fiziksel dürtüsellik, duyusal kaçışlar ve enerjiyi dışarı saçma"
+            )
+            6 -> PersonalDayTheme(
+                "Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik",
+                "Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı",
+                "Koşulsuz sevgi frekansı, karmik bağları şifalandırma ve hizmet bilinci",
+                "Kurtarıcı rolü oynama, suçluluk duygusu ve beklentili fedakarlık"
+            )
+            7 -> PersonalDayTheme(
+                "Derin tefekkür, ezoterik araştırma, içe dönüş ve zihinsel analiz",
+                "Zihinsel aşırı yüklenme, izolasyon ve şüphecilik",
+                "Sessizlikte gelen üst-bilinç bilgeliği, rüya/sembol okuması ve tefekkür",
+                "Analitik zihnin aşırı sorgulaması, yabancılaşma ve ruhsal kibir"
+            )
+            8 -> PersonalDayTheme(
+                "Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge",
+                "Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik",
+                "Ruhsal otoriteyi eline alma, karmik denge ve ilahi bolluk akışı",
+                "Beden egosunun güç savaşları, maddi kaygı ve kontrol hırsı"
+            )
+            else -> PersonalDayTheme(
+                "Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat",
+                "Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç",
+                "Karmik döngüyü bilgelikle mühürleme, tam teslimiyet ve evrensel şefkat",
+                "Eski kimliğe ve geçmişin duygusal tortularına mekanik tutunma"
+            )
         }
     }
 
@@ -173,6 +225,10 @@ object CosmicWidgetHelper {
         val element = prefs.getString("element", "")?.trim() ?: ""
         val rulingPlanet = prefs.getString("rulingPlanet", "")?.trim() ?: ""
         val lifePath = prefs.getInt("lifePath", 0)
+        val chartMode = prefs.getString("chartMode", "soul")?.trim()?.ifEmpty { "soul" } ?: "soul"
+        val soulZodiacSign = prefs.getString("soulZodiacSign", "")?.trim()?.ifEmpty { zodiacSign } ?: zodiacSign
+        val soulElement = prefs.getString("soulElement", "")?.trim()?.ifEmpty { element } ?: element
+        val soulRulingPlanet = prefs.getString("soulRulingPlanet", "")?.trim()?.ifEmpty { rulingPlanet } ?: rulingPlanet
 
         if (birthDate.isEmpty() || zodiacSign.isEmpty()) {
             return base
@@ -194,17 +250,40 @@ object CosmicWidgetHelper {
             reduceToSingleDigit(cYear)
         )
 
-        val (pDo, pAvoid) = getPersonalDayThemes(personalDay)
-        val signTag = if (lifePath > 0) "$zodiacSign • Yol $lifePath • Gün $personalDay" else "$zodiacSign • Kişisel Gün $personalDay"
+        val themes = getPersonalDayThemes(personalDay)
         val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
 
-        val customDo = "✓ Kişisel ($zodiacSign • Gün $personalDay): $pDo ($rulingPlanet uyumu)"
-        val customAvoid = "✗ Kaçının ($elementLabel): $pAvoid"
-        val customBadge = "🎯 KİŞİSEL ANALİZ • ${signTag.uppercase()}"
+        val customDo: String
+        val customAvoid: String
+        val customBadge: String
+        val chakraSignBadge: String
+
+        when (chartMode) {
+            "soul" -> {
+                val soulTag = if (lifePath > 0) "$soulZodiacSign • Yol $lifePath • Gün $personalDay" else "$soulZodiacSign • Gün $personalDay"
+                customBadge = "✨ RUH HARİTASI (DRAKONİK) • ${soulTag.uppercase()}"
+                chakraSignBadge = "${base.chakraBadge} • RUH: ${soulZodiacSign.uppercase()}"
+                customDo = "✓ Ruh Haritası ($soulZodiacSign • Gün $personalDay): ${themes.soulDo} ($soulRulingPlanet üst oktavı)"
+                customAvoid = "✗ Beden Gölgesi ($zodiacSign / $element Otomatiği): ${themes.soulAvoid}"
+            }
+            "synthesis" -> {
+                customBadge = "☯️ SENTEZ • BEDEN: ${zodiacSign.uppercase()} → RUH: ${soulZodiacSign.uppercase()} • GÜN $personalDay"
+                chakraSignBadge = "${base.chakraBadge} • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
+                customDo = "✓ Sentez (Beden $zodiacSign → Ruh $soulZodiacSign • Gün $personalDay): ${themes.soulDo}"
+                customAvoid = "✗ Gölge Uyarısı ($element → $soulElement): ${themes.bodyAvoid}"
+            }
+            else -> {
+                val bodyTag = if (lifePath > 0) "$zodiacSign • Yol $lifePath • Gün $personalDay" else "$zodiacSign • Gün $personalDay"
+                customBadge = "🌍 BEDEN HARİTASI • ${bodyTag.uppercase()}"
+                chakraSignBadge = "${base.chakraBadge} • BEDEN: ${zodiacSign.uppercase()}"
+                customDo = "✓ Beden Haritası ($zodiacSign • Gün $personalDay): ${themes.bodyDo} ($rulingPlanet uyumu)"
+                customAvoid = "✗ Kaçının ($elementLabel): ${themes.bodyAvoid}"
+            }
+        }
 
         return base.copy(
             headerBadge = customBadge,
-            chakraBadge = "${base.chakraBadge} • ${zodiacSign.uppercase()}",
+            chakraBadge = chakraSignBadge,
             doText = customDo,
             avoidText = customAvoid
         )
