@@ -45,6 +45,9 @@ interface KpData {
   schumann_real?: RealSchumannRow;
   peak_a1_24h?: number;
   peak_score_24h?: number;
+  is_offline?: boolean;
+  offline_warning?: string | null;
+  last_cached_at?: string | null;
 }
 
 export default function SchumannScreen() {
@@ -54,6 +57,7 @@ export default function SchumannScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [imageTimestamp, setImageTimestamp] = useState<number>(Date.now());
+  const [useStaticFallbackImg, setUseStaticFallbackImg] = useState(false);
   const [simulatedA1, setSimulatedA1] = useState<number | null>(null);
   const getResonanceColor = (kp: number) => {
     const stops = [
@@ -389,6 +393,31 @@ export default function SchumannScreen() {
               Atmosferik boşlukta rezonans frekanslarının uyarılma şiddeti. Bu veriler Space Observing System 70 (Tomsk, Rusya) rasathanesinden canlı olarak alınmaktadır.
             </Text>
 
+            {/* SOS70 Offline Warning Banner */}
+            {(data?.is_offline || useStaticFallbackImg || !data?.schumann_real) && (
+              <View style={{
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                borderWidth: 1,
+                borderColor: 'rgba(245, 158, 11, 0.45)',
+                borderRadius: 12,
+                padding: 12,
+                marginBottom: 12,
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: 10
+              }}>
+                <Ionicons name="warning" size={20} color="#FBBF24" style={{ marginTop: 1 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#FCD34D', fontSize: 11, fontWeight: 'bold', marginBottom: 4 }}>
+                    ⚠️ TOMSK RASATHANESİ (SOS70) BAĞLANTI UYARISI
+                  </Text>
+                  <Text style={{ color: 'rgba(254, 243, 199, 0.9)', fontSize: 11, lineHeight: 16 }}>
+                    {data?.offline_warning || 'Kaynak sunucuya şu anda ulaşılamadığı için canlı veri çekilemiyor. Boş ekran yerine kesinti öncesi kaydedilen en son hesaplanan spektrogram görseli gösterilmektedir.'}
+                  </Text>
+                </View>
+              </View>
+            )}
+
             {/* Spectrogram Header with Local & Tomsk Times */}
             {data?.schumann_real && (
               <View style={{
@@ -399,46 +428,89 @@ export default function SchumannScreen() {
                 backgroundColor: 'rgba(255, 255, 255, 0.03)',
                 borderRadius: 12,
                 borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.05)',
+                borderColor: (data?.is_offline || useStaticFallbackImg) ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.05)',
                 paddingVertical: 8,
                 paddingHorizontal: 12,
                 marginBottom: 12,
                 gap: 8
               }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8 }}>
-                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#00E5FF', marginRight: 6 }} />
-                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#00E5FF' }}>CANLI GÖZLEMEVİ</Text>
+                  <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: (data?.is_offline || useStaticFallbackImg) ? '#F59E0B' : '#00E5FF', marginRight: 6 }} />
+                  <Text style={{ fontSize: 10, fontWeight: 'bold', color: (data?.is_offline || useStaticFallbackImg) ? '#FBBF24' : '#00E5FF' }}>
+                    {(data?.is_offline || useStaticFallbackImg) ? 'ÇEVRİMDIŞI ARŞİV • SON HESAPLANAN VERİ' : 'CANLI GÖZLEMEVİ'}
+                  </Text>
                 </View>
                 <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 'bold' }}>
-                  Yerel: <Text style={{ color: '#00E5FF' }}>{formatRealTime(data.schumann_real.time_utc)}</Text>
+                  {(data?.is_offline || useStaticFallbackImg) ? 'Son Kayıt (Yerel): ' : 'Yerel: '}
+                  <Text style={{ color: '#00E5FF' }}>{formatRealTime(data.schumann_real.time_utc)}</Text>
                 </Text>
                 <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>|</Text>
                 <Text style={{ fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', fontWeight: 'bold' }}>
-                  Tomsk: <Text style={{ color: '#A78BFA' }}>{formatTomskTime(data.schumann_real.time_utc)}</Text>
+                  {(data?.is_offline || useStaticFallbackImg) ? 'Son Kayıt (Tomsk): ' : 'Tomsk: '}
+                  <Text style={{ color: '#A78BFA' }}>{formatTomskTime(data.schumann_real.time_utc)}</Text>
                 </Text>
               </View>
             )}
 
-            <ScrollView 
-              horizontal={true} 
-              showsHorizontalScrollIndicator={true}
-              style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
-              contentContainerStyle={{ width: 750, paddingBottom: 15 }}
-            >
-              <View style={{ width: 750 }}>
-                {loading ? (
-                  <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
-                    <ActivityIndicator size="small" color={COLORS.primary} />
-                  </View>
-                ) : (
-                  <Image 
-                    source={{ uri: `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}` }}
-                    style={{ width: 750, height: 200 }}
-                    resizeMode="stretch"
-                  />
-                )}
-              </View>
-            </ScrollView>
+            <View style={{ position: 'relative' }}>
+              <ScrollView 
+                horizontal={true} 
+                showsHorizontalScrollIndicator={true}
+                style={{ marginVertical: 10, borderRadius: 8, backgroundColor: '#050505', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }}
+                contentContainerStyle={{ width: 750, paddingBottom: 15 }}
+              >
+                <View style={{ width: 750 }}>
+                  {loading ? (
+                    <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
+                      <ActivityIndicator size="small" color={COLORS.primary} />
+                    </View>
+                  ) : (
+                    <Image 
+                      source={{
+                        uri: useStaticFallbackImg
+                          ? `${API_BASE_URL}/shm.jpg`
+                          : `${API_BASE_URL}/api/schumann/image?t=${imageTimestamp}`
+                      }}
+                      onError={() => {
+                        if (!useStaticFallbackImg) {
+                          setUseStaticFallbackImg(true);
+                        }
+                      }}
+                      style={{ width: 750, height: 200 }}
+                      resizeMode="stretch"
+                    />
+                  )}
+                </View>
+              </ScrollView>
+
+              {/* Floating Warning Overlay directly over the Spectrogram visual */}
+              {(data?.is_offline || useStaticFallbackImg || !data?.schumann_real) && !loading && (
+                <View
+                  pointerEvents="none"
+                  style={{
+                    position: 'absolute',
+                    top: 18,
+                    left: 10,
+                    right: 10,
+                    backgroundColor: 'rgba(15, 10, 2, 0.88)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(245, 158, 11, 0.65)',
+                    borderRadius: 10,
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6
+                  }}
+                >
+                  <Ionicons name="alert-circle" size={14} color="#FBBF24" />
+                  <Text style={{ color: '#FDE68A', fontSize: 10, fontWeight: 'bold', textAlign: 'center', flexShrink: 1 }}>
+                    SOS70 Kaynağına Ulaşılamıyor • Kesinti Öncesi En Son Hesaplanan Veri Görseli
+                  </Text>
+                </View>
+              )}
+            </View>
 
             {/* Chart Legend */}
             <View style={styles.legendContainer}>
