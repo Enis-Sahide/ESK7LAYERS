@@ -13,6 +13,7 @@ import kotlin.math.roundToInt
 
 object CosmicWidgetHelper {
     const val ACTION_REFRESH_WIDGETS = "com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS"
+    const val PREFS_NAME = "CosmicWidgetPrefs"
 
     val CHALDEAN_ORDER = arrayOf(
         "Satürn ♄",
@@ -48,6 +49,7 @@ object CosmicWidgetHelper {
 
     data class DayCosmicInfo(
         val symbol: String,
+        val headerBadge: String,
         val headerTitle: String,
         val chakraBadge: String,
         val chakraTitle: String,
@@ -63,10 +65,39 @@ object CosmicWidgetHelper {
         val sub: String
     )
 
-    fun getDayCosmicInfo(dayOfWeek: Int): DayCosmicInfo {
-        return when (dayOfWeek) {
+    private fun reduceToSingleDigit(num: Int): Int {
+        var n = kotlin.math.abs(num)
+        while (n > 9) {
+            var sum = 0
+            while (n > 0) {
+                sum += n % 10
+                n /= 10
+            }
+            n = sum
+        }
+        return if (n == 0) 1 else n
+    }
+
+    private fun getPersonalDayThemes(personalDay: Int): Pair<String, String> {
+        return when (personalDay) {
+            1 -> "Yeni başlangıçlar, bireysel inisiyatif alma ve niyet tohumu ekme" to "Kararsızlık, başkalarının onayını bekleme ve erteleme"
+            2 -> "Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge" to "Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma"
+            3 -> "Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım" to "Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı"
+            4 -> "Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama" to "Aşırı katılık, tembellik ve detaylarda boğulma"
+            5 -> "Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler" to "Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması"
+            6 -> "Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik" to "Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı"
+            7 -> "Derin tefekkür, ezoterik araştırma, içe dönüş ve ruhsal analiz" to "Zihinsel aşırı yüklenme, izolasyon ve şüphecilik"
+            8 -> "Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge" to "Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik"
+            else -> "Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat" to "Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç"
+        }
+    }
+
+    fun getDayCosmicInfo(context: Context, cal: Calendar): DayCosmicInfo {
+        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+        val base = when (dayOfWeek) {
             Calendar.SUNDAY -> DayCosmicInfo(
                 "☉",
+                "7LAYERS • KOZMİK PUSULA",
                 "Pazar • Güneş Günü • Solar Pleksus (528 Hz)",
                 "GÜNÜN ÇAKRASI • 528 HZ",
                 "3. Katman: Solar Pleksus (Manipura)",
@@ -76,6 +107,7 @@ object CosmicWidgetHelper {
             )
             Calendar.MONDAY -> DayCosmicInfo(
                 "☽",
+                "7LAYERS • KOZMİK PUSULA",
                 "Pazartesi • Ay Günü • Kalp Çakrası (639 Hz)",
                 "GÜNÜN ÇAKRASI • 639 HZ",
                 "4. Katman: Kalp Çakrası (Anahata)",
@@ -85,6 +117,7 @@ object CosmicWidgetHelper {
             )
             Calendar.TUESDAY -> DayCosmicInfo(
                 "♂",
+                "7LAYERS • KOZMİK PUSULA",
                 "Salı • Mars Günü • Kök Çakra (396 Hz)",
                 "GÜNÜN ÇAKRASI • 396 HZ",
                 "1. Katman: Kök Çakra (Muladhara)",
@@ -94,6 +127,7 @@ object CosmicWidgetHelper {
             )
             Calendar.WEDNESDAY -> DayCosmicInfo(
                 "☿",
+                "7LAYERS • KOZMİK PUSULA",
                 "Çarşamba • Merkür Günü • Boğaz Çakrası (741 Hz)",
                 "GÜNÜN ÇAKRASI • 741 HZ",
                 "5. Katman: Boğaz Çakrası (Vishuddha)",
@@ -103,6 +137,7 @@ object CosmicWidgetHelper {
             )
             Calendar.THURSDAY -> DayCosmicInfo(
                 "♃",
+                "7LAYERS • KOZMİK PUSULA",
                 "Perşembe • Jüpiter Günü • Üçüncü Göz (852 Hz)",
                 "GÜNÜN ÇAKRASI • 852 HZ",
                 "6. Katman: Üçüncü Göz (Ajna)",
@@ -112,6 +147,7 @@ object CosmicWidgetHelper {
             )
             Calendar.FRIDAY -> DayCosmicInfo(
                 "♀",
+                "7LAYERS • KOZMİK PUSULA",
                 "Cuma • Venüs Günü • Sakral Çakra (417 Hz)",
                 "GÜNÜN ÇAKRASI • 417 HZ",
                 "2. Katman: Sakral Çakra (Svadhisthana)",
@@ -121,6 +157,7 @@ object CosmicWidgetHelper {
             )
             else -> DayCosmicInfo(
                 "♄",
+                "7LAYERS • KOZMİK PUSULA",
                 "Cumartesi • Satürn Günü • Taç Çakra (963 Hz)",
                 "GÜNÜN ÇAKRASI • 963 HZ",
                 "7. Katman: Taç Çakra (Sahasrara)",
@@ -129,6 +166,48 @@ object CosmicWidgetHelper {
                 "✗ Kaçının: Karamsarlık, katı yargılar ve korku odaklı direnç"
             )
         }
+
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val birthDate = prefs.getString("birthDate", "")?.trim() ?: ""
+        val zodiacSign = prefs.getString("zodiacSign", "")?.trim() ?: ""
+        val element = prefs.getString("element", "")?.trim() ?: ""
+        val rulingPlanet = prefs.getString("rulingPlanet", "")?.trim() ?: ""
+        val lifePath = prefs.getInt("lifePath", 0)
+
+        if (birthDate.isEmpty() || zodiacSign.isEmpty()) {
+            return base
+        }
+
+        // Parse DD.MM.YYYY to compute personal day number
+        val parts = birthDate.split(".", "/", "-")
+        val bDay = parts.getOrNull(0)?.toIntOrNull() ?: 1
+        val bMonth = parts.getOrNull(1)?.toIntOrNull() ?: 1
+        val cDay = cal.get(Calendar.DAY_OF_MONTH)
+        val cMonth = cal.get(Calendar.MONTH) + 1
+        val cYear = cal.get(Calendar.YEAR)
+
+        val personalDay = reduceToSingleDigit(
+            reduceToSingleDigit(bDay) +
+            reduceToSingleDigit(bMonth) +
+            reduceToSingleDigit(cDay) +
+            reduceToSingleDigit(cMonth) +
+            reduceToSingleDigit(cYear)
+        )
+
+        val (pDo, pAvoid) = getPersonalDayThemes(personalDay)
+        val signTag = if (lifePath > 0) "$zodiacSign • Yol $lifePath • Gün $personalDay" else "$zodiacSign • Kişisel Gün $personalDay"
+        val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
+
+        val customDo = "✓ Kişisel ($zodiacSign • Gün $personalDay): $pDo ($rulingPlanet uyumu)"
+        val customAvoid = "✗ Kaçının ($elementLabel): $pAvoid"
+        val customBadge = "🎯 KİŞİSEL ANALİZ • ${signTag.uppercase()}"
+
+        return base.copy(
+            headerBadge = customBadge,
+            chakraBadge = "${base.chakraBadge} • ${zodiacSign.uppercase()}",
+            doText = customDo,
+            avoidText = customAvoid
+        )
     }
 
     fun getMoonInfo(nowMillis: Long): MoonInfo {
@@ -186,6 +265,22 @@ object CosmicWidgetHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
+
+    fun refreshAllWidgets(context: Context) {
+        val mgr = AppWidgetManager.getInstance(context)
+        val cosmicIds = mgr.getAppWidgetIds(ComponentName(context, CosmicWidgetProvider::class.java))
+        for (id in cosmicIds) {
+            CosmicWidgetProvider.updateCosmicWidget(context, mgr, id)
+        }
+        val phIds = mgr.getAppWidgetIds(ComponentName(context, PlanetaryHoursWidgetProvider::class.java))
+        if (phIds.isNotEmpty()) {
+            PlanetaryHoursWidgetProvider().onUpdate(context, mgr, phIds)
+        }
+        val cmIds = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
+        if (cmIds.isNotEmpty()) {
+            ChakraMoonWidgetProvider().onUpdate(context, mgr, cmIds)
+        }
+    }
 }
 
 class CosmicWidgetProvider : AppWidgetProvider() {
@@ -216,7 +311,7 @@ class CosmicWidgetProvider : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             val cal = Calendar.getInstance()
-            val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(cal.get(Calendar.DAY_OF_WEEK))
+            val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
             val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
             val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
             val nextIdx = (currentIdx + 1) % 7
@@ -224,6 +319,7 @@ class CosmicWidgetProvider : AppWidgetProvider() {
 
             val views = RemoteViews(context.packageName, R.layout.cosmic_widget)
             views.setTextViewText(R.id.widget_symbol, dayInfo.symbol)
+            views.setTextViewText(R.id.widget_badge, dayInfo.headerBadge)
             views.setTextViewText(R.id.widget_title, dayInfo.headerTitle)
             views.setTextViewText(
                 R.id.widget_hour_pill,
@@ -256,6 +352,15 @@ class CosmicWidgetProvider : AppWidgetProvider() {
 }
 
 class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, PlanetaryHoursWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+        }
+    }
 
     override fun onUpdate(
         context: Context,
@@ -298,13 +403,22 @@ class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
 
 class ChakraMoonWidgetProvider : AppWidgetProvider() {
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+        }
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
         val cal = Calendar.getInstance()
-        val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(cal.get(Calendar.DAY_OF_WEEK))
+        val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
         val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
 
         for (appWidgetId in appWidgetIds) {

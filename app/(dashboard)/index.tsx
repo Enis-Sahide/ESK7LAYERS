@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground, ActivityIndicator, Platform, BackHandler, Modal, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, Animated, Easing, Image, ImageBackground, ActivityIndicator, Platform, BackHandler, Modal, Switch, TextInput, NativeModules, Alert } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
@@ -99,6 +99,138 @@ const getLiveMoonPhaseSummary = (date = new Date()) => {
     return { icon: '🌗', name: 'Son Dördün', desc: 'Arınma, yükleri bırakma ve zihinsel sadeleşme evresi', illumination };
   }
   return { icon: '🌘', name: 'Balsamik Ay', desc: 'İçe dönüş, dinlenme, tefekkür ve ruhsal hazırlık', illumination };
+};
+
+interface WidgetBirthProfile {
+  birthDate: string;
+  birthTime: string;
+  zodiacSign: string;
+  zodiacSymbol: string;
+  element: string;
+  rulingPlanet: string;
+  lifePath: number;
+  personalDay: number;
+  personalDo: string;
+  personalAvoid: string;
+}
+
+const reduceDigit = (num: number): number => {
+  let n = Math.abs(num);
+  while (n > 9) {
+    let s = 0;
+    while (n > 0) {
+      s += n % 10;
+      n = Math.floor(n / 10);
+    }
+    n = s;
+  }
+  return n === 0 ? 1 : n;
+};
+
+const PERSONAL_DAY_THEMES: Record<number, { doText: string; avoidText: string }> = {
+  1: {
+    doText: 'Yeni başlangıçlar, bireysel inisiyatif alma ve niyet tohumu ekme',
+    avoidText: 'Kararsızlık, başkalarının onayını bekleme ve erteleme',
+  },
+  2: {
+    doText: 'Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge',
+    avoidText: 'Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma',
+  },
+  3: {
+    doText: 'Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım',
+    avoidText: 'Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı',
+  },
+  4: {
+    doText: 'Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama',
+    avoidText: 'Aşırı katılık, tembellik ve detaylarda boğulma',
+  },
+  5: {
+    doText: 'Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler',
+    avoidText: 'Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması',
+  },
+  6: {
+    doText: 'Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik',
+    avoidText: 'Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı',
+  },
+  7: {
+    doText: 'Derin tefekkür, ezoterik araştırma, içe dönüş ve ruhsal analiz',
+    avoidText: 'Zihinsel aşırı yüklenme, izolasyon ve şüphecilik',
+  },
+  8: {
+    doText: 'Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge',
+    avoidText: 'Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik',
+  },
+  9: {
+    doText: 'Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat',
+    avoidText: 'Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç',
+  },
+};
+
+const computeWidgetBirthProfile = (birthDateStr: string, birthTimeStr = ''): WidgetBirthProfile | null => {
+  const cleaned = birthDateStr.trim();
+  const parts = cleaned.split(/[./-]/);
+  if (parts.length !== 3) return null;
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+  if (!day || !month || !year || day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+    return null;
+  }
+
+  let zodiacSign = 'Koç';
+  let zodiacSymbol = '♈';
+  let element = 'Ateş';
+  let rulingPlanet = 'Mars';
+
+  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) {
+    zodiacSign = 'Koç'; zodiacSymbol = '♈'; element = 'Ateş'; rulingPlanet = 'Mars';
+  } else if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) {
+    zodiacSign = 'Boğa'; zodiacSymbol = '♉'; element = 'Toprak'; rulingPlanet = 'Venüs';
+  } else if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) {
+    zodiacSign = 'İkizler'; zodiacSymbol = '♊'; element = 'Hava'; rulingPlanet = 'Merkür';
+  } else if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) {
+    zodiacSign = 'Yengeç'; zodiacSymbol = '♋'; element = 'Su'; rulingPlanet = 'Ay';
+  } else if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) {
+    zodiacSign = 'Aslan'; zodiacSymbol = '♌'; element = 'Ateş'; rulingPlanet = 'Güneş';
+  } else if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) {
+    zodiacSign = 'Başak'; zodiacSymbol = '♍'; element = 'Toprak'; rulingPlanet = 'Merkür';
+  } else if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) {
+    zodiacSign = 'Terazi'; zodiacSymbol = '♎'; element = 'Hava'; rulingPlanet = 'Venüs';
+  } else if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) {
+    zodiacSign = 'Akrep'; zodiacSymbol = '♏'; element = 'Su'; rulingPlanet = 'Mars';
+  } else if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) {
+    zodiacSign = 'Yay'; zodiacSymbol = '♐'; element = 'Ateş'; rulingPlanet = 'Jüpiter';
+  } else if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) {
+    zodiacSign = 'Oğlak'; zodiacSymbol = '♑'; element = 'Toprak'; rulingPlanet = 'Satürn';
+  } else if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) {
+    zodiacSign = 'Kova'; zodiacSymbol = '♒'; element = 'Hava'; rulingPlanet = 'Satürn';
+  } else {
+    zodiacSign = 'Balık'; zodiacSymbol = '♓'; element = 'Su'; rulingPlanet = 'Jüpiter';
+  }
+
+  const lifePath = reduceDigit(reduceDigit(day) + reduceDigit(month) + reduceDigit(year));
+  const now = new Date();
+  const personalDay = reduceDigit(
+    reduceDigit(day) +
+    reduceDigit(month) +
+    reduceDigit(now.getDate()) +
+    reduceDigit(now.getMonth() + 1) +
+    reduceDigit(now.getFullYear())
+  );
+
+  const themes = PERSONAL_DAY_THEMES[personalDay] || PERSONAL_DAY_THEMES[1];
+  return {
+    birthDate: `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`,
+    birthTime: birthTimeStr.trim(),
+    zodiacSign,
+    zodiacSymbol,
+    element,
+    rulingPlanet,
+    lifePath,
+    personalDay,
+    personalDo: `✓ Kişisel (${zodiacSign} • Gün ${personalDay}): ${themes.doText} (${rulingPlanet} uyumu)`,
+    personalAvoid: `✗ Kaçının (${element} Elementi): ${themes.avoidText}`,
+  };
 };
 
 const PlanetaryHourWidget = ({ visible = true }: { visible?: boolean }) => {
@@ -291,6 +423,9 @@ export default function DashboardScreen() {
 
   // Widget Visibility States
   const [showWidgetModal, setShowWidgetModal] = useState(false);
+  const [widgetBirthDate, setWidgetBirthDate] = useState('');
+  const [widgetBirthTime, setWidgetBirthTime] = useState('');
+  const [savedBirthProfile, setSavedBirthProfile] = useState<WidgetBirthProfile | null>(null);
   const [widgetPrefs, setWidgetPrefs] = useState({
     planetaryHour: true,
     cosmicWeather: true,
@@ -310,13 +445,33 @@ export default function DashboardScreen() {
             sound: null,
           }).catch(() => {});
         }
-        const [pHour, cWeather, sch, mec, lockN] = await Promise.all([
+        const [pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime] = await Promise.all([
           AsyncStorage.getItem('@show_planetary_widget'),
           AsyncStorage.getItem('@show_cosmic_weather_widget'),
           AsyncStorage.getItem('@show_schumann_widget'),
           AsyncStorage.getItem('@show_meclis_widget'),
           AsyncStorage.getItem('@show_lockscreen_widget'),
+          AsyncStorage.getItem('@widget_birth_date'),
+          AsyncStorage.getItem('@widget_birth_time'),
         ]);
+        if (savedBDate) {
+          setWidgetBirthDate(savedBDate);
+          if (savedBTime) setWidgetBirthTime(savedBTime);
+          const computed = computeWidgetBirthProfile(savedBDate, savedBTime || '');
+          if (computed) {
+            setSavedBirthProfile(computed);
+            if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveBirthProfile) {
+              NativeModules.CosmicWidgetModule.saveBirthProfile(
+                computed.birthDate,
+                computed.birthTime,
+                computed.zodiacSign,
+                computed.element,
+                computed.rulingPlanet,
+                computed.lifePath
+              ).catch(() => {});
+            }
+          }
+        }
         const isLockEnabled = lockN !== 'false';
         setWidgetPrefs({
           planetaryHour: pHour !== 'false',
@@ -333,6 +488,80 @@ export default function DashboardScreen() {
       }
     })();
   }, []);
+
+  const handleBirthDateInputChange = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 8);
+    let formatted = digits;
+    if (digits.length > 4) {
+      formatted = `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4, 8)}`;
+    } else if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}.${digits.slice(2, 4)}`;
+    }
+    setWidgetBirthDate(formatted);
+  };
+
+  const handleBirthTimeInputChange = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 4);
+    let formatted = digits;
+    if (digits.length > 2) {
+      formatted = `${digits.slice(0, 2)}:${digits.slice(2, 4)}`;
+    }
+    setWidgetBirthTime(formatted);
+  };
+
+  const handleSaveWidgetBirthProfile = async () => {
+    const computed = computeWidgetBirthProfile(widgetBirthDate, widgetBirthTime);
+    if (!computed) {
+      Alert.alert('Geçersiz Tarih', 'Lütfen doğum tarihinizi GG.AA.YYYY formatında (örneğin 15.05.1992) girin.');
+      return;
+    }
+    try {
+      await Promise.all([
+        AsyncStorage.setItem('@widget_birth_date', computed.birthDate),
+        AsyncStorage.setItem('@widget_birth_time', computed.birthTime),
+      ]);
+      setSavedBirthProfile(computed);
+      if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveBirthProfile) {
+        await NativeModules.CosmicWidgetModule.saveBirthProfile(
+          computed.birthDate,
+          computed.birthTime,
+          computed.zodiacSign,
+          computed.element,
+          computed.rulingPlanet,
+          computed.lifePath
+        );
+      }
+      if (widgetPrefs.lockScreenNotif) {
+        await syncLockScreenCosmicWidget(true);
+      }
+      Alert.alert(
+        '✨ Kişisel Widget Aktif',
+        `${computed.zodiacSymbol} ${computed.zodiacSign} (${computed.element} Elementi • Yaşam Yolu ${computed.lifePath}) bilgilerinize göre ana ekran ve kilit ekranı widget'larınız kişiselleştirildi!`
+      );
+    } catch {
+      Alert.alert('Bilgi', 'Doğum bilgileriniz kaydedildi.');
+    }
+  };
+
+  const handleClearWidgetBirthProfile = async () => {
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem('@widget_birth_date'),
+        AsyncStorage.removeItem('@widget_birth_time'),
+      ]);
+      setWidgetBirthDate('');
+      setWidgetBirthTime('');
+      setSavedBirthProfile(null);
+      if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.clearBirthProfile) {
+        await NativeModules.CosmicWidgetModule.clearBirthProfile();
+      }
+      if (widgetPrefs.lockScreenNotif) {
+        await syncLockScreenCosmicWidget(true);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const syncLockScreenCosmicWidget = useCallback(async (enabled: boolean) => {
     if (Platform.OS === 'web') return;
@@ -369,12 +598,19 @@ export default function DashboardScreen() {
       const minsLeft = current ? Math.max(0, Math.floor((current.endTime.getTime() - now.getTime()) / 60000)) : 0;
       const moon = getLiveMoonPhaseSummary(now);
       const dayInfo = DAY_CHAKRA_MAP[now.getDay()];
+      const bDate = await AsyncStorage.getItem('@widget_birth_date');
+      const bTime = await AsyncStorage.getItem('@widget_birth_time');
+      const bProfile = bDate ? computeWidgetBirthProfile(bDate, bTime || '') : null;
 
       await Notifications.scheduleNotificationAsync({
         identifier: 'cosmic-lockscreen-widget',
         content: {
-          title: `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
-          body: `${moon.icon} ${moon.name} (%${moon.illumination}) • ${dayInfo.name}: ${dayInfo.planet}`,
+          title: bProfile
+            ? `${pInfo.symbol} ${pInfo.name} (${minsLeft} dk) • ${bProfile.zodiacSymbol} ${bProfile.zodiacSign} (Gün ${bProfile.personalDay})`
+            : `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
+          body: bProfile
+            ? `${bProfile.personalDo} | ${moon.icon} ${moon.name} (%${moon.illumination})`
+            : `${moon.icon} ${moon.name} (%${moon.illumination}) • ${dayInfo.name}: ${dayInfo.planet}`,
           sticky: true,
           ...(Platform.OS === 'android' ? { channelId: 'cosmic-widget-channel' } : {}),
         },
@@ -837,9 +1073,9 @@ export default function DashboardScreen() {
         animationType="fade"
         onRequestClose={() => setShowWidgetModal(false)}
       >
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.82)', justifyContent: 'center', padding: 20 }}>
-          <View style={{ backgroundColor: '#0E121D', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(212,175,55,0.45)', padding: 18 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', padding: 16 }}>
+          <View style={{ backgroundColor: '#0E121D', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(212,175,55,0.45)', padding: 18, maxHeight: '90%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Ionicons name="options" size={18} color="#FDE68A" />
                 <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>Kozmik Widget Merkezi</Text>
@@ -848,74 +1084,197 @@ export default function DashboardScreen() {
                 <Ionicons name="close" size={22} color="#9CA3AF" />
               </TouchableOpacity>
             </View>
-            <Text style={{ color: '#9CA3AF', fontSize: 12, lineHeight: 17, marginBottom: 14 }}>
-              Ana sayfanızda ve telefonunuzun kilit/bildirim ekranında görmek istediğiniz kozmik araçları özelleştirin:
-            </Text>
 
-            {[
-              {
-                key: 'planetaryHour' as const,
-                storageKey: '@show_planetary_widget',
-                title: '🪐 Anlık Gezegen Saati Widget\'ı',
-                sub: 'Bulunduğunuz konuma göre aktif Keldani gezegen saatini ve kalan süreyi gösterir.',
-              },
-              {
-                key: 'cosmicWeather' as const,
-                storageKey: '@show_cosmic_weather_widget',
-                title: '🌙 Gökyüzü & Ay Fazı Widget\'ı',
-                sub: 'Canlı Ay fazını, aydınlanma oranını ve günün kozmik akışını gösterir.',
-              },
-              {
-                key: 'schumann' as const,
-                storageKey: '@show_schumann_widget',
-                title: '⚡ Schumann Rezonansı Widget\'ı',
-                sub: 'Dünya\'nın elektromanyetik kalp atışı spektrogramına hızlı erişim sağlar.',
-              },
-              {
-                key: 'meclis' as const,
-                storageKey: '@show_meclis_widget',
-                title: '🏛️ 7Layers Kadim Meclis Widget\'ı',
-                sub: '8 ezoterik sohbet odasına ve gelen yanıt bildirimlerine hızlı erişim kartı.',
-              },
-              {
-                key: 'lockScreenNotif' as const,
-                storageKey: '@show_lockscreen_widget',
-                title: '📱 Kilit Ekranı & Bildirim Paneli Widget\'ı',
-                sub: 'Telefonun bildirim ve kilit ekranında canlı Gezegen Saati & Ay Fazı pusulası tutar.',
-              },
-            ].map((item) => (
-              <View
-                key={item.key}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingVertical: 10,
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'rgba(255,255,255,0.06)',
-                }}
-              >
-                <View style={{ flex: 1, paddingRight: 12 }}>
-                  <Text style={{ color: '#F3F4F6', fontSize: 13, fontWeight: '700' }}>{item.title}</Text>
-                  <Text style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>{item.sub}</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Kişisel Doğum Bilgisi Giriş Kartı */}
+              <View style={{
+                backgroundColor: 'rgba(212,175,55,0.08)',
+                borderWidth: 1,
+                borderColor: 'rgba(212,175,55,0.35)',
+                borderRadius: 16,
+                padding: 12,
+                marginBottom: 14
+              }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <Text style={{ color: '#FDE68A', fontSize: 13, fontWeight: '800' }}>
+                    🎯 Widget Kişisel Doğum Bilgisi
+                  </Text>
+                  {savedBirthProfile && (
+                    <View style={{ backgroundColor: 'rgba(16,185,129,0.18)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.45)', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 2 }}>
+                      <Text style={{ color: '#34D399', fontSize: 9.5, fontWeight: '800' }}>KİŞİSEL MOD AKTİF</Text>
+                    </View>
+                  )}
                 </View>
-                <Switch
-                  value={widgetPrefs[item.key]}
-                  onValueChange={(val) => toggleWidgetPref(item.key, item.storageKey, val)}
-                  trackColor={{ false: '#374151', true: 'rgba(212,175,55,0.55)' }}
-                  thumbColor={widgetPrefs[item.key] ? '#D4AF37' : '#9CA3AF'}
-                />
-              </View>
-            ))}
+                <Text style={{ color: '#D1D5DB', fontSize: 11, lineHeight: 15, marginBottom: 10 }}>
+                  Widget&apos;lardaki günlük &ldquo;Önerilen / Kaçının&rdquo; analiz özetlerinin kendi burcunuz, elementiniz ve kişisel numerolojik gününüze göre hesaplanması için doğum tarihinizi girin:
+                </Text>
 
-            <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
-              <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>
-                💡 Telefon Ana Ekran Widget'ı (Android 4x2)
+                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
+                  <View style={{ flex: 2 }}>
+                    <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700', marginBottom: 4 }}>DOĞUM TARİHİ (GG.AA.YYYY)</Text>
+                    <TextInput
+                      value={widgetBirthDate}
+                      onChangeText={handleBirthDateInputChange}
+                      placeholder="Örn: 15.05.1990"
+                      placeholderTextColor="#6B7280"
+                      keyboardType="number-pad"
+                      maxLength={10}
+                      style={{
+                        backgroundColor: 'rgba(0,0,0,0.45)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 10,
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        color: '#FFFFFF',
+                        fontSize: 13,
+                        fontWeight: '700',
+                      }}
+                    />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700', marginBottom: 4 }}>SAAT (OPSİYONEL)</Text>
+                    <TextInput
+                      value={widgetBirthTime}
+                      onChangeText={handleBirthTimeInputChange}
+                      placeholder="14:30"
+                      placeholderTextColor="#6B7280"
+                      keyboardType="number-pad"
+                      maxLength={5}
+                      style={{
+                        backgroundColor: 'rgba(0,0,0,0.45)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 10,
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                        color: '#FFFFFF',
+                        fontSize: 13,
+                        fontWeight: '700',
+                      }}
+                    />
+                  </View>
+                </View>
+
+                {savedBirthProfile && (
+                  <View style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: 10, padding: 9, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' }}>
+                    <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '800', marginBottom: 3 }}>
+                      {savedBirthProfile.zodiacSymbol} {savedBirthProfile.zodiacSign} • {savedBirthProfile.element} Elementi • Yaşam Yolu {savedBirthProfile.lifePath} • Bugün Kişisel Gün {savedBirthProfile.personalDay}
+                    </Text>
+                    <Text style={{ color: '#34D399', fontSize: 10.5, fontWeight: '700', lineHeight: 14 }}>
+                      {savedBirthProfile.personalDo}
+                    </Text>
+                    <Text style={{ color: '#F87171', fontSize: 10, marginTop: 2, lineHeight: 14 }}>
+                      {savedBirthProfile.personalAvoid}
+                    </Text>
+                  </View>
+                )}
+
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={handleSaveWidgetBirthProfile}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#D4AF37',
+                      borderRadius: 10,
+                      paddingVertical: 9,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text style={{ color: '#000000', fontSize: 12, fontWeight: '800' }}>
+                      Widget&apos;a Kaydet &amp; Kişiselleştir
+                    </Text>
+                  </TouchableOpacity>
+                  {savedBirthProfile && (
+                    <TouchableOpacity
+                      onPress={handleClearWidgetBirthProfile}
+                      style={{
+                        backgroundColor: 'rgba(239,68,68,0.15)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(239,68,68,0.4)',
+                        borderRadius: 10,
+                        paddingHorizontal: 12,
+                        paddingVertical: 9,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ color: '#F87171', fontSize: 11, fontWeight: '700' }}>Genel Moda Dön</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+
+              <Text style={{ color: '#9CA3AF', fontSize: 12, lineHeight: 17, marginBottom: 10 }}>
+                Ana sayfanızda ve telefonunuzun kilit/bildirim ekranında görmek istediğiniz kozmik araçları özelleştirin:
               </Text>
-              <Text style={{ color: '#D1D5DB', fontSize: 10.5, marginTop: 2, lineHeight: 15 }}>
-                Telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS Kozmik Pusula&rdquo; seçeneğiyle ana ekranınıza da widget ekleyebilirsiniz.
-              </Text>
-            </View>
+
+              {[
+                {
+                  key: 'planetaryHour' as const,
+                  storageKey: '@show_planetary_widget',
+                  title: '🪐 Anlık Gezegen Saati Widget\'ı',
+                  sub: 'Bulunduğunuz konuma göre aktif Keldani gezegen saatini ve kalan süreyi gösterir.',
+                },
+                {
+                  key: 'cosmicWeather' as const,
+                  storageKey: '@show_cosmic_weather_widget',
+                  title: '🌙 Gökyüzü & Ay Fazı Widget\'ı',
+                  sub: 'Canlı Ay fazını, aydınlanma oranını ve günün kozmik akışını gösterir.',
+                },
+                {
+                  key: 'schumann' as const,
+                  storageKey: '@show_schumann_widget',
+                  title: '⚡ Schumann Rezonansı Widget\'ı',
+                  sub: 'Dünya\'nın elektromanyetik kalp atışı spektrogramına hızlı erişim sağlar.',
+                },
+                {
+                  key: 'meclis' as const,
+                  storageKey: '@show_meclis_widget',
+                  title: '🏛️ 7Layers Kadim Meclis Widget\'ı',
+                  sub: '8 ezoterik sohbet odasına ve gelen yanıt bildirimlerine hızlı erişim kartı.',
+                },
+                {
+                  key: 'lockScreenNotif' as const,
+                  storageKey: '@show_lockscreen_widget',
+                  title: '📱 Kilit Ekranı & Bildirim Paneli Widget\'ı',
+                  sub: 'Telefonun bildirim ve kilit ekranında canlı Gezegen Saati & Ay Fazı pusulası tutar.',
+                },
+              ].map((item) => (
+                <View
+                  key={item.key}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 10,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <View style={{ flex: 1, paddingRight: 12 }}>
+                    <Text style={{ color: '#F3F4F6', fontSize: 13, fontWeight: '700' }}>{item.title}</Text>
+                    <Text style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>{item.sub}</Text>
+                  </View>
+                  <Switch
+                    value={widgetPrefs[item.key]}
+                    onValueChange={(val) => toggleWidgetPref(item.key, item.storageKey, val)}
+                    trackColor={{ false: '#374151', true: 'rgba(212,175,55,0.55)' }}
+                    thumbColor={widgetPrefs[item.key] ? '#D4AF37' : '#9CA3AF'}
+                  />
+                </View>
+              ))}
+
+              <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
+                <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>
+                  💡 Telefon Ana Ekran Widget&apos;ı (Android 4x2)
+                </Text>
+                <Text style={{ color: '#D1D5DB', fontSize: 10.5, marginTop: 2, lineHeight: 15 }}>
+                  Telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden 3 farklı ana ekran widget&apos;ını ekleyebilirsiniz. Doğum tarihinizi kaydettiğinizde ana ekran widget&apos;ınız anında kişisel özetinize dönüşür.
+                </Text>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>

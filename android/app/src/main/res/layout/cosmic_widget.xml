@@ -167,7 +167,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/cosmic_inner_card_bg"
         android:orientation="vertical"
         android:paddingHorizontal="9dp"
@@ -178,21 +178,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:lineSpacingExtra="1dp"
+            android:maxLines="2"
             android:text="✓ Önerilen: Cesaret, fiziksel hareket ve yeni başlangıç adımları"
             android:textColor="#34D399"
-            android:textSize="10sp"
+            android:textSize="9.5sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/widget_avoid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
+            android:layout_marginTop="2dp"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:lineSpacingExtra="1dp"
+            android:maxLines="2"
             android:text="✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar"
             android:textColor="#F87171"
-            android:textSize="9.5sp" />
+            android:textSize="9sp" />
     </LinearLayout>
 </LinearLayout>
