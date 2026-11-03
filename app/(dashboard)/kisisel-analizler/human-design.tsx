@@ -741,6 +741,9 @@ export default function HumanDesignScreen() {
                 <Text style={styles.resetButtonText}>Yeni Hesaplama</Text>
               </TouchableOpacity>
 
+              {!isUnlocked && (
+                <WebLockedAnalysisCard title="Human Design Kapsamlı Görünüm" />
+              )}
               <Text style={styles.chartNameTitle}>Kişisel Haritanız</Text>
               <Text style={styles.chartInfoText}>{dateStr} • {timeStr} • {selectedCityData.name}</Text>
 
@@ -920,10 +923,6 @@ export default function HumanDesignScreen() {
                   <Text style={styles.textLabel}>Enkarnasyon Haçı:</Text>
                   <Text style={styles.textValue}>{chart.incarnationCross}</Text>
                 </TouchableOpacity>  </BlurView>
-
-              {!isUnlocked && (
-                <WebLockedAnalysisCard title="Kapsamlı Human Design & Kilitli Bölümler" />
-              )}
             </View>
           )}
         </ScrollView>

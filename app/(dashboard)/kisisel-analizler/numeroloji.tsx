@@ -597,6 +597,9 @@ export default function NumerolojiKisiselAnalizScreen() {
         {/* RESULTS: NAME & DATE TAB */}
         {results && activeTab === 'name' && (
           <View style={styles.resultsContainer}>
+            {!isUnlocked && (
+              <WebLockedAnalysisCard title="Numeroloji Kapsamlı Görünüm" />
+            )}
             <Text style={styles.mainHeading}>{name.toLocaleUpperCase('tr-TR')} ÖZEL KISA NUMEROLOJİ ANALİZİ</Text>
 
             {/* ÖZET TABLOSU */}
@@ -1304,9 +1307,6 @@ export default function NumerolojiKisiselAnalizScreen() {
                 </Text>
               </View>
             </CollapsibleCard>
-            {!isUnlocked && (
-              <WebLockedAnalysisCard title="Kapsamlı Numeroloji Analizi & Kilitli Bölümler" />
-            )}
           </View>
         )}
 

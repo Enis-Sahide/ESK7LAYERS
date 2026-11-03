@@ -64,10 +64,10 @@ export function useAnalysisAccess(analysisType: string) {
   return { isUnlocked, loading };
 }
 
-export function showAnalysisLockedAlert(title = "Detaylı Analiz Kilitli") {
+export function showAnalysisLockedAlert(title = "Kapsamlı Analiz Görünümü") {
   Alert.alert(
     title,
-    "Mobil uygulamada analizlerin özet katmanları sunulmaktadır. Kilitli kısımları detaylı görmek, tek ödeme ile sınırsız sorgulama yapabilmek ve kapsamlı PDF raporlarına ulaşmak için lütfen 7Layers web sitesini ziyaret edin.",
+    "Mobil uygulamada analizlerin ekran boyutuna uyarlanmış özet katmanları sunulmaktadır. Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.",
     [
       {
         text: "Tamam",

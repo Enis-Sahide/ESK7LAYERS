@@ -1,4 +1,5 @@
 import SacredBackground from '@/components/SacredBackground';
+import WebLockedAnalysisCard from '@/components/WebLockedAnalysisCard';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -339,6 +340,10 @@ export default function KariyerAnaliziScreen() {
                 </TouchableOpacity>
               </View>
 
+              {!isEffectiveUnlocked && (
+                <WebLockedAnalysisCard title="Mesleki Yatkınlık & Kariyer Kapsamlı Görünüm" />
+              )}
+
               {/* Katman Seçici: Maddi Kariyer vs Ruhsal/Drakonik Kariyer */}
               <View style={styles.layerSwitchRow}>
                 <TouchableOpacity
@@ -448,7 +453,7 @@ export default function KariyerAnaliziScreen() {
                         7 Sektör Dağılımı, 10 Gezegen Mesleki Deşifresi ve 6 Kadim Modül Kilitlidir
                       </Text>
                       <Text style={{ fontSize: 12.5, color: '#D1D5DB', textAlign: 'center', lineHeight: 18 }}>
-                        Kilitli kariyer modüllerini detaylı görmek, tek ödeme ile sınırsız sorgulama yapmak ve özel PDF raporuna erişmek için 7Layers web sitesini ziyaret edin.
+                        Mobil uygulamada analizlerin özet katmanları sunulmaktadır. Daha detaylı analiz ve tüm kariyer modüllerini incelemek için 7Layers web sitesini ziyaret edin.
                       </Text>
                     </TouchableOpacity>
                   )}

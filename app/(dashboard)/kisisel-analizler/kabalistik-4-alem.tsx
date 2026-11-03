@@ -404,6 +404,10 @@ export default function KabbalahAnalysisScreen() {
                 <Text style={styles.resetBtnText}>Yeni Bir Sorgulama Yap</Text>
               </TouchableOpacity>
 
+              {!isUnlocked && (
+                <WebLockedAnalysisCard title="Kabalistik 4 Alem Kapsamlı Görünüm" />
+              )}
+
               {/* Ascendant banner */}
               <View style={styles.ascendantBanner}>
                 <Ionicons name="sparkles-outline" size={24} color={COLORS.primary} style={{ marginBottom: 5 }} />
@@ -630,10 +634,6 @@ export default function KabbalahAnalysisScreen() {
                     </View>                    </View>
                   );
                 })()}
-
-                {!isUnlocked && (
-                  <WebLockedAnalysisCard title="Kabalistik 4 Alem Kilitli Gezegen & Sefirot Detayları" />
-                )}
               </View>
             )}
 

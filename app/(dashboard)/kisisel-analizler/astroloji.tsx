@@ -590,6 +590,9 @@ export default function AstrolojiAnalysisScreen() {
                   <Text style={styles.resetBtnText}>Geri</Text>
                 </TouchableOpacity>
               </View>
+              {!isUnlocked && (
+                <WebLockedAnalysisCard title="Doğum Haritası Kapsamlı Görünüm" />
+              )}
               <Text style={styles.chartTitle}>Kişisel Doğum Haritanız</Text>
               <Text style={styles.chartInfoText}>{dateStr} • {timeStr} • {searchQuery}</Text>
 
@@ -661,9 +664,6 @@ export default function AstrolojiAnalysisScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
-                )}
-                {!isUnlocked && (
-                  <WebLockedAnalysisCard title="Kapsamlı Doğum Haritası & Kilitli Bölümler" />
                 )}
               </View>
             </View>

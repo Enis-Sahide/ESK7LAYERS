@@ -199,8 +199,8 @@ export default function AnalysisHubScreen() {
                 <Text style={[styles.cardTitle, { color: '#FFFFFF', flexShrink: 1 }]}>{tool.title}</Text>
                 {tool.isWebExclusive && (
                   <View style={styles.webBadge}>
-                    <Ionicons name="lock-closed" size={10} color="#FDE68A" />
-                    <Text style={styles.webBadgeText}>Özel Analiz</Text>
+                    <Ionicons name="desktop-outline" size={10} color="#FDE68A" />
+                    <Text style={styles.webBadgeText}>Web</Text>
                   </View>
                 )}
               </View>
@@ -211,9 +211,9 @@ export default function AnalysisHubScreen() {
 
             {tool.isAvailable && (
               <Ionicons
-                name={tool.isWebExclusive ? 'lock-closed-outline' : 'chevron-forward'}
+                name="chevron-forward"
                 size={18}
-                color={tool.isWebExclusive ? '#D4AF37' : COLORS.textMuted}
+                color={COLORS.textMuted}
                 style={{ marginLeft: 8 }}
               />
             )}
@@ -222,7 +222,7 @@ export default function AnalysisHubScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* 7Layers Kozmik Matris & Karmik Enkarnasyon Uyarı Penceresi */}
+      {/* 7Layers Kozmik Matris & Karmik Enkarnasyon Bilgilendirme Penceresi */}
       <Modal
         visible={!!selectedWebTool}
         transparent
@@ -232,12 +232,12 @@ export default function AnalysisHubScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconBox}>
-              <Ionicons name="lock-closed" size={28} color="#D4AF37" />
+              <Ionicons name="desktop-outline" size={28} color="#D4AF37" />
             </View>
             <Text style={styles.modalTitle}>{selectedWebTool?.title}</Text>
             <Text style={styles.modalDesc}>
-              Bu analizi kullanabilmek için ödeme yapmanız gerekir. Tek ödeme ile sınırsız sorgulama yapabilirsiniz.{'\n\n'}
-              Daha detaylı analiz ve işlem için lütfen <Text style={{ color: '#FDE68A', fontWeight: '700' }}>7Layers web sitesini</Text> ziyaret edin.
+              Bu kapsamlı sentez analizi çok katmanlı geniş grafik ve tablolar içerdiğinden mobil ekranda gösterilememektedir.{'\n\n'}
+              Daha detaylı analiz için lütfen <Text style={{ color: '#FDE68A', fontWeight: '700' }}>7Layers web sitesini</Text> ziyaret edin.
             </Text>
             <TouchableOpacity
               style={styles.modalCloseBtn}
