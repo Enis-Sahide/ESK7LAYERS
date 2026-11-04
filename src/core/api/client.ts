@@ -83,7 +83,17 @@ async function rawFetch(path: string, opts: RequestInit, withAuth: boolean) {
 
 async function parse<T>(res: Response): Promise<T> {
   const text = await res.text();
-  const json = text ? JSON.parse(text) : null;
+  let json: any = null;
+  if (text) {
+    try {
+      json = JSON.parse(text);
+    } catch {
+      if (!res.ok) {
+        throw new Error('Sunucu şu anda güncelleniyor veya yoğun, lütfen birkaç saniye sonra tekrar deneyin (' + res.status + ').');
+      }
+      throw new Error('Sunucudan beklenmeyen bir yanıt alındı, lütfen tekrar deneyin.');
+    }
+  }
   if (!res.ok) throw new Error((json && json.error) || 'İstek başarısız (' + res.status + ')');
   return json as T;
 }
