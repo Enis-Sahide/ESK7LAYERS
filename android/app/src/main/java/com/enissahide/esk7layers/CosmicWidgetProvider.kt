@@ -542,35 +542,24 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         val cal = Calendar.getInstance()
-        val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
         val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
         val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
+        val prevIdx = (currentIdx + 6) % 7
         val nextIdx = (currentIdx + 1) % 7
         val minsLeft = (60 - cal.get(Calendar.MINUTE)).coerceIn(1, 60)
-
-        val freqMatch = Regex("(\\d{3})\\s*HZ", RegexOption.IGNORE_CASE).find(dayInfo.chakraBadge)
-        val freqTag = if (freqMatch != null) "${freqMatch.groupValues[1]}Hz" else dayInfo.symbol
+        val currentPlanetName = CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx].substringBefore(" ")
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.mini_cosmic_widget)
             views.setTextViewText(R.id.mini_planet_symbol, CosmicWidgetHelper.PLANET_SYMBOLS[currentIdx])
-            views.setTextViewText(R.id.mini_top_badge, dayInfo.headerBadge)
-            views.setTextViewText(
-                R.id.mini_hour_title,
-                "${CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx]} • ${minsLeft} dk"
-            )
-            views.setTextViewText(
-                R.id.mini_symbols_row,
-                "${moonInfo.icon} %${moonInfo.illumination} • ⚡ ${freqTag} • ▸ ${CosmicWidgetHelper.PLANET_SYMBOLS[nextIdx]}"
-            )
+            views.setTextViewText(R.id.mini_hour_title, "${currentPlanetName} • ${minsLeft}dk")
+            views.setTextViewText(R.id.mini_moon_badge, "${moonInfo.icon} %${moonInfo.illumination}")
+            views.setTextViewText(R.id.mini_prev_hour, "◀ ${CosmicWidgetHelper.CHALDEAN_ORDER[prevIdx]}")
+            views.setTextViewText(R.id.mini_next_hour, "${CosmicWidgetHelper.CHALDEAN_ORDER[nextIdx]} ▶")
 
             views.setOnClickPendingIntent(
                 R.id.mini_widget_root,
                 CosmicWidgetHelper.getLaunchPendingIntent(context)
-            )
-            views.setOnClickPendingIntent(
-                R.id.mini_refresh_btn,
-                CosmicWidgetHelper.getRefreshPendingIntent(context, MiniCosmicWidgetProvider::class.java)
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
