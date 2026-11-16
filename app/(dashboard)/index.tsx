@@ -140,6 +140,9 @@ interface WidgetBirthProfile {
   northNodeSign: string;
   lifePath: number;
   personalDay: number;
+  transitMoonSign: string;
+  transitMoonSymbol: string;
+  aspectName: string;
   personalDo: string;
   personalAvoid: string;
 }
@@ -157,69 +160,84 @@ const reduceDigit = (num: number): number => {
   return n === 0 ? 1 : n;
 };
 
-const PERSONAL_DAY_THEMES: Record<
-  number,
-  {
-    bodyDo: string;
-    bodyAvoid: string;
-    soulDo: string;
-    soulAvoid: string;
+const getTransitMoonSignIndexJS = (nowMillis: number): number => {
+  const jd = nowMillis / 86400000.0 + 2440587.5;
+  const t = (jd - 2451545.0) / 36525.0;
+  const degToRad = Math.PI / 180.0;
+
+  const lPrime = 218.3164477 + 481267.88123421 * t;
+  const d = (297.8501921 + 445267.1114034 * t) * degToRad;
+  const m = (357.5291092 + 35999.0502909 * t) * degToRad;
+  const mPrime = (134.9633964 + 477198.8675055 * t) * degToRad;
+  const f = (93.2720950 + 483202.0175233 * t) * degToRad;
+
+  const lon =
+    lPrime +
+    6.288774 * Math.sin(mPrime) +
+    1.274027 * Math.sin(2.0 * d - mPrime) +
+    0.658314 * Math.sin(2.0 * d) +
+    0.213618 * Math.sin(2.0 * mPrime) -
+    0.185116 * Math.sin(m) -
+    0.114332 * Math.sin(2.0 * f);
+
+  const normLon = ((lon % 360.0) + 360.0) % 360.0;
+  return Math.max(0, Math.min(11, Math.floor(normLon / 30.0)));
+};
+
+const getAspectThemeForSignDiffJS = (diff: number) => {
+  const d = ((diff % 12) + 12) % 12;
+  if (d === 0) {
+    return {
+      aspectName: 'Kavuşum',
+      bodyDo: 'Kişisel inisiyatif alma, duygusal yenilenme ve özgüvenle adım atma',
+      bodyAvoid: 'Aşırı hassasiyet, benmerkezcilik ve sabırsız kararlar',
+      soulDo: 'Doğrudan öz-merkezinize akan yüksek sezgi, güçlü niyet koyma ve ruhsal uyanış',
+      soulAvoid: 'Duygusal taşkınlık, subjektif tepkisellik ve bedenin ani dürtülerine kapılma',
+    };
   }
-> = {
-  1: {
-    bodyDo: 'Yeni başlangıçlar, bireysel inisiyatif alma ve somut adım atma',
-    bodyAvoid: 'Kararsızlık, başkalarının onayını bekleme ve erteleme',
-    soulDo: 'İlahi iradeyle hizalanma, yüksek benlik niyeti koyma ve öz-uyanış',
-    soulAvoid: 'Beden haritasının ego dürtüsü, sabırsızlık ve mekanik onay arayışı',
-  },
-  2: {
-    bodyDo: 'Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge',
-    bodyAvoid: 'Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma',
-    soulDo: 'Kalp gözüyle dinleme, dualiteyi aşma ve yüksek empati frekansı',
-    soulAvoid: 'Beden otomatizminin duygusal bağımlılık, alınganlık ve şüphe tuzağı',
-  },
-  3: {
-    bodyDo: 'Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım',
-    bodyAvoid: 'Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı',
-    soulDo: 'Boğaz çakrasından hakikati konuşma, ilahi ilhamı tezahür ettirme',
-    soulAvoid: 'Alt zihnin dedikodu, zihinsel dağınıklık ve yüzeysel onay kalıpları',
-  },
-  4: {
-    bodyDo: 'Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama',
-    bodyAvoid: 'Aşırı katılık, tembellik ve detaylarda boğulma',
-    soulDo: 'Ruhsal disiplini maddeye indirme, kutsal geometri ve içsel merkezlenme',
-    soulAvoid: 'Beden haritasının korku odaklı kontrolcülüğü ve maddeye hapsolma',
-  },
-  5: {
-    bodyDo: 'Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler',
-    bodyAvoid: 'Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması',
-    soulDo: 'Eski karmik kalıpları kırma, bilinç sıçraması ve ruhsal özgürleşme',
-    soulAvoid: 'Fiziksel dürtüsellik, duyusal kaçışlar ve enerjiyi dışarı saçma',
-  },
-  6: {
-    bodyDo: 'Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik',
-    bodyAvoid: 'Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı',
-    soulDo: 'Koşulsuz sevgi frekansı, karmik bağları şifalandırma ve hizmet bilinci',
-    soulAvoid: 'Kurtarıcı rolü oynama, suçluluk duygusu ve beklentili fedakarlık',
-  },
-  7: {
-    bodyDo: 'Derin tefekkür, ezoterik araştırma, içe dönüş ve zihinsel analiz',
-    bodyAvoid: 'Zihinsel aşırı yüklenme, izolasyon ve şüphecilik',
-    soulDo: 'Sessizlikte gelen üst-bilinç bilgeliği, rüya/sembol okuması ve tefekkür',
-    soulAvoid: 'Analitik zihnin aşırı sorgulaması, yabancılaşma ve ruhsal kibir',
-  },
-  8: {
-    bodyDo: 'Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge',
-    bodyAvoid: 'Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik',
-    soulDo: 'Ruhsal otoriteyi eline alma, karmik denge ve ilahi bolluk akışı',
-    soulAvoid: 'Beden egosunun güç savaşları, maddi kaygı ve kontrol hırsı',
-  },
-  9: {
-    bodyDo: 'Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat',
-    bodyAvoid: 'Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç',
-    soulDo: 'Karmik döngüyü bilgelikle mühürleme, tam teslimiyet ve evrensel şefkat',
-    soulAvoid: 'Eski kimliğe ve geçmişin duygusal tortularına mekanik tutunma',
-  },
+  if (d === 4 || d === 8) {
+    return {
+      aspectName: 'Üçgen Açı',
+      bodyDo: 'Yaratıcı üretim, uyumlu iletişim, şifa çalışmaları ve akışta ilerleme',
+      bodyAvoid: 'Tembellik, rehavet ve enerjinin kendiliğinden akacağına fazla güvenme',
+      soulDo: 'Element uyumuyla zahmetsiz ilham akışı, kalp-zihin dengesi ve yüksek tezahür',
+      soulAvoid: 'Konfor alanında rehavete kapılma ve gelen ruhsal fırsatları erteleme',
+    };
+  }
+  if (d === 2 || d === 10) {
+    return {
+      aspectName: 'Sekstil Açı',
+      bodyDo: 'Yeni bağlantılar kurma, öğrenme, araştırma ve somut işbirliği adımları',
+      bodyAvoid: 'Aynı anda çok işe bölünme, kararsızlık ve odak kaybı',
+      soulDo: 'Boğaz ve üçüncü göz çakrasından berrak idrak, eşzamanlılıkları okuma ve paylaşım',
+      soulAvoid: 'Zihinsel dağınıklık, yüzeysel konuşmalar ve dikkati dış gürültüye dağıtma',
+    };
+  }
+  if (d === 3 || d === 9) {
+    return {
+      aspectName: 'Kare Açı',
+      bodyDo: 'Sabırlı hareket etme, yarım kalan zorlu işleri disiplinle çözme ve köklenme',
+      bodyAvoid: 'Aceleci tartışmalar, duygusal gerilim ve dürtüsel güç savaşları',
+      soulDo: 'İçsel sürtünmeyi farkındalığa dönüştürme, nefesle merkezlenme ve nefs terbiyesi',
+      soulAvoid: 'Beden otomatizminin öfke, alınganlık, inatlaşma ve savunmacı ego tepkisi',
+    };
+  }
+  if (d === 6) {
+    return {
+      aspectName: 'Karşıt Açı',
+      bodyDo: 'Empati, diplomasi, uzlaşma ve karşıt bakış açılarını dengede buluşturma',
+      bodyAvoid: 'İkili ilişkilerde gerilim, alınganlık ve uçlarda gezinme',
+      soulDo: 'İlişkilerde ayna yasasını okuma, dualiteyi kalp merkezinde birleştirme',
+      soulAvoid: 'Gölgeyi karşı tarafa yansıtma (projeksiyon), onay bekleme veya kutuplaşma',
+    };
+  }
+  return {
+    aspectName: 'İnce Ayar',
+    bodyDo: 'Detayları düzenleme, bedensel dinlenme, detoks ve zihinsel sadeleşme',
+    bodyAvoid: 'Gereksiz evham, mükemmeliyetçi stres ve enerjiyi tüketen kuruntular',
+    soulDo: 'İçe dönüş, tefekkür, enerji alanını sadeleştirme ve sessiz sezgisel hazırlık',
+    soulAvoid: 'Belirsizlikten huzursuz olma, aşırı zihinsel kurgu ve zorlama kontrol çabası',
+  };
 };
 
 const computeWidgetBirthProfile = (
@@ -274,8 +292,10 @@ const computeWidgetBirthProfile = (
   const northNodeLon = (((125.04452 - 1934.136261 * T + 0.0020708 * T * T) % 360) + 360) % 360;
   const sunDraconicLon = (((sunTropicalLon - northNodeLon) % 360) + 360) % 360;
 
-  const bodyMeta = ZODIAC_SECTORS[Math.floor(sunTropicalLon / 30) % 12] || ZODIAC_SECTORS[0];
-  const soulMeta = ZODIAC_SECTORS[Math.floor(sunDraconicLon / 30) % 12] || ZODIAC_SECTORS[0];
+  const bodySignIdx = Math.floor(sunTropicalLon / 30) % 12;
+  const soulSignIdx = Math.floor(sunDraconicLon / 30) % 12;
+  const bodyMeta = ZODIAC_SECTORS[bodySignIdx] || ZODIAC_SECTORS[0];
+  const soulMeta = ZODIAC_SECTORS[soulSignIdx] || ZODIAC_SECTORS[0];
   const nodeMeta = ZODIAC_SECTORS[Math.floor(northNodeLon / 30) % 12] || ZODIAC_SECTORS[0];
 
   const lifePath = reduceDigit(reduceDigit(day) + reduceDigit(month) + reduceDigit(year));
@@ -288,19 +308,22 @@ const computeWidgetBirthProfile = (
       reduceDigit(now.getFullYear())
   );
 
-  const themes = PERSONAL_DAY_THEMES[personalDay] || PERSONAL_DAY_THEMES[1];
+  const moonSignIdx = getTransitMoonSignIndexJS(now.getTime());
+  const moonMeta = ZODIAC_SECTORS[moonSignIdx] || ZODIAC_SECTORS[0];
+  const targetSignIdx = chartMode === 'body' ? bodySignIdx : soulSignIdx;
+  const aspect = getAspectThemeForSignDiffJS(moonSignIdx - targetSignIdx);
 
   let personalDo = '';
   let personalAvoid = '';
   if (chartMode === 'soul') {
-    personalDo = `✓ Ruh Haritası (${soulMeta.sign} • Gün ${personalDay}): ${themes.soulDo} (${soulMeta.ruler} üst oktavı)`;
-    personalAvoid = `✗ Beden Gölgesi (${bodyMeta.sign} / ${bodyMeta.element} Otomatiği): ${themes.soulAvoid}`;
+    personalDo = `✓ Ruh Haritası (${moonMeta.symbol} Ay ${moonMeta.sign} • ${aspect.aspectName}): ${aspect.soulDo} (${soulMeta.ruler} üst oktavı)`;
+    personalAvoid = `✗ Beden Gölgesi (${bodyMeta.sign} / ${bodyMeta.element} Otomatiği): ${aspect.soulAvoid}`;
   } else if (chartMode === 'synthesis') {
-    personalDo = `✓ Sentez (Beden ${bodyMeta.sign} → Ruh ${soulMeta.sign} • Gün ${personalDay}): ${themes.soulDo}`;
-    personalAvoid = `✗ Gölge Uyarısı (${bodyMeta.element} → ${soulMeta.element}): ${themes.bodyAvoid}`;
+    personalDo = `✓ Sentez (${moonMeta.symbol} Ay ${moonMeta.sign} • ${aspect.aspectName}): ${aspect.soulDo}`;
+    personalAvoid = `✗ Gölge Uyarısı (${bodyMeta.element} → ${soulMeta.element}): ${aspect.bodyAvoid}`;
   } else {
-    personalDo = `✓ Beden Haritası (${bodyMeta.sign} • Gün ${personalDay}): ${themes.bodyDo} (${bodyMeta.ruler} uyumu)`;
-    personalAvoid = `✗ Kaçının (${bodyMeta.element} Elementi): ${themes.bodyAvoid}`;
+    personalDo = `✓ Beden Haritası (${moonMeta.symbol} Ay ${moonMeta.sign} • ${aspect.aspectName}): ${aspect.bodyDo} (${bodyMeta.ruler} uyumu)`;
+    personalAvoid = `✗ Kaçının (${bodyMeta.element} Elementi): ${aspect.bodyAvoid}`;
   }
 
   return {
@@ -318,6 +341,9 @@ const computeWidgetBirthProfile = (
     northNodeSign: nodeMeta.sign,
     lifePath,
     personalDay,
+    transitMoonSign: moonMeta.sign,
+    transitMoonSymbol: moonMeta.symbol,
+    aspectName: aspect.aspectName,
     personalDo,
     personalAvoid,
   };
@@ -676,7 +702,7 @@ export default function DashboardScreen() {
           : `🌍 Beden Haritası (${computed.zodiacSymbol} ${computed.zodiacSign})`;
       Alert.alert(
         '✨ Kişisel Widget Aktif',
-        `${modeTitle} • Yaşam Yolu ${computed.lifePath} • Kişisel Gün ${computed.personalDay}\n\nBeden Burcu: ${computed.zodiacSymbol} ${computed.zodiacSign} (${computed.element})\nRuh Burcu (Drakonik): ${computed.soulZodiacSymbol} ${computed.soulZodiacSign} (${computed.soulElement})\n\nAna ekran ve kilit ekranı widget'larınız seçtiğiniz harita katmanına göre güncellendi!`
+        `${modeTitle} • ☽ Transit Ay: ${computed.transitMoonSymbol} ${computed.transitMoonSign} (${computed.aspectName})\n\nBeden Burcu: ${computed.zodiacSymbol} ${computed.zodiacSign} (${computed.element})\nRuh Burcu (Drakonik): ${computed.soulZodiacSymbol} ${computed.soulZodiacSign} (${computed.soulElement})\n\nAna ekran ve kilit ekranı widget'larınız seçtiğiniz harita katmanına göre güncellendi!`
       );
     } catch {
       Alert.alert('Bilgi', 'Doğum bilgileriniz kaydedildi.');
@@ -785,7 +811,7 @@ export default function DashboardScreen() {
         identifier: 'cosmic-lockscreen-widget',
         content: {
           title: bProfile
-            ? `${pInfo.symbol} ${pInfo.name} (${minsLeft} dk) • ${activeSignLabel} (Gün ${bProfile.personalDay})`
+            ? `${pInfo.symbol} ${pInfo.name} (${minsLeft} dk) • ${activeSignLabel} • ☽ Ay ${bProfile.transitMoonSign}`
             : `${pInfo.symbol} Gezegen Saati: ${pInfo.name} (${minsLeft} dk kaldı)`,
           body: bProfile
             ? `${bProfile.personalDo} | ${moon.icon} ${moon.name} (%${moon.illumination})`
@@ -1406,7 +1432,7 @@ export default function DashboardScreen() {
                       </View>
                     </View>
                     <Text style={{ color: '#FDE68A', fontSize: 10.5, fontWeight: '800', marginBottom: 3 }}>
-                      Yaşam Yolu {savedBirthProfile.lifePath} • Bugün Kişisel Gün {savedBirthProfile.personalDay} • KAD: {savedBirthProfile.northNodeSign}
+                      ☽ Transit Ay: {savedBirthProfile.transitMoonSymbol} {savedBirthProfile.transitMoonSign} ({savedBirthProfile.aspectName}) • KAD: {savedBirthProfile.northNodeSign}
                     </Text>
                     <Text style={{ color: '#34D399', fontSize: 10.5, fontWeight: '700', lineHeight: 14 }}>
                       {savedBirthProfile.personalDo}

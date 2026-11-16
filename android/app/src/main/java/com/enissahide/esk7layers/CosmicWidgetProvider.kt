@@ -65,81 +65,103 @@ object CosmicWidgetHelper {
         val sub: String
     )
 
-    private fun reduceToSingleDigit(num: Int): Int {
-        var n = kotlin.math.abs(num)
-        while (n > 9) {
-            var sum = 0
-            while (n > 0) {
-                sum += n % 10
-                n /= 10
-            }
-            n = sum
-        }
-        return if (n == 0) 1 else n
-    }
+    val ZODIAC_SIGNS = arrayOf(
+        "Koç", "Boğa", "İkizler", "Yengeç", "Aslan", "Başak",
+        "Terazi", "Akrep", "Yay", "Oğlak", "Kova", "Balık"
+    )
 
-    data class PersonalDayTheme(
+    val ZODIAC_SYMBOLS = arrayOf(
+        "♈", "♉", "♊", "♋", "♌", "♍",
+        "♎", "♏", "♐", "♑", "♒", "♓"
+    )
+
+    data class TransitAspectTheme(
+        val aspectName: String,
+        val shortTag: String,
         val bodyDo: String,
         val bodyAvoid: String,
         val soulDo: String,
         val soulAvoid: String
     )
 
-    private fun getPersonalDayThemes(personalDay: Int): PersonalDayTheme {
-        return when (personalDay) {
-            1 -> PersonalDayTheme(
-                "Yeni başlangıçlar, bireysel inisiyatif alma ve somut adım atma",
-                "Kararsızlık, başkalarının onayını bekleme ve erteleme",
-                "İlahi iradeyle hizalanma, yüksek benlik niyeti koyma ve öz-uyanış",
-                "Beden haritasının ego dürtüsü, sabırsızlık ve mekanik onay arayışı"
+    fun getTransitMoonSignIndex(nowMillis: Long): Int {
+        val jd = nowMillis.toDouble() / 86400000.0 + 2440587.5
+        val t = (jd - 2451545.0) / 36525.0
+        val degToRad = Math.PI / 180.0
+
+        val lPrime = 218.3164477 + 481267.88123421 * t
+        val d = (297.8501921 + 445267.1114034 * t) * degToRad
+        val m = (357.5291092 + 35999.0502909 * t) * degToRad
+        val mPrime = (134.9633964 + 477198.8675055 * t) * degToRad
+        val f = (93.2720950 + 483202.0175233 * t) * degToRad
+
+        val lon = lPrime +
+            6.288774 * kotlin.math.sin(mPrime) +
+            1.274027 * kotlin.math.sin(2.0 * d - mPrime) +
+            0.658314 * kotlin.math.sin(2.0 * d) +
+            0.213618 * kotlin.math.sin(2.0 * mPrime) -
+            0.185116 * kotlin.math.sin(m) -
+            0.114332 * kotlin.math.sin(2.0 * f)
+
+        val normLon = ((lon % 360.0) + 360.0) % 360.0
+        return (normLon / 30.0).toInt().coerceIn(0, 11)
+    }
+
+    private fun getSignIndexByName(signName: String): Int {
+        val clean = signName.trim()
+        val idx = ZODIAC_SIGNS.indexOfFirst { it.equals(clean, ignoreCase = true) }
+        return if (idx >= 0) idx else 0
+    }
+
+    private fun getAspectThemeForSignDiff(diff: Int): TransitAspectTheme {
+        return when (((diff % 12) + 12) % 12) {
+            0 -> TransitAspectTheme(
+                "Kavuşum",
+                "ÖZ HİZALANMA",
+                "Kişisel inisiyatif alma, duygusal yenilenme ve özgüvenle adım atma",
+                "Aşırı hassasiyet, benmerkezcilik ve sabırsız kararlar",
+                "Doğrudan öz-merkezinize akan yüksek sezgi, güçlü niyet koyma ve ruhsal uyanış",
+                "Duygusal taşkınlık, subjektif tepkisellik ve bedenin ani dürtülerine kapılma"
             )
-            2 -> PersonalDayTheme(
-                "Sezgisel uyum, diplomatik işbirliği, sabır ve duygusal denge",
-                "Aşırı alınganlık, acelecilik ve ikili ilişkilerde kutuplaşma",
-                "Kalp gözüyle dinleme, dualiteyi aşma ve yüksek empati frekansı",
-                "Beden otomatizminin duygusal bağımlılık, alınganlık ve şüphe tuzağı"
+            4, 8 -> TransitAspectTheme(
+                "Üçgen Açı",
+                "ÜÇGEN AKIŞ",
+                "Yaratıcı üretim, uyumlu iletişim, şifa çalışmaları ve akışta ilerleme",
+                "Tembellik, rehavet ve enerjinin kendiliğinden akacağına fazla güvenme",
+                "Element uyumuyla zahmetsiz ilham akışı, kalp-zihin dengesi ve yüksek tezahür",
+                "Konfor alanında rehavete kapılma ve gelen ruhsal fırsatları erteleme"
             )
-            3 -> PersonalDayTheme(
-                "Yaratıcı ifade, ilham, iletişim, sanat ve sosyal paylaşım",
-                "Enerjiyi dağıtma, yüzeysel tartışmalar ve odak kaybı",
-                "Boğaz çakrasından hakikati konuşma, ilahi ilhamı tezahür ettirme",
-                "Alt zihnin dedikodu, zihinsel dağınıklık ve yüzeysel onay kalıpları"
+            2, 10 -> TransitAspectTheme(
+                "Sekstil Açı",
+                "UYUMLU KAPI",
+                "Yeni bağlantılar kurma, öğrenme, araştırma ve somut işbirliği adımları",
+                "Aynı anda çok işe bölünme, kararsızlık ve odak kaybı",
+                "Boğaz ve üçüncü göz çakrasından berrak idrak, eşzamanlılıkları okuma ve paylaşım",
+                "Zihinsel dağınıklık, yüzeysel konuşmalar ve dikkati dış gürültüye dağıtma"
             )
-            4 -> PersonalDayTheme(
-                "Somut planlama, disiplin, köklenme ve yarım kalan işleri tamamlama",
-                "Aşırı katılık, tembellik ve detaylarda boğulma",
-                "Ruhsal disiplini maddeye indirme, kutsal geometri ve içsel merkezlenme",
-                "Beden haritasının korku odaklı kontrolcülüğü ve maddeye hapsolma"
+            3, 9 -> TransitAspectTheme(
+                "Kare Açı",
+                "SİMYASAL SINAV",
+                "Sabırlı hareket etme, yarım kalan zorlu işleri disiplinle çözme ve köklenme",
+                "Aceleci tartışmalar, duygusal gerilim ve dürtüsel güç savaşları",
+                "İçsel sürtünmeyi farkındalığa dönüştürme, nefesle merkezlenme ve nefs terbiyesi",
+                "Beden otomatizminin öfke, alınganlık, inatlaşma ve savunmacı ego tepkisi"
             )
-            5 -> PersonalDayTheme(
-                "Esneklik, yenilik, özgürleşme, cesur değişim ve yeni deneyimler",
-                "Dürtüsel riskler, sabırsızlık ve huzursuz enerji dağılması",
-                "Eski karmik kalıpları kırma, bilinç sıçraması ve ruhsal özgürleşme",
-                "Fiziksel dürtüsellik, duyusal kaçışlar ve enerjiyi dışarı saçma"
+            6 -> TransitAspectTheme(
+                "Karşıt Açı",
+                "AYNA DENGE",
+                "Empati, diplomasi, uzlaşma ve karşıt bakış açılarını dengede buluşturma",
+                "İkili ilişkilerde gerilim, alınganlık ve uçlarda gezinme",
+                "İlişkilerde ayna yasasını okuma, dualiteyi kalp merkezinde birleştirme",
+                "Gölgeyi karşı tarafa yansıtma (projeksiyon), onay bekleme veya kutuplaşma"
             )
-            6 -> PersonalDayTheme(
-                "Kalp merkezi şifası, aile/ilişki uyumu, sorumluluk ve estetik",
-                "Aşırı fedakarlık, kontrolcülük ve mükemmeliyetçi baskı",
-                "Koşulsuz sevgi frekansı, karmik bağları şifalandırma ve hizmet bilinci",
-                "Kurtarıcı rolü oynama, suçluluk duygusu ve beklentili fedakarlık"
-            )
-            7 -> PersonalDayTheme(
-                "Derin tefekkür, ezoterik araştırma, içe dönüş ve zihinsel analiz",
-                "Zihinsel aşırı yüklenme, izolasyon ve şüphecilik",
-                "Sessizlikte gelen üst-bilinç bilgeliği, rüya/sembol okuması ve tefekkür",
-                "Analitik zihnin aşırı sorgulaması, yabancılaşma ve ruhsal kibir"
-            )
-            8 -> PersonalDayTheme(
-                "Bolluk tezahürü, irade gücü, finansal/kariyer adımları ve denge",
-                "Güç çatışmaları, materyalist stres ve hırs kaynaklı gerginlik",
-                "Ruhsal otoriteyi eline alma, karmik denge ve ilahi bolluk akışı",
-                "Beden egosunun güç savaşları, maddi kaygı ve kontrol hırsı"
-            )
-            else -> PersonalDayTheme(
-                "Tamamlanma, arınma, affetme, eski döngüleri kapatma ve şefkat",
-                "Geçmişe tutunma, duygusal ağırlık ve bitmiş konulara direnç",
-                "Karmik döngüyü bilgelikle mühürleme, tam teslimiyet ve evrensel şefkat",
-                "Eski kimliğe ve geçmişin duygusal tortularına mekanik tutunma"
+            else -> TransitAspectTheme(
+                "İnce Ayar",
+                "İÇSEL ARINMA",
+                "Detayları düzenleme, bedensel dinlenme, detoks ve zihinsel sadeleşme",
+                "Gereksiz evham, mükemmeliyetçi stres ve enerjiyi tüketen kuruntular",
+                "İçe dönüş, tefekkür, enerji alanını sadeleştirme ve sessiz sezgisel hazırlık",
+                "Belirsizlikten huzursuz olma, aşırı zihinsel kurgu ve zorlama kontrol çabası"
             )
         }
     }
@@ -224,7 +246,6 @@ object CosmicWidgetHelper {
         val zodiacSign = prefs.getString("zodiacSign", "")?.trim() ?: ""
         val element = prefs.getString("element", "")?.trim() ?: ""
         val rulingPlanet = prefs.getString("rulingPlanet", "")?.trim() ?: ""
-        val lifePath = prefs.getInt("lifePath", 0)
         val chartMode = prefs.getString("chartMode", "soul")?.trim()?.ifEmpty { "soul" } ?: "soul"
         val soulZodiacSign = prefs.getString("soulZodiacSign", "")?.trim()?.ifEmpty { zodiacSign } ?: zodiacSign
         val soulElement = prefs.getString("soulElement", "")?.trim()?.ifEmpty { element } ?: element
@@ -234,23 +255,14 @@ object CosmicWidgetHelper {
             return base
         }
 
-        // Parse DD.MM.YYYY to compute personal day number
-        val parts = birthDate.split(".", "/", "-")
-        val bDay = parts.getOrNull(0)?.toIntOrNull() ?: 1
-        val bMonth = parts.getOrNull(1)?.toIntOrNull() ?: 1
-        val cDay = cal.get(Calendar.DAY_OF_MONTH)
-        val cMonth = cal.get(Calendar.MONTH) + 1
-        val cYear = cal.get(Calendar.YEAR)
+        val moonSignIdx = getTransitMoonSignIndex(cal.timeInMillis)
+        val transitMoonSign = ZODIAC_SIGNS[moonSignIdx]
+        val transitMoonSymbol = ZODIAC_SYMBOLS[moonSignIdx]
 
-        val personalDay = reduceToSingleDigit(
-            reduceToSingleDigit(bDay) +
-            reduceToSingleDigit(bMonth) +
-            reduceToSingleDigit(cDay) +
-            reduceToSingleDigit(cMonth) +
-            reduceToSingleDigit(cYear)
-        )
-
-        val themes = getPersonalDayThemes(personalDay)
+        val bodySignIdx = getSignIndexByName(zodiacSign)
+        val soulSignIdx = getSignIndexByName(soulZodiacSign)
+        val activeTargetIdx = if (chartMode == "body") bodySignIdx else soulSignIdx
+        val aspect = getAspectThemeForSignDiff(moonSignIdx - activeTargetIdx)
         val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
 
         val customDo: String
@@ -260,24 +272,22 @@ object CosmicWidgetHelper {
 
         when (chartMode) {
             "soul" -> {
-                val soulTag = if (lifePath > 0) "$soulZodiacSign • Yol $lifePath • Gün $personalDay" else "$soulZodiacSign • Gün $personalDay"
-                customBadge = "✨ RUH HARİTASI (DRAKONİK) • ${soulTag.uppercase()}"
+                customBadge = "✨ RUH: ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
                 chakraSignBadge = "${base.chakraBadge} • RUH: ${soulZodiacSign.uppercase()}"
-                customDo = "✓ Ruh Haritası ($soulZodiacSign • Gün $personalDay): ${themes.soulDo} ($soulRulingPlanet üst oktavı)"
-                customAvoid = "✗ Beden Gölgesi ($zodiacSign / $element Otomatiği): ${themes.soulAvoid}"
+                customDo = "✓ Ruh Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo} ($soulRulingPlanet üst oktavı)"
+                customAvoid = "✗ Beden Gölgesi ($zodiacSign / $element Otomatiği): ${aspect.soulAvoid}"
             }
             "synthesis" -> {
-                customBadge = "☯️ SENTEZ • BEDEN: ${zodiacSign.uppercase()} → RUH: ${soulZodiacSign.uppercase()} • GÜN $personalDay"
+                customBadge = "☯️ ${zodiacSign.uppercase()} → ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
                 chakraSignBadge = "${base.chakraBadge} • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
-                customDo = "✓ Sentez (Beden $zodiacSign → Ruh $soulZodiacSign • Gün $personalDay): ${themes.soulDo}"
-                customAvoid = "✗ Gölge Uyarısı ($element → $soulElement): ${themes.bodyAvoid}"
+                customDo = "✓ Sentez ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo}"
+                customAvoid = "✗ Gölge Uyarısı ($element → $soulElement): ${aspect.bodyAvoid}"
             }
             else -> {
-                val bodyTag = if (lifePath > 0) "$zodiacSign • Yol $lifePath • Gün $personalDay" else "$zodiacSign • Gün $personalDay"
-                customBadge = "🌍 BEDEN HARİTASI • ${bodyTag.uppercase()}"
+                customBadge = "🌍 BEDEN: ${zodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
                 chakraSignBadge = "${base.chakraBadge} • BEDEN: ${zodiacSign.uppercase()}"
-                customDo = "✓ Beden Haritası ($zodiacSign • Gün $personalDay): ${themes.bodyDo} ($rulingPlanet uyumu)"
-                customAvoid = "✗ Kaçının ($elementLabel): ${themes.bodyAvoid}"
+                customDo = "✓ Beden Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.bodyDo} ($rulingPlanet uyumu)"
+                customAvoid = "✗ Kaçının ($elementLabel): ${aspect.bodyAvoid}"
             }
         }
 
