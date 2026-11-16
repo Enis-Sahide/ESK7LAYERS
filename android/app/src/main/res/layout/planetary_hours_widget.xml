@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/cosmic_widget_bg"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
 
     <!-- Header: Current Planetary Hour -->
     <LinearLayout
@@ -16,25 +17,33 @@
 
         <TextView
             android:id="@+id/ph_symbol"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@drawable/cosmic_pill_bg"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="♀"
             android:textColor="#FFD700"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="9dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="9sp"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="7LAYERS • ANLIK GEZEGEN SAATİ"
                 android:textColor="#D4AF37"
                 android:textSize="9sp"
@@ -42,13 +51,18 @@
 
             <TextView
                 android:id="@+id/ph_current_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="13.5sp"
+                android:autoSizeMinTextSize="9.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="Venüs ♀ Saati Aktif"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -57,11 +71,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/cosmic_pill_bg"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="7dp"
+            android:paddingVertical="3dp"
             android:text="32 dk kaldı"
             android:textColor="#FDE68A"
-            android:textSize="10.5sp"
+            android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -70,18 +85,23 @@
         android:id="@+id/ph_meaning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="5dp"
+        android:autoSizeMaxTextSize="11sp"
+        android:autoSizeMinTextSize="8.5sp"
+        android:autoSizeStepGranularity="0.5sp"
+        android:autoSizeTextType="uniform"
         android:ellipsize="end"
+        android:includeFontPadding="false"
         android:maxLines="2"
         android:text="Uyum, sevgi, estetik, sanat, barışma ve sosyal ilişkileri güçlendirmek için en elverişli kozmik saat."
         android:textColor="#E5E7EB"
-        android:textSize="11sp" />
+        android:textSize="10.5sp" />
 
     <!-- Bottom 3 Upcoming Hours Strip -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="6dp"
         android:layout_weight="1"
         android:baselineAligned="false"
         android:orientation="horizontal">
@@ -100,17 +120,25 @@
                 android:id="@+id/ph_next1_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
                 android:text="Sıradaki 1."
                 android:textColor="#9CA3AF"
                 android:textSize="8.5sp" />
 
             <TextView
                 android:id="@+id/ph_next1_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="11sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="Merkür ☿"
                 android:textColor="#FDE68A"
-                android:textSize="11sp"
+                android:textSize="10.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -128,17 +156,25 @@
                 android:id="@+id/ph_next2_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
                 android:text="Sıradaki 2."
                 android:textColor="#9CA3AF"
                 android:textSize="8.5sp" />
 
             <TextView
                 android:id="@+id/ph_next2_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="11sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="Ay ☽"
                 android:textColor="#FFFFFF"
-                android:textSize="11sp"
+                android:textSize="10.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -156,19 +192,26 @@
                 android:id="@+id/ph_next3_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
                 android:text="Sıradaki 3."
                 android:textColor="#9CA3AF"
                 android:textSize="8.5sp" />
 
             <TextView
                 android:id="@+id/ph_next3_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="11sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="Satürn ♄"
                 android:textColor="#FFFFFF"
-                android:textSize="11sp"
+                android:textSize="10.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
-

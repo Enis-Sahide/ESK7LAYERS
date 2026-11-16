@@ -1301,11 +1301,11 @@ export default function DashboardScreen() {
                 marginBottom: 14
               }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <Text style={{ color: '#FDE68A', fontSize: 13, fontWeight: '800' }}>
+                  <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800', flex: 1, marginRight: 6 }} numberOfLines={1} adjustsFontSizeToFit>
                     🎯 Widget Kişisel Doğum &amp; Harita Katmanı
                   </Text>
                   {savedBirthProfile && (
-                    <View style={{ backgroundColor: 'rgba(16,185,129,0.18)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.45)', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 2 }}>
+                    <View style={{ backgroundColor: 'rgba(16,185,129,0.18)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.45)', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, flexShrink: 0 }}>
                       <Text style={{ color: '#34D399', fontSize: 9.5, fontWeight: '800' }}>
                         {savedBirthProfile.chartMode === 'soul'
                           ? 'RUH HARİTASI AKTİF'

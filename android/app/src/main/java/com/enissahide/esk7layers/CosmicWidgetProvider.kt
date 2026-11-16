@@ -614,13 +614,18 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.cm_moon_icon, moonInfo.icon)
             views.setTextViewText(R.id.cm_chakra_badge, dayInfo.chakraBadge)
             views.setTextViewText(R.id.cm_chakra_title, dayInfo.chakraTitle)
-            views.setTextViewText(R.id.cm_moon_pill, "%${moonInfo.illumination} Aydınlık")
+            views.setTextViewText(R.id.cm_moon_pill, "%${moonInfo.illumination} Ay")
             views.setTextViewText(R.id.cm_affirmation, dayInfo.affirmation)
             views.setTextViewText(
                 R.id.cm_moon_desc,
                 "${moonInfo.icon} ${moonInfo.name}: ${moonInfo.sub}"
             )
 
+            val freqIntent = Intent(Intent.ACTION_VIEW, Uri.parse("proje1://(dashboard)/meditation"), context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val freqPending = PendingIntent.getActivity(context, 9102, freqIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            views.setOnClickPendingIntent(R.id.cm_open_freq_btn, freqPending)
             views.setOnClickPendingIntent(
                 R.id.cm_widget_root,
                 CosmicWidgetHelper.getLaunchPendingIntent(context)
@@ -657,8 +662,8 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.mini_cosmic_widget)
             views.setTextViewText(R.id.mini_planet_symbol, CosmicWidgetHelper.PLANET_SYMBOLS[currentIdx])
-            views.setTextViewText(R.id.mini_hour_title, "${currentPlanetName} • ${minsLeft}dk")
-            views.setTextViewText(R.id.mini_moon_badge, "${moonInfo.icon} %${moonInfo.illumination}")
+            views.setTextViewText(R.id.mini_hour_title, currentPlanetName)
+            views.setTextViewText(R.id.mini_moon_badge, "${minsLeft} dk")
             views.setTextViewText(R.id.mini_prev_hour, "◀ ${CosmicWidgetHelper.CHALDEAN_ORDER[prevIdx]}")
             views.setTextViewText(R.id.mini_next_hour, "${CosmicWidgetHelper.CHALDEAN_ORDER[nextIdx]} ▶")
 

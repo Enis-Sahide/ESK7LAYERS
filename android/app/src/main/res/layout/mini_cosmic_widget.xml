@@ -6,10 +6,10 @@
     android:background="@drawable/cosmic_widget_bg"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingHorizontal="9dp"
-    android:paddingVertical="6dp">
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="5dp">
 
-    <!-- Top Row: Active Planet Symbol + Name & Mins Left + Moon Phase -->
+    <!-- Top Row: Active Planet Symbol + Planet Name + Remaining Minutes Pill -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,13 +18,14 @@
 
         <TextView
             android:id="@+id/mini_planet_symbol"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:background="@drawable/cosmic_pill_bg"
             android:gravity="center"
-            android:text="♄"
+            android:includeFontPadding="false"
+            android:text="♃"
             android:textColor="#FFD700"
-            android:textSize="13sp"
+            android:textSize="12.5sp"
             android:textStyle="bold" />
 
         <TextView
@@ -32,9 +33,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
-            android:singleLine="true"
-            android:text="Satürn • 42dk"
+            android:autoSizeMaxTextSize="12sp"
+            android:autoSizeMinTextSize="9sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="Jüpiter"
             android:textColor="#FFFFFF"
             android:textSize="11.5sp"
             android:textStyle="bold" />
@@ -43,11 +50,14 @@
             android:id="@+id/mini_moon_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:singleLine="true"
-            android:text="🌒 %40"
-            android:textColor="#93C5FD"
-            android:textSize="10.5sp"
+            android:background="@drawable/cosmic_pill_bg"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:text="34 dk"
+            android:textColor="#FDE68A"
+            android:textSize="9.5sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -55,11 +65,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/cosmic_inner_card_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="7dp"
+        android:paddingHorizontal="6dp"
         android:paddingVertical="3dp">
 
         <TextView
@@ -67,11 +77,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:autoSizeMaxTextSize="9.5sp"
+            android:autoSizeMinTextSize="7sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:gravity="start|center_vertical"
-            android:singleLine="true"
-            android:text="◀ Ay ☽"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="◀ Satürn ♄"
             android:textColor="#9CA3AF"
-            android:textSize="9.5sp"
+            android:textSize="9sp"
             android:textStyle="bold" />
 
         <TextView
@@ -79,11 +94,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:autoSizeMaxTextSize="9.5sp"
+            android:autoSizeMinTextSize="7sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:gravity="end|center_vertical"
-            android:singleLine="true"
-            android:text="Jüpiter ♃ ▶"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="Mars ♂ ▶"
             android:textColor="#FDE68A"
-            android:textSize="9.5sp"
+            android:textSize="9sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

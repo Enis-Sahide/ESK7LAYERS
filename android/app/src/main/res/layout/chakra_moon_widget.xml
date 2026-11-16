@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/cosmic_widget_bg"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="8dp">
 
     <!-- Top Header: Daily Chakra + Moon Phase Badge -->
     <LinearLayout
@@ -16,24 +17,33 @@
 
         <TextView
             android:id="@+id/cm_moon_icon"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="🌖"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/cm_chakra_badge"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="9sp"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="GÜNÜN ÇAKRASI • 396 HZ"
                 android:textColor="#D4AF37"
                 android:textSize="9sp"
@@ -41,13 +51,18 @@
 
             <TextView
                 android:id="@+id/cm_chakra_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="12.5sp"
+                android:autoSizeMinTextSize="8.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="1. Katman: Kök Çakra (Muladhara)"
                 android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -56,11 +71,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/cosmic_pill_bg"
+            android:includeFontPadding="false"
             android:paddingHorizontal="7dp"
             android:paddingVertical="3dp"
             android:text="%68 Ay"
             android:textColor="#FDE68A"
-            android:textSize="10sp"
+            android:textSize="9.5sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -68,17 +84,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="6dp"
         android:layout_weight="1"
         android:background="@drawable/cosmic_inner_card_bg"
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingHorizontal="10dp"
-        android:paddingVertical="6dp">
+        android:paddingVertical="5dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:includeFontPadding="false"
             android:text="✨ GÜNÜN OLUMLAMASI &amp; REZONANSI"
             android:textColor="#FDE68A"
             android:textSize="8.5sp"
@@ -87,13 +104,20 @@
         <TextView
             android:id="@+id/cm_affirmation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8.5sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
             android:maxLines="2"
             android:text="&quot;Yaşamın sarsılmaz kökleriyle güvendeyim; toprağın gücü ve cesareti her hücremde akıyor.&quot;"
             android:textColor="#FFFFFF"
-            android:textSize="11sp"
+            android:textSize="10.5sp"
             android:textStyle="italic" />
     </LinearLayout>
 
@@ -101,7 +125,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="5dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -109,8 +133,14 @@
             android:id="@+id/cm_moon_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
             android:layout_weight="1"
+            android:autoSizeMaxTextSize="10sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
+            android:includeFontPadding="false"
             android:maxLines="1"
             android:text="🌙 Küçülen Şişkin Ay: İçgörü ve denge zamanı"
             android:textColor="#7DD3FC"
@@ -118,12 +148,13 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/cm_open_freq_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Frekansı Aç →"
+            android:includeFontPadding="false"
+            android:text="Frekans Odası →"
             android:textColor="#D4AF37"
-            android:textSize="10sp"
+            android:textSize="9.5sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
-

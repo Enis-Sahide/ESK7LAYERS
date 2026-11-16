@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/cosmic_widget_bg"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:paddingHorizontal="9dp"
+    android:paddingVertical="6dp">
 
     <!-- Top Header Row -->
     <LinearLayout
@@ -16,28 +17,35 @@
 
         <TextView
             android:id="@+id/widget_symbol"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:background="@drawable/cosmic_pill_bg"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="♂"
             android:textColor="#FFD700"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/widget_badge"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
+                android:autoSizeMaxTextSize="9sp"
+                android:autoSizeMinTextSize="7sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="7LAYERS • KOZMİK PUSULA"
                 android:textColor="#D4AF37"
                 android:textSize="9sp"
@@ -45,25 +53,31 @@
 
             <TextView
                 android:id="@+id/widget_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="11.5sp"
+                android:autoSizeMinTextSize="8.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:text="Salı • Mars Günü • Kök Çakra (396 Hz)"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:textSize="11.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/widget_refresh_btn"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="↻"
             android:textColor="#FDE68A"
-            android:textSize="13sp"
+            android:textSize="12.5sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -71,7 +85,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="4dp"
         android:baselineAligned="false"
         android:orientation="horizontal">
 
@@ -84,18 +98,23 @@
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp">
+            android:paddingHorizontal="7dp"
+            android:paddingVertical="3dp">
 
             <TextView
                 android:id="@+id/widget_hour_pill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="10.5sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="🪐 Venüs ♀ (34 dk)"
                 android:textColor="#FDE68A"
-                android:textSize="11sp"
+                android:textSize="10.5sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -103,11 +122,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
+                android:autoSizeMaxTextSize="9sp"
+                android:autoSizeMinTextSize="7.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="Sıradaki: Merkür ☿"
                 android:textColor="#9CA3AF"
-                android:textSize="9.5sp" />
+                android:textSize="9sp" />
         </LinearLayout>
 
         <!-- Right Card: Live Moon Phase (Compact 2-line) -->
@@ -119,18 +143,23 @@
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp">
+            android:paddingHorizontal="7dp"
+            android:paddingVertical="3dp">
 
             <TextView
                 android:id="@+id/widget_moon_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoSizeMaxTextSize="10.5sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="🌖 Küçülen Ay (%68)"
                 android:textColor="#7DD3FC"
-                android:textSize="11sp"
+                android:textSize="10.5sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -138,49 +167,66 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
+                android:autoSizeMaxTextSize="9sp"
+                android:autoSizeMinTextSize="7.5sp"
+                android:autoSizeStepGranularity="0.5sp"
+                android:autoSizeTextType="uniform"
                 android:ellipsize="end"
-                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:maxLines="1"
                 android:text="İçgörü ve şükür evresi"
                 android:textColor="#9CA3AF"
-                android:textSize="9.5sp" />
+                android:textSize="9sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Expanded Bottom Guidance Card (Takes Remaining Space) -->
+    <!-- Expanded Bottom Guidance Card (Equal 50/50 Auto-Sizing Split so neither line ever clips) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="4dp"
         android:layout_weight="1"
         android:background="@drawable/cosmic_inner_card_bg"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:paddingHorizontal="9dp"
-        android:paddingVertical="5dp">
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp">
 
         <TextView
             android:id="@+id/widget_guidance"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="11sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
-            android:lineSpacingExtra="1.5dp"
-            android:maxLines="3"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
             android:text="✓ Önerilen: Cesaret, fiziksel hareket ve yeni başlangıç adımları"
             android:textColor="#34D399"
-            android:textSize="12sp"
+            android:textSize="10.5sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/widget_avoid"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="10.5sp"
+            android:autoSizeMinTextSize="8sp"
+            android:autoSizeStepGranularity="0.5sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
-            android:lineSpacingExtra="1.5dp"
-            android:maxLines="3"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:maxLines="2"
             android:text="✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar"
             android:textColor="#F87171"
-            android:textSize="11.5sp"
+            android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>
