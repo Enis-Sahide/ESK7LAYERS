@@ -83,19 +83,19 @@ const getLiveMoonPhaseSummary = (date = new Date()) => {
   const phaseRatio = ((diffDays % synodicMonth) + synodicMonth) % synodicMonth / synodicMonth;
   const illumination = Math.round((1 - Math.cos(phaseRatio * 2 * Math.PI)) * 50);
 
-  if (phaseRatio < 0.04 || phaseRatio > 0.96) {
+  if (phaseRatio < 0.03 || phaseRatio > 0.97) {
     return { icon: '🌑', name: 'Yeni Ay Fazı', desc: 'Yeni niyet ve tohum ekmek için kozmik sıfır noktası', illumination };
-  } else if (phaseRatio < 0.22) {
+  } else if (phaseRatio < 0.24) {
     return { icon: '🌒', name: 'Hilal (Büyüyen Ay)', desc: 'İvme kazanma, adım atma ve projeleri büyütme enerjisi', illumination };
-  } else if (phaseRatio < 0.28) {
+  } else if (phaseRatio <= 0.26) {
     return { icon: '🌓', name: 'İlk Dördün', desc: 'Kararlılık, engelleri aşma ve irade ortaya koyma fazı', illumination };
-  } else if (phaseRatio < 0.46) {
+  } else if (phaseRatio < 0.47) {
     return { icon: '🌔', name: 'Şişkin Ay', desc: 'Detayları olgunlaştırma, hazırlık ve sabırlı ilerleme', illumination };
-  } else if (phaseRatio < 0.54) {
+  } else if (phaseRatio <= 0.53) {
     return { icon: '🌕', name: 'Dolunay Fazı', desc: 'Farkındalık zirvesi, tamamlanma ve duygusal aydınlanma', illumination };
-  } else if (phaseRatio < 0.72) {
+  } else if (phaseRatio < 0.74) {
     return { icon: '🌖', name: 'Küçülen Şişkin Ay', desc: 'Şükür, paylaşım, içgörü ve deneyimleri sindirme zamanı', illumination };
-  } else if (phaseRatio < 0.78) {
+  } else if (phaseRatio <= 0.76) {
     return { icon: '🌗', name: 'Son Dördün', desc: 'Arınma, yükleri bırakma ve zihinsel sadeleşme evresi', illumination };
   }
   return { icon: '🌘', name: 'Balsamik Ay', desc: 'İçe dönüş, dinlenme, tefekkür ve ruhsal hazırlık', illumination };

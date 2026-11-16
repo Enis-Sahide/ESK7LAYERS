@@ -167,7 +167,7 @@
             android:maxLines="3"
             android:text="✓ Önerilen: Cesaret, fiziksel hareket ve yeni başlangıç adımları"
             android:textColor="#34D399"
-            android:textSize="10.5sp"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
         <TextView
@@ -180,7 +180,7 @@
             android:maxLines="3"
             android:text="✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar"
             android:textColor="#F87171"
-            android:textSize="10sp"
+            android:textSize="11.5sp"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

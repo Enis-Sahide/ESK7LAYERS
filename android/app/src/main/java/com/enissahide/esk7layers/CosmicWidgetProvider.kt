@@ -322,13 +322,13 @@ object CosmicWidgetHelper {
         val illumination = ((1.0 - cos(phaseRatio * 2.0 * Math.PI)) * 50.0).roundToInt()
 
         return when {
-            phaseRatio < 0.04 || phaseRatio > 0.96 -> MoonInfo("🌑", "Yeni Ay", illumination, "Yeni niyet ve tohum evresi")
-            phaseRatio < 0.22 -> MoonInfo("🌒", "Büyüyen Hilal", illumination, "Adım atma ve ivme enerjisi")
-            phaseRatio < 0.28 -> MoonInfo("🌓", "İlk Dördün", illumination, "İrade ve kararlılık fazı")
-            phaseRatio < 0.46 -> MoonInfo("🌔", "Büyüyen Şişkin", illumination, "Olgunlaştırma ve hazırlık")
-            phaseRatio < 0.54 -> MoonInfo("🌕", "Dolunay Fazı", illumination, "Tamamlanma ve aydınlanma")
-            phaseRatio < 0.72 -> MoonInfo("🌖", "Küçülen Şişkin", illumination, "İçgörü, paylaşım ve şükür")
-            phaseRatio < 0.78 -> MoonInfo("🌗", "Son Dördün", illumination, "Arınma ve sadeleşme fazı")
+            phaseRatio < 0.03 || phaseRatio > 0.97 -> MoonInfo("🌑", "Yeni Ay", illumination, "Yeni niyet ve tohum evresi")
+            phaseRatio < 0.24 -> MoonInfo("🌒", "Büyüyen Hilal", illumination, "Adım atma ve ivme enerjisi")
+            phaseRatio <= 0.26 -> MoonInfo("🌓", "İlk Dördün", illumination, "İrade ve kararlılık fazı")
+            phaseRatio < 0.47 -> MoonInfo("🌔", "Büyüyen Şişkin", illumination, "Olgunlaştırma ve hazırlık")
+            phaseRatio <= 0.53 -> MoonInfo("🌕", "Dolunay Fazı", illumination, "Tamamlanma ve aydınlanma")
+            phaseRatio < 0.74 -> MoonInfo("🌖", "Küçülen Şişkin", illumination, "İçgörü, paylaşım ve şükür")
+            phaseRatio <= 0.76 -> MoonInfo("🌗", "Son Dördün", illumination, "Arınma ve sadeleşme fazı")
             else -> MoonInfo("🌘", "Balsamik Ay", illumination, "Tefekkür ve ruhsal dinlenme")
         }
     }
