@@ -42,6 +42,18 @@
         android:resource="@xml/mini_cosmic_widget_info" />
     </receiver>
     <receiver
+      android:name=".SchumannWidgetProvider"
+      android:exported="true"
+      android:label="@string/widget_schumann_label">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/schumann_widget_info" />
+    </receiver>
+    <receiver
       android:name=".CosmicWidgetProvider"
       android:exported="true"
       android:label="@string/widget_cosmic_label">

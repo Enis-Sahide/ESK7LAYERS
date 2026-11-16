@@ -85,6 +85,7 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
             }
             val providerClass = when (widgetType.lowercase()) {
                 "mini" -> MiniCosmicWidgetProvider::class.java
+                "schumann" -> SchumannWidgetProvider::class.java
                 "planetary" -> PlanetaryHoursWidgetProvider::class.java
                 "chakra" -> ChakraMoonWidgetProvider::class.java
                 else -> CosmicWidgetProvider::class.java

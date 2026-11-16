@@ -729,7 +729,7 @@ export default function DashboardScreen() {
     }
   };
 
-  const handlePinHomeWidget = async (widgetType: 'mini' | 'cosmic' | 'planetary' | 'chakra', label: string) => {
+  const handlePinHomeWidget = async (widgetType: 'mini' | 'schumann' | 'cosmic' | 'planetary' | 'chakra', label: string) => {
     if (Platform.OS !== 'android') {
       Alert.alert('Bilgi', 'Ana ekran widget sabitleme özelliği Android cihazlarda desteklenmektedir.');
       return;
@@ -1541,7 +1541,7 @@ export default function DashboardScreen() {
 
               <View style={{ marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)' }}>
                 <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800', marginBottom: 4 }}>
-                  📌 Telefon Ana Ekranına Widget Ekle (4 Boyut Seçeneği)
+                  📌 Telefon Ana Ekranına Widget Ekle (5 Seçenek)
                 </Text>
                 <Text style={{ color: '#D1D5DB', fontSize: 10.5, lineHeight: 15, marginBottom: 10 }}>
                   Aşağıdaki butonlara dokunarak veya telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden istediğiniz boyuttaki widget&apos;ı ekleyebilirsiniz:

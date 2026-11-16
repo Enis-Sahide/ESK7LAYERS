@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/schumann_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cosmic_widget_bg"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Top Compact Header Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:background="@drawable/cosmic_pill_bg"
+            android:gravity="center"
+            android:text="⚡"
+            android:textColor="#00E5FF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/schumann_widget_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="7LAYERS • SCHUMANN REZONANSI (TOMSK SOS70)"
+                android:textColor="#00E5FF"
+                android:textSize="9sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/schumann_widget_sub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text="Canlı Spektrogram (0-40 Hz) • Dokun ve İncele"
+                android:textColor="#D1D5DB"
+                android:textSize="8.5sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/schumann_widget_refresh_btn"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:text="↻"
+            android:textColor="#FDE68A"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Full Uncropped SOS70 Spectrogram Image Container -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_weight="1"
+        android:background="@drawable/cosmic_inner_card_bg"
+        android:padding="2dp">
+
+        <ImageView
+            android:id="@+id/schumann_widget_img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/widget_schumann_desc"
+            android:scaleType="fitXY" />
+    </FrameLayout>
+</LinearLayout>

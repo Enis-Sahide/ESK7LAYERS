@@ -3,10 +3,22 @@ package com.enissahide.esk7layers
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.widget.RemoteViews
+import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.concurrent.Executors
 import java.util.Calendar
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -572,6 +584,182 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
                 CosmicWidgetHelper.getLaunchPendingIntent(context)
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+    }
+}
+
+class SchumannWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, SchumannWidgetProvider::class.java))
+            if (ids.isNotEmpty()) {
+                val pendingResult = goAsync()
+                refreshSchumannWidgets(context.applicationContext, mgr, ids, pendingResult)
+            }
+        }
+    }
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        if (appWidgetIds.isNotEmpty()) {
+            val pendingResult = goAsync()
+            refreshSchumannWidgets(context.applicationContext, appWidgetManager, appWidgetIds, pendingResult)
+        }
+    }
+
+    companion object {
+        private val executor = Executors.newSingleThreadExecutor()
+        private const val CACHE_FILENAME = "schumann_widget_spectrogram.jpg"
+
+        private fun getSchumannDeepLinkIntent(context: Context): PendingIntent {
+            val deepLinkIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("proje1://(dashboard)/kisisel-analizler/schumann"),
+                context,
+                MainActivity::class.java
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            return PendingIntent.getActivity(
+                context,
+                9101,
+                deepLinkIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        private fun fetchBytesFromUrl(urlStr: String, referer: String? = null): ByteArray? {
+            var conn: HttpURLConnection? = null
+            return try {
+                val url = URL(urlStr)
+                conn = (url.openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 5000
+                    readTimeout = 5000
+                    requestMethod = "GET"
+                    setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120.0.0.0")
+                    if (referer != null) {
+                        setRequestProperty("Referer", referer)
+                    }
+                }
+                if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+                    val bytes = conn.inputStream.use { it.readBytes() }
+                    if (bytes.size > 4000 && bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte()) {
+                        bytes
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
+            } catch (_: Exception) {
+                null
+            } finally {
+                try { conn?.disconnect() } catch (_: Exception) {}
+            }
+        }
+
+        private fun loadCachedBitmap(context: Context): Bitmap? {
+            return try {
+                val f = File(context.filesDir, CACHE_FILENAME)
+                if (f.exists() && f.length() > 1000) {
+                    BitmapFactory.decodeFile(f.absolutePath)
+                } else null
+            } catch (_: Exception) {
+                null
+            }
+        }
+
+        private fun pushViews(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetIds: IntArray,
+            bitmap: Bitmap?,
+            subtitle: String
+        ) {
+            for (appWidgetId in appWidgetIds) {
+                val views = RemoteViews(context.packageName, R.layout.schumann_widget)
+                views.setTextViewText(R.id.schumann_widget_sub, subtitle)
+                if (bitmap != null) {
+                    views.setImageViewBitmap(R.id.schumann_widget_img, bitmap)
+                }
+                views.setOnClickPendingIntent(
+                    R.id.schumann_widget_root,
+                    getSchumannDeepLinkIntent(context)
+                )
+                views.setOnClickPendingIntent(
+                    R.id.schumann_widget_refresh_btn,
+                    CosmicWidgetHelper.getRefreshPendingIntent(context, SchumannWidgetProvider::class.java)
+                )
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            }
+        }
+
+        fun refreshSchumannWidgets(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetIds: IntArray,
+            pendingResult: BroadcastReceiver.PendingResult? = null
+        ) {
+            val cachedBmp = loadCachedBitmap(context)
+            if (cachedBmp != null) {
+                pushViews(
+                    context,
+                    appWidgetManager,
+                    appWidgetIds,
+                    cachedBmp,
+                    "Canlı Spektrogram güncelleniyor..."
+                )
+            }
+
+            executor.execute {
+                try {
+                    val rawBytes =
+                        fetchBytesFromUrl("https://sos70.ru/provider.php?file=shm.jpg", "https://sos70.ru/")
+                            ?: fetchBytesFromUrl("https://www.7layers.tr/api/schumann/image")
+
+                    val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+                    if (rawBytes != null) {
+                        val decoded = BitmapFactory.decodeByteArray(rawBytes, 0, rawBytes.size)
+                        if (decoded != null) {
+                            val scaled = Bitmap.createScaledBitmap(decoded, 760, 220, true)
+                            try {
+                                val outFile = File(context.filesDir, CACHE_FILENAME)
+                                FileOutputStream(outFile).use { fos ->
+                                    scaled.compress(Bitmap.CompressFormat.JPEG, 88, fos)
+                                }
+                            } catch (_: Exception) {}
+
+                            pushViews(
+                                context,
+                                appWidgetManager,
+                                appWidgetIds,
+                                scaled,
+                                "Canlı Tomsk Spektrogramı (0-40 Hz) • Son: $timeStr"
+                            )
+                            return@execute
+                        }
+                    }
+
+                    val fallbackBmp = loadCachedBitmap(context)
+                    pushViews(
+                        context,
+                        appWidgetManager,
+                        appWidgetIds,
+                        fallbackBmp,
+                        if (fallbackBmp != null) "Arşiv Spektrogram Görseli • Yenilemek için ↻" else "Bağlantı bekleniyor • Yenilemek için ↻"
+                    )
+                } catch (_: Exception) {
+                } finally {
+                    try { pendingResult?.finish() } catch (_: Exception) {}
+                }
+            }
         }
     }
 }
