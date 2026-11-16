@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mini_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cosmic_widget_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="7dp">
+
+    <TextView
+        android:id="@+id/mini_planet_symbol"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/cosmic_pill_bg"
+        android:gravity="center"
+        android:text="♃"
+        android:textColor="#FFD700"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="6dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/mini_top_badge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="7LAYERS • GEZEGEN SAATİ"
+            android:textColor="#D4AF37"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mini_hour_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Jüpiter ♃ • 42 dk"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mini_symbols_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="🌕 %92 • ⚡ 852Hz • ▸ ♂"
+            android:textColor="#93C5FD"
+            android:textSize="9.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/mini_refresh_btn"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="@drawable/cosmic_inner_card_bg"
+        android:gravity="center"
+        android:text="↻"
+        android:textColor="#FDE68A"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>

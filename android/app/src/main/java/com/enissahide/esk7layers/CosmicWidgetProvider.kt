@@ -347,6 +347,10 @@ object CosmicWidgetHelper {
 
     fun refreshAllWidgets(context: Context) {
         val mgr = AppWidgetManager.getInstance(context)
+        val miniIds = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
+        if (miniIds.isNotEmpty()) {
+            MiniCosmicWidgetProvider().onUpdate(context, mgr, miniIds)
+        }
         val cosmicIds = mgr.getAppWidgetIds(ComponentName(context, CosmicWidgetProvider::class.java))
         for (id in cosmicIds) {
             CosmicWidgetProvider.updateCosmicWidget(context, mgr, id)
@@ -515,6 +519,58 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(
                 R.id.cm_widget_root,
                 CosmicWidgetHelper.getLaunchPendingIntent(context)
+            )
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+    }
+}
+
+class MiniCosmicWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+        }
+    }
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        val cal = Calendar.getInstance()
+        val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
+        val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
+        val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
+        val nextIdx = (currentIdx + 1) % 7
+        val minsLeft = (60 - cal.get(Calendar.MINUTE)).coerceIn(1, 60)
+
+        val freqMatch = Regex("(\\d{3})\\s*HZ", RegexOption.IGNORE_CASE).find(dayInfo.chakraBadge)
+        val freqTag = if (freqMatch != null) "${freqMatch.groupValues[1]}Hz" else dayInfo.symbol
+
+        for (appWidgetId in appWidgetIds) {
+            val views = RemoteViews(context.packageName, R.layout.mini_cosmic_widget)
+            views.setTextViewText(R.id.mini_planet_symbol, CosmicWidgetHelper.PLANET_SYMBOLS[currentIdx])
+            views.setTextViewText(R.id.mini_top_badge, dayInfo.headerBadge)
+            views.setTextViewText(
+                R.id.mini_hour_title,
+                "${CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx]} • ${minsLeft} dk"
+            )
+            views.setTextViewText(
+                R.id.mini_symbols_row,
+                "${moonInfo.icon} %${moonInfo.illumination} • ⚡ ${freqTag} • ▸ ${CosmicWidgetHelper.PLANET_SYMBOLS[nextIdx]}"
+            )
+
+            views.setOnClickPendingIntent(
+                R.id.mini_widget_root,
+                CosmicWidgetHelper.getLaunchPendingIntent(context)
+            )
+            views.setOnClickPendingIntent(
+                R.id.mini_refresh_btn,
+                CosmicWidgetHelper.getRefreshPendingIntent(context, MiniCosmicWidgetProvider::class.java)
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }

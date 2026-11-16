@@ -11,4 +11,5 @@
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 
-# Add any project specific keep options here:
+# Keep 7Layers native AppWidgetProviders and React Native bridge module
+-keep class com.enissahide.esk7layers.** { *; }

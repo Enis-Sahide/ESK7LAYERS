@@ -3,4 +3,16 @@
   <string name="expo_system_ui_user_interface_style" translatable="false">automatic</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+
+  <string name="widget_mini_label">7Layers • Mini Kozmik Saat (2x1)</string>
+  <string name="widget_mini_desc">Dar alanlar için anlık Gezegen Saati, Ay fazı ve günlük çakra sembolleri (2x1).</string>
+
+  <string name="widget_cosmic_label">7Layers • Kozmik Pusula (4x2)</string>
+  <string name="widget_cosmic_desc">Gezegen saati, canlı Ay fazı, Beden/Ruh haritası sentezi ve günlük rehberlik (4x2).</string>
+
+  <string name="widget_planetary_label">7Layers • Canlı Gezegen Saatleri (4x2)</string>
+  <string name="widget_planetary_desc">Aktif Keldani gezegen saati, kalan dakika ve sıradaki 3 gezegen saati akışı (4x2).</string>
+
+  <string name="widget_chakra_label">7Layers • Günün Çakrası &amp; Ay Fazı (4x2)</string>
+  <string name="widget_chakra_desc">Günün aktif çakra frekansı (Hz), olumlaması ve canlı Ay fazı aydınlanma oranı (4x2).</string>
 </resources>

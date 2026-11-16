@@ -1,6 +1,9 @@
 package com.enissahide.esk7layers
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.Promise
@@ -67,6 +70,33 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
             promise.reject("WIDGET_CLEAR_ERROR", e.message, e)
         }
     }
+
+    @ReactMethod
+    fun pinWidgetToHomeScreen(widgetType: String, promise: Promise) {
+        try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                promise.resolve(false)
+                return
+            }
+            val appWidgetManager = AppWidgetManager.getInstance(reactApplicationContext)
+            if (!appWidgetManager.isRequestPinAppWidgetSupported) {
+                promise.resolve(false)
+                return
+            }
+            val providerClass = when (widgetType.lowercase()) {
+                "mini" -> MiniCosmicWidgetProvider::class.java
+                "planetary" -> PlanetaryHoursWidgetProvider::class.java
+                "chakra" -> ChakraMoonWidgetProvider::class.java
+                else -> CosmicWidgetProvider::class.java
+            }
+            val provider = ComponentName(reactApplicationContext, providerClass)
+            val requested = appWidgetManager.requestPinAppWidget(provider, null, null)
+            CosmicWidgetHelper.refreshAllWidgets(reactApplicationContext)
+            promise.resolve(requested)
+        } catch (e: Exception) {
+            promise.reject("WIDGET_PIN_ERROR", e.message, e)
+        }
+    }
 }
 
 class CosmicWidgetPackage : ReactPackage {
@@ -78,4 +108,3 @@ class CosmicWidgetPackage : ReactPackage {
         return emptyList()
     }
 }
-

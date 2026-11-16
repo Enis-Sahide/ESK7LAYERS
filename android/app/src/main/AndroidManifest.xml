@@ -30,9 +30,21 @@
       </intent-filter>
     </activity>
     <receiver
+      android:name=".MiniCosmicWidgetProvider"
+      android:exported="true"
+      android:label="@string/widget_mini_label">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/mini_cosmic_widget_info" />
+    </receiver>
+    <receiver
       android:name=".CosmicWidgetProvider"
       android:exported="true"
-      android:label="7Layers • Kozmik Pusula (Hepsi Bir Arada)">
+      android:label="@string/widget_cosmic_label">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />
@@ -44,7 +56,7 @@
     <receiver
       android:name=".PlanetaryHoursWidgetProvider"
       android:exported="true"
-      android:label="7Layers • Canlı Gezegen Saatleri">
+      android:label="@string/widget_planetary_label">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />
@@ -56,7 +68,7 @@
     <receiver
       android:name=".ChakraMoonWidgetProvider"
       android:exported="true"
-      android:label="7Layers • Günün Çakrası &amp; Ay Fazı">
+      android:label="@string/widget_chakra_label">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
         <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />

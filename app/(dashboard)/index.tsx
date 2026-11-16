@@ -703,6 +703,34 @@ export default function DashboardScreen() {
     }
   };
 
+  const handlePinHomeWidget = async (widgetType: 'mini' | 'cosmic' | 'planetary' | 'chakra', label: string) => {
+    if (Platform.OS !== 'android') {
+      Alert.alert('Bilgi', 'Ana ekran widget sabitleme özelliği Android cihazlarda desteklenmektedir.');
+      return;
+    }
+    try {
+      if (NativeModules.CosmicWidgetModule?.pinWidgetToHomeScreen) {
+        const ok = await NativeModules.CosmicWidgetModule.pinWidgetToHomeScreen(widgetType);
+        if (!ok) {
+          Alert.alert(
+            'Manuel Ekleme',
+            `Telefonunuzun ana ekranında boş bir yere basılı tutup "Widget'lar -> 7LAYERS" listesinden "${label}" aracını sürükleyip bırakabilirsiniz.`
+          );
+        }
+      } else {
+        Alert.alert(
+          'Bilgi',
+          `Ana ekranda boş bir yere basılı tutup "Widget'lar -> 7LAYERS" menüsünden "${label}" widget'ını ekleyebilirsiniz.`
+        );
+      }
+    } catch {
+      Alert.alert(
+        'Manuel Ekleme',
+        `Ana ekranda boş bir yere basılı tutup "Widget'lar -> 7LAYERS" menüsünden "${label}" widget'ını ekleyebilirsiniz.`
+      );
+    }
+  };
+
   const syncLockScreenCosmicWidget = useCallback(async (enabled: boolean) => {
     if (Platform.OS === 'web') return;
     try {
@@ -1485,13 +1513,74 @@ export default function DashboardScreen() {
                 </View>
               ))}
 
-              <View style={{ marginTop: 12, padding: 10, borderRadius: 12, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.25)' }}>
-                <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '700' }}>
-                  💡 Telefon Ana Ekran Widget&apos;ı (Android 4x2)
+              <View style={{ marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)' }}>
+                <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800', marginBottom: 4 }}>
+                  📌 Telefon Ana Ekranına Widget Ekle (4 Boyut Seçeneği)
                 </Text>
-                <Text style={{ color: '#D1D5DB', fontSize: 10.5, marginTop: 2, lineHeight: 15 }}>
-                  Telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden 3 farklı ana ekran widget&apos;ını ekleyebilirsiniz. Doğum tarihinizi kaydettiğinizde ana ekran widget&apos;ınız anında kişisel özetinize dönüşür.
+                <Text style={{ color: '#D1D5DB', fontSize: 10.5, lineHeight: 15, marginBottom: 10 }}>
+                  Aşağıdaki butonlara dokunarak veya telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden istediğiniz boyuttaki widget&apos;ı ekleyebilirsiniz:
                 </Text>
+
+                {[
+                  {
+                    type: 'mini' as const,
+                    badge: '2x1 DAR BOY (YENİ)',
+                    title: '🪐 Mini Kozmik Saat & Semboller',
+                    desc: 'Dar alanlar için aktif Gezegen Saati, kalan dakika, Ay fazı (%) ve Çakra Hz sembolleri.',
+                  },
+                  {
+                    type: 'cosmic' as const,
+                    badge: '4x2 TAM BOY',
+                    title: '🧭 Kozmik Pusula (Hepsi Bir Arada)',
+                    desc: 'Gezegen saati, canlı Ay fazı, Beden/Ruh haritası sentezi ve günlük rehberlik.',
+                  },
+                  {
+                    type: 'planetary' as const,
+                    badge: '4x2 ORTA BOY',
+                    title: '⏳ Canlı Gezegen Saatleri Akışı',
+                    desc: 'Aktif gezegen saati anlamı ve sıradaki 3 gezegen saati çizelgesi.',
+                  },
+                  {
+                    type: 'chakra' as const,
+                    badge: '4x2 ORTA BOY',
+                    title: '🌙 Günün Çakrası & Ay Fazı',
+                    desc: 'Günün çakra frekansı (Hz), olumlaması ve canlı Ay fazı aydınlanma oranı.',
+                  },
+                ].map((w) => (
+                  <View
+                    key={w.type}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      backgroundColor: 'rgba(0,0,0,0.45)',
+                      borderRadius: 10,
+                      padding: 10,
+                      marginBottom: 8,
+                      borderWidth: 1,
+                      borderColor: w.type === 'mini' ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    <View style={{ flex: 1, paddingRight: 10 }}>
+                      <Text style={{ color: '#D4AF37', fontSize: 9, fontWeight: '800' }}>{w.badge}</Text>
+                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', marginTop: 1 }}>{w.title}</Text>
+                      <Text style={{ color: '#9CA3AF', fontSize: 10, marginTop: 2, lineHeight: 13.5 }}>{w.desc}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handlePinHomeWidget(w.type, w.title)}
+                      style={{
+                        backgroundColor: '#D4AF37',
+                        paddingHorizontal: 11,
+                        paddingVertical: 8,
+                        borderRadius: 9,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ color: '#000000', fontSize: 10.5, fontWeight: '800' }}>+ Ekle</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
               </View>
             </ScrollView>
           </View>
