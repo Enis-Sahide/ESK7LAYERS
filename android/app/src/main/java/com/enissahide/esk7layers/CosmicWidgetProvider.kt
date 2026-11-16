@@ -606,7 +606,7 @@ class SchumannWidgetProvider : AppWidgetProvider() {
             val ids = mgr.getAppWidgetIds(ComponentName(context, SchumannWidgetProvider::class.java))
             if (ids.isNotEmpty()) {
                 val pendingResult = goAsync()
-                refreshSchumannWidgets(context.applicationContext, mgr, ids, pendingResult)
+                refreshSchumannWidgets(context.applicationContext, mgr, ids, pendingResult, intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS)
             }
         }
     }
@@ -618,7 +618,7 @@ class SchumannWidgetProvider : AppWidgetProvider() {
     ) {
         if (appWidgetIds.isNotEmpty()) {
             val pendingResult = goAsync()
-            refreshSchumannWidgets(context.applicationContext, appWidgetManager, appWidgetIds, pendingResult)
+            refreshSchumannWidgets(context.applicationContext, appWidgetManager, appWidgetIds, pendingResult, false)
         }
     }
 
