@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/cosmic_widget_bg"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:padding="10dp">
 
     <!-- Top Header Row -->
     <LinearLayout
@@ -16,13 +16,13 @@
 
         <TextView
             android:id="@+id/widget_symbol"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:background="@drawable/cosmic_pill_bg"
             android:gravity="center"
             android:text="♂"
             android:textColor="#FFD700"
-            android:textSize="17sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -36,6 +36,8 @@
                 android:id="@+id/widget_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:text="7LAYERS • KOZMİK PUSULA"
                 android:textColor="#D4AF37"
                 android:textSize="9sp"
@@ -49,126 +51,109 @@
                 android:maxLines="1"
                 android:text="Salı • Mars Günü • Kök Çakra (396 Hz)"
                 android:textColor="#FFFFFF"
-                android:textSize="12.5sp"
+                android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/widget_refresh_btn"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center"
             android:text="↻"
             android:textColor="#FDE68A"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Middle 2-Column Split (Planetary Hour + Moon Phase) -->
+    <!-- Compact Middle 2-Column Split (Planetary Hour + Moon Phase) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="7dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <!-- Left Card: Active Planetary Hour -->
+        <!-- Left Card: Active Planetary Hour (Compact 2-line) -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="4dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="3dp"
             android:layout_weight="1"
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingHorizontal="9dp"
-            android:paddingVertical="6dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🪐 GEZEGEN SAATİ"
-                android:textColor="#FDE68A"
-                android:textSize="8.5sp"
-                android:textStyle="bold" />
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
 
             <TextView
                 android:id="@+id/widget_hour_pill"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Venüs ♀ (34 dk kaldı)"
-                android:textColor="#FFFFFF"
-                android:textSize="11.5sp"
+                android:singleLine="true"
+                android:text="🪐 Venüs ♀ (34 dk)"
+                android:textColor="#FDE68A"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/widget_next_hour"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:ellipsize="end"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:text="Sıradaki: Merkür ☿"
                 android:textColor="#9CA3AF"
                 android:textSize="9.5sp" />
         </LinearLayout>
 
-        <!-- Right Card: Live Moon Phase -->
+        <!-- Right Card: Live Moon Phase (Compact 2-line) -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="4dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
             android:layout_weight="1"
             android:background="@drawable/cosmic_inner_card_bg"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingHorizontal="9dp"
-            android:paddingVertical="6dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🌙 CANLI AY FAZI"
-                android:textColor="#7DD3FC"
-                android:textSize="8.5sp"
-                android:textStyle="bold" />
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
 
             <TextView
                 android:id="@+id/widget_moon_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
                 android:ellipsize="end"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:text="🌖 Küçülen Ay (%68)"
-                android:textColor="#FFFFFF"
-                android:textSize="11.5sp"
+                android:textColor="#7DD3FC"
+                android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/widget_moon_sub"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:ellipsize="end"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:text="İçgörü ve şükür evresi"
                 android:textColor="#9CA3AF"
                 android:textSize="9.5sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Bottom Guidance Strip -->
+    <!-- Expanded Bottom Guidance Card (Takes Remaining Space) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="5dp"
+        android:layout_weight="1"
         android:background="@drawable/cosmic_inner_card_bg"
+        android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingHorizontal="9dp"
         android:paddingVertical="5dp">
@@ -178,23 +163,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:lineSpacingExtra="1dp"
-            android:maxLines="2"
+            android:lineSpacingExtra="1.5dp"
+            android:maxLines="3"
             android:text="✓ Önerilen: Cesaret, fiziksel hareket ve yeni başlangıç adımları"
             android:textColor="#34D399"
-            android:textSize="9.5sp"
+            android:textSize="10.5sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/widget_avoid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
             android:ellipsize="end"
-            android:lineSpacingExtra="1dp"
-            android:maxLines="2"
+            android:lineSpacingExtra="1.5dp"
+            android:maxLines="3"
             android:text="✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar"
             android:textColor="#F87171"
-            android:textSize="9sp" />
+            android:textSize="10sp"
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

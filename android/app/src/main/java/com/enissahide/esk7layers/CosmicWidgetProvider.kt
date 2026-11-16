@@ -510,7 +510,7 @@ class CosmicWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_title, dayInfo.headerTitle)
             views.setTextViewText(
                 R.id.widget_hour_pill,
-                "${CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx]} ($minsLeft dk)"
+                "🪐 ${CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx]} ($minsLeft dk)"
             )
             views.setTextViewText(
                 R.id.widget_next_hour,
