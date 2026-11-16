@@ -22,7 +22,10 @@ assets/images/yoga
 assets/images/mudras
 assets/images/runes
 assets/audio
-android
+android/.gradle
+android/build
+android/app/build
+android/local.properties
 ios
 *.apk
 *.aab
