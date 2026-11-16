@@ -7,9 +7,11 @@ import { HumanDesignChart, CenterCode, PLANET_SYMBOLS, CHANNELS } from '@/src/fe
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import moment from 'moment-timezone';
+// @ts-ignore
 import tzlookup from 'tz-lookup';
 import { useContent } from '@/src/core/content/useContent';
-
+import WebLockedAnalysisCard from '@/components/WebLockedAnalysisCard';
+import { useAnalysisAccess } from '@/src/hooks/useAnalysisAccess';
 import { API_BASE_URL } from '@/src/core/config';
 
 const COLORS = {
@@ -31,6 +33,57 @@ const CENTER_COORDS: Record<CenterCode, { x: number, y: number, shape: string, c
   Root: { x: 200, y: 480, shape: 'square', color: '#D2B48C', s: 25 },
   Spleen: { x: 90, y: 390, shape: 'triangle-right', color: '#D2B48C', s: 30 },
   SolarPlexus: { x: 310, y: 390, shape: 'triangle-left', color: '#D2B48C', s: 30 },
+};
+
+const CENTER_NAMES: Record<CenterCode, string> = {
+  Head: "Tepe (Taç) Merkezi",
+  Ajna: "Zihin (Ajna) Merkezi",
+  Throat: "Boğaz Merkezi",
+  G: "Benlik (G) Merkezi",
+  Heart: "Yürek (Ego/Kalp) Merkezi",
+  Sacral: "Sakral Merkez",
+  Root: "Kök Merkez",
+  Spleen: "Dalak Merkezi",
+  SolarPlexus: "Duygusal Solar Plexus Merkezi",
+};
+
+const CENTER_DESCRIPTIONS: Record<CenterCode, { defined: string; undefined: string }> = {
+  Head: {
+    defined: "İlham ve fikirlerin sabit bir kaynaktan aktığı anlamına gelir. Düşünceleriniz üzerinde derin bir odaklanma ve zihinsel baskı hissedebilirsiniz. Kendi ilham kaynağınız kendi içinizdedir.",
+    undefined: "Zihniniz dışarıdan gelen her türlü fikre ve ilhama açıktır. Başkalarının sorularını çözmekle uğraşabilir veya kendi üzerinizde gereksiz zihinsel baskı hissedebilirsiniz. Kendi düşüncelerinizi filtrelemeyi öğrenmek bilgeliğinizdir.",
+  },
+  Ajna: {
+    defined: "Bilgiyi işleme, analiz etme ve yapılandırma şekliniz sabittir. Görüşlerinize ve fikirlerinize sıkı sıkıya bağlı olabilirsiniz. Kararlı ve tutarlı bir düşünce sistemine sahipsinizdir.",
+    undefined: "Sabit bir düşünme kalıbınız yoktur. Olaylara çok farklı açılardan bakabilirsiniz. Fikirlerinize tutunup insanları ikna etmeye çalışmaktan kaçındığınızda zihinsel bir deha ve bilgelik kazanırsınız.",
+  },
+  Throat: {
+    defined: "Kendinizi ifade etme, konuşma ve eyleme geçme tarzınız sabittir. Ses tonunuz ve iletişim şekliniz tutarlıdır. Kendi özgün sesinize sahipsiniz.",
+    undefined: "İfade ve iletişiminiz çevrenizdeki insanlara göre şekillenir. Bazen dikkat çekmek için gereksizce konuşabilirsiniz. Sessiz kalıp davet edilmeyi beklediğinizde sözleriniz büyük bir etki ve bilgelik taşır.",
+  },
+  G: {
+    defined: "Kimliğiniz, hayat yönünüz ve sevgi anlayışınız sabittir. Nereye gittiğinizi ve kim olduğunuzu içsel olarak bilirsiniz. İçsel pusulanız son derece güçlüdür.",
+    undefined: "Sabit bir yön veya kimlik arayışınız yoktur. Birlikte olduğunuz insanlara göre kimliğiniz ve yönünüz şekillenir. Doğru ortamlarda bulunmak yönünüzü ve sevginizi bulmanızı sağlar.",
+  },
+  Heart: {
+    defined: "İrade gücünüz, özgüveniniz ve taahhüt verme kapasiteniz sabittir. Verdiğiniz sözleri tutmakta kararlısınızdır. İradenize güvenebilirsiniz.",
+    undefined: "İrade gücünüz ve özdeğeriniz değişkendir. Başkalarına kendi değerinizi kanıtlamaya çalışabilirsiniz. Kimseye söz vermek veya bir şey kanıtlamak zorunda olmadığınızı anlamak en büyük özgürlüğünüzdir.",
+  },
+  Sacral: {
+    defined: "Sürdürülebilir bir yaşam enerjisine, iş gücüne ve üreme enerjisine sahipsiniz. Çalışmaktan ve üretmekten haz alırsınız. Büyük bir yaşam gücü motoruna sahipsiniz.",
+    undefined: "Kendi enerjiniz sınırlıdır ve çabuk yorulabilirsiniz. Başkalarının enerjisini emip aşırı koşturabilir ve ne zaman durmanız gerektiğini bilemeyebilirsiniz. Dinlenmeyi öğrenmek ve hayata yanıt vermek sağlığınızın anahtarıdır.",
+  },
+  Root: {
+    defined: "Stres ve adrenalin baskısıyla başa çıkma şekliniz sabittir. Baskı altında soğukkanlılıkla çalışabilirsiniz. Doğal bir baskı yönetim sisteminiz vardır.",
+    undefined: "Dışarıdan gelen stres ve baskıyı çok yoğun hissedersiniz. Bu baskıdan kurtulmak için aceleyle hareket edebilirsiniz. Stresin size ait olmadığını fark edip, hayatın doğal hızına teslim olmayı öğrenmelisiniz.",
+  },
+  Spleen: {
+    defined: "Güçlü bir bağışıklık sistemine, anlık sezgilere ve hayatta kalma içgüdüsüne sahipsiniz. Fiziksel olarak kendinizi güvende hissedersiniz. Güçlü bir sağlık korumanız vardır.",
+    undefined: "Çevrenizdeki insanların sağlık ve güvenlik enerjilerini emersiniz. Size iyi gelmeyen ilişki veya alışkanlıklara (sırf güvende hissetmek için) tutunabilirsiniz. Korkularınızla yüzleşip, tutunmayı bırakmak bilgeliğinizdir.",
+  },
+  SolarPlexus: {
+    defined: "Kendi duygusal dalgalanmalarınız (inişler-çıkışlar) vardır. Kararlarınızı duygusal netliğe ulaştıktan sonra almalısınız. Duygusal derinliğiniz çok fazladır.",
+    undefined: "Çevrenizdeki insanların tüm duygularını (öfke, üzüntü vb.) sünger gibi emip büyütürsünüz. Tartışmalardan ve çatışmalardan kaçınmak için kendinizi bastırabilirsiniz. Duyguların size ait olmadığını fark edip nötr kalmayı öğrenmelisiniz.",
+  },
 };
 
 const GATE_COORDS: Record<number, { x: number, y: number }> = {
@@ -152,7 +205,7 @@ const HD_DETAILS_MAP: Record<string, { subtitle: string; description: string }> 
   },
   "Bilgilendirmek": {
     subtitle: "Strateji",
-    description: "Manifestörler için geçerli stratejidir. Büyük bir eylem başlatmadan veya karar almadan önce, bu durumdan etkilenecek kişileri önceden bilgilendirmelisiniz. Bu, etrafınızdaki direnç dirençlerini yıkar ve önünüzü açar."
+    description: "Manifestörler için geçerli stratejidir. Büyük bir eylem başlatmadan veya karar almadan önce, bu durumdan etkilenecek kişileri önceden bilgilendirmelisiniz. Bu, etrafınızdaki direnç duvarlarını yıkar ve önünüzü açar."
   },
   "28 Gün Beklemek": {
     subtitle: "Strateji",
@@ -577,7 +630,8 @@ export default function HumanDesignScreen() {
   const drawCenters = () => {
     if (!chart) return null;
     return Object.entries(CENTER_COORDS).map(([center, def]) => {
-      const isDefined = chart.definedCenters.includes(center as CenterCode);
+      const cCode = center as CenterCode;
+      const isDefined = chart.definedCenters.includes(cCode);
       const fill = isDefined ? def.color : '#FFFFFF';
       const stroke = isDefined ? 'none' : '#94A3B8';
       const s = def.s;
@@ -601,7 +655,19 @@ export default function HumanDesignScreen() {
       };
 
       return (
-        <G key={center}>
+        <G
+          key={center}
+          onPress={() => {
+            setActiveGateId(null);
+            const cName = CENTER_NAMES[cCode] || center;
+            const cDesc = CENTER_DESCRIPTIONS[cCode];
+            setActiveDetail({
+              title: cName,
+              subtitle: isDefined ? 'Tanımlı (Sabit Enerji Merkezi)' : 'Tanımsız / Açık Merkez (Alıcı & Bilgelik Alanı)',
+              description: isDefined ? (cDesc?.defined || '') : (cDesc?.undefined || ''),
+            });
+          }}
+        >
           {drawShape()}
         </G>
       );
@@ -820,7 +886,7 @@ export default function HumanDesignScreen() {
                   </View>
                 </View>
                 <Text style={{ color: '#9CA3AF', fontSize: 8.5, fontStyle: 'italic', marginTop: 5, textAlign: 'center' }}>
-                  * İşaretsiz kapılar nötr ve dengelidir; özel fiksasyona tabi değildir.
+                  * İşaretsiz kapılar nötr ve dengelidir; şemadaki merkezlere ve kapı numaralarına dokunarak detayları inceleyebilirsiniz.
                 </Text>
               </View>
 
@@ -922,7 +988,8 @@ export default function HumanDesignScreen() {
                 >
                   <Text style={styles.textLabel}>Enkarnasyon Haçı:</Text>
                   <Text style={styles.textValue}>{chart.incarnationCross}</Text>
-                </TouchableOpacity>  </BlurView>
+                </TouchableOpacity>
+              </BlurView>
             </View>
           )}
         </ScrollView>
@@ -962,7 +1029,7 @@ export default function HumanDesignScreen() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Modal for Card Details (Type, Authority, Strategy, Signature, etc.) */}
+      {/* Modal for Card Details (Type, Authority, Strategy, Signature, Center, etc.) */}
       <Modal visible={!!activeDetail} animationType="slide" transparent={true} onRequestClose={() => setActiveDetail(null)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setActiveDetail(null)}>
           <View style={styles.gateModalContent}>

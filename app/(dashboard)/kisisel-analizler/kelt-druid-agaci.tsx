@@ -575,7 +575,7 @@ export default function KeltDruidAgaciScreen() {
                     style={styles.applyTreeButton}
                     onPress={() => {
                       const firstPeriod = selectedModalTree.periods[0];
-                      const analysis = getDruidTreeAnalysis(firstPeriod.startDay, firstPeriod.startMonth);
+                      const analysis: DruidTreeAnalysis = { tree: selectedModalTree, matchedPeriod: firstPeriod, formattedDate: ${firstPeriod?.startDay || 1}  };
                       setSelectedDay(firstPeriod.startDay);
                       setSelectedMonth(firstPeriod.startMonth);
                       setAnalyzedData(analysis);
