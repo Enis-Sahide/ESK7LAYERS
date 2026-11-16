@@ -1,6 +1,8 @@
 package com.enissahide.esk7layers
 
+import android.app.AlarmManager
 import android.app.PendingIntent
+import android.os.PowerManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
@@ -25,6 +27,7 @@ import kotlin.math.roundToInt
 
 object CosmicWidgetHelper {
     const val ACTION_REFRESH_WIDGETS = "com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS"
+    const val ACTION_MINUTE_TICK = "com.enissahide.esk7layers.ACTION_MINUTE_TICK"
     const val PREFS_NAME = "CosmicWidgetPrefs"
 
     val CHALDEAN_ORDER = arrayOf(
@@ -376,6 +379,61 @@ object CosmicWidgetHelper {
             action == Intent.ACTION_DATE_CHANGED
     }
 
+    fun scheduleNextMinuteTick(context: Context) {
+        try {
+            val appCtx = context.applicationContext
+            val mgr = AppWidgetManager.getInstance(appCtx)
+            val hasTimeWidgets =
+                mgr.getAppWidgetIds(ComponentName(appCtx, MiniCosmicWidgetProvider::class.java)).isNotEmpty() ||
+                mgr.getAppWidgetIds(ComponentName(appCtx, CosmicWidgetProvider::class.java)).isNotEmpty() ||
+                mgr.getAppWidgetIds(ComponentName(appCtx, PlanetaryHoursWidgetProvider::class.java)).isNotEmpty()
+
+            val tickIntent = Intent(appCtx, CosmicWidgetProvider::class.java).apply {
+                action = ACTION_MINUTE_TICK
+            }
+            val pendingIntent = PendingIntent.getBroadcast(
+                appCtx,
+                7771,
+                tickIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            val alarmManager = appCtx.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+
+            if (!hasTimeWidgets) {
+                alarmManager.cancel(pendingIntent)
+                return
+            }
+
+            val now = System.currentTimeMillis()
+            val nextMinuteMillis = (now / 60_000L + 1L) * 60_000L + 500L
+            // AlarmManager.RTC does NOT wake the device when screen is off (0 battery drain while sleeping)
+            alarmManager.setWindow(
+                AlarmManager.RTC,
+                nextMinuteMillis,
+                5_000L,
+                pendingIntent
+            )
+        } catch (_: Exception) {
+        }
+    }
+
+    fun refreshTimeWidgetsOnly(context: Context) {
+        val mgr = AppWidgetManager.getInstance(context)
+        val miniIds = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
+        if (miniIds.isNotEmpty()) {
+            MiniCosmicWidgetProvider().onUpdate(context, mgr, miniIds)
+        }
+        val cosmicIds = mgr.getAppWidgetIds(ComponentName(context, CosmicWidgetProvider::class.java))
+        for (id in cosmicIds) {
+            CosmicWidgetProvider.updateCosmicWidget(context, mgr, id)
+        }
+        val phIds = mgr.getAppWidgetIds(ComponentName(context, PlanetaryHoursWidgetProvider::class.java))
+        if (phIds.isNotEmpty()) {
+            PlanetaryHoursWidgetProvider().onUpdate(context, mgr, phIds)
+        }
+        scheduleNextMinuteTick(context)
+    }
+
     fun refreshAllWidgets(context: Context) {
         val mgr = AppWidgetManager.getInstance(context)
         val miniIds = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
@@ -394,6 +452,11 @@ object CosmicWidgetHelper {
         if (cmIds.isNotEmpty()) {
             ChakraMoonWidgetProvider().onUpdate(context, mgr, cmIds)
         }
+        val schIds = mgr.getAppWidgetIds(ComponentName(context, SchumannWidgetProvider::class.java))
+        if (schIds.isNotEmpty()) {
+            SchumannWidgetProvider.refreshSchumannWidgets(context.applicationContext, mgr, schIds, null, false)
+        }
+        scheduleNextMinuteTick(context)
     }
 }
 
@@ -401,6 +464,15 @@ class CosmicWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_MINUTE_TICK) {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            if (pm == null || pm.isInteractive) {
+                CosmicWidgetHelper.refreshTimeWidgetsOnly(context)
+            } else {
+                CosmicWidgetHelper.scheduleNextMinuteTick(context)
+            }
+            return
+        }
         if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, CosmicWidgetProvider::class.java))
@@ -416,6 +488,7 @@ class CosmicWidgetProvider : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             updateCosmicWidget(context, appWidgetManager, appWidgetId)
         }
+        CosmicWidgetHelper.scheduleNextMinuteTick(context)
     }
 
     companion object {
@@ -512,6 +585,7 @@ class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
+        CosmicWidgetHelper.scheduleNextMinuteTick(context)
     }
 }
 
@@ -594,6 +668,7 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
+        CosmicWidgetHelper.scheduleNextMinuteTick(context)
     }
 }
 
