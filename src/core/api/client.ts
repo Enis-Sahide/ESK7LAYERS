@@ -1,4 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { API_BASE_URL, getBackendUrl } from '../config';
 
 // Kendi JWT auth'umuz için token saklama + fetch wrapper.
@@ -171,6 +173,35 @@ export async function register(email: string, password: string, fullName?: strin
     notify();
   }
   return data;
+}
+
+export async function loginWithGoogle(): Promise<boolean> {
+  const baseUrl = getBackendUrl() || API_BASE_URL;
+  const redirectUrl = Linking.createURL('google-auth');
+  const authUrl = `${baseUrl}/api/auth/google?platform=mobile&mobile_redirect=${encodeURIComponent(redirectUrl)}`;
+
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUrl);
+  if (result.type !== 'success' || !result.url) {
+    return false;
+  }
+
+  const parsed = Linking.parse(result.url);
+  const q = parsed.queryParams || {};
+  const errParam = typeof q.auth_error === 'string' ? q.auth_error : null;
+  if (errParam) {
+    throw new Error(errParam);
+  }
+
+  const access = typeof q.accessToken === 'string' ? q.accessToken : null;
+  const refresh = typeof q.refreshToken === 'string' ? q.refreshToken : null;
+
+  if (!access || !refresh) {
+    throw new Error('Google oturum bilgileri alınamadı, lütfen tekrar deneyin.');
+  }
+
+  await setTokens(access, refresh);
+  notify();
+  return true;
 }
 
 export async function verifyEmail(email: string, code: string) {
