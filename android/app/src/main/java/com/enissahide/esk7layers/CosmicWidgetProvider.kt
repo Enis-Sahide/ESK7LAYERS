@@ -713,9 +713,26 @@ class SchumannWidgetProvider : AppWidgetProvider() {
             context: Context,
             appWidgetManager: AppWidgetManager,
             appWidgetIds: IntArray,
-            pendingResult: BroadcastReceiver.PendingResult? = null
+            pendingResult: BroadcastReceiver.PendingResult? = null,
+            forceNetwork: Boolean = false
         ) {
+            val cacheFile = File(context.filesDir, CACHE_FILENAME)
             val cachedBmp = loadCachedBitmap(context)
+            if (!forceNetwork && cachedBmp != null && cacheFile.exists()) {
+                val ageMs = System.currentTimeMillis() - cacheFile.lastModified()
+                if (ageMs in 0..180_000L) {
+                    val cachedTimeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(cacheFile.lastModified()))
+                    pushViews(
+                        context,
+                        appWidgetManager,
+                        appWidgetIds,
+                        cachedBmp,
+                        "Canlı Tomsk Spektrogramı (0-40 Hz) • Son: " + cachedTimeStr
+                    )
+                    try { pendingResult?.finish() } catch (_: Exception) {}
+                    return
+                }
+            }
             if (cachedBmp != null) {
                 pushViews(
                     context,
