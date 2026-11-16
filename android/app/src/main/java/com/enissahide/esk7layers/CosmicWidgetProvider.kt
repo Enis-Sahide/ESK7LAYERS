@@ -367,6 +367,15 @@ object CosmicWidgetHelper {
         )
     }
 
+    fun shouldTriggerImmediateRefresh(action: String?): Boolean {
+        return action == ACTION_REFRESH_WIDGETS ||
+            action == Intent.ACTION_BOOT_COMPLETED ||
+            action == Intent.ACTION_MY_PACKAGE_REPLACED ||
+            action == Intent.ACTION_TIME_CHANGED ||
+            action == Intent.ACTION_TIMEZONE_CHANGED ||
+            action == Intent.ACTION_DATE_CHANGED
+    }
+
     fun refreshAllWidgets(context: Context) {
         val mgr = AppWidgetManager.getInstance(context)
         val miniIds = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
@@ -392,7 +401,7 @@ class CosmicWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, CosmicWidgetProvider::class.java))
             onUpdate(context, mgr, ids)
@@ -460,7 +469,7 @@ class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, PlanetaryHoursWidgetProvider::class.java))
             onUpdate(context, mgr, ids)
@@ -510,7 +519,7 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
             onUpdate(context, mgr, ids)
@@ -551,7 +560,7 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, MiniCosmicWidgetProvider::class.java))
             onUpdate(context, mgr, ids)
@@ -592,7 +601,7 @@ class SchumannWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_REFRESH_WIDGETS) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, SchumannWidgetProvider::class.java))
             if (ids.isNotEmpty()) {
