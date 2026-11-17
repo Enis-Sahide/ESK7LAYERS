@@ -6,7 +6,7 @@
     android:minHeight="90dp"
     android:minResizeWidth="140dp"
     android:minResizeHeight="80dp"
-    android:previewImage="@mipmap/ic_launcher"
+    android:previewImage="@drawable/preview_widget_schumann"
     android:previewLayout="@layout/schumann_widget"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"

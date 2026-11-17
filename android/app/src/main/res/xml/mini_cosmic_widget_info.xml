@@ -6,7 +6,7 @@
     android:minHeight="48dp"
     android:minResizeWidth="110dp"
     android:minResizeHeight="48dp"
-    android:previewImage="@mipmap/ic_launcher"
+    android:previewImage="@drawable/preview_widget_mini"
     android:previewLayout="@layout/mini_cosmic_widget"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="2"

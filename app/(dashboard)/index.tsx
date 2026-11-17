@@ -1550,64 +1550,180 @@ export default function DashboardScreen() {
                   Aşağıdaki butonlara dokunarak veya telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden istediğiniz boyuttaki widget&apos;ı ekleyebilirsiniz:
                 </Text>
 
-                {[
+                                {[
                   {
                     type: 'mini' as const,
-                    badge: '2x1 DAR BOY (YENİ)',
-                    title: '🪐 Mini Kozmik Saat & Semboller',
-                    desc: 'Dar alanlar için aktif Gezegen Saati, kalan dakika, Ay fazı (%) ve Çakra Hz sembolleri.',
+                    badge: '1. SEÇENEK • 2x1 DAR BOY',
+                    title: '🪐 Mini Kozmik Saat',
+                    desc: 'Dar alanlar için aktif Gezegen Saati, kalan dakika, önceki ve sıradaki gezegen saati.',
+                  },
+                  {
+                    type: 'schumann' as const,
+                    badge: '2. SEÇENEK • 4x2 CANLI GRAFİK',
+                    title: '⚡ Canlı Schumann Spektrogramı',
+                    desc: 'Dünya’nın anlık elektromanyetik kalp atışı (7.83 Hz Tomsk 0-40 Hz) canlı grafik ekranı.',
                   },
                   {
                     type: 'cosmic' as const,
-                    badge: '4x2 TAM BOY',
+                    badge: '3. SEÇENEK • 4x2 TAM BOY',
                     title: '🧭 Kozmik Pusula (Hepsi Bir Arada)',
-                    desc: 'Gezegen saati, canlı Ay fazı, Beden/Ruh haritası sentezi ve günlük rehberlik.',
+                    desc: 'Gezegen saati, canlı Ay fazı, Beden/Ruh haritası sentezi ve gölge uyarısı.',
                   },
                   {
                     type: 'planetary' as const,
-                    badge: '4x2 ORTA BOY',
+                    badge: '4. SEÇENEK • 4x2 ORTA BOY',
                     title: '⏳ Canlı Gezegen Saatleri Akışı',
-                    desc: 'Aktif gezegen saati anlamı ve sıradaki 3 gezegen saati çizelgesi.',
+                    desc: 'Aktif gezegen saati anlamı ve sıradaki 3 gezegen saatinin gerçek geçiş vakitleri.',
                   },
                   {
                     type: 'chakra' as const,
-                    badge: '4x2 ORTA BOY',
+                    badge: '5. SEÇENEK • 4x2 ORTA BOY',
                     title: '🌙 Günün Çakrası & Ay Fazı',
-                    desc: 'Günün çakra frekansı (Hz), olumlaması ve canlı Ay fazı aydınlanma oranı.',
+                    desc: 'Günün çakra frekansı (Hz), olumlaması, canlı Ay fazı ve Frekans Odası kısayolu.',
                   },
                 ].map((w) => (
                   <View
                     key={w.type}
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      backgroundColor: 'rgba(0,0,0,0.45)',
-                      borderRadius: 10,
+                      backgroundColor: 'rgba(0,0,0,0.48)',
+                      borderRadius: 12,
                       padding: 10,
-                      marginBottom: 8,
+                      marginBottom: 10,
                       borderWidth: 1,
-                      borderColor: w.type === 'mini' ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.08)',
+                      borderColor: w.type === 'mini' || w.type === 'schumann' ? 'rgba(212,175,55,0.45)' : 'rgba(255,255,255,0.1)',
                     }}
                   >
-                    <View style={{ flex: 1, paddingRight: 10 }}>
-                      <Text style={{ color: '#D4AF37', fontSize: 9, fontWeight: '800' }}>{w.badge}</Text>
-                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700', marginTop: 1 }}>{w.title}</Text>
-                      <Text style={{ color: '#9CA3AF', fontSize: 10, marginTop: 2, lineHeight: 13.5 }}>{w.desc}</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <View style={{ flex: 1, paddingRight: 10 }}>
+                        <Text style={{ color: '#D4AF37', fontSize: 9, fontWeight: '800' }}>{w.badge}</Text>
+                        <Text style={{ color: '#FFFFFF', fontSize: 12.5, fontWeight: '800', marginTop: 1 }}>{w.title}</Text>
+                        <Text style={{ color: '#9CA3AF', fontSize: 10, marginTop: 2, lineHeight: 13.5 }}>{w.desc}</Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handlePinHomeWidget(w.type, w.title)}
+                        style={{
+                          backgroundColor: '#D4AF37',
+                          paddingHorizontal: 12,
+                          paddingVertical: 8,
+                          borderRadius: 9,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Text style={{ color: '#000000', fontSize: 10.5, fontWeight: '800' }}>+ Ekle</Text>
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      onPress={() => handlePinHomeWidget(w.type, w.title)}
+
+                    {/* Canlı Widget Görsel Önizlemesi */}
+                    <View
                       style={{
-                        backgroundColor: '#D4AF37',
-                        paddingHorizontal: 11,
-                        paddingVertical: 8,
-                        borderRadius: 9,
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        marginTop: 8,
+                        backgroundColor: '#0E0E1A',
+                        borderRadius: 10,
+                        padding: 8,
+                        borderWidth: 1,
+                        borderColor: 'rgba(212,175,55,0.28)',
                       }}
                     >
-                      <Text style={{ color: '#000000', fontSize: 10.5, fontWeight: '800' }}>+ Ekle</Text>
-                    </TouchableOpacity>
+                      {w.type === 'mini' && (
+                        <View style={{ gap: 4 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: 'rgba(212,175,55,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ color: '#FFD700', fontSize: 11, fontWeight: '800' }}>♀</Text>
+                              </View>
+                              <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '800' }}>Venüs</Text>
+                            </View>
+                            <View style={{ backgroundColor: 'rgba(212,175,55,0.2)', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1.5 }}>
+                              <Text style={{ color: '#FDE68A', fontSize: 9.5, fontWeight: '800' }}>24 dk</Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 3 }}>
+                            <Text style={{ color: '#9CA3AF', fontSize: 9, fontWeight: '700' }}>◀ Güneş ☉</Text>
+                            <Text style={{ color: '#FDE68A', fontSize: 9, fontWeight: '700' }}>Merkür ☿ ▶</Text>
+                          </View>
+                        </View>
+                      )}
+
+                      {w.type === 'schumann' && (
+                        <View style={{ gap: 4 }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Text style={{ color: '#D4AF37', fontSize: 8.5, fontWeight: '800' }}>⚡ SCHUMANN REZONANSI (7.83 HZ) • CANLI TOMSK</Text>
+                            <Text style={{ color: '#FDE68A', fontSize: 10, fontWeight: '800' }}>↻</Text>
+                          </View>
+                          <View style={{ height: 42, borderRadius: 7, backgroundColor: '#0A2547', overflow: 'hidden', justifyContent: 'space-evenly', paddingHorizontal: 8, borderWidth: 1, borderColor: 'rgba(56,189,248,0.3)' }}>
+                            <View style={{ height: 4, backgroundColor: 'rgba(34,197,94,0.65)', borderRadius: 2, width: '100%' }} />
+                            <View style={{ height: 5, backgroundColor: 'rgba(250,204,21,0.8)', borderRadius: 2, width: '78%' }} />
+                            <View style={{ height: 4, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2, width: '92%' }} />
+                          </View>
+                        </View>
+                      )}
+
+                      {w.type === 'cosmic' && (
+                        <View style={{ gap: 4 }}>
+                          <Text style={{ color: '#FDE68A', fontSize: 9.5, fontWeight: '800' }} numberOfLines={1}>
+                            ☯️ Beden → Ruh Sentezi • Kalp Çakrası (639 Hz)
+                          </Text>
+                          <View style={{ flexDirection: 'row', gap: 5 }}>
+                            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 4 }}>
+                              <Text style={{ color: '#FDE68A', fontSize: 9, fontWeight: '800' }}>🪐 Venüs ♀ (24 dk)</Text>
+                              <Text style={{ color: '#9CA3AF', fontSize: 8 }}>Sıradaki: Merkür ☿</Text>
+                            </View>
+                            <View style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 4 }}>
+                              <Text style={{ color: '#7DD3FC', fontSize: 9, fontWeight: '800' }}>🌓 İlk Dördün (%50)</Text>
+                              <Text style={{ color: '#9CA3AF', fontSize: 8 }}>İrade ve kararlılık fazı</Text>
+                            </View>
+                          </View>
+                          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 5 }}>
+                            <Text style={{ color: '#34D399', fontSize: 8.5, fontWeight: '700' }} numberOfLines={1}>
+                              ✓ Sentez: İlişkilerde ayna yasasını okuma, kalp dengesi
+                            </Text>
+                            <Text style={{ color: '#F87171', fontSize: 8.5, fontWeight: '700', marginTop: 1 }} numberOfLines={1}>
+                              ✗ Gölge Uyarısı: İkili ilişkilerde gerilim ve alınganlık
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+
+                      {w.type === 'planetary' && (
+                        <View style={{ gap: 4 }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '800' }}>♀ Venüs Saati Aktif</Text>
+                            <Text style={{ color: '#FDE68A', fontSize: 9, fontWeight: '800' }}>24 dk kaldı</Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', gap: 4 }}>
+                            {[
+                              { t: '10:09', p: 'Merkür ☿' },
+                              { t: '11:00', p: 'Ay ☽' },
+                              { t: '11:51', p: 'Satürn ♄' },
+                            ].map((s) => (
+                              <View key={s.t} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, paddingVertical: 3, alignItems: 'center' }}>
+                                <Text style={{ color: '#9CA3AF', fontSize: 7.5 }}>{s.t}</Text>
+                                <Text style={{ color: '#FDE68A', fontSize: 8.5, fontWeight: '800' }}>{s.p}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      )}
+
+                      {w.type === 'chakra' && (
+                        <View style={{ gap: 4 }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 9.5, fontWeight: '800' }}>4. Katman: Kalp Çakrası (639 Hz)</Text>
+                            <Text style={{ color: '#FDE68A', fontSize: 8.5, fontWeight: '800' }}>%50 Ay</Text>
+                          </View>
+                          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 5 }}>
+                            <Text style={{ color: '#E5E7EB', fontSize: 8.5, fontStyle: 'italic' }} numberOfLines={1}>
+                              &ldquo;Sevgi en yüksek frekanstır; kalbimi evrenin şefkatine açıyorum.&rdquo;
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={{ color: '#7DD3FC', fontSize: 8, fontWeight: '700' }}>🌓 İlk Dördün: İrade ve kararlılık</Text>
+                            <Text style={{ color: '#D4AF37', fontSize: 8, fontWeight: '800' }}>Frekans Odası →</Text>
+                          </View>
+                        </View>
+                      )}
+                    </View>
                   </View>
                 ))}
               </View>
