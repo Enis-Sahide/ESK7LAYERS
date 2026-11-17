@@ -155,11 +155,9 @@ export default function NumerolojiKisiselAnalizScreen() {
 
       const data = await response.json();
       
-      const dRed = reduceNumber(d);
-      const mRed = reduceNumber(m);
-      const yRed = reduceNumber(y);
-      const lifePathSum = dRed + mRed + yRed;
-      const lifePathRaw = `${lifePathSum}/${data.lifePath.number}`;
+      const sumDigits = (n: number) => String(Math.abs(n)).split('').reduce((a, b) => a + (parseInt(b, 10) || 0), 0);
+      const rawLpSum = sumDigits(d) + sumDigits(m) + sumDigits(y);
+      const lifePathRaw = data.lifePath?.lifePathRaw || `${rawLpSum}/${data.lifePath.number}`;
 
       setResults({
         lifePathRaw,

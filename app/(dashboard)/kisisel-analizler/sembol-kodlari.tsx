@@ -24,9 +24,9 @@ export default function SymbolCodesMobileScreen() {
   const params = useLocalSearchParams<{ name?: string; day?: string; month?: string; year?: string }>();
 
   const [fullName, setFullName] = useState(params.name || 'Bahadır');
-  const [day, setDay] = useState(params.day || '19');
-  const [month, setMonth] = useState(params.month || '08');
-  const [year, setYear] = useState(params.year || '1988');
+  const [day, setDay] = useState(params.day || '15');
+  const [month, setMonth] = useState(params.month || '05');
+  const [year, setYear] = useState(params.year || '1990');
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
   const [selectedCodeId, setSelectedCodeId] = useState<string>('karmic-debt');
@@ -35,7 +35,7 @@ export default function SymbolCodesMobileScreen() {
 
   const runAnalysis = (n: string, d: string, m: string, y: string) => {
     const cleanName = (n || 'Bahadır').trim();
-    const formattedDate = `${y || '1988'}-${String(m || '08').padStart(2, '0')}-${String(d || '19').padStart(2, '0')}`;
+    const formattedDate = `${y || '1990'}-${String(m || '05').padStart(2, '0')}-${String(d || '15').padStart(2, '0')}`;
     const computed = analyzePersonalSymbolCodes(cleanName, formattedDate);
     setResult(computed);
   };

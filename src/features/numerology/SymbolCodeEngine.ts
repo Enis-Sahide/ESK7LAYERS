@@ -45,6 +45,27 @@ export interface SynchronicitySignal {
 export interface SymbolCodeAnalysisResult {
   fullName: string;
   birthDate: string;
+  summaryMetrics: {
+    primaryKarmicCode: string;
+    detectedKarmicList: { code: string; source: string }[];
+    soulUrgeCode: number;
+    soulUrgeSingle: number;
+    personalityCode: number;
+    destinyCode: number;
+    auraProtectionCode: number;
+    missingChakras: number[];
+    dominantChakra: number;
+    birthDay: number;
+    birthDaySingle: number;
+    lifePathCode: number;
+    lifePathSingle: number;
+    birthPlanetName: string;
+    lifePathPlanetName: string;
+    maturityCode: number;
+    bridgeCode: number;
+    subconsciousSelfCode: number;
+    chaldeanCompoundNum: number;
+  };
   codes: PersonalSymbolCodeItem[];
   synchronicitySignals: SynchronicitySignal[];
   mapBalanceSummary: {
@@ -54,10 +75,23 @@ export interface SymbolCodeAnalysisResult {
   };
 }
 
+// Pisagor (Pythagorean) 1-9 Harf Değerleri
 const LETTER_VALUES: Record<string, number> = {
   A: 1, B: 2, C: 3, Ç: 3, D: 4, E: 5, F: 6, G: 7, Ğ: 7, H: 8, I: 9, İ: 9,
   J: 1, K: 2, L: 3, M: 4, N: 5, O: 6, Ö: 6, P: 7, Q: 8, R: 9, S: 1, Ş: 1,
   T: 2, U: 3, Ü: 3, V: 4, W: 5, X: 6, Y: 7, Z: 8
+};
+
+// Orijinal Kalde (Chaldean / Babil) 1-8 Harf Tablet Değerleri (9 sayısı kutsaldır, harflere atanmaz)
+const CHALDEAN_LETTER_VALUES: Record<string, number> = {
+  A: 1, I: 1, İ: 1, J: 1, Q: 1, Y: 1,
+  B: 2, K: 2, R: 2,
+  C: 3, Ç: 3, G: 3, Ğ: 3, L: 3, S: 3, Ş: 3,
+  D: 4, M: 4, T: 4,
+  E: 5, H: 5, N: 5, X: 5,
+  U: 6, Ü: 6, V: 6, W: 6,
+  O: 7, Ö: 7, Z: 7,
+  F: 8, P: 8
 };
 
 const VOWELS = new Set(['A', 'E', 'I', 'İ', 'O', 'Ö', 'U', 'Ü']);
@@ -823,10 +857,12 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   }
 
+  // 1. İsim hesaplamaları (Ruh Haritası - Briah)
   const chakraCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   let rawDestinySum = 0;
   let rawSoulUrgeSum = 0;
   let rawPersonalitySum = 0;
+  let rawChaldeanSum = 0;
 
   for (const ch of letters) {
     const val = LETTER_VALUES[ch] || 0;
@@ -839,6 +875,26 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     } else {
       rawPersonalitySum += val;
     }
+    rawChaldeanSum += CHALDEAN_LETTER_VALUES[ch] || 0;
+  }
+
+  // Kelime bazlı (Ad + Soyad ayrı ayrı indirgenerek) ara toplamlar
+  const nameWords = upperName
+    .split(/\s+/)
+    .map((w) => w.split('').filter((ch) => LETTER_VALUES[ch] !== undefined))
+    .filter((w) => w.length > 0);
+
+  let wordReducedDestinySum = 0;
+  let wordReducedSoulSum = 0;
+  let wordReducedPersonaSum = 0;
+
+  for (const wordChars of nameWords) {
+    const wDest = wordChars.reduce((acc, ch) => acc + (LETTER_VALUES[ch] || 0), 0);
+    const wSoul = wordChars.filter((ch) => VOWELS.has(ch)).reduce((acc, ch) => acc + (LETTER_VALUES[ch] || 0), 0);
+    const wPers = wordChars.filter((ch) => !VOWELS.has(ch)).reduce((acc, ch) => acc + (LETTER_VALUES[ch] || 0), 0);
+    wordReducedDestinySum += reduceToSingle(wDest, true);
+    wordReducedSoulSum += reduceToSingle(wSoul, true);
+    wordReducedPersonaSum += reduceToSingle(wPers, true);
   }
 
   const destinyCode = reduceToSingle(rawDestinySum, true);
@@ -846,6 +902,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   const soulUrgeSingle = reduceToSingle(rawSoulUrgeSum, false);
   const personalityCode = reduceToSingle(rawPersonalitySum, false);
 
+  // En baskın çakra (Gizli Tutku Kodu)
   let dominantChakra = 1;
   let maxCount = -1;
   chakraCounts.forEach((cnt, idx) => {
@@ -855,6 +912,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   });
 
+  // Eksik çakralar ve Aura Koruma Kodu
   const missingChakras: number[] = [];
   let minChakra = 1;
   let minCount = 999;
@@ -868,38 +926,53 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   const auraProtectionCode = missingChakras.length > 0 ? missingChakras[0] : minChakra;
   const subconsciousSelfCode = Math.max(1, 9 - missingChakras.length);
 
+  // 2. Doğum Tarihi hesaplamaları (Beden Haritası - Assiah)
   const birthDaySingle = reduceToSingle(day, false);
   const rawLifePathSum = sumDigits(day) + sumDigits(month) + sumDigits(year);
+  const threeCycleLifePathSum = reduceToSingle(day, true) + reduceToSingle(month, true) + reduceToSingle(year, true);
   const lifePathCode = reduceToSingle(rawLifePathSum, true);
   const lifePathSingle = reduceToSingle(rawLifePathSum, false);
 
+  // 3. Gerçek Pisagor Karmik Borç Taraması (13/4, 14/5, 16/7, 19/1)
+  // Yalnızca gerçek matematiksel ara toplamlarda (Doğum Günü, Yaşam Yolu, İsim Kader, Ruh Güdüsü, Persona) 13, 14, 16, 19 varsa tespit edilir.
   const detectedKarmicDebts: { code: string; source: string }[] = [];
-  const dayKarmic = checkKarmicFromSum(day);
-  if (dayKarmic) detectedKarmicDebts.push({ code: dayKarmic, source: `Doğum Günü (${day})` });
+  const addKarmicIfFound = (code: string | null, source: string) => {
+    if (code && !detectedKarmicDebts.some((d) => d.code === code)) {
+      detectedKarmicDebts.push({ code, source });
+    }
+  };
 
-  const lpKarmic = checkKarmicFromSum(rawLifePathSum) || checkKarmicFromSum(reduceToSingle(day) + reduceToSingle(month) + reduceToSingle(year));
-  if (lpKarmic && !detectedKarmicDebts.some((d) => d.code === lpKarmic)) {
-    detectedKarmicDebts.push({ code: lpKarmic, source: `Yaşam Yolu Toplamı (${rawLifePathSum})` });
+  // A) Doğum Günü (13, 14, 16, 19)
+  if (day === 13 || day === 14 || day === 16 || day === 19) {
+    addKarmicIfFound(checkKarmicFromSum(day), `Doğum Günü (${day})`);
   }
 
-  const soulKarmic = checkKarmicFromSum(rawSoulUrgeSum);
-  if (soulKarmic && !detectedKarmicDebts.some((d) => d.code === soulKarmic)) {
-    detectedKarmicDebts.push({ code: soulKarmic, source: `Ruh Güdüsü Sesli Harf Toplamı (${rawSoulUrgeSum})` });
+  // B) Yaşam Yolu (Rakam Toplamı veya 3 Döngü Toplamı)
+  addKarmicIfFound(checkKarmicFromSum(rawLifePathSum), `Yaşam Yolu Rakam Toplamı (${rawLifePathSum})`);
+  addKarmicIfFound(checkKarmicFromSum(threeCycleLifePathSum), `Yaşam Yolu G+A+Y Toplamı (${threeCycleLifePathSum})`);
+
+  // C) Ruh Güdüsü (Sesli Harf Ham Toplamı veya Kelime İndirgeme Toplamı)
+  addKarmicIfFound(checkKarmicFromSum(rawSoulUrgeSum), `Ruh Güdüsü Sesli Harf Toplamı (${rawSoulUrgeSum})`);
+  if (nameWords.length > 1) {
+    addKarmicIfFound(checkKarmicFromSum(wordReducedSoulSum), `Ruh Güdüsü Kelime Toplamı (${wordReducedSoulSum})`);
   }
 
-  const destKarmic = checkKarmicFromSum(rawDestinySum);
-  if (destKarmic && !detectedKarmicDebts.some((d) => d.code === destKarmic)) {
-    detectedKarmicDebts.push({ code: destKarmic, source: `İsim Kader Toplamı (${rawDestinySum})` });
+  // D) İsim Kader (Tüm Harf Ham Toplamı veya Kelime İndirgeme Toplamı)
+  addKarmicIfFound(checkKarmicFromSum(rawDestinySum), `İsim Kader Harf Toplamı (${rawDestinySum})`);
+  if (nameWords.length > 1) {
+    addKarmicIfFound(checkKarmicFromSum(wordReducedDestinySum), `İsim Kader Kelime Toplamı (${wordReducedDestinySum})`);
   }
 
-  const persKarmic = checkKarmicFromSum(rawPersonalitySum);
-  if (persKarmic && !detectedKarmicDebts.some((d) => d.code === persKarmic)) {
-    detectedKarmicDebts.push({ code: persKarmic, source: `Dışsal Persona Toplamı (${rawPersonalitySum})` });
+  // E) Dışsal Persona (Sessiz Harf Ham Toplamı veya Kelime İndirgeme Toplamı)
+  addKarmicIfFound(checkKarmicFromSum(rawPersonalitySum), `Dışsal Persona Sessiz Harf Toplamı (${rawPersonalitySum})`);
+  if (nameWords.length > 1) {
+    addKarmicIfFound(checkKarmicFromSum(wordReducedPersonaSum), `Dışsal Persona Kelime Toplamı (${wordReducedPersonaSum})`);
   }
 
   const primaryKarmicKey = detectedKarmicDebts.length > 0 ? detectedKarmicDebts[0].code : 'YOK';
   const karmicEntry = KARMIC_DEBT_LIBRARY[primaryKarmicKey] || KARMIC_DEBT_LIBRARY.YOK;
 
+  // 4. Sentez Kodları (Olgunluk, Köprü, Orijinal Kalde 1-8 Bileşik Arketipi)
   const maturityRaw = lifePathSingle + reduceToSingle(destinyCode, false);
   const maturityCode = reduceToSingle(maturityRaw, true);
   const maturitySingle = reduceToSingle(maturityRaw, false);
@@ -907,7 +980,14 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   const bridgeCode = Math.abs(lifePathSingle - reduceToSingle(destinyCode, false));
   const bridgeEntry = BRIDGE_CODE_LIBRARY[bridgeCode] || BRIDGE_CODE_LIBRARY[1];
 
-  const chaldeanCompoundNum = rawDestinySum >= 10 ? (rawDestinySum > 52 ? sumDigits(rawDestinySum) + 10 : rawDestinySum) : rawLifePathSum;
+  // Orijinal Kalde (Babil) 1-8 tablosuna göre iki basamaklı bileşik sayı (10-52 aralığına indirgenir)
+  let chaldeanCompoundNum = rawChaldeanSum >= 10 ? rawChaldeanSum : day >= 10 ? day : rawLifePathSum;
+  while (chaldeanCompoundNum > 52) {
+    chaldeanCompoundNum = sumDigits(chaldeanCompoundNum);
+  }
+  if (chaldeanCompoundNum < 10) {
+    chaldeanCompoundNum = rawLifePathSum >= 10 ? rawLifePathSum : chaldeanCompoundNum + 9;
+  }
   const chaldeanEntry = getChaldeanCompoundArchetype(chaldeanCompoundNum);
 
   const soulEntry = SOUL_URGE_LIBRARY[soulUrgeCode] || SOUL_URGE_LIBRARY[soulUrgeSingle] || SOUL_URGE_LIBRARY[1];
@@ -1238,7 +1318,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       color: '#F43F5E',
       archetypeTitle: chaldeanEntry.title,
       summary: chaldeanEntry.meaning,
-      calculationFormula: `Tek haneli sayı sadece dış kabuktur; isminizin/doğumunuzun sadeleşmeden önceki iki basamaklı bileşik toplamı (${chaldeanCompoundNum}) Kalde tabletlerindeki gizli kader sembolünüzü verir.`,
+      calculationFormula: `Orijinal Babil/Kalde 1–8 ses titreşim tablosuna göre isminizin bileşik toplamı ${rawChaldeanSum} (${chaldeanCompoundNum}/${reduceToSingle(chaldeanCompoundNum, false)}) olarak hesaplanmıştır.`,
       higherSelfTrigger: {
         clockCodes: [`${chaldeanCompoundNum}`, `${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}`],
         totemSymbol: chaldeanEntry.symbolName,
@@ -1314,6 +1394,27 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   return {
     fullName: cleanName,
     birthDate: `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`,
+    summaryMetrics: {
+      primaryKarmicCode: primaryKarmicKey === 'YOK' ? 'Yok' : primaryKarmicKey,
+      detectedKarmicList: detectedKarmicDebts,
+      soulUrgeCode,
+      soulUrgeSingle,
+      personalityCode,
+      destinyCode,
+      auraProtectionCode,
+      missingChakras,
+      dominantChakra,
+      birthDay: day,
+      birthDaySingle,
+      lifePathCode,
+      lifePathSingle,
+      birthPlanetName: planetEntry.planet.split(' ')[0],
+      lifePathPlanetName: lifePathPlanetEntry.planet.split(' ')[0],
+      maturityCode,
+      bridgeCode,
+      subconsciousSelfCode,
+      chaldeanCompoundNum
+    },
     codes,
     synchronicitySignals,
     mapBalanceSummary: {
