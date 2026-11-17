@@ -45,6 +45,7 @@ export interface SynchronicitySignal {
 export interface SymbolCodeAnalysisResult {
   fullName: string;
   birthDate: string;
+  birthTime?: string;
   summaryMetrics: {
     primaryKarmicCode: string;
     detectedKarmicList: { code: string; source: string }[];
@@ -65,6 +66,9 @@ export interface SymbolCodeAnalysisResult {
     bridgeCode: number;
     subconsciousSelfCode: number;
     chaldeanCompoundNum: number;
+    birthTimePortalCode?: string;
+    chaldeanHourPlanet?: string;
+    isDayBirth?: boolean;
   };
   codes: PersonalSymbolCodeItem[];
   synchronicitySignals: SynchronicitySignal[];
@@ -138,6 +142,41 @@ function getClockCodesForNumber(codeVal: number, singleVal: number): { list: str
   return {
     list: [`0${singleVal}:0${singleVal}`, `${singleVal}${singleVal}${singleVal}`],
     display: `0${singleVal}:0${singleVal} / ${singleVal}${singleVal}${singleVal}`
+  };
+}
+
+// Keldani (Chaldean) Gezegen Saatleri Dizilimi (Yavaştan Hızlıya: Satürn -> Jüpiter -> Mars -> Güneş -> Venüs -> Merkür -> Ay)
+const CHALDEAN_ORDER = ['Satürn', 'Jüpiter', 'Mars', 'Güneş', 'Venüs', 'Merkür', 'Ay'] as const;
+// Haftanın gün yöneticileri (0=Pazar: Güneş, 1=Pazartesi: Ay, 2=Salı: Mars, 3=Çarşamba: Merkür, 4=Perşembe: Jüpiter, 5=Cuma: Venüs, 6=Cumartesi: Satürn)
+const DAY_RULER_PLANET: Record<number, typeof CHALDEAN_ORDER[number]> = {
+  0: 'Güneş',
+  1: 'Ay',
+  2: 'Mars',
+  3: 'Merkür',
+  4: 'Jüpiter',
+  5: 'Venüs',
+  6: 'Satürn'
+};
+
+function calculateChaldeanBirthHourInfo(year: number, month: number, day: number, hour: number, minute: number) {
+  // Keldani sisteminde yeni gün doğumu (~06:00) ile başlar; 00:00-05:59 arası bir önceki günün gece saatleridir.
+  const birthDateObj = new Date(year, month - 1, day, hour, minute);
+  if (hour < 6) {
+    birthDateObj.setDate(birthDateObj.getDate() - 1);
+  }
+  const dayOfWeek = birthDateObj.getDay();
+  const dayRuler = DAY_RULER_PLANET[dayOfWeek] || 'Güneş';
+  const startIdx = CHALDEAN_ORDER.indexOf(dayRuler);
+  const hoursSinceSunrise = (hour - 6 + 24) % 24;
+  const hourPlanet = CHALDEAN_ORDER[(startIdx + hoursSinceSunrise) % 7];
+  const isDayBirth = hour >= 6 && hour < 18;
+  const hourNumberInHalf = (hoursSinceSunrise % 12) + 1;
+
+  return {
+    dayRuler,
+    hourPlanet,
+    isDayBirth,
+    sectLabel: isDayBirth ? `Gündüz Doğumu (${hourNumberInHalf}. Gündüz Saati — Diürnal / Güneş Sektörü)` : `Gece Doğumu (${hourNumberInHalf}. Gece Saati — Noktürnal / Ay Sektörü)`
   };
 }
 
@@ -1010,7 +1049,7 @@ const BRIDGE_CODE_LIBRARY: Record<
   }
 };
 
-export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput: string): SymbolCodeAnalysisResult {
+export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput: string, birthTimeInput?: string): SymbolCodeAnalysisResult {
   const cleanName = (fullNameInput || 'Misafir Ruh').trim();
   const upperName = cleanName.toLocaleUpperCase('tr-TR');
   const letters = upperName.split('').filter((ch) => LETTER_VALUES[ch] !== undefined);
@@ -1144,6 +1183,33 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   addKarmicIfFound(checkKarmicFromSum(rawPersonalitySum), `Dışsal Persona Sessiz Harf Toplamı (${rawPersonalitySum})`);
   if (nameWords.length > 1) {
     addKarmicIfFound(checkKarmicFromSum(wordReducedPersonaSum), `Dışsal Persona Kelime Toplamı (${wordReducedPersonaSum})`);
+  }
+
+  // F) Opsiyonel Doğum Saati (İlk Nefes Enkarnasyon Kapısı: SS:DD)
+  let parsedHour: number | null = null;
+  let parsedMinute: number | null = null;
+  let cleanBirthTime: string | undefined = undefined;
+  let rawTimeDigitsSum = 0;
+  let portalCode = 0;
+  let portalSingle = 0;
+  let chaldeanHourInfo: ReturnType<typeof calculateChaldeanBirthHourInfo> | null = null;
+
+  if (birthTimeInput && birthTimeInput.trim().includes(':')) {
+    const tParts = birthTimeInput.trim().split(':');
+    const h = parseInt(tParts[0], 10);
+    const m = parseInt(tParts[1], 10);
+    if (!isNaN(h) && !isNaN(m) && h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+      parsedHour = h;
+      parsedMinute = m;
+      cleanBirthTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      rawTimeDigitsSum = sumDigits(h) + sumDigits(m);
+      portalCode = reduceToSingle(rawTimeDigitsSum, true);
+      portalSingle = reduceToSingle(rawTimeDigitsSum, false);
+      chaldeanHourInfo = calculateChaldeanBirthHourInfo(year, month, day, h, m);
+
+      addKarmicIfFound(checkKarmicFromSum(rawTimeDigitsSum), `İlk Nefes Doğum Saati (${cleanBirthTime} → ${rawTimeDigitsSum})`);
+      addKarmicIfFound(checkKarmicFromSum(h + m), `Doğum Saati S+D Toplamı (${h + m})`);
+    }
   }
 
   const primaryKarmicKey = detectedKarmicDebts.length > 0 ? detectedKarmicDebts[0].code : 'YOK';
@@ -1515,6 +1581,45 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   ];
 
+  if (cleanBirthTime && chaldeanHourInfo) {
+    const portalSoulEntry = SOUL_URGE_LIBRARY[portalCode] || SOUL_URGE_LIBRARY[portalSingle] || SOUL_URGE_LIBRARY[1];
+    codes.push({
+      id: 'birth-time-portal',
+      title: 'İlk Nefes (Doğum Saati) Kapı Kodu',
+      shortTitle: 'İLK NEFES KAPISI',
+      codeValue: `${rawTimeDigitsSum}/${portalCode}`,
+      subLabel: `${cleanBirthTime} • Nöbetçi: ${chaldeanHourInfo.hourPlanet}`,
+      layer: 'body',
+      layerBadge: '2. Harita • İlk Nefes & Saat Kapısı',
+      color: '#14B8A6',
+      archetypeTitle: `Saat ${cleanBirthTime} Portalı (${rawTimeDigitsSum}/${portalCode}) — ${chaldeanHourInfo.hourPlanet} Nöbeti`,
+      summary: `Dünyaya ilk nefesinizi verdiğiniz ${cleanBirthTime} anı, Beden Haritanıza "${rawTimeDigitsSum}/${portalCode}" kapı şifresini ve Keldani gökyüzü nöbetçisi olarak "${chaldeanHourInfo.hourPlanet}" gezegenini mühürlemiştir.`,
+      calculationFormula: `Doğum Saati (${cleanBirthTime}) rakamları toplamı = ${rawTimeDigitsSum} → ${portalCode}. Keldani (Babil) Gezegen Saatleri tablosuna göre ${chaldeanHourInfo.dayRuler} gününün ${chaldeanHourInfo.sectLabel} içinde "${chaldeanHourInfo.hourPlanet}" saatinde doğdunuz.`,
+      higherSelfTrigger: {
+        clockCodes: [cleanBirthTime, ...getClockCodesForNumber(portalCode, portalSingle).list],
+        totemSymbol: `${chaldeanHourInfo.hourPlanet} Saat Muhafızı & ${portalSoulEntry.totem}`,
+        geometricSymbol: portalSoulEntry.geometry,
+        instantMessage: `Dijital saatlerde tam doğum saatin olan ${cleanBirthTime} veya ${getClockCodesForNumber(portalCode, portalSingle).display} gördüğünde Üst Benliğin sana sesleniyor: "Dünyaya ilk nefes aldığın anki ruh sözleşmeni hatırla; ${chaldeanHourInfo.hourPlanet} koruması altındasın!"`
+      },
+      sections: [
+        {
+          heading: '1. İlk Nefes Portalı (Enkarnasyon Giriş Şifresi)',
+          content: `Ruhunuz anne karnından çıkıp ilk nefesini ${cleanBirthTime} anında aldığında eterik bedeninize ${rawTimeDigitsSum}/${portalCode} (${portalSoulEntry.title}) frekansı kazındı. ${portalSoulEntry.summary}`
+        },
+        {
+          heading: '2. Keldani Nöbetçi Saat Gezegeni: ' + chaldeanHourInfo.hourPlanet,
+          content: `Doğum gününüz genel karakter gezegeninizi verirken, doğduğunuz dakika gökyüzünde nöbette olan "${chaldeanHourInfo.hourPlanet}" gezegeni sizin kriz anındaki gizli koruyucunuz ve zamanlama anahtarınızdır. Gün içinde ${chaldeanHourInfo.hourPlanet} saatleri sizin için ekstra şanslı kapılardır.`
+        },
+        {
+          heading: '3. Gece / Gündüz (Diürnal - Noktürnal) Ruh Modu',
+          content: chaldeanHourInfo.isDayBirth
+            ? `${chaldeanHourInfo.sectLabel}: Güneş ufkun üzerindeyken doğduğunuz için tüm kişisel kodlarınızı dış dünyada görünür olarak, açık iletişimle, sosyal liderlikle ve doğrudan eylemle çalıştırdığınızda en yüksek berekete ulaşırsınız.`
+            : `${chaldeanHourInfo.sectLabel}: Güneş battıktan sonra (Ay ve yıldızların hükmünde) doğduğunuz için kişisel kodlarınız derin sezgiyle, stratejik gizlilikle, rüya/bilinçaltı rehberliğiyle ve perde arkasındaki bilgelikle çalıştığında en büyük güce ulaşır. Projelerinizi olgunlaşmadan önce herkese anlatmamalısınız.`
+        }
+      ]
+    });
+  }
+
   const synchronicitySignals: SynchronicitySignal[] = [
     {
       code: karmicEntry.clockCodes[0] || '19:19',
@@ -1568,9 +1673,25 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   ];
 
+  if (cleanBirthTime && chaldeanHourInfo) {
+    synchronicitySignals.unshift({
+      code: `${cleanBirthTime} / ${getClockCodesForNumber(portalCode, portalSingle).list[0]}`,
+      title: `İlk Nefes Saat Kapısı & ${chaldeanHourInfo.hourPlanet} Nöbeti`,
+      sourceCodeName: `Doğum Saati Kodu: ${rawTimeDigitsSum}/${portalCode} (${cleanBirthTime})`,
+      layer: 'body',
+      color: '#14B8A6',
+      symbolArchetype: `${chaldeanHourInfo.hourPlanet} Muhafızı (${chaldeanHourInfo.isDayBirth ? 'Gündüz' : 'Gece'} Modu)`,
+      whenYouSeeIt: `Saatlerde kendi doğum saatiniz olan ${cleanBirthTime} veya ${rawTimeDigitsSum}/${portalCode} kodunu görmeniz, Üst Benliğinizin en kişisel "Buradayım ve seni koruyorum" imzasıdır.`,
+      actionStep: chaldeanHourInfo.isDayBirth
+        ? `Gündüz (Diürnal) doğumlu olduğunuz için niyetinizi gizlemeyin; ${chaldeanHourInfo.hourPlanet} enerjisiyle hemen görünür bir adım atın.`
+        : `Gece (Noktürnal) doğumlu olduğunuz için iç sesinizi dinleyin; niyetinizi kimseye söylemeden stratejik olarak mühürleyin.`
+    });
+  }
+
   return {
     fullName: cleanName,
     birthDate: `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`,
+    birthTime: cleanBirthTime,
     summaryMetrics: {
       primaryKarmicCode: primaryKarmicKey === 'YOK' ? 'Yok' : primaryKarmicKey,
       detectedKarmicList: detectedKarmicDebts,
@@ -1590,7 +1711,10 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       maturityCode,
       bridgeCode,
       subconsciousSelfCode,
-      chaldeanCompoundNum
+      chaldeanCompoundNum,
+      birthTimePortalCode: cleanBirthTime ? `${rawTimeDigitsSum}/${portalCode}` : undefined,
+      chaldeanHourPlanet: chaldeanHourInfo?.hourPlanet,
+      isDayBirth: chaldeanHourInfo?.isDayBirth
     },
     codes,
     synchronicitySignals,

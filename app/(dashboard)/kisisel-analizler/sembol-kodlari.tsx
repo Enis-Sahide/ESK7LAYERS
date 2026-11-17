@@ -27,26 +27,29 @@ export default function SymbolCodesMobileScreen() {
   const [day, setDay] = useState(params.day || '15');
   const [month, setMonth] = useState(params.month || '05');
   const [year, setYear] = useState(params.year || '1990');
+  const [birthHour, setBirthHour] = useState('');
+  const [birthMinute, setBirthMinute] = useState('');
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
   const [selectedCodeId, setSelectedCodeId] = useState<string>('karmic-debt');
   const [layerFilter, setLayerFilter] = useState<'all' | MapLayerType>('all');
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
 
-  const runAnalysis = (n: string, d: string, m: string, y: string) => {
+  const runAnalysis = (n: string, d: string, m: string, y: string, bh?: string, bm?: string) => {
     const cleanName = (n || 'Bahadır').trim();
     const formattedDate = `${y || '1990'}-${String(m || '05').padStart(2, '0')}-${String(d || '15').padStart(2, '0')}`;
-    const computed = analyzePersonalSymbolCodes(cleanName, formattedDate);
+    const timeStr = bh && bh.trim() !== '' ? `${bh.trim()}:${(bm || '00').trim()}` : undefined;
+    const computed = analyzePersonalSymbolCodes(cleanName, formattedDate, timeStr);
     setResult(computed);
   };
 
   useEffect(() => {
-    runAnalysis(fullName, day, month, year);
+    runAnalysis(fullName, day, month, year, birthHour, birthMinute);
   }, []);
 
   const handleCalculate = () => {
     Keyboard.dismiss();
-    runAnalysis(fullName, day, month, year);
+    runAnalysis(fullName, day, month, year, birthHour, birthMinute);
   };
 
   const filteredCodes = result
@@ -127,9 +130,34 @@ export default function SymbolCodesMobileScreen() {
             />
           </View>
 
+          <Text style={[styles.inputLabel, { color: '#2DD4BF' }]}>
+            Doğum Saatiniz (Opsiyonel • İlk Nefes Kapısı & Keldani Nöbetçi Gezegen)
+          </Text>
+          <View style={styles.dateRow}>
+            <TextInput
+              style={[styles.dateInput, { flex: 1 }]}
+              value={birthHour}
+              onChangeText={setBirthHour}
+              placeholder="Saat (Örn: 14)"
+              placeholderTextColor="rgba(255,255,255,0.35)"
+              keyboardType="number-pad"
+              maxLength={2}
+            />
+            <Text style={styles.dateSlash}>:</Text>
+            <TextInput
+              style={[styles.dateInput, { flex: 1 }]}
+              value={birthMinute}
+              onChangeText={setBirthMinute}
+              placeholder="Dakika (Örn: 26)"
+              placeholderTextColor="rgba(255,255,255,0.35)"
+              keyboardType="number-pad"
+              maxLength={2}
+            />
+          </View>
+
           <TouchableOpacity style={styles.calcBtn} onPress={handleCalculate} activeOpacity={0.85}>
             <Ionicons name="sparkles" size={18} color="#000" style={{ marginRight: 8 }} />
-            <Text style={styles.calcBtnText}>12 Kişisel Kodu & Sembolleri Çöz</Text>
+            <Text style={styles.calcBtnText}>Kişisel Kodları & Sembolleri Çöz</Text>
           </TouchableOpacity>
         </View>
 
