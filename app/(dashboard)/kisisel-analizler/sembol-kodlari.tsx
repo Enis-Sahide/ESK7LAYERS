@@ -103,12 +103,8 @@ export default function SymbolCodesMobileScreen() {
       </View>
 
       <View style={styles.summaryBox}>
-        <Text style={styles.summaryBoxHeading}>Ne Anlama Gelir? (Ezoterik Özeti)</Text>
+        <Text style={styles.summaryBoxHeading}>Bu Kod Sizin İçin Ne Anlama Geliyor?</Text>
         <Text style={styles.summaryBoxText}>{codeItem.summary}</Text>
-        <Text style={[styles.summaryBoxHeading, { color: '#38BDF8', marginTop: 10 }]}>
-          Nereden & Nasıl Hesaplandı?
-        </Text>
-        <Text style={styles.summaryBoxText}>{codeItem.calculationFormula}</Text>
       </View>
 
       {codeItem.sections.map((sec, sIdx) => (
