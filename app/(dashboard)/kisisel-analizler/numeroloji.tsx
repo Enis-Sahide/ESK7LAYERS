@@ -628,6 +628,37 @@ export default function NumerolojiKisiselAnalizScreen() {
               </View>
             </View>
 
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'rgba(212,175,55,0.14)',
+                borderColor: COLORS.primary,
+                borderWidth: 1,
+                borderRadius: 16,
+                padding: 14,
+                marginBottom: 18,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}
+              onPress={() =>
+                router.push({
+                  pathname: '/(dashboard)/kisisel-analizler/sembol-kodlari' as any,
+                  params: { name, day, month, year }
+                })
+              }
+              activeOpacity={0.85}
+            >
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <Text style={{ color: COLORS.primary, fontSize: 13, fontWeight: '800', marginBottom: 3 }}>
+                  🔑 11 Kişisel Kod & Üst Benlik Sembol Analizi
+                </Text>
+                <Text style={{ color: '#D1D5DB', fontSize: 11.5, lineHeight: 16 }}>
+                  Karmik Borç Kodu (19/1, 13/4, 14/5, 16/7), Aura Koruma Kodu, Köprü Kodu ve Günlük Sembol Sözlüğünüzü açmak için dokunun.
+                </Text>
+              </View>
+              <Ionicons name="arrow-forward-circle" size={26} color={COLORS.primary} />
+            </TouchableOpacity>
+
             {/* ÇAKRA SÜTUNU VE AÇIKLAMASI */}
             <View style={styles.chakraSection}>
               <View style={styles.chakraTable}>

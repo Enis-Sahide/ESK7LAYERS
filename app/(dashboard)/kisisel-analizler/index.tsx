@@ -90,6 +90,15 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     isAvailable: true,
   },
   {
+    id: 'sembolkodlari',
+    title: 'Üst Benlik Sembol & Kod Analizi',
+    description: 'Ruh, Beden ve 3. Harita senteziyle 11 kişisel kodunuzu, karmik borçlarınızı ve günlük Üst Benlik işaretlerinizi çözün.',
+    icon: 'key-outline',
+    route: '/(dashboard)/kisisel-analizler/sembol-kodlari',
+    color: '#F43F5E',
+    isAvailable: true,
+  },
+  {
     id: 'kariyer',
     title: 'Mesleki Yatkınlık & Kariyer',
     description: 'Gezegenlerinizin ve Drakonik ruh haritanızın senteziyle ideal meslek alanlarınızı ve servet rotanızı keşfedin.',
