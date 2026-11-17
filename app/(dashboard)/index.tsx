@@ -1648,14 +1648,14 @@ export default function DashboardScreen() {
                       {w.type === 'schumann' && (
                         <View style={{ gap: 4 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Text style={{ color: '#D4AF37', fontSize: 8.5, fontWeight: '800' }}>⚡ SCHUMANN REZONANSI (7.83 HZ) • CANLI TOMSK</Text>
+                            <Text style={{ color: '#00E5FF', fontSize: 8.5, fontWeight: '800' }}>⚡ SCHUMANN REZONANSI (7.83 HZ) • CANLI TOMSK SOS70</Text>
                             <Text style={{ color: '#FDE68A', fontSize: 10, fontWeight: '800' }}>↻</Text>
                           </View>
-                          <View style={{ height: 42, borderRadius: 7, backgroundColor: '#0A2547', overflow: 'hidden', justifyContent: 'space-evenly', paddingHorizontal: 8, borderWidth: 1, borderColor: 'rgba(56,189,248,0.3)' }}>
-                            <View style={{ height: 4, backgroundColor: 'rgba(34,197,94,0.65)', borderRadius: 2, width: '100%' }} />
-                            <View style={{ height: 5, backgroundColor: 'rgba(250,204,21,0.8)', borderRadius: 2, width: '78%' }} />
-                            <View style={{ height: 4, backgroundColor: 'rgba(56,189,248,0.6)', borderRadius: 2, width: '92%' }} />
-                          </View>
+                          <Image
+                            source={require('@/assets/images/schumann_default_chart.png')}
+                            style={{ width: '100%', height: 68, borderRadius: 7, borderWidth: 1, borderColor: 'rgba(56,189,248,0.3)' }}
+                            resizeMode="stretch"
+                          />
                         </View>
                       )}
 
