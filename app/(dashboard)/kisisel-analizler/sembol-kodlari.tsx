@@ -15,8 +15,7 @@ import { COLORS } from '@/src/theme';
 import {
   analyzePersonalSymbolCodes,
   SymbolCodeAnalysisResult,
-  PersonalSymbolCodeItem,
-  MapLayerType
+  PersonalSymbolCodeItem
 } from '@/src/features/numerology/SymbolCodeEngine';
 
 export default function SymbolCodesMobileScreen() {
@@ -31,8 +30,9 @@ export default function SymbolCodesMobileScreen() {
   const [birthMinute, setBirthMinute] = useState('');
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
-  const [selectedCodeId, setSelectedCodeId] = useState<string>('karmic-debt');
-  const [layerFilter, setLayerFilter] = useState<'all' | MapLayerType>('all');
+  const [selectedBodyId, setSelectedBodyId] = useState<string>('birth-code');
+  const [selectedSoulId, setSelectedSoulId] = useState<string>('soul-urge');
+  const [selectedAlchemyId, setSelectedAlchemyId] = useState<string>('karmic-debt');
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
 
   const runAnalysis = (n: string, d: string, m: string, y: string, bh?: string, bm?: string) => {
@@ -41,6 +41,9 @@ export default function SymbolCodesMobileScreen() {
     const timeStr = bh && bh.trim() !== '' ? `${bh.trim()}:${(bm || '00').trim()}` : undefined;
     const computed = analyzePersonalSymbolCodes(cleanName, formattedDate, timeStr);
     setResult(computed);
+    if (timeStr) {
+      setSelectedBodyId('birth-time-portal');
+    }
   };
 
   useEffect(() => {
@@ -52,12 +55,88 @@ export default function SymbolCodesMobileScreen() {
     runAnalysis(fullName, day, month, year, birthHour, birthMinute);
   };
 
-  const filteredCodes = result
-    ? result.codes.filter((c) => (layerFilter === 'all' ? true : c.layer === layerFilter))
+  const bodyCodes = result
+    ? [
+        result.codes.find((c) => c.id === 'birth-code'),
+        result.codes.find((c) => c.id === 'life-path'),
+        result.codes.find((c) => c.id === 'planet-ruler'),
+        result.codes.find((c) => c.id === 'birth-time-portal')
+      ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
     : [];
 
-  const activeCode: PersonalSymbolCodeItem | undefined =
-    result?.codes.find((c) => c.id === selectedCodeId) || filteredCodes[0] || result?.codes[0];
+  const soulCodes = result
+    ? [
+        result.codes.find((c) => c.id === 'soul-urge'),
+        result.codes.find((c) => c.id === 'outer-persona'),
+        result.codes.find((c) => c.id === 'hidden-passion'),
+        result.codes.find((c) => c.id === 'aura-protection')
+      ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
+    : [];
+
+  const alchemyCodes = result
+    ? [
+        result.codes.find((c) => c.id === 'karmic-debt'),
+        result.codes.find((c) => c.id === 'bridge-code'),
+        result.codes.find((c) => c.id === 'maturity-code'),
+        result.codes.find((c) => c.id === 'chaldean-compound'),
+        result.codes.find((c) => c.id === 'subconscious-self')
+      ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
+    : [];
+
+  const renderDetailCard = (codeItem: PersonalSymbolCodeItem) => (
+    <View
+      key={codeItem.id}
+      style={[styles.detailCard, { borderColor: codeItem.color + '66' }]}
+    >
+      <View style={styles.detailHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.detailLayerBadge, { color: codeItem.color }]}>
+            {codeItem.layerBadge}
+          </Text>
+          <Text style={styles.detailTitle}>
+            {codeItem.title}:{' '}
+            <Text style={{ color: codeItem.color }}>{codeItem.codeValue}</Text>
+          </Text>
+          <Text style={styles.detailArchetype}>{codeItem.archetypeTitle}</Text>
+        </View>
+      </View>
+
+      <View style={styles.summaryBox}>
+        <Text style={styles.summaryBoxHeading}>Ne Anlama Gelir? (Ezoterik Özeti)</Text>
+        <Text style={styles.summaryBoxText}>{codeItem.summary}</Text>
+        <Text style={[styles.summaryBoxHeading, { color: '#38BDF8', marginTop: 10 }]}>
+          Nereden & Nasıl Hesaplandı?
+        </Text>
+        <Text style={styles.summaryBoxText}>{codeItem.calculationFormula}</Text>
+      </View>
+
+      {codeItem.sections.map((sec, sIdx) => (
+        <View key={sIdx} style={styles.deepSectionBox}>
+          <Text style={[styles.deepSectionHeading, { color: codeItem.color }]}>
+            {sec.heading}
+          </Text>
+          <Text style={styles.deepSectionContent}>{sec.content}</Text>
+        </View>
+      ))}
+
+      <View style={styles.triggerBox}>
+        <Text style={styles.triggerTitle}>
+          ⚡ GÜNLÜK EŞLEŞEN SAAT & SEMBOLLER ({codeItem.higherSelfTrigger.clockCodes.join(' • ')})
+        </Text>
+        <Text style={styles.triggerMeta}>
+          <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Totem / Sembol: </Text>
+          {codeItem.higherSelfTrigger.totemSymbol}
+        </Text>
+        <Text style={styles.triggerMeta}>
+          <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Kutsal Geometri: </Text>
+          {codeItem.higherSelfTrigger.geometricSymbol}
+        </Text>
+        <Text style={styles.triggerInstantMsg}>
+          {codeItem.higherSelfTrigger.instantMessage}
+        </Text>
+      </View>
+    </View>
+  );
 
   return (
     <SacredBackground>
@@ -70,7 +149,7 @@ export default function SymbolCodesMobileScreen() {
             Üst Benlik Sembol & Kodlar
           </Text>
           <Text style={styles.headerSubtitle}>
-            3 Harita • 12 Kişisel Kod & Eşzamanlılık Sözlüğü
+            1. Doğum Tarihi • 2. İsim • 3. Karmik Sentez
           </Text>
         </View>
         <View style={{ width: 32 }} />
@@ -85,10 +164,10 @@ export default function SymbolCodesMobileScreen() {
         <View style={styles.inputCard}>
           <View style={styles.badgePill}>
             <Ionicons name="key-outline" size={13} color={COLORS.primary} />
-            <Text style={styles.badgePillText}>RUH • BEDEN • KARMİK SİMYA KODLARI</Text>
+            <Text style={styles.badgePillText}>3 KATMANLI ÖZGÜN 7LAYERS SENTEZİ</Text>
           </View>
 
-          <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız (Ruh Haritası)</Text>
+          <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız (İsim Katmanı)</Text>
           <TextInput
             style={styles.textInput}
             value={fullName}
@@ -97,7 +176,7 @@ export default function SymbolCodesMobileScreen() {
             placeholderTextColor="rgba(255,255,255,0.35)"
           />
 
-          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Doğum Tarihiniz (Beden Haritası)</Text>
+          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Doğum Tarihiniz (Beden Katmanı)</Text>
           <View style={styles.dateRow}>
             <TextInput
               style={[styles.dateInput, { flex: 1 }]}
@@ -163,108 +242,56 @@ export default function SymbolCodesMobileScreen() {
 
         {result && (
           <>
-            {/* 3 HARİTA ÖZETİ */}
-            <View style={styles.mapSummaryContainer}>
-              <View style={[styles.mapSummaryBox, { borderColor: 'rgba(212,175,55,0.4)' }]}>
-                <Text style={[styles.mapSummaryTitle, { color: '#D4AF37' }]}>
-                  1. HARİTA • RUH HARİTASI (BRIAH)
-                </Text>
-                <Text style={styles.mapSummaryText}>{result.mapBalanceSummary.soulDominantNote}</Text>
-              </View>
+            <TouchableOpacity
+              onPress={() => setShowAllExpanded((p) => !p)}
+              style={[
+                styles.expandAllBanner,
+                showAllExpanded && { borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.15)' }
+              ]}
+            >
+              <Ionicons
+                name={showAllExpanded ? 'contract-outline' : 'book-outline'}
+                size={16}
+                color={showAllExpanded ? '#6EE7B7' : COLORS.primary}
+              />
+              <Text style={styles.expandAllBannerText}>
+                {showAllExpanded
+                  ? 'Seçili Kart Görünümüne Dön'
+                  : 'Tüm Kodların Açıklamalarını Aynı Anda Aç'}
+              </Text>
+            </TouchableOpacity>
 
-              <View style={[styles.mapSummaryBox, { borderColor: 'rgba(56,189,248,0.4)' }]}>
-                <Text style={[styles.mapSummaryTitle, { color: '#38BDF8' }]}>
-                  2. HARİTA • BEDEN HARİTASI (ASSIAH)
-                </Text>
-                <Text style={styles.mapSummaryText}>{result.mapBalanceSummary.bodyDominantNote}</Text>
-              </View>
-
-              <View style={[styles.mapSummaryBox, { borderColor: 'rgba(244,63,94,0.4)' }]}>
-                <Text style={[styles.mapSummaryTitle, { color: '#F43F5E' }]}>
-                  3. HARİTA • KARMİK SİMYA & AURA (YETZIRAH)
-                </Text>
-                <Text style={styles.mapSummaryText}>{result.mapBalanceSummary.bridgeSynthesisNote}</Text>
-              </View>
-            </View>
-
-            {/* FİLTRE SEKME ÇUBUĞU */}
-            <View style={styles.sectionCard}>
-              <Text style={styles.sectionHeading}>Astro-Numerolojik 12 Kişisel Kodunuz</Text>
+            {/* 1. BÖLÜM: DOĞUM TARİHİNDEN GELEN KODLAR */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(56,189,248,0.4)' }]}>
+              <Text style={[styles.sectionPill, { color: '#38BDF8' }]}>
+                1. BÖLÜM • DOĞUM TARİHİNİZDEN GELEN KODLAR ({result.birthDate}
+                {result.birthTime ? ` • ${result.birthTime}` : ''})
+              </Text>
+              <Text style={styles.sectionHeading}>Beden & Fiziksel Yaşam Rotası Kodlarınız</Text>
               <Text style={styles.sectionSub}>
-                Detaylı ezoterik açıklamasını ve Üst Benlik sembolünü okumak için herhangi bir kod kutusuna dokunun:
+                Dünyaya doğduğunuz gün ve saatin fiziksel bedeninize mühürlediği yetenek, ana yaşam yolunuz ve yönetici gezegeniniz:
               </Text>
 
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterRow}
-              >
-                {[
-                  { id: 'all', label: 'Tümü (12)' },
-                  { id: 'alchemy', label: '3. Harita: Karmik & Aura (6)' },
-                  { id: 'soul', label: '1. Ruh Haritası (3)' },
-                  { id: 'body', label: '2. Beden Haritası (3)' }
-                ].map((tab) => {
-                  const active = layerFilter === tab.id;
-                  return (
-                    <TouchableOpacity
-                      key={tab.id}
-                      onPress={() => setLayerFilter(tab.id as any)}
-                      style={[styles.filterChip, active && styles.filterChipActive]}
-                    >
-                      <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
-                        {tab.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-
-                <TouchableOpacity
-                  onPress={() => setShowAllExpanded((p) => !p)}
-                  style={[
-                    styles.filterChip,
-                    showAllExpanded && { backgroundColor: 'rgba(16,185,129,0.2)', borderColor: '#10B981' }
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.filterChipText,
-                      showAllExpanded && { color: '#6EE7B7', fontWeight: '700' }
-                    ]}
-                  >
-                    {showAllExpanded ? 'Tek Kart Göster' : 'Tümünü Alt Alta Aç'}
-                  </Text>
-                </TouchableOpacity>
-              </ScrollView>
-
-              {/* 11 KOD IZGARASI */}
               <View style={styles.codesGrid}>
-                {filteredCodes.map((item) => {
-                  const isSelected = activeCode?.id === item.id && !showAllExpanded;
+                {bodyCodes.map((item) => {
+                  const isSelected = selectedBodyId === item.id && !showAllExpanded;
                   return (
                     <TouchableOpacity
                       key={item.id}
                       style={[
                         styles.codeGridItem,
                         isSelected && {
-                          borderColor: COLORS.primary,
-                          backgroundColor: 'rgba(212,175,55,0.12)'
+                          borderColor: '#38BDF8',
+                          backgroundColor: 'rgba(56,189,248,0.14)'
                         }
                       ]}
                       onPress={() => {
-                        setSelectedCodeId(item.id);
+                        setSelectedBodyId(item.id);
                         setShowAllExpanded(false);
                       }}
                       activeOpacity={0.82}
                     >
-                      <Text style={[styles.codeLayerMini, { color: item.color }]} numberOfLines={1}>
-                        {item.layer === 'soul'
-                          ? 'RUH HARİTASI'
-                          : item.layer === 'body'
-                          ? 'BEDEN HARİTASI'
-                          : '3. HARİTA • SİMYA'}
-                      </Text>
-                      <Text style={styles.codeShortTitle} numberOfLines={1}>
+                      <Text style={[styles.codeShortTitle, { color: '#38BDF8' }]} numberOfLines={1}>
                         {item.shortTitle}
                       </Text>
                       <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
@@ -278,72 +305,122 @@ export default function SymbolCodesMobileScreen() {
                 })}
               </View>
 
-              {/* SEÇİLİ KODUN DERİN AÇIKLAMA KARTI */}
-              {(showAllExpanded ? filteredCodes : activeCode ? [activeCode] : []).map((codeItem) => (
-                <View
-                  key={codeItem.id}
-                  style={[styles.detailCard, { borderColor: codeItem.color + '66' }]}
-                >
-                  <View style={styles.detailHeader}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.detailLayerBadge, { color: codeItem.color }]}>
-                        {codeItem.layerBadge}
-                      </Text>
-                      <Text style={styles.detailTitle}>
-                        {codeItem.title}:{' '}
-                        <Text style={{ color: codeItem.color }}>{codeItem.codeValue}</Text>
-                      </Text>
-                      <Text style={styles.detailArchetype}>{codeItem.archetypeTitle}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.summaryBox}>
-                    <Text style={styles.summaryBoxHeading}>Ezoterik Özeti</Text>
-                    <Text style={styles.summaryBoxText}>{codeItem.summary}</Text>
-                    <Text style={[styles.summaryBoxHeading, { color: '#38BDF8', marginTop: 10 }]}>
-                      Nasıl Hesaplandı?
-                    </Text>
-                    <Text style={styles.summaryBoxText}>{codeItem.calculationFormula}</Text>
-                  </View>
-
-                  {codeItem.sections.map((sec, sIdx) => (
-                    <View key={sIdx} style={styles.deepSectionBox}>
-                      <Text style={[styles.deepSectionHeading, { color: codeItem.color }]}>
-                        {sec.heading}
-                      </Text>
-                      <Text style={styles.deepSectionContent}>{sec.content}</Text>
-                    </View>
-                  ))}
-
-                  {/* Üst Benlik Sembol & Saat Kutusu */}
-                  <View style={styles.triggerBox}>
-                    <Text style={styles.triggerTitle}>
-                      ⚡ ÜST BENLİK SEMBOL & SAAT TETİKLEYİCİLERİ (
-                      {codeItem.higherSelfTrigger.clockCodes.join(' • ')})
-                    </Text>
-                    <Text style={styles.triggerMeta}>
-                      <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Totem / Sembol: </Text>
-                      {codeItem.higherSelfTrigger.totemSymbol}
-                    </Text>
-                    <Text style={styles.triggerMeta}>
-                      <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Kutsal Geometri: </Text>
-                      {codeItem.higherSelfTrigger.geometricSymbol}
-                    </Text>
-                    <Text style={styles.triggerInstantMsg}>
-                      {codeItem.higherSelfTrigger.instantMessage}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+              {(showAllExpanded
+                ? bodyCodes
+                : [bodyCodes.find((c) => c.id === selectedBodyId) || bodyCodes[0]].filter(Boolean)
+              ).map((item) => renderDetailCard(item!))}
             </View>
 
-            {/* ÜST BENLİK GÜNLÜK SEMBOL & EŞZAMANLILIK SÖZLÜĞÜ */}
-            <View style={styles.sectionCard}>
+            {/* 2. BÖLÜM: İSMİNİZDEN GELEN KODLAR */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.4)' }]}>
+              <Text style={[styles.sectionPill, { color: '#D4AF37' }]}>
+                2. BÖLÜM • İSMİNİZDEN GELEN KODLAR ({result.fullName})
+              </Text>
+              <Text style={styles.sectionHeading}>Ruh Haritası & Çakra Alanı Kodlarınız</Text>
+              <Text style={styles.sectionSub}>
+                Adınızın sesli/sessiz harflerinden doğan içsel ruh arzunuz, dışsal ilk izleniminiz, en güçlü çakra silahınız ve açık kalan aura koruma kapınız:
+              </Text>
+
+              <View style={styles.codesGrid}>
+                {soulCodes.map((item) => {
+                  const isSelected = selectedSoulId === item.id && !showAllExpanded;
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.codeGridItem,
+                        isSelected && {
+                          borderColor: COLORS.primary,
+                          backgroundColor: 'rgba(212,175,55,0.14)'
+                        }
+                      ]}
+                      onPress={() => {
+                        setSelectedSoulId(item.id);
+                        setShowAllExpanded(false);
+                      }}
+                      activeOpacity={0.82}
+                    >
+                      <Text style={[styles.codeShortTitle, { color: '#D4AF37' }]} numberOfLines={1}>
+                        {item.shortTitle}
+                      </Text>
+                      <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
+                        {item.codeValue}
+                      </Text>
+                      <Text style={styles.codeSubLabel} numberOfLines={1}>
+                        {item.subLabel}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {(showAllExpanded
+                ? soulCodes
+                : [soulCodes.find((c) => c.id === selectedSoulId) || soulCodes[0]].filter(Boolean)
+              ).map((item) => renderDetailCard(item!))}
+            </View>
+
+            {/* 3. BÖLÜM: KARMİK SİMYA & ÜST BENLİK SENTEZ KODLARI */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(244,63,94,0.4)' }]}>
+              <Text style={[styles.sectionPill, { color: '#F43F5E' }]}>
+                3. BÖLÜM • İSİM + DOĞUM TARİHİ BİRLEŞİMİ (SENTEZ KATMANI)
+              </Text>
               <Text style={styles.sectionHeading}>
-                Üst Benlik Günlük Sembol & Saat Sözlüğü
+                Karmik Simya, Köprü & Üst Benlik Kodlarınız
               </Text>
               <Text style={styles.sectionSub}>
-                Günlük hayatta saatlerde, plakalarda veya rüyalarda bu kişisel kodlarınızla karşılaştığınızda Üst Benliğinizin size verdiği mesajlar:
+                Doğum tarihiniz ile isminiz birleştiğinde ortaya çıkan karmik sınavınız, iki haritayı birleştiren köprü kodunuz, 35+ yaş hasadınız ve kadim Babil sembol arketipiniz:
+              </Text>
+
+              <View style={styles.codesGrid}>
+                {alchemyCodes.map((item) => {
+                  const isSelected = selectedAlchemyId === item.id && !showAllExpanded;
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.codeGridItem,
+                        isSelected && {
+                          borderColor: '#F43F5E',
+                          backgroundColor: 'rgba(244,63,94,0.14)'
+                        }
+                      ]}
+                      onPress={() => {
+                        setSelectedAlchemyId(item.id);
+                        setShowAllExpanded(false);
+                      }}
+                      activeOpacity={0.82}
+                    >
+                      <Text style={[styles.codeShortTitle, { color: '#FB7185' }]} numberOfLines={1}>
+                        {item.shortTitle}
+                      </Text>
+                      <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
+                        {item.codeValue}
+                      </Text>
+                      <Text style={styles.codeSubLabel} numberOfLines={1}>
+                        {item.subLabel}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {(showAllExpanded
+                ? alchemyCodes
+                : [alchemyCodes.find((c) => c.id === selectedAlchemyId) || alchemyCodes[0]].filter(Boolean)
+              ).map((item) => renderDetailCard(item!))}
+            </View>
+
+            {/* 4. BÖLÜM: GÜNLÜK HAYATTA KARŞINIZA ÇIKAN ÜST BENLİK İŞARETLERİ */}
+            <View style={styles.sectionCard}>
+              <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
+                4. BÖLÜM • CANLI UYANIŞ REHBERİ
+              </Text>
+              <Text style={styles.sectionHeading}>
+                Günlük Hayatta Karşınıza Çıkan Saat & Sembol Sözlüğü
+              </Text>
+              <Text style={styles.sectionSub}>
+                Saatlerde, plakalarda veya rüyalarda bu kişisel kodlarınızla karşılaştığınızda Üst Benliğinizin size verdiği mesajlar:
               </Text>
 
               {result.synchronicitySignals.map((sig, idx) => (
@@ -366,7 +443,8 @@ export default function SymbolCodesMobileScreen() {
                   </View>
 
                   <Text style={styles.syncTotemText}>
-                    Eşleşen Sembol: <Text style={{ color: '#FFF', fontWeight: '700' }}>{sig.symbolArchetype}</Text>
+                    Eşleşen Sembol:{' '}
+                    <Text style={{ color: '#FFF', fontWeight: '700' }}>{sig.symbolArchetype}</Text>
                   </Text>
 
                   <Text style={styles.syncWhenText}>{sig.whenYouSeeIt}</Text>
@@ -423,7 +501,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: 'rgba(212,175,55,0.3)',
-    marginBottom: 16
+    marginBottom: 14
   },
   badgePill: {
     flexDirection: 'row',
@@ -494,37 +572,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800'
   },
-  mapSummaryContainer: {
-    gap: 10,
-    marginBottom: 16
+  expandAllBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(212,175,55,0.35)',
+    backgroundColor: 'rgba(212,175,55,0.1)',
+    marginBottom: 14
   },
-  mapSummaryBox: {
-    backgroundColor: 'rgba(15,18,28,0.9)',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1
-  },
-  mapSummaryTitle: {
-    fontSize: 11,
-    fontWeight: '800',
-    marginBottom: 4,
-    letterSpacing: 0.5
-  },
-  mapSummaryText: {
-    color: '#D1D5DB',
+  expandAllBannerText: {
+    color: '#FDE68A',
     fontSize: 12,
-    lineHeight: 18
+    fontWeight: '800'
   },
   sectionCard: {
-    backgroundColor: 'rgba(12,14,22,0.94)',
+    backgroundColor: 'rgba(12,14,22,0.95)',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
     borderColor: 'rgba(212,175,55,0.28)',
     marginBottom: 18
   },
+  sectionPill: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    marginBottom: 4
+  },
   sectionHeading: {
-    color: COLORS.primary,
+    color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '800',
     marginBottom: 4
@@ -535,38 +616,12 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     marginBottom: 12
   },
-  filterRow: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingBottom: 12
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-    backgroundColor: 'rgba(255,255,255,0.04)'
-  },
-  filterChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary
-  },
-  filterChipText: {
-    color: '#D1D5DB',
-    fontSize: 11,
-    fontWeight: '600'
-  },
-  filterChipTextActive: {
-    color: '#000',
-    fontWeight: '800'
-  },
   codesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 8,
-    marginBottom: 14
+    marginBottom: 10
   },
   codeGridItem: {
     width: '48.5%',
@@ -576,16 +631,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)'
   },
-  codeLayerMini: {
-    fontSize: 9,
-    fontWeight: '800',
-    letterSpacing: 0.4,
-    marginBottom: 2
-  },
   codeShortTitle: {
-    color: '#9CA3AF',
     fontSize: 10,
-    fontWeight: '700'
+    fontWeight: '800'
   },
   codeBigVal: {
     fontSize: 22,
@@ -750,4 +798,3 @@ const styles = StyleSheet.create({
     lineHeight: 17
   }
 });
-
