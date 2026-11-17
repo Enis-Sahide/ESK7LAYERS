@@ -67,7 +67,7 @@ export default function SymbolCodesMobileScreen() {
             Üst Benlik Sembol & Kodlar
           </Text>
           <Text style={styles.headerSubtitle}>
-            3 Harita • 11 Kişisel Kod & Eşzamanlılık Sözlüğü
+            3 Harita • 12 Kişisel Kod & Eşzamanlılık Sözlüğü
           </Text>
         </View>
         <View style={{ width: 32 }} />
@@ -129,7 +129,7 @@ export default function SymbolCodesMobileScreen() {
 
           <TouchableOpacity style={styles.calcBtn} onPress={handleCalculate} activeOpacity={0.85}>
             <Ionicons name="sparkles" size={18} color="#000" style={{ marginRight: 8 }} />
-            <Text style={styles.calcBtnText}>11 Kişisel Kodu & Sembolleri Çöz</Text>
+            <Text style={styles.calcBtnText}>12 Kişisel Kodu & Sembolleri Çöz</Text>
           </TouchableOpacity>
         </View>
 
@@ -161,7 +161,7 @@ export default function SymbolCodesMobileScreen() {
 
             {/* FİLTRE SEKME ÇUBUĞU */}
             <View style={styles.sectionCard}>
-              <Text style={styles.sectionHeading}>Astro-Numerolojik 11 Kişisel Kodunuz</Text>
+              <Text style={styles.sectionHeading}>Astro-Numerolojik 12 Kişisel Kodunuz</Text>
               <Text style={styles.sectionSub}>
                 Detaylı ezoterik açıklamasını ve Üst Benlik sembolünü okumak için herhangi bir kod kutusuna dokunun:
               </Text>
@@ -172,10 +172,10 @@ export default function SymbolCodesMobileScreen() {
                 contentContainerStyle={styles.filterRow}
               >
                 {[
-                  { id: 'all', label: 'Tümü (11)' },
+                  { id: 'all', label: 'Tümü (12)' },
                   { id: 'alchemy', label: '3. Harita: Karmik & Aura (6)' },
                   { id: 'soul', label: '1. Ruh Haritası (3)' },
-                  { id: 'body', label: '2. Beden Haritası (2)' }
+                  { id: 'body', label: '2. Beden Haritası (3)' }
                 ].map((tab) => {
                   const active = layerFilter === tab.id;
                   return (

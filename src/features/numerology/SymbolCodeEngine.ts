@@ -125,6 +125,22 @@ function checkKarmicFromSum(raw: number): string | null {
   return null;
 }
 
+function getClockCodesForNumber(codeVal: number, singleVal: number): { list: string[]; display: string } {
+  if (codeVal === 11) {
+    return { list: ['11:11', '02:02', '222'], display: '11:11 / 02:02' };
+  }
+  if (codeVal === 22) {
+    return { list: ['22:22', '04:04', '444'], display: '22:22 / 04:04' };
+  }
+  if (codeVal === 33) {
+    return { list: ['03:33', '06:06', '666'], display: '03:33 / 06:06' };
+  }
+  return {
+    list: [`0${singleVal}:0${singleVal}`, `${singleVal}${singleVal}${singleVal}`],
+    display: `0${singleVal}:0${singleVal} / ${singleVal}${singleVal}${singleVal}`
+  };
+}
+
 interface KarmicLibraryEntry {
   archetypeTitle: string;
   summary: string;
@@ -403,6 +419,15 @@ const SOUL_URGE_LIBRARY: Record<
     soulHunger: 'Yüzlerce insanın faydalanacağı somut bir sistem, platform veya eser inşa etmek ruhunuzun en büyük tutkusudur.',
     shadowTrap: 'Kendi potansiyelinin büyüklüğü altında ezilme hissi, aşırı kontrolcülük ve tükenmişlik.',
     higherSelfMessage: '22:22 saati senin mühründür: "Vizyonun fazla büyük değil; sen onu inşa edecek kapasiteyle doğdun. Adım adım temeli at!"'
+  },
+  33: {
+    title: 'Üstat Şifacı & Evrensel Öğretmen (33/6 Avatar Frekansı)',
+    totem: 'Altın Anka & Kristal Lotus',
+    geometry: '33 Omurga Işık Sütunu & Merkaba Yıldızı',
+    summary: 'Ruhunuz sezgisel aydınlanma (11) ile somut ustalığı (22) koşulsuz sevgi potasında birleştiren en yüksek "Üstat Öğretmen ve Şifacı" (33/6) frekansındadır.',
+    soulHunger: 'Karşılık beklemeden kitlelere rehberlik etmek, ruhsal bilgelik aktarmak ve kalpleri şifalandırmak için enkarne oldunuz.',
+    shadowTrap: 'Dünyanın acısını kendi sırtında taşıyarak tükenmek ve kendi insani ihtiyaçlarını tamamen unutmak.',
+    higherSelfMessage: '03:33 ve 06:06 saatleri senin imzandır: "Senin varlığın ve sesin başlı başına bir şifa alanıdır; önce kendi kalp merkezini koru."'
   }
 };
 
@@ -761,6 +786,156 @@ function getChaldeanCompoundArchetype(compoundNum: number): {
       symbolName: 'Taç ve Hükümdar Asası',
       meaning: 'Yaratıcı zeka, cesaret ve kendi fikirleriyle ürettiği işlerden elde edilen yüksek otoriteyi simgeler.',
       warningOrBlessing: 'Liderlik Kodu: Başkalarının fikirlerini kopyalamayın; kendi özgün vizyonunuz sizin altın madeninizdir.'
+    },
+    28: {
+      title: '28/1 — Sözleşme ve Güven Sınavı (Bağımsız Lider)',
+      symbolName: 'İki Yol Ağzındaki Taçlı Savaşçı',
+      meaning: 'Büyük potansiyel ve liderlik yeteneği verir; ancak ortaklıklar, hukuki sözleşmeler ve başkalarına aşırı güvenme konusunda sınavlar içerir.',
+      warningOrBlessing: 'Stratejik Uyarı: Tüm ticari ve resmi anlaşmalarınızı yazılı yapın; her zaman kendi B planınızı koruyun.'
+    },
+    29: {
+      title: '29/11 — Yüksek İnisiyasyon & Ayna Sınavı',
+      symbolName: 'Sisler İçindeki İkiz Kule ve Işık',
+      meaning: '2+9=11 Üstat sayısını doğurur. Karşı cins, ortaklar veya yakın çevreden gelen sınavlar yoluyla kişiyi çok yüksek bir ruhsal sezgiye uyandırır.',
+      warningOrBlessing: 'Uyanış Kodu: İnsanların sözlerine değil, frekanslarına ve eylemlerine bakın; sezgileriniz yanılmaz.'
+    },
+    30: {
+      title: '30/3 — Zihinsel Üstünlük & Bilge Tefekkür',
+      symbolName: 'Altın Küre Üzerindeki Düşünür',
+      meaning: 'Maddi hırslardan ziyade entelektüel derinlik, felsefe, eğitim ve zihinsel ustalığı temsil eder.',
+      warningOrBlessing: 'Derinlik Kodu: Bilgi birikiminizi kendinize saklamayın; yazıya ve eğitime dönüştürdüğünüzde bereket akar.'
+    },
+    31: {
+      title: '31/4 — Özgün Deha & Kendi Dünyasının Mimarı',
+      symbolName: 'Dağ Zirvesindeki Fener',
+      meaning: 'Kalabalıkların içinde bile kendi özgün kurallarıyla yaşayan, kimseye benzemeyen ve sıfırdan sistem kuran deha frekansıdır.',
+      warningOrBlessing: 'Topraklanma Kodu: Kendinizi dünyadan tamamen soyutlamayın; dehanızı somut projelerle insanlara sunun.'
+    },
+    32: {
+      title: '32/5 — Kitleleri Etkileyen Sihirli Söz & İttifak',
+      symbolName: 'Altın Asa ve Merkür Kanatları',
+      meaning: '23/5 Kraliyet Aslanı ile aynı oktavdadır; farklı uluslar, kitleler ve iletişim ağları üzerinde büyülü bir etki gücü verir.',
+      warningOrBlessing: 'Kraliyet İletişim Kodu: Kendi görüşünüze sadık kaldığınız sürece kitleler sizi takip eder.'
+    },
+    33: {
+      title: '33/6 — İlahi Bereket, Şifa ve Koruma Tacı',
+      symbolName: 'Altı Köşeli Altın Yıldız ve Bereket Boynuzu',
+      meaning: '24/6 ile aynı Venüs-Jüpiter oktavındadır; üstat seviyesinde şifa, sevgi, estetik ve ilahi koruma altına alınmış rızkı simgeler.',
+      warningOrBlessing: 'Üstat Bereket Kodu: Kalbinizi şefkatte tuttuğunuz sürece maddi ve manevi bolluk size kendiliğinden akar.'
+    },
+    34: {
+      title: '34/7 — Deneyimden Doğan Sarsılmaz Bilgelik',
+      symbolName: 'Yedi Kollu Altın Şamdan (Menorah)',
+      meaning: '25/7 ile aynı oktavdadır; hayatın ilk yarısındaki disiplinli gözlemlerin olgunlukta kusursuz bir sezgi ve otoriteye dönüşmesini anlatır.',
+      warningOrBlessing: 'Bilgelik Kodu: Sabrınız ve içsel disiplininiz size en zor kapıları açacak anahtardır.'
+    },
+    35: {
+      title: '35/8 — Satürn Finansal & Ortaklık Sınavı',
+      symbolName: 'Kılıç ve Adalet Terazisi',
+      meaning: '26/8 ile aynı oktavdadır; başkalarının aklıyla yapılan yatırımlara ve ortaklıklara karşı uyanık olmayı, kendi finansal otoritenizi kurmayı emreder.',
+      warningOrBlessing: 'Finansal Öz-Yönetim Kodu: Kendi paranızı ve projenizi bizzat kendiniz yönetin.'
+    },
+    36: {
+      title: '36/9 — Özgün Liderlik & Zirveye Tırmanış',
+      symbolName: 'Ateşten Taç ve Hükümdar Asası',
+      meaning: '27/9 ile aynı oktavdadır; kendi emeği, zekası ve özgün fikirleriyle en üst makamlara yükselmeyi ve kalıcı eser bırakmayı simgeler.',
+      warningOrBlessing: 'Zafer Kodu: Ortaklıktan ziyade kendi özgün imzanızı taşıyan işlerde en büyük başarıyı yakalarsınız.'
+    },
+    37: {
+      title: '37/1 — Kraliyet Dostluğu & Manyetik Çekim Yıldızı',
+      symbolName: 'Güneş ve Venüs Kutsal Kavuşumu',
+      meaning: 'Kalde numerolojisinin en şanslı kodlarından biridir; aşkta, dostlukta ve toplum önünde güçlü, sadık ve yükseltici bağlantılar verir.',
+      warningOrBlessing: 'Manyetik Şans Kodu: Samimiyetiniz ve sıcak karizmanız size her ortamda üst düzey destekler açar.'
+    },
+    38: {
+      title: '38/11 — Sezgisel Uyanık Olma & Sözleşme Kalkanı',
+      symbolName: 'Ayna ve Kalkan',
+      meaning: '3+8=11 Üstat sezgisini taşır; yüksek empati ve vizyon verirken gizli rekabete karşı sınırların korunması gerektiğini hatırlatır.',
+      warningOrBlessing: 'Koruma Kodu: Sırlarınızı ve projelerinizi tamamlanmadan önce herkesle paylaşmayın.'
+    },
+    39: {
+      title: '39/3 — Yaratıcı Zeka & Entelektüel Zafer',
+      symbolName: 'Defne Tacı ve Altın Kalem',
+      meaning: 'Üstün ifade gücü, stratejik planlama ve zihinsel üretim yoluyla kazanılan saygınlığı temsil eder.',
+      warningOrBlessing: 'Üretim Kodu: Fikirlerinizi ertelemeden somut esere dönüştürün.'
+    },
+    40: {
+      title: '40/4 — Bilimsel Odak & Sistem Kurucu Deha',
+      symbolName: 'Pergel ve Gönye',
+      meaning: 'Keskin analitik zeka, metodolojik çalışma ve kendine özgü bir sistem inşa etme kudretidir.',
+      warningOrBlessing: 'Sistem Kodu: Düzen ve disiplininiz sizi alanında tek otorite yapar.'
+    },
+    41: {
+      title: '41/5 — Manyetik Liderlik & Sınırları Aşan Vizyon',
+      symbolName: 'Kanatlı Güneş Kursu',
+      meaning: '32/5 ve 23/5 ile aynı oktavdadır; dinamik iletişim, karizma ve uluslararası/geniş çaplı projelerde başarıyı müjdeler.',
+      warningOrBlessing: 'Genişleme Kodu: Vizyonunuzu yerel sınırlarla kısıtlamayın, büyük düşünün.'
+    },
+    42: {
+      title: '42/6 — Venüs Bereketi, Sanat ve Sadık İttifaklar',
+      symbolName: 'Altın Kadeh ve Zümrüt Taç',
+      meaning: '24/6 ve 33/6 ile aynı kutsal Venüs oktavındadır; sevgi, uyum, toplumsal kabul ve emeklerin bereketli hasadını temsil eder.',
+      warningOrBlessing: 'Kutsal Bereket Kodu: Güzellik, adalet ve uyum ürettiğiniz her alanda desteklenirsiniz.'
+    },
+    43: {
+      title: '43/7 — Devrimci Dönüşüm & Yeniden Yapılanma',
+      symbolName: 'Anka Kuşu ve Şimşek',
+      meaning: '4+3=7; eskiyen kalıpları cesurca yıkıp yerine daha yüksek bir bilgelik düzeni kurma sınavını ve gücünü taşır.',
+      warningOrBlessing: 'Dönüşüm Kodu: Kriz anlarında soğukkanlılığınızı koruyun; her değişim sizi özgürleştirir.'
+    },
+    44: {
+      title: '44/8 — Üstat Stratejist & Karmik Adalet Terazisi',
+      symbolName: 'Çift Piramit (Oktahedron)',
+      meaning: 'Muazzam bir maddi organizasyon ve güç kapasitesi verir; gücün yalnızca mutlak adalet ve etikle kullanılmasını şart koşar.',
+      warningOrBlessing: 'Master Finans Kodu: Uzun vadeli ve etik yatırımlarınız kalıcı servete dönüşür.'
+    },
+    45: {
+      title: '45/9 — Entelektüel Zafer & Onurlu Hasat',
+      symbolName: 'Zafer Sancağı ve Bilgelik Kitabı',
+      meaning: '27/9 ve 36/9 ile aynı oktavdadır; yaşam deneyimi ve zihinsel üretimle gelen saygınlığı ve tamamlanmayı simgeler.',
+      warningOrBlessing: 'Bilgelik Hasadı Kodu: Kendi doğrularınızdan taviz vermeden yürüdüğünüz yol taçlanır.'
+    },
+    46: {
+      title: '46/1 — Taçlanan Girişim & Yeniden Doğuş (4+6=10/1)',
+      symbolName: 'Doğan Güneş ve Altın Anahtar',
+      meaning: '10/1 Kader Çarkı ile aynı oktavdadır; disiplinli yapı (4) ile sevgi/uyumun (6) birleşerek kişiyi zirveye (1) taşımasını anlatır.',
+      warningOrBlessing: 'Yükseliş Kodu: Sabırla kurduğunuz düzen size bağımsızlık ve liderlik getirir.'
+    },
+    47: {
+      title: '47/11 — İçsel Ustalık & Peygamberi Sezgi (4+7=11/2)',
+      symbolName: 'Tapınak Sütunları Arasındaki Işık',
+      meaning: 'Somut gerçekçilik (4) ile mistik bilgeliğin (7) birleşerek 11 Üstat Kanal frekansını açtığı çok özel bir koddur.',
+      warningOrBlessing: 'Master Sezgi Kodu: Hem ayakları yere basan hem de ruhsal alemi okuyan nadir ustalardansınız.'
+    },
+    48: {
+      title: '48/3 — İlahi Adalet & Kararlı Yaratım (4+8=12/3)',
+      symbolName: 'Altın Terazi ve Üçgen',
+      meaning: 'Sistem kurma gücü (4) ile otoritenin (8) birleşimidir; başkalarının yükünü sırtlanmadan kendi vizyonuna odaklanmayı öğretir.',
+      warningOrBlessing: 'Odak Kodu: Enerjinizi başkalarını kurtarmaya değil, kendi eserinizi büyütmeye harcayın.'
+    },
+    49: {
+      title: '49/4 — Karmik Emeğin Altın Hasadı (4+9=13/4)',
+      symbolName: 'Altın Başak ve Saban',
+      meaning: '13/4 dönüşüm enerjisini içinde taşır; yoğun çalışma, sabır ve dönüşüm sonrasında gelen sarsılmaz ustalığı simgeler.',
+      warningOrBlessing: 'Ustalık Kodu: Vazgeçmediğiniz her alanda kalıcı bir kale inşa edersiniz.'
+    },
+    50: {
+      title: '50/5 — Bilgelik ve İletişim Özgürlüğü',
+      symbolName: 'Açık Gökyüzünde Uçan Kartal',
+      meaning: 'Zihinsel özgürlük, seyahat, eğitim ve geniş kitlelere rehberlik etme enerjisidir.',
+      warningOrBlessing: 'Özgürlük Kodu: Bilginizi paylaştıkça tüm kapılar önünüzde açılır.'
+    },
+    51: {
+      title: '51/6 — Savaşçı Komutan & Ani Yükseliş',
+      symbolName: 'Parlayan Kılıç ve Yıldız',
+      meaning: 'Cesaret (5) ve liderliğin (1) birleşerek Venüs (6) zaferini doğurduğu, terfi ve liderlik getiren güçlü bir Kalde kodudur.',
+      warningOrBlessing: 'Komutan Kodu: Cesur adımlarınız size yüksek statü kazandırır.'
+    },
+    52: {
+      title: '52/7 — Döngülerin Efendisi & Sezgisel Bilge (52 Hafta Mührü)',
+      symbolName: 'Zaman Çarkı ve Yedi Yıldız',
+      meaning: 'Yılın 52 haftasını ve zaman döngüleri üzerindeki tam içsel bilgeliği temsil eder.',
+      warningOrBlessing: 'Zaman Ustalığı Kodu: Doğru zamanı sezme yeteneğiniz en büyük hazinenizdir.'
     }
   };
 
@@ -947,9 +1122,11 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     addKarmicIfFound(checkKarmicFromSum(day), `Doğum Günü (${day})`);
   }
 
-  // B) Yaşam Yolu (Rakam Toplamı veya 3 Döngü Toplamı)
+  // B) Yaşam Yolu (Rakam Toplamı, Master Korumalı 3 Döngü Toplamı ve Tek Haneli 3 Sütun Toplamı)
+  const pureThreeCycleLifePathSum = reduceToSingle(day, false) + reduceToSingle(month, false) + reduceToSingle(year, false);
   addKarmicIfFound(checkKarmicFromSum(rawLifePathSum), `Yaşam Yolu Rakam Toplamı (${rawLifePathSum})`);
   addKarmicIfFound(checkKarmicFromSum(threeCycleLifePathSum), `Yaşam Yolu G+A+Y Toplamı (${threeCycleLifePathSum})`);
+  addKarmicIfFound(checkKarmicFromSum(pureThreeCycleLifePathSum), `Yaşam Yolu 3 Sütun Toplamı (${pureThreeCycleLifePathSum})`);
 
   // C) Ruh Güdüsü (Sesli Harf Ham Toplamı veya Kelime İndirgeme Toplamı)
   addKarmicIfFound(checkKarmicFromSum(rawSoulUrgeSum), `Ruh Güdüsü Sesli Harf Toplamı (${rawSoulUrgeSum})`);
@@ -1038,7 +1215,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       summary: soulEntry.summary,
       calculationFormula: `İsminizdeki sesli harflerin (A, E, I, İ, O, Ö, U, Ü) Pisagor toplamı ${rawSoulUrgeSum} → ${soulUrgeCode} frekansını verir. Sesli harfler hiçbir engele çarpmadan doğrudan göğüs ve gırtlaktan akan "Ruh Nefesi"dir.`,
       higherSelfTrigger: {
-        clockCodes: [`0${soulUrgeSingle}:0${soulUrgeSingle}`, `${soulUrgeSingle}${soulUrgeSingle}:${soulUrgeSingle}${soulUrgeSingle}`],
+        clockCodes: getClockCodesForNumber(soulUrgeCode, soulUrgeSingle).list,
         totemSymbol: soulEntry.totem,
         geometricSymbol: soulEntry.geometry,
         instantMessage: soulEntry.higherSelfMessage
@@ -1202,7 +1379,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       summary: `Ruh Haritanız (İsim: ${destinyCode}) ile Beden Haritanızın (Yaşam Yolu: ${lifePathCode}) toplamından doğan ${maturityCode} kodu; özellikle 35–40 yaş sonrasında açığa çıkan nihai üstatlık ve miras frekansınızdır.`,
       calculationFormula: `Yaşam Yolu (${lifePathSingle}) + İsim Kader (${reduceToSingle(destinyCode, false)}) = ${maturityRaw} → ${maturityCode}.`,
       higherSelfTrigger: {
-        clockCodes: [`0${maturitySingle}:0${maturitySingle}`, `${maturitySingle}${maturitySingle}${maturitySingle}`],
+        clockCodes: getClockCodesForNumber(maturityCode, maturitySingle).list,
         totemSymbol: maturityEntry.totem,
         geometricSymbol: maturityEntry.geometry,
         instantMessage: `0${maturitySingle}:0${maturitySingle} gördüğünde Üst Benliğin hatırlatıyor: "İlk yarıdaki tüm sınavlar seni bu ${maturityCode} üstatlığına hazırlamak içindi!"`
@@ -1350,7 +1527,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       actionStep: 'O an kiminle veya hangi kararla uğraşıyorsanız, eski alışkanlıkla (korku, inat veya erteleme) değil; yeni bilinçle hareket edin.'
     },
     {
-      code: `0${soulUrgeSingle}:0${soulUrgeSingle} / ${soulUrgeSingle}${soulUrgeSingle}${soulUrgeSingle}`,
+      code: getClockCodesForNumber(soulUrgeCode, soulUrgeSingle).display,
       title: `Ruh Haritası Onay Frekansı (${soulUrgeCode})`,
       sourceCodeName: `Ruh Güdüsü Kodu: ${soulUrgeCode}`,
       layer: 'soul',

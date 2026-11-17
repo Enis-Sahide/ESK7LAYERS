@@ -92,7 +92,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   {
     id: 'sembolkodlari',
     title: 'Üst Benlik Sembol & Kod Analizi',
-    description: 'Ruh, Beden ve 3. Harita senteziyle 11 kişisel kodunuzu, karmik borçlarınızı ve günlük Üst Benlik işaretlerinizi çözün.',
+    description: 'Ruh, Beden ve 3. Harita senteziyle 12 kişisel kodunuzu, karmik borçlarınızı ve günlük Üst Benlik işaretlerinizi çözün.',
     icon: 'key-outline',
     route: '/(dashboard)/kisisel-analizler/sembol-kodlari',
     color: '#F43F5E',
