@@ -53,6 +53,9 @@ export interface SymbolCodeAnalysisResult {
     soulUrgeSingle: number;
     personalityCode: number;
     destinyCode: number;
+    birthMatrixFieldCode: number;
+    missingBirthDigits: number[];
+    embeddedRuhKodu: number;
     auraProtectionCode: number;
     missingChakras: number[];
     dominantChakra: number;
@@ -1140,12 +1143,31 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   const auraProtectionCode = missingChakras.length > 0 ? missingChakras[0] : minChakra;
   const subconsciousSelfCode = Math.max(1, 9 - missingChakras.length);
 
-  // 2. Doğum Tarihi hesaplamaları (Beden Haritası - Assiah)
+  // 2. Doğum Tarihi hesaplamaları (Beden Haritası - Assiah & Pisagor Doğum Matrisi)
   const birthDaySingle = reduceToSingle(day, false);
+  const birthMonthSingle = reduceToSingle(month, false);
+  const birthYearSingle = reduceToSingle(year, false);
   const rawLifePathSum = sumDigits(day) + sumDigits(month) + sumDigits(year);
   const threeCycleLifePathSum = reduceToSingle(day, true) + reduceToSingle(month, true) + reduceToSingle(year, true);
   const lifePathCode = reduceToSingle(rawLifePathSum, true);
   const lifePathSingle = reduceToSingle(rawLifePathSum, false);
+
+  // Pisagor Doğum Tarihi Matrisi (GG.AA.YYYY içindeki 1-9 rakam dağılımı)
+  const birthDigitsStr = `${day}${month}${year}`.replace(/0/g, '');
+  const birthDigitCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  for (const dCh of birthDigitsStr) {
+    const dVal = parseInt(dCh, 10);
+    if (dVal >= 1 && dVal <= 9) {
+      birthDigitCounts[dVal - 1] += 1;
+    }
+  }
+  const missingBirthDigits: number[] = [];
+  birthDigitCounts.forEach((cnt, idx) => {
+    if (cnt === 0) missingBirthDigits.push(idx + 1);
+  });
+  // Beden Alan (Sınır & Koruma) Kodu: Doğum tarihi matrisindeki ilk eksik rakam (yoksa Gün+Ay indirgemesi)
+  const birthMatrixFieldCode =
+    missingBirthDigits.length > 0 ? missingBirthDigits[0] : reduceToSingle(day + month, false);
 
   // 3. Gerçek Pisagor Karmik Borç Taraması (13/4, 14/5, 16/7, 19/1)
   // Yalnızca gerçek matematiksel ara toplamlarda (Doğum Günü, Yaşam Yolu, İsim Kader, Ruh Güdüsü, Persona) 13, 14, 16, 19 varsa tespit edilir.
@@ -1183,6 +1205,19 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   addKarmicIfFound(checkKarmicFromSum(rawPersonalitySum), `Dışsal Persona Sessiz Harf Toplamı (${rawPersonalitySum})`);
   if (nameWords.length > 1) {
     addKarmicIfFound(checkKarmicFromSum(wordReducedPersonaSum), `Dışsal Persona Kelime Toplamı (${wordReducedPersonaSum})`);
+  }
+
+  // E2) Doğum Tarihi Zirve (Pinnacle) Döngüleri & Doğum Matrisi Baskın Eksen Taraması
+  const pinnacle1Raw = birthDaySingle + birthMonthSingle;
+  const pinnacle2Raw = birthDaySingle + birthYearSingle;
+  const pinnacle4Raw = birthMonthSingle + birthYearSingle;
+  addKarmicIfFound(checkKarmicFromSum(pinnacle1Raw), `1. Yaşam Döngüsü Gün+Ay Toplamı (${pinnacle1Raw})`);
+  addKarmicIfFound(checkKarmicFromSum(pinnacle2Raw), `2. Yaşam Döngüsü Gün+Yıl Toplamı (${pinnacle2Raw})`);
+  addKarmicIfFound(checkKarmicFromSum(pinnacle4Raw), `Ana Hasat Döngüsü Ay+Yıl Toplamı (${pinnacle4Raw})`);
+
+  // Doğum Matrisinde 1 ve 9'un birlikte çift/baskın tekrar etmesi (1-9 Otorite ve Güç Karmik Kilidi: 19/1)
+  if (birthDigitCounts[0] >= 2 && birthDigitCounts[8] >= 2) {
+    addKarmicIfFound('19/1', `Doğum Tarihi Matrisi 1–9 Baskın Güç Ekseni (${birthDigitCounts[0]} adet 1 ve ${birthDigitCounts[8]} adet 9)`);
   }
 
   // F) Opsiyonel Doğum Saati (İlk Nefes Enkarnasyon Kapısı: SS:DD)
@@ -1400,6 +1435,44 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         {
           heading: '3. Gezegen Saatleri Senkronizasyonu',
           content: planetEntry.synchronicityGuide
+        }
+      ]
+    },
+
+    // 6B. BEDEN ALAN (DOĞUM MATRİSİ SINIR & KORUMA) KODU (1. Bölüm - Doğum Tarihinden Gelen Kod)
+    {
+      id: 'body-field-code',
+      title: 'Beden Alan (Sınır & Koruma) Kodu',
+      shortTitle: 'BEDEN ALAN KODU',
+      codeValue: `${birthMatrixFieldCode}`,
+      subLabel: `Doğum Matrisi Açık Alanı (Alan Kapatan: ${birthMatrixFieldCode})`,
+      layer: 'body',
+      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Alan Kodu',
+      color: '#FACC15',
+      archetypeTitle: `Beden Alan Kodu ${birthMatrixFieldCode} — ${(AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).gateTitle}`,
+      summary: `Doğum tarihinizdeki (${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}) rakamlar 1–9 Pisagor Beden Matrisine yerleştirildiğinde ilk açık kalan sınır kapısı "${birthMatrixFieldCode}" frekansıdır ("Alan Kapatan" koruma şifreniz).`,
+      calculationFormula:
+        missingBirthDigits.length > 0
+          ? `Doğum tarihinizde bulunan rakamlar: [${Array.from(new Set(birthDigitsStr.split(''))).sort().join(', ')}]. 1'den 9'a kadar Pisagor karesinde bulunmayan (açık kalan) rakamlar: [${missingBirthDigits.join(', ')}]. İlk açık basamak olan ${birthMatrixFieldCode}, Beden Haritanızın Alan (Sınır ve Koruma) Kodudur.`
+          : `Doğum tarihinizde 1-9 arası tüm rakamlar bulunduğu için Gün+Ay (${day}+${month}) sınır toplamınız olan ${birthMatrixFieldCode} Beden Alan Kodunuzdur.`,
+      higherSelfTrigger: {
+        clockCodes: [`0${birthMatrixFieldCode}:0${birthMatrixFieldCode}`, `${birthMatrixFieldCode}${birthMatrixFieldCode}:${birthMatrixFieldCode}${birthMatrixFieldCode}`, `${birthMatrixFieldCode}${birthMatrixFieldCode}${birthMatrixFieldCode}`],
+        totemSymbol: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).totem,
+        geometricSymbol: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).geometry,
+        instantMessage: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).instantMessage
+      },
+      sections: [
+        {
+          heading: '1. Beden Alan Kodu ("Alan Kapatan") Nedir?',
+          content: `Doğum tarihinizden gelen Beden Alan Kodu (${birthMatrixFieldCode}), fiziksel ve eterik bedeninizin dış dünyaya karşı en hassas sınır kapısını gösterir. ${(AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).leakageSymptom}`
+        },
+        {
+          heading: '2. Günlük Hayatta Enerji Sızıntısı Belirtileri',
+          content: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).dailyVulnerability
+        },
+        {
+          heading: '3. Alan Kapatma ve Sınır Mühürleme Pratiği',
+          content: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).shieldingRitual
         }
       ]
     },
@@ -1642,8 +1715,18 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       actionStep: 'Kalbinizin gerçek arzusunu bastırmayın; o an aklınızdan geçen düşünce Ruh Haritanızla tam uyumludur.'
     },
     {
+      code: `0${birthMatrixFieldCode}:0${birthMatrixFieldCode} / ${birthMatrixFieldCode}${birthMatrixFieldCode}${birthMatrixFieldCode}`,
+      title: `Beden Alan Kalkanı ("Alan Kapatan" Kodu: ${birthMatrixFieldCode})`,
+      sourceCodeName: `Beden Alan Kodu: ${birthMatrixFieldCode} (Doğum Matrisi)`,
+      layer: 'body',
+      color: '#FACC15',
+      symbolArchetype: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).totem,
+      whenYouSeeIt: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).instantMessage,
+      actionStep: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).shieldingRitual
+    },
+    {
       code: `0${auraProtectionCode}:0${auraProtectionCode} / ${auraProtectionCode}${auraProtectionCode}${auraProtectionCode}`,
-      title: `Aura Kalkanı Uyarısı (${auraProtectionCode}. Çakra Kapısı)`,
+      title: `İsim Çakra Kalkanı Uyarısı (${auraProtectionCode}. Çakra Kapısı)`,
       sourceCodeName: `Aura Koruma Kodu: ${auraProtectionCode}`,
       layer: 'alchemy',
       color: '#F59E0B',
@@ -1699,6 +1782,9 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       soulUrgeSingle,
       personalityCode,
       destinyCode,
+      birthMatrixFieldCode,
+      missingBirthDigits,
+      embeddedRuhKodu: primaryKarmicKey !== 'YOK' ? reduceToSingle(parseInt(primaryKarmicKey.split('/')[1], 10) || soulUrgeSingle, false) : soulUrgeSingle,
       auraProtectionCode,
       missingChakras,
       dominantChakra,

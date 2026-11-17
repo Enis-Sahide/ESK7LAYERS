@@ -58,6 +58,7 @@ export default function SymbolCodesMobileScreen() {
   const bodyCodes = result
     ? [
         result.codes.find((c) => c.id === 'birth-code'),
+        result.codes.find((c) => c.id === 'body-field-code'),
         result.codes.find((c) => c.id === 'life-path'),
         result.codes.find((c) => c.id === 'planet-ruler'),
         result.codes.find((c) => c.id === 'birth-time-portal')
@@ -457,6 +458,28 @@ export default function SymbolCodesMobileScreen() {
                   </View>
                 </View>
               ))}
+            </View>
+
+            {/* 5. BÖLÜM: ÜST HARİTALAR (KABALİSTİK 4 ALEM & DRAKONİK HARİTA) KÖPRÜSÜ */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.55)' }]}>
+              <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
+                5. BÖLÜM • ÜST HARİTALARA GEÇİŞ ANAHTARI
+              </Text>
+              <Text style={styles.sectionHeading}>
+                Üst Haritalarınız (2. Drakonik Ruh, 3. Beriyah ve 4. Atziluth Kozmik Harita)
+              </Text>
+              <Text style={styles.sectionSub}>
+                Yukarıdaki sayısal kodlar bu dünyadaki 1. Katman (Enkarnasyon) şifrelerinizdir. Beden Alan Kodunuz ({result.summaryMetrics.birthMatrixFieldCode}), Gezegen Yöneticiniz ({result.summaryMetrics.lifePathPlanetName}) ve Karmik Kilidiniz ({result.summaryMetrics.primaryKarmicCode}) dengelendiğinde Astrolojik Üst Haritalarınız devreye girer:
+              </Text>
+
+              <TouchableOpacity
+                style={styles.calcBtn}
+                onPress={() => router.push('/(dashboard)/kisisel-analizler/kabalistik-4-alem' as any)}
+                activeOpacity={0.85}
+              >
+                <Ionicons name="git-network-outline" size={18} color="#000" style={{ marginRight: 8 }} />
+                <Text style={styles.calcBtnText}>Kabalistik 4 Alem (Üst Haritalar) Analizini Aç</Text>
+              </TouchableOpacity>
             </View>
           </>
         )}
