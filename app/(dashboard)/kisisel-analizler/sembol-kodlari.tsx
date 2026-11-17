@@ -30,7 +30,7 @@ export default function SymbolCodesMobileScreen() {
   const [birthMinute, setBirthMinute] = useState('');
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
-  const [selectedBodyId, setSelectedBodyId] = useState<string>('birth-code');
+  const [selectedBodyId, setSelectedBodyId] = useState<string>('body-karmic-soul');
   const [selectedSoulId, setSelectedSoulId] = useState<string>('soul-urge');
   const [selectedAlchemyId, setSelectedAlchemyId] = useState<string>('karmic-debt');
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
@@ -57,6 +57,7 @@ export default function SymbolCodesMobileScreen() {
 
   const bodyCodes = result
     ? [
+        result.codes.find((c) => c.id === 'body-karmic-soul'),
         result.codes.find((c) => c.id === 'birth-code'),
         result.codes.find((c) => c.id === 'body-field-code'),
         result.codes.find((c) => c.id === 'life-path'),
