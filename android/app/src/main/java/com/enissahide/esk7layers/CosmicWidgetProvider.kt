@@ -22,6 +22,15 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.Calendar
+import java.util.TimeZone
+import android.database.sqlite.SQLiteDatabase
+import org.json.JSONObject
+import kotlin.math.acos
+import kotlin.math.asin
+import kotlin.math.atan
+import kotlin.math.floor
+import kotlin.math.sin
+import kotlin.math.tan
 import kotlin.math.cos
 import kotlin.math.roundToInt
 
@@ -333,17 +342,259 @@ object CosmicWidgetHelper {
         }
     }
 
-    fun getChaldeanHourIndex(cal: Calendar): Int {
-        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
-        val hourOfDay = cal.get(Calendar.HOUR_OF_DAY)
-        val effectiveDay = if (hourOfDay < 6) {
-            if (dayOfWeek == Calendar.SUNDAY) Calendar.SATURDAY else dayOfWeek - 1
-        } else {
-            dayOfWeek
+        data class PlanetaryHourSlot(
+        val planetIdx: Int,
+        val startMillis: Long,
+        val endMillis: Long
+    )
+
+    data class AstronomicalPlanetaryState(
+        val currentIdx: Int,
+        val prevIdx: Int,
+        val next1Idx: Int,
+        val next2Idx: Int,
+        val next3Idx: Int,
+        val minsLeft: Int,
+        val next1TimeStr: String,
+        val next2TimeStr: String,
+        val next3TimeStr: String,
+        val cityName: String
+    )
+
+    private fun resolveUserCoordinates(context: Context): Triple<Double, Double, String> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val savedLat = prefs.getString("widgetLat", null)?.toDoubleOrNull()
+        val savedLon = prefs.getString("widgetLon", null)?.toDoubleOrNull()
+        val savedCity = prefs.getString("widgetCity", null)
+        if (savedLat != null && savedLon != null) {
+            return Triple(savedLat, savedLon, savedCity ?: "Konum")
         }
-        val hoursSinceSunrise = if (hourOfDay >= 6) hourOfDay - 6 else (hourOfDay + 18)
-        val startIdx = DAY_RULER_START_INDEX[effectiveDay] ?: 3
-        return (startIdx + hoursSinceSunrise) % 7
+
+        // Fallback: Read directly from AsyncStorage SQLite (RKStorage) if available
+        try {
+            val dbFile = context.getDatabasePath("RKStorage")
+            if (dbFile != null && dbFile.exists()) {
+                val db = SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READONLY)
+                db.use { sqlite ->
+                    sqlite.rawQuery(
+                        "SELECT value FROM catalystLocalStorage WHERE key = ?",
+                        arrayOf("last_planet_hours_location")
+                    ).use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val jsonStr = cursor.getString(0)
+                            if (!jsonStr.isNullOrEmpty()) {
+                                val obj = JSONObject(jsonStr)
+                                if (obj.has("lat") && obj.has("lon")) {
+                                    val lat = obj.getDouble("lat")
+                                    val lon = obj.getDouble("lon")
+                                    val name = obj.optString("name", "Antalya").substringBefore(",").trim()
+                                    prefs.edit()
+                                        .putString("widgetLat", lat.toString())
+                                        .putString("widgetLon", lon.toString())
+                                        .putString("widgetCity", name)
+                                        .apply()
+                                    return Triple(lat, lon, name)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {
+        }
+
+        // Default to Antalya / Turkey coordinates
+        return Triple(36.8969, 30.7133, "Antalya")
+    }
+
+    private fun calcSunriseSunsetUtcMillis(
+        year: Int,
+        month: Int,
+        day: Int,
+        lat: Double,
+        lon: Double,
+        isSunrise: Boolean
+    ): Long {
+        val rad = Math.PI / 180.0
+        val deg = 180.0 / Math.PI
+
+        val n1 = (275 * month) / 9
+        val n2 = (month + 9) / 12
+        val n3 = 1 + (year - 4 * (year / 4) + 2) / 3
+        val dayOfYear = n1 - (n2 * n3) + day - 30
+
+        val lngHour = lon / 15.0
+        val t = if (isSunrise) {
+            dayOfYear + ((6.0 - lngHour) / 24.0)
+        } else {
+            dayOfYear + ((18.0 - lngHour) / 24.0)
+        }
+
+        val meanAnomaly = (0.9856 * t) - 3.289
+        var trueLon = meanAnomaly +
+            (1.916 * sin(meanAnomaly * rad)) +
+            (0.020 * sin(2.0 * meanAnomaly * rad)) +
+            282.634
+        trueLon = ((trueLon % 360.0) + 360.0) % 360.0
+
+        var ra = deg * atan(0.91764 * tan(trueLon * rad))
+        ra = ((ra % 360.0) + 360.0) % 360.0
+
+        val lQuadrant = floor(trueLon / 90.0) * 90.0
+        val raQuadrant = floor(ra / 90.0) * 90.0
+        ra = (ra + (lQuadrant - raQuadrant)) / 15.0
+
+        val sinDec = 0.39782 * sin(trueLon * rad)
+        val cosDec = cos(asin(sinDec))
+
+        val cosH = (cos(90.8333 * rad) - (sinDec * sin(lat * rad))) / (cosDec * cos(lat * rad))
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, day)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val baseUtcMillis = utcCal.timeInMillis
+
+        if (cosH > 1.0 || cosH < -1.0) {
+            return baseUtcMillis + (if (isSunrise) 4L else 16L) * 3600_000L
+        }
+
+        var h = if (isSunrise) {
+            360.0 - deg * acos(cosH)
+        } else {
+            deg * acos(cosH)
+        }
+        h /= 15.0
+
+        val localMeanTime = h + ra - (0.06571 * t) - 6.622
+        val utHours = (((localMeanTime - lngHour) % 24.0) + 24.0) % 24.0
+        return baseUtcMillis + (utHours * 3600_000.0).toLong()
+    }
+
+    private fun build24PlanetarySlotsForUtcDay(
+        year: Int,
+        month: Int,
+        day: Int,
+        lat: Double,
+        lon: Double
+    ): Pair<Long, List<PlanetaryHourSlot>> {
+        val sunriseMs = calcSunriseSunsetUtcMillis(year, month, day, lat, lon, true)
+        val sunsetMs = calcSunriseSunsetUtcMillis(year, month, day, lat, lon, false)
+
+        val nextCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month - 1)
+            set(Calendar.DAY_OF_MONTH, day)
+            add(Calendar.DAY_OF_MONTH, 1)
+        }
+        val nextSunriseMs = calcSunriseSunsetUtcMillis(
+            nextCal.get(Calendar.YEAR),
+            nextCal.get(Calendar.MONTH) + 1,
+            nextCal.get(Calendar.DAY_OF_MONTH),
+            lat,
+            lon,
+            true
+        )
+
+        val localSunriseMs = sunriseMs + ((lon / 15.0) * 3600_000.0).toLong()
+        val localCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = localSunriseMs
+        }
+        val dayOfWeek = localCal.get(Calendar.DAY_OF_WEEK) // Calendar.SUNDAY..Calendar.SATURDAY
+        var planetIdx = DAY_RULER_START_INDEX[dayOfWeek] ?: 3
+
+        val dayHourMs = (sunsetMs - sunriseMs).toDouble() / 12.0
+        val nightHourMs = (nextSunriseMs - sunsetMs).toDouble() / 12.0
+        val slots = ArrayList<PlanetaryHourSlot>(24)
+
+        for (i in 0 until 12) {
+            val s = sunriseMs + (i * dayHourMs).toLong()
+            val e = sunriseMs + ((i + 1) * dayHourMs).toLong()
+            slots.add(PlanetaryHourSlot(planetIdx, s, e))
+            planetIdx = (planetIdx + 1) % 7
+        }
+        for (i in 0 until 12) {
+            val s = sunsetMs + (i * nightHourMs).toLong()
+            val e = sunsetMs + ((i + 1) * nightHourMs).toLong()
+            slots.add(PlanetaryHourSlot(planetIdx, s, e))
+            planetIdx = (planetIdx + 1) % 7
+        }
+        return Pair(sunriseMs, slots)
+    }
+
+    fun getAstronomicalPlanetaryState(context: Context, nowMillis: Long): AstronomicalPlanetaryState {
+        val (lat, lon, cityName) = resolveUserCoordinates(context)
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = nowMillis
+        }
+        val year = utcCal.get(Calendar.YEAR)
+        val month = utcCal.get(Calendar.MONTH) + 1
+        val day = utcCal.get(Calendar.DAY_OF_MONTH)
+
+        var (sunriseMs, slots) = build24PlanetarySlotsForUtcDay(year, month, day, lat, lon)
+        if (nowMillis < sunriseMs) {
+            val prevCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = nowMillis
+                add(Calendar.DAY_OF_MONTH, -1)
+            }
+            val prevPair = build24PlanetarySlotsForUtcDay(
+                prevCal.get(Calendar.YEAR),
+                prevCal.get(Calendar.MONTH) + 1,
+                prevCal.get(Calendar.DAY_OF_MONTH),
+                lat,
+                lon
+            )
+            sunriseMs = prevPair.first
+            slots = prevPair.second
+        }
+
+        val lastEnd = slots.last().endMillis
+        val nextDayCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = lastEnd + 3600_000L
+        }
+        val nextDaySlots = build24PlanetarySlotsForUtcDay(
+            nextDayCal.get(Calendar.YEAR),
+            nextDayCal.get(Calendar.MONTH) + 1,
+            nextDayCal.get(Calendar.DAY_OF_MONTH),
+            lat,
+            lon
+        ).second
+
+        val allSlots = ArrayList<PlanetaryHourSlot>(28).apply {
+            addAll(slots)
+            addAll(nextDaySlots.take(4))
+        }
+
+        var activeSlotIdx = allSlots.indexOfFirst { nowMillis >= it.startMillis && nowMillis < it.endMillis }
+        if (activeSlotIdx < 0) activeSlotIdx = 0
+
+        val curSlot = allSlots[activeSlotIdx]
+        val next1Slot = allSlots[activeSlotIdx + 1]
+        val next2Slot = allSlots[activeSlotIdx + 2]
+        val next3Slot = allSlots[activeSlotIdx + 3]
+
+        val curIdx = curSlot.planetIdx
+        val prevIdx = (curIdx + 6) % 7
+        // Use floor((endMillis - nowMillis) / 60000) to match JS Math.floor((endTime - now) / 60000) in index.tsx
+        val minsLeft = ((curSlot.endMillis - nowMillis) / 60_000L).toInt().coerceAtLeast(1)
+
+        val fmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return AstronomicalPlanetaryState(
+            currentIdx = curIdx,
+            prevIdx = prevIdx,
+            next1Idx = next1Slot.planetIdx,
+            next2Idx = next2Slot.planetIdx,
+            next3Idx = next3Slot.planetIdx,
+            minsLeft = minsLeft,
+            next1TimeStr = fmt.format(Date(next1Slot.startMillis)),
+            next2TimeStr = fmt.format(Date(next2Slot.startMillis)),
+            next3TimeStr = fmt.format(Date(next3Slot.startMillis)),
+            cityName = cityName
+        )
     }
 
     fun getLaunchPendingIntent(context: Context): PendingIntent {
@@ -500,9 +751,10 @@ class CosmicWidgetProvider : AppWidgetProvider() {
             val cal = Calendar.getInstance()
             val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
             val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
-            val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
-            val nextIdx = (currentIdx + 1) % 7
-            val minsLeft = (60 - cal.get(Calendar.MINUTE)).coerceIn(1, 60)
+            val pState = CosmicWidgetHelper.getAstronomicalPlanetaryState(context, cal.timeInMillis)
+            val currentIdx = pState.currentIdx
+            val nextIdx = pState.next1Idx
+            val minsLeft = pState.minsLeft
 
             val views = RemoteViews(context.packageName, R.layout.cosmic_widget)
             views.setTextViewText(R.id.widget_symbol, dayInfo.symbol)
@@ -555,9 +807,9 @@ class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         val cal = Calendar.getInstance()
-        val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
-        val minsLeft = (60 - cal.get(Calendar.MINUTE)).coerceIn(1, 60)
-        val currentHour = cal.get(Calendar.HOUR_OF_DAY)
+        val pState = CosmicWidgetHelper.getAstronomicalPlanetaryState(context, cal.timeInMillis)
+        val currentIdx = pState.currentIdx
+        val minsLeft = pState.minsLeft
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.planetary_hours_widget)
@@ -569,15 +821,12 @@ class PlanetaryHoursWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.ph_mins_left, "$minsLeft dk kaldı")
             views.setTextViewText(R.id.ph_meaning, CosmicWidgetHelper.PLANET_HOUR_MEANINGS[currentIdx])
 
-            val h1 = (currentHour + 1) % 24
-            val h2 = (currentHour + 2) % 24
-            val h3 = (currentHour + 3) % 24
-            views.setTextViewText(R.id.ph_next1_time, String.format("%02d:00", h1))
-            views.setTextViewText(R.id.ph_next1_name, CosmicWidgetHelper.CHALDEAN_ORDER[(currentIdx + 1) % 7])
-            views.setTextViewText(R.id.ph_next2_time, String.format("%02d:00", h2))
-            views.setTextViewText(R.id.ph_next2_name, CosmicWidgetHelper.CHALDEAN_ORDER[(currentIdx + 2) % 7])
-            views.setTextViewText(R.id.ph_next3_time, String.format("%02d:00", h3))
-            views.setTextViewText(R.id.ph_next3_name, CosmicWidgetHelper.CHALDEAN_ORDER[(currentIdx + 3) % 7])
+            views.setTextViewText(R.id.ph_next1_time, pState.next1TimeStr)
+            views.setTextViewText(R.id.ph_next1_name, CosmicWidgetHelper.CHALDEAN_ORDER[pState.next1Idx])
+            views.setTextViewText(R.id.ph_next2_time, pState.next2TimeStr)
+            views.setTextViewText(R.id.ph_next2_name, CosmicWidgetHelper.CHALDEAN_ORDER[pState.next2Idx])
+            views.setTextViewText(R.id.ph_next3_time, pState.next3TimeStr)
+            views.setTextViewText(R.id.ph_next3_name, CosmicWidgetHelper.CHALDEAN_ORDER[pState.next3Idx])
 
             views.setOnClickPendingIntent(
                 R.id.ph_widget_root,
@@ -653,10 +902,11 @@ class MiniCosmicWidgetProvider : AppWidgetProvider() {
     ) {
         val cal = Calendar.getInstance()
         val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
-        val currentIdx = CosmicWidgetHelper.getChaldeanHourIndex(cal)
-        val prevIdx = (currentIdx + 6) % 7
-        val nextIdx = (currentIdx + 1) % 7
-        val minsLeft = (60 - cal.get(Calendar.MINUTE)).coerceIn(1, 60)
+        val pState = CosmicWidgetHelper.getAstronomicalPlanetaryState(context, cal.timeInMillis)
+        val currentIdx = pState.currentIdx
+        val prevIdx = pState.prevIdx
+        val nextIdx = pState.next1Idx
+        val minsLeft = pState.minsLeft
         val currentPlanetName = CosmicWidgetHelper.CHALDEAN_ORDER[currentIdx].substringBefore(" ")
 
         for (appWidgetId in appWidgetIds) {

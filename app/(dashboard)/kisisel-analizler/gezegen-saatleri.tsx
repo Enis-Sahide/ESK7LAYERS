@@ -1,6 +1,6 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Keyboard, LayoutAnimation, UIManager, Platform, Switch, Modal, NativeModules } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 // @ts-ignore
@@ -320,6 +320,9 @@ export default function GezegenSaatleriScreen() {
       name: name,
       tz: tz
     })).catch(() => {});
+    if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveLocation) {
+      NativeModules.CosmicWidgetModule.saveLocation(suggestion.lat, suggestion.lon, name).catch(() => {});
+    }
     
     setSuggestions([]);
     setShowSuggestions(false);
@@ -374,6 +377,9 @@ export default function GezegenSaatleriScreen() {
           name: name,
           tz: tz
         })).catch(() => {});
+        if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveLocation) {
+          NativeModules.CosmicWidgetModule.saveLocation(latitude, longitude, name).catch(() => {});
+        }
       } else {
         setErrorMsg('Şehir bulunamadı. Lütfen geçerli bir şehir adı girin (örn: Istanbul).');
         setLoading(false);

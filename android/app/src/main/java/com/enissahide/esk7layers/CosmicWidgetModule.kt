@@ -57,13 +57,55 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun saveLocation(
+        lat: Double,
+        lon: Double,
+        cityName: String,
+        promise: Promise
+    ) {
+        try {
+            val prefs = reactApplicationContext.getSharedPreferences(
+                CosmicWidgetHelper.PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+            val prevLat = prefs.getString("widgetLat", null)?.toDoubleOrNull()
+            val prevLon = prefs.getString("widgetLon", null)?.toDoubleOrNull()
+            val prevCity = prefs.getString("widgetCity", null)
+
+            prefs.edit()
+                .putString("widgetLat", lat.toString())
+                .putString("widgetLon", lon.toString())
+                .putString("widgetCity", cityName.trim())
+                .apply()
+
+            if (prevLat != lat || prevLon != lon || prevCity != cityName.trim()) {
+                CosmicWidgetHelper.refreshTimeWidgetsOnly(reactApplicationContext)
+            }
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("WIDGET_LOC_ERROR", e.message, e)
+        }
+    }
+
+    @ReactMethod
     fun clearBirthProfile(promise: Promise) {
         try {
             val prefs = reactApplicationContext.getSharedPreferences(
                 CosmicWidgetHelper.PREFS_NAME,
                 Context.MODE_PRIVATE
             )
-            prefs.edit().clear().apply()
+            prefs.edit()
+                .remove("birthDate")
+                .remove("birthTime")
+                .remove("zodiacSign")
+                .remove("element")
+                .remove("rulingPlanet")
+                .remove("lifePath")
+                .remove("chartMode")
+                .remove("soulZodiacSign")
+                .remove("soulElement")
+                .remove("soulRulingPlanet")
+                .apply()
             CosmicWidgetHelper.refreshAllWidgets(reactApplicationContext)
             promise.resolve(true)
         } catch (e: Exception) {

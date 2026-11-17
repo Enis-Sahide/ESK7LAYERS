@@ -377,6 +377,9 @@ const PlanetaryHourWidget = ({ visible = true }: { visible?: boolean }) => {
               lat = parsed.lat;
               lon = parsed.lon;
               cityName = parsed.name ? String(parsed.name).split(',')[0] : 'Seçili Konum';
+              if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveLocation) {
+                NativeModules.CosmicWidgetModule.saveLocation(lat, lon, cityName).catch(() => {});
+              }
             }
           }
           
