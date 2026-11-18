@@ -863,6 +863,104 @@ const PLANETARY_RULER_LIBRARY: Record<
   }
 };
 
+
+// ============================================================================
+// KADİM ASTRO-NUMEROLOJİ (CHEIRO, AGRIPPA, PTOLEMY TETRABIBLOS & SEFER YETZIRAH)
+// SAYI – GEZEGEN – BURÇ (ZODYAK TAHTI) KARŞILIKLARI KÜTÜPHANESİ
+// ============================================================================
+const CLASSICAL_ZODIAC_CORRESPONDENCES: Record<
+  number,
+  {
+    planetAndSign: string;
+    classicalDomicile: string;
+    seferYetzirahLink: string;
+    innerSoulZodiacNature: string;
+    outerPersonaAscendantStyle: string;
+  }
+> = {
+  1: {
+    planetAndSign: "Güneş (Sol) • Aslan Burcu (Leo) Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Aslan (Ateş / Sabit • Ptolemy Tetrabiblos I.17 & Cheiro Ch. 2)",
+    seferYetzirahLink: "Alef (א) — İlk Ateş/Hava Nefesi & Güneşin Merkez Tahtı",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 1 sayısı Güneş'in tek burç tahtı olan Aslan (Leo) frekansıyla çalışır. İç dünyanızda tıpkı bir Aslan burcu özü gibi onurlu, kendi krallığını kurmak isteyen, emir almaktan hoşlanmayan, cömert ve yaratıcı bir güneş ateşi taşırsınız.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 1 olduğunda, astrolojideki 'Yükselen Aslan (Güneş Vitrini)' gibi algılanırsınız: Bir odaya girdiğinizde dik duruşunuz, özgüveniniz, doğal liderlik auranız ve vakur ciddiyetinizle hemen fark edilirsiniz."
+  },
+  2: {
+    planetAndSign: "Ay (Luna) • Yengeç Burcu (Cancer) Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Yengeç (Su / Öncü • Ptolemy Tetrabiblos I.17 & Cheiro Ch. 3)",
+    seferYetzirahLink: "Bet (ב) — Bilgelik Evi & Ay'ın Rahim/Ayna Kapısı",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 2 sayısı Ay'ın burç tahtı olan Yengeç (Cancer) frekansıyla çalışır. İç dünyanızda tıpkı güçlü bir Yengeç/Ay doğası gibi derin empati, sezgisel hafıza, koruyup kollama, duygusal güven ve aidiyet ihtiyacı taşırsınız.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 2 olduğunda, astrolojideki 'Yükselen Yengeç (Ay Vitrini)' gibi algılanırsınız: İnsanlar sizi ilk gördüğünde tehditkar olmayan, yumuşak, dinlemeyi bilen, şefkatli, nazik ve sırlarını rahatça açabilecekleri güvenli bir liman olarak görürler."
+  },
+  3: {
+    planetAndSign: "Jüpiter (Müşteri) • Yay & Klasik Balık Burcu Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Gündüz Yay (Ateş), Gece Balık (Su) • (Ptolemy Tetrabiblos I.17 & Cheiro Ch. 4)",
+    seferYetzirahLink: "Gimel (ג) — Bereket Köprüsü & Jüpiter'in İlahi İnayet Kanalı",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 3 sayısı Jüpiter'in yönettiği Yay (Sagittarius) ve klasik Balık (Pisces) burçlarının bilgelik, genişleme, neşe ve felsefe frekansıyla çalışır. İç dünyanızda anlam arayan, öğreten, ilham veren ve sınırları aşmak isteyen bir kaşif ruhu vardır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 3 olduğunda, astrolojideki 'Yükselen Yay (Jüpiter Vitrini)' gibi algılanırsınız: İlk tanışmada güler yüzlü, neşeli, konuşkan, vizyoner, sosyal mıknatıs etkisi yaratan ve bulunduğu ortama moral/umut getiren biri olarak görünürsünüz."
+  },
+  4: {
+    planetAndSign: "Güneş Toprak Kutbu / Uranüs & Satürn • Kova & 4 Sabit Burç (Boğa-Aslan-Akrep-Kova) Arketipi",
+    classicalDomicile: "Klasik Karşılığı: Kova (Uranüs/Satürn) & 4 Sabit Kerubim Kapısı • (Cheiro Ch. 5 & Agrippa Book II)",
+    seferYetzirahLink: "Dalet (ד) — Dört Yön / Yapı Kapısı & Pisagor Tetractys Temeli",
+    innerSoulZodiacNature:
+      "Cheiro ve Agrippa'ya göre 4 sayısı, 1'in (Güneş) madde dünyasındaki yapısal kutbu ve Kova/Toprak sabitliğidir. İç dünyanızda sarsılmaz bir düzen kurma, kuralları yeniden yazma, sadakat, netlik ve somut bir eser inşa etme arzusu çalışır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 4 olduğunda, astrolojideki 'Toprak/Sabit Yükselen (Oğlak-Boğa-Kova Vitrini)' gibi algılanırsınız: İlk izlenimde son derece ciddi, güvenilir, ayakları yere sağlam basan, kuralları olan, disiplinli ve sözünün eri bir uzman profili çizersiniz."
+  },
+  5: {
+    planetAndSign: "Merkür (Utarid) • İkizler & Başak Burcu Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Gece İkizler (Hava), Gündüz Başak (Toprak) • (Ptolemy Tetrabiblos I.17 & Cheiro Ch. 6)",
+    seferYetzirahLink: "He (ה) — İlahi Nefes Penceresi & Hermetik Merkür Zekası",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 5 sayısı Merkür'ün yönettiği İkizler (Gemini) ve Başak (Virgo) burçlarının zihinsel çeviklik, merak, iletişim, analiz ve hareket frekansıyla çalışır. İç dünyanızda tekdüzeliğe gelemeyen, sürekli öğrenen ve deneyim arayan bir rüzgar vardır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 5 olduğunda, astrolojideki 'Yükselen İkizler / Başak (Merkür Vitrini)' gibi algılanırsınız: İnsanlar sizi ilk gördüğünde yaşından genç gösteren, pratik zekalı, hızlı düşünen, esprili, her ortama anında uyum sağlayan dinamik bir iletişimci olarak algılar."
+  },
+  6: {
+    planetAndSign: "Venüs (Zühre) • Terazi & Boğa Burcu Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Gündüz Terazi (Hava), Gece Boğa (Toprak) • (Ptolemy Tetrabiblos I.17 & Cheiro Ch. 7)",
+    seferYetzirahLink: "Vav (ו) — Sefer Yetzirah 5:1'de Doğrudan Boğa Burcu (Shor/Taurus) & Venüs Köprüsü",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 6 sayısı Venüs'ün yönettiği Terazi (Libra) ve Boğa (Taurus) burçlarının (ve Sefer Yetzirah'taki 6. harf Vav = Boğa burcunun) sevgi, estetik, uyum, adalet, huzur ve şifa frekansıyla çalışır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 6 olduğunda, astrolojideki 'Yükselen Terazi veya Yükselen Boğa (Venüs Vitrini)' gibi algılanırsınız: Hiç konuşmasanız bile dışarıya sıcak, zarif, estetik, uyumlu, anaç/babaç, güven veren ve 'insanları iyileştiren/uzlaştıran' manyetik bir Venüs vitrini yayarsınız."
+  },
+  7: {
+    planetAndSign: "Ay Mistik Kutbu / Neptün & Ketu • Balık (ve Akrep Derinliği) Burcu Arketipi",
+    classicalDomicile: "Klasik Karşılığı: Su Üçlüsü Mistik Kutbu — Balık & Akrep Derinliği • (Cheiro Ch. 8)",
+    seferYetzirahLink: "Zayin (ז) — Sefer Yetzirah 5:1'de Keskin Ayırt Etme Kılıcı & Sırların Yedinci Mührü",
+    innerSoulZodiacNature:
+      "Cheiro'ya göre 7 sayısı, 2'nin (Ay) ezoterik-okült kutbu ve Neptün/Su derinliğidir (Balık ve Akrep burçlarının mistik, sezgisel ve sırları çözen yönü). İç dünyanızda kalabalıklardan uzaklaşıp kendi kabuğunda hakikati arayan derin bir gözlemci ve bilge yaşar.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 7 olduğunda, astrolojideki 'Yükselen Akrep / Balık (Mistik & Mesafeli Vitrin)' gibi algılanırsınız: İlk tanışmada gizemli, kolay çözülemeyen, ağırbaşlı, seçici, entelektüel ve herkesi hemen özel alanına almayan asil bir mesafe yayarsınız."
+  },
+  8: {
+    planetAndSign: "Satürn (Zühal) • Oğlak & Klasik Kova Burcu Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Gece Oğlak (Toprak), Gündüz Kova (Hava) • (Ptolemy Tetrabiblos I.17 & Cheiro Ch. 9)",
+    seferYetzirahLink: "Het (ח) — Yaşam Çiti/Sınırı & Satürn'ün Karmik Terazi Yasası",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 8 sayısı Satürn'ün yönettiği Oğlak (Capricorn) ve klasik Kova (Aquarius) burçlarının sorumluluk, otorite, zaman ustalığı, strateji ve kalıcı güç inşası frekansıyla çalışır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 8 olduğunda, astrolojideki 'Yükselen Oğlak (Satürn Vitrini)' gibi algılanırsınız: Odaya girdiğiniz anda güçlü, otoriter, iş bitirici, ağırlığı olan, saygı uyandıran ve kriz yönetebilecek bir yönetici/patron aurası yayarsınız."
+  },
+  9: {
+    planetAndSign: "Mars (Merih) • Koç & Klasik Akrep Burcu Arketipi",
+    classicalDomicile: "Klasik Burç Tahtı: Gündüz Koç (Ateş), Gece Akrep (Su) • (Ptolemy Tetrabiblos I.17 & Cheiro Ch. 10)",
+    seferYetzirahLink: "Tet (ט) — Gizli Ateş/Kundalini Gücü & Mars'ın Koruyucu Kılıcı",
+    innerSoulZodiacNature:
+      "Kadim Astro-Numerolojide 9 sayısı Mars'ın yönettiği Koç (Aries) ve klasik Akrep (Scorpio) burçlarının en üst ruhsal oktavıdır: Cesaret, öncülük, krizlerden küllerinden doğma ve tüm insanlığı kucaklayan şefkatli savaşçı ruhuyla çalışır.",
+    outerPersonaAscendantStyle:
+      "Dışsal Aura (Persona) kodunuz 9 olduğunda, astrolojideki 'Yükselen Koç/Akrep + Evrensel Bilge Vitrini' gibi algılanırsınız: İnsanlar sizi ilk gördüğünde cesur, karizmatik, haksızlığa gelemeyen, hayat tecrübesi yüksek ve herkese yukarıdan bütünsel bir şefkatle yaklaşan bir rehber olarak görürler."
+  }
+};
+
 // ============================================================================
 // 5. KALDE (BABİL) BİLEŞİK ARKETİPLERİ (10 - 52 ARASI ÖZEL MİSTİK KODLAR)
 // ============================================================================
@@ -1506,12 +1604,12 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
           content: `${soulEntry.summary} ${soulEntry.soulHunger}`
         },
         {
-          heading: '2. Ruh Güdüsünün Gölge Tuzağı',
-          content: `Ruhunuzun bu temel ihtiyacı karşılanmadığında veya baskılandığında şu gölge tepki ortaya çıkar: ${soulEntry.shadowTrap}`
+          heading: '2. Kadim Astro-Numerolojide Denk Geldiği Gezegen & Burç Doğası',
+          content: `${(CLASSICAL_ZODIAC_CORRESPONDENCES[soulUrgeSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[soulUrgeSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}). ${(CLASSICAL_ZODIAC_CORRESPONDENCES[soulUrgeSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).innerSoulZodiacNature}`
         },
         {
-          heading: '3. Üst Benlik Uyanış Mesajı',
-          content: soulEntry.higherSelfMessage
+          heading: '3. Ruh Güdüsünün Gölge Tuzağı & Uyanış Mesajı',
+          content: `Gölge Tuzağı: ${soulEntry.shadowTrap}\n\n${soulEntry.higherSelfMessage}`
         }
       ]
     },
@@ -1678,8 +1776,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       },
       sections: [
         {
-          heading: '1. Kabalistik Sefira ve Gezegen Arketipi',
-          content: `Yönetici gezegeniniz ${planetEntry.planet}, Hayat Ağacı'nda "${planetEntry.kabbalahSphere}" küresiyle rezonanstadır. ${planetEntry.summary}`
+          heading: '1. Kabalistik Sefira, Gezegen ve Klasik Burç Tahtı (Domicile)',
+          content: `Yönetici gezegeniniz ${planetEntry.planet}, Hayat Ağacı'nda "${planetEntry.kabbalahSphere}" küresiyle ve kadim astrolojide "${(CLASSICAL_ZODIAC_CORRESPONDENCES[birthDaySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}" ile rezonanstadır. ${planetEntry.summary}`
         },
         {
           heading: '2. Uyumlu Metal, Doğal Taş ve Element Frekansı',
@@ -1815,8 +1913,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       },
       sections: [
         {
-          heading: '1. Beden Gezegeninden Üst Harita Gezegenine Geçiş',
-          content: `3. Haritayı çalıştırmadığınız sürece hayatınızı 1. Harita yöneticiniz olan ${lifePathPlanetEntry.planet} (disiplin ve dünyevi sınavlarla) yönetir. 3. Haritaya geçtiğinizde ise direksiyona ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} (${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).kabbalahSphere}) geçer.`
+          heading: '1. Beden Gezegeninden Üst Harita Gezegenine ve Burç Arketipine Geçiş',
+          content: `3. Haritayı çalıştırmadığınız sürece hayatınızı 1. Harita yöneticiniz olan ${lifePathPlanetEntry.planet} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[lifePathSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign}) yönetir. 3. Haritaya geçtiğinizde ise direksiyona ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[maturitySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign} • ${(CLASSICAL_ZODIAC_CORRESPONDENCES[maturitySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}) geçer.`
         },
         {
           heading: '2. Üst Haritada Zamanlama, Taş ve Frekans Uyumu',
@@ -1877,15 +1975,19 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       },
       sections: [
         {
-          heading: '1. İnsanlar Sizi İlk Tanışmada Nasıl Algılıyor?',
-          content: `İçsel Ruh Güdünüz (${soulUrgeCode}) ne olursa olsun, dış dünyaya yaydığınız ilk manyetik izlenim "${personalityCode} — ${personaEntry.title}" frekansıdır. ${personaEntry.summary}`
+          heading: '1. İnsanlar Sizi İlk Tanışmada Nasıl Algılıyor? (Yükselen Burç Vitrini)',
+          content: `Astrolojide "Yükselen Burç (Ascendant)" ne ise, kadim numerolojide Dışsal Aura (Sessiz Harfler) Kodu da tam olarak odur. İçsel Ruh Güdünüz (${soulUrgeCode}) ne olursa olsun, dış dünyaya yaydığınız ilk manyetik vitrin "${personalityCode} — ${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign}" frekansıdır. ${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).outerPersonaAscendantStyle}`
         },
         {
-          heading: '2. İç Öz ile Dış Maske Uyumu',
+          heading: '2. İç Öz (Güneş/Ay Doğası) ile Dış Maske (Yükselen Vitrin) Uyumu',
           content:
             soulUrgeSingle === personalityCode
-              ? 'İçsel Ruh Güdünüz ile Dışsal Persona kodunuz aynıdır! İçi dışı bir, şeffaf ve ne hissediyorsa dışarıya onu yansıtan bir auranız vardır.'
-              : `İç dünyanızda ${soulUrgeCode} frekansı çalışırken dışarıya ${personalityCode} vitrini yansıtırsınız. Bu yüzden sizi yeni tanıyanlarla yakınlarınızın sizin hakkınızdaki izlenimi birbirinden çok farklı olabilir.`
+              ? `İçsel Ruh Güdünüz (${soulUrgeCode}) ile Dışsal Aura kodunuz (${personalityCode}) aynı burç ve gezegen arketipindedir (${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign})! İçi dışı bir, şeffaf ve içeride ne hissediyorsa dışarıya onu yansıtan bir auranız vardır.`
+              : `İç dünyanızda ${soulUrgeCode} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[soulUrgeSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign}) doğası çalışırken, dışarıya ${personalityCode} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign}) vitrini yansıtırsınız. Tıpkı burcu ile yükselen burcu farklı bir insan gibi; sizi ilk kez görenlerin algıladığı "${personalityCode}" dış profili ile yakınlarınızın bildiği "${soulUrgeCode}" iç dünyanız birbirinden çok farklıdır.`
+        },
+        {
+          heading: '3. Kabalistik Sefer Yetzirah Harf & Burç Bağı',
+          content: `${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).seferYetzirahLink} • ${(CLASSICAL_ZODIAC_CORRESPONDENCES[personalityCode] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}.`
         }
       ]
     },
