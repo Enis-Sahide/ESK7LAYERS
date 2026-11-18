@@ -1754,38 +1754,41 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       ]
     },
 
-    // 6. GEZEGEN YÖNETİCİSİ KODU (2. Harita - Beden & Kozmik Saat)
+    // 6. GEZEGEN YÖNETİCİSİ KODU (Beden Haritası & Kozmik Saat)
     {
       id: 'planet-ruler',
       isCoreSynchronicityCode: true,
-      title: 'Kozmik Gezegen Yöneticisi',
+      title: 'Beden (1. Harita) Gezegen Yöneticisi',
       shortTitle: 'GEZEGEN YÖNETİCİSİ',
-      codeValue: planetEntry.planet.split(' ')[0],
-      subLabel: `Güç Günü: ${planetEntry.powerDay} • ${planetEntry.element}`,
+      codeValue: lifePathPlanetEntry.planet.split(' ')[0],
+      subLabel:
+        birthDaySingle === lifePathSingle
+          ? `Güç Günü: ${lifePathPlanetEntry.powerDay} • ${lifePathPlanetEntry.element}`
+          : `Ana Yönetici: ${lifePathPlanetEntry.planet.split(' ')[0]} • Doğum Günü: ${planetEntry.planet.split(' ')[0]}`,
       layer: 'body',
       layerBadge: '1. Bölüm • Beden Haritası (Doğum Tarihi) Kodu',
       color: '#A855F7',
-      archetypeTitle: `${planetEntry.planet} — ${planetEntry.kabbalahSphere}`,
-      summary: `Kişisel zaman döngünüzü, otorite sınavlarınızı ve eşzamanlılık saatlerinizi yöneten baş gezegen ${planetEntry.planet}'dir.`,
-      calculationFormula: `Doğum Kodu (${birthDaySingle}) ve Yaşam Yolu (${lifePathSingle}) senteziyle birincil beden yöneticiniz ${planetEntry.planet}, ikincil yol yöneticiniz ${lifePathPlanetEntry.planet} olarak çalışır.`,
+      archetypeTitle: `${lifePathPlanetEntry.planet} — ${lifePathPlanetEntry.kabbalahSphere}`,
+      summary: `Doğum tarihinizin Yaşam Yolu toplamından (${rawLifePathSum}/${lifePathCode} → ${lifePathSingle}) belirlenen ana Beden (1. Harita) Gezegen Yöneticiniz ${lifePathPlanetEntry.planet}'dir.${birthDaySingle !== lifePathSingle ? ` Doğum gününüzden (${day} → ${birthDaySingle}) gelen ikincil yetenek gezegeniniz ise ${planetEntry.planet}'dir.` : ''}`,
+      calculationFormula: `Yaşam Yolu Kök Frekansı (${lifePathSingle}) → Ana Beden Yöneticisi: ${lifePathPlanetEntry.planet} (Doğum Günü Kök Frekansı ${birthDaySingle} → ${planetEntry.planet}).`,
       higherSelfTrigger: {
-        clockCodes: planetEntry.clockCodes,
-        totemSymbol: planetEntry.totem,
-        geometricSymbol: planetEntry.geometry,
-        instantMessage: `${planetEntry.powerDay} günleri ve ${planetEntry.planet.split(' ')[0]} saatleri senin kozmik kapındır; niyetlerini bu saatlerde mühürle.`
+        clockCodes: lifePathPlanetEntry.clockCodes,
+        totemSymbol: lifePathPlanetEntry.totem,
+        geometricSymbol: lifePathPlanetEntry.geometry,
+        instantMessage: `${lifePathPlanetEntry.powerDay} günleri ve ${lifePathPlanetEntry.planet.split(' ')[0]} saatleri senin kozmik kapındır; niyetlerini bu saatlerde mühürle.`
       },
       sections: [
         {
           heading: '1. Kabalistik Sefira, Gezegen ve Klasik Burç Tahtı (Domicile)',
-          content: `Yönetici gezegeniniz ${planetEntry.planet}, Hayat Ağacı'nda "${planetEntry.kabbalahSphere}" küresiyle ve kadim astrolojide "${(CLASSICAL_ZODIAC_CORRESPONDENCES[birthDaySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}" ile rezonanstadır. ${planetEntry.summary}`
+          content: `Ana Beden Haritası yöneticiniz ${lifePathPlanetEntry.planet}, Hayat Ağacı'nda "${lifePathPlanetEntry.kabbalahSphere}" küresiyle ve kadim astrolojide "${(CLASSICAL_ZODIAC_CORRESPONDENCES[lifePathSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}" ile rezonanstadır. ${lifePathPlanetEntry.summary}`
         },
         {
           heading: '2. Uyumlu Metal, Doğal Taş ve Element Frekansı',
-          content: `Elementiniz: ${planetEntry.element} • Güç Gününüz: ${planetEntry.powerDay} • Auranızı güçlendiren metal ve taşlar: ${planetEntry.metalAndStone}.`
+          content: `Elementiniz: ${lifePathPlanetEntry.element} • Güç Gününüz: ${lifePathPlanetEntry.powerDay} • Auranızı güçlendiren metal ve taşlar: ${lifePathPlanetEntry.metalAndStone}.`
         },
         {
           heading: '3. Gezegen Saatleri Senkronizasyonu',
-          content: planetEntry.synchronicityGuide
+          content: lifePathPlanetEntry.synchronicityGuide
         }
       ]
     },
