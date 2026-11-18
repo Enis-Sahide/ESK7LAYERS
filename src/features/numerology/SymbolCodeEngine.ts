@@ -83,6 +83,15 @@ export interface SymbolCodeAnalysisResult {
   };
   codes: PersonalSymbolCodeItem[];
   synchronicitySignals: SynchronicitySignal[];
+  upperMapSynchronicitySignals: SynchronicitySignal[];
+  mapTransitionTable: {
+    category: string;
+    bodyMapCode: string;
+    bodyMapMeaning: string;
+    upperMapCode: string;
+    upperMapMeaning: string;
+    unlockCondition: string;
+  }[];
   mapBalanceSummary: {
     soulDominantNote: string;
     bodyDominantNote: string;
@@ -1784,6 +1793,38 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       ]
     },
 
+    // 7B. ÜST HARİTA (3. HARİTA / RUH & HASAT) GEZEGEN YÖNETİCİSİ KODU
+    {
+      id: 'upper-planet-ruler',
+      isCoreSynchronicityCode: true,
+      title: '3. Harita (Üst Bilinç) Gezegen Yöneticisi',
+      shortTitle: 'ÜST HARİTA GEZEGENİ',
+      codeValue: `${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]} (${maturityCode})`,
+      subLabel: `Beden (${lifePathPlanetEntry.planet.split(' ')[0]}) → Üst Harita (${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]})`,
+      layer: 'alchemy',
+      layerBadge: '2. Aşama • 3. Harita (Üst Harita) Yöneticisi',
+      color: '#C084FC',
+      archetypeTitle: `${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} — ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).kabbalahSphere}`,
+      summary: `1. Haritadaki (Beden Haritasındaki) ${lifePathPlanetEntry.planet.split(' ')[0]} sınavlarını tamamladığınızda, 3. Haritanızın (Üst Bilinç ve Hasat Haritanızın) yeni yöneticisi olarak "${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet}" devreye girer.`,
+      calculationFormula: `Beden Yaşam Yolu (${lifePathSingle}) + Ruh İsim Kader (${reduceToSingle(destinyCode, false)}) = ${maturityCode} Hasat Frekansı → Yöneticisi: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet}.`,
+      higherSelfTrigger: {
+        clockCodes: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).clockCodes,
+        totemSymbol: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).totem,
+        geometricSymbol: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).geometry,
+        instantMessage: `3. Haritayı çalıştırdığınızda ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).powerDay} günleri ve ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]} saatleri sizin yeni kozmik taçlanma kapınızdır.`
+      },
+      sections: [
+        {
+          heading: '1. Beden Gezegeninden Üst Harita Gezegenine Geçiş',
+          content: `3. Haritayı çalıştırmadığınız sürece hayatınızı 1. Harita yöneticiniz olan ${lifePathPlanetEntry.planet} (disiplin ve dünyevi sınavlarla) yönetir. 3. Haritaya geçtiğinizde ise direksiyona ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} (${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).kabbalahSphere}) geçer.`
+        },
+        {
+          heading: '2. Üst Haritada Zamanlama, Taş ve Frekans Uyumu',
+          content: `Üst Harita Güç Gününüz: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).powerDay} • Element: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).element} • Uyumlu Metal & Taş: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).metalAndStone}.`
+        }
+      ]
+    },
+
     // 8. GİZLİ TUTKU / BASKIN ÇAKRA MIKNATISI (1. Harita - Ruh Haritası)
     {
       id: 'hidden-passion',
@@ -2018,6 +2059,90 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   ];
 
+  const upperPlanetEntry = PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1];
+  const soulClockObj = getClockCodesForNumber(soulUrgeCode, soulUrgeSingle);
+  const maturityClockObj = getClockCodesForNumber(maturityCode, maturitySingle);
+
+  // 2. AŞAMA (3. HARİTA / ÜST HARİTA ÇALIŞMAYA BAŞLADIĞINDA DEĞİŞEN 3 YENİ EŞZAMANLILIK SİNYALİ)
+  const upperMapSynchronicitySignals: SynchronicitySignal[] = [
+    {
+      code: `${soulClockObj.display} (Öz Ruh: ${soulUrgeCode})`,
+      title: `${soulClockObj.list[0]} Üst Harita Ruhsal Akış & İlham Sinyali`,
+      sourceCodeName: `1. Harita (${activeRuhDigit}/${primaryKarmicKey}) ➡️ 3. Harita Öz Ruh Kodu: ${rawSoulUrgeSum}/${soulUrgeCode}`,
+      layer: 'soul',
+      color: '#D4AF37',
+      symbolArchetype: soulEntry.totem,
+      whenYouSeeIt: `3. Haritayı çalıştırmaya başladığınızda, 1. Haritadaki (${activeRuhDigit}) karmik sınav uyarısı yerini Öz Ruh Güdüsü kodunuz olan ${soulUrgeCode} (${soulEntry.title}) sinyaline bırakır. Günlük hayatta ${soulClockObj.display} görmeniz artık bir ceza/karmik alarm değil; kalbinizin ve Üst Benliğinizin tam hizada olduğunun onay mesajıdır.`,
+      actionStep: soulEntry.higherSelfMessage
+    },
+    {
+      code: `0${auraProtectionCode}:0${auraProtectionCode} / ${auraProtectionCode}${auraProtectionCode}${auraProtectionCode}`,
+      title: `0${auraProtectionCode}:0${auraProtectionCode} Üst Harita Çakra Yaratım & Köprü (${bridgeCode}) Sinyali`,
+      sourceCodeName: `1. Harita Alan Kodu (${birthMatrixFieldCode}) ➡️ 3. Harita Çakra Yetenek Kodu: ${auraProtectionCode} & Köprü: ${bridgeCode}`,
+      layer: 'soul',
+      color: '#10B981',
+      symbolArchetype: chakraLessonEntry.totem,
+      whenYouSeeIt: `1. Haritada "${birthMatrixFieldCode}" sayısı ile enerji alanınızı korumayı ve sınır çizmeyi öğrendikten sonra, 3. Haritada odağınız savunmadan yaratıma geçer: "${auraProtectionCode}. Çakra (${chakraLessonEntry.lessonTitle})" ve "Köprü Kodu ${bridgeCode}" yeni aktivasyon şifreniz olur.`,
+      actionStep: `${chakraLessonEntry.activationPractice} (${bridgeEntry.synchronizationKey})`
+    },
+    {
+      code: `${maturityClockObj.display} (${upperPlanetEntry.planet.split(' ')[0]})`,
+      title: `${maturityClockObj.list[0]} Üst Harita Hasat & ${upperPlanetEntry.planet.split(' ')[0]} Üstatlık Sinyali`,
+      sourceCodeName: `1. Harita (${birthDaySingle} - ${lifePathPlanetEntry.planet.split(' ')[0]}) ➡️ 3. Harita Hasat Kodu: ${maturityCode} (${upperPlanetEntry.planet.split(' ')[0]})`,
+      layer: 'alchemy',
+      color: '#C084FC',
+      symbolArchetype: upperPlanetEntry.totem,
+      whenYouSeeIt: `1. Haritadaki ${lifePathPlanetEntry.planet.split(' ')[0]} (${birthDaySingle}) dünyevi disiplin sınavını tamamladığınızda, 3. Haritada yeni yöneticiniz ${upperPlanetEntry.planet} ve Hasat Kodunuz ${maturityCode} olur. Günlük hayatta ${maturityClockObj.display} görmeniz, ruhsal ustalığınızın ve ilahi misyonunuzun meyve verme zamanını işaret eder.`,
+      actionStep: upperPlanetEntry.synchronicityGuide
+    }
+  ];
+
+  // 1. HARİTA (BEDEN) ➡️ 3. HARİTA (ÜST BİLİNÇ) KOD DÖNÜŞÜM TABLOSU
+  const mapTransitionTable = [
+    {
+      category: '1. Ruh & Öz Kodu',
+      bodyMapCode: primaryKarmicKey !== 'YOK' ? `${activeRuhDigit} (Gömülü ${primaryKarmicKey})` : `${activeRuhDigit}`,
+      bodyMapMeaning: 'Beden Haritası Benlik & Bağımsızlık Sınavı',
+      upperMapCode: `${rawSoulUrgeSum}/${soulUrgeCode}`,
+      upperMapMeaning: `Öz Ruh Güdüsü (${soulEntry.title})`,
+      unlockCondition: primaryKarmicKey !== 'YOK'
+        ? `${primaryKarmicKey} gölgesini (kurtarıcı bekleme, inat veya korkuyu) bırakıp kendi merkezinde durduğunda dönüşür.`
+        : 'Dünyevi onay kaygısını bırakıp içsel sesini dinlediğinde dönüşür.'
+    },
+    {
+      category: '2. Alan & Çakra Kodu',
+      bodyMapCode: `${birthMatrixFieldCode} (Alan Kapatan)`,
+      bodyMapMeaning: 'Dış Negatifliğe Karşı Sınır & Koruma Kalkanı',
+      upperMapCode: `${auraProtectionCode} (${auraProtectionCode}. Çakra)`,
+      upperMapMeaning: `${chakraLessonEntry.lessonTitle}`,
+      unlockCondition: `"${birthMatrixFieldCode}" koduyla hayır demeyi ve enerji alanını kapatmayı öğrendiğinde savunmadan "${auraProtectionCode}. Çakra" yaratımına geçilir.`
+    },
+    {
+      category: '3. Karmik Kilit ➡️ Köprü & Sembol',
+      bodyMapCode: primaryKarmicKey !== 'YOK' ? primaryKarmicKey : 'Serbest Kontrat',
+      bodyMapMeaning: 'Geçmiş Yaşamdan Devreden Tekrarlayan Ders',
+      upperMapCode: `Köprü ${bridgeCode} & Kalde ${chaldeanCompoundNum}/${reduceToSingle(chaldeanCompoundNum, false)}`,
+      upperMapMeaning: `${chaldeanEntry.symbolName} (${bridgeEntry.title})`,
+      unlockCondition: 'Aynı hayat hatasını tekrarlamayı durdurup Ruh ve Beden haritasını Köprü Koduyla birleştirdiğinde açılır.'
+    },
+    {
+      category: '4. Doğum Kodu ➡️ Hasat Kodu',
+      bodyMapCode: `${day > 9 ? `${day}/${birthDaySingle}` : birthDaySingle} (Yaşam Yolu: ${rawLifePathSum}/${lifePathCode})`,
+      bodyMapMeaning: 'Fiziksel Enkarnasyon Yeteneği & Dünya Otobanı',
+      upperMapCode: `${maturityCode}`,
+      upperMapMeaning: `Üst Harita Hasat & Üstatlık Misyonu (${maturityEntry.title})`,
+      unlockCondition: 'Doğum gününün verdiği fiziksel yeteneği sadece dünyevi hırs için değil, bütüne hizmet için kullandığında açılır.'
+    },
+    {
+      category: '5. Gezegen Yöneticisi',
+      bodyMapCode: `${lifePathPlanetEntry.planet.split(' ')[0]} (${lifePathSingle})`,
+      bodyMapMeaning: '1. Harita (Assiah) Dünyevi Disiplin Yöneticisi',
+      upperMapCode: `${upperPlanetEntry.planet.split(' ')[0]} (${maturitySingle})`,
+      upperMapMeaning: `3. Harita (${upperPlanetEntry.kabbalahSphere.split(' ')[0]}) Üst Bilinç Yöneticisi`,
+      unlockCondition: `${lifePathPlanetEntry.planet.split(' ')[0]} gezegeninin dünyevi sorumluluklarını ertelemeden yerine getirdiğinde üst oktav gezegenin devralır.`
+    }
+  ];
+
   return {
     fullName: cleanName,
     birthDate: `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`,
@@ -2051,6 +2176,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     },
     codes,
     synchronicitySignals,
+    upperMapSynchronicitySignals,
+    mapTransitionTable,
     mapBalanceSummary: {
       soulDominantNote: `Ruh Haritanız (İsminiz) "${soulUrgeCode} — ${soulEntry.title}" özüyle çalışırken dış dünyaya "${personalityCode}" vitrini yansıtıyor ve en güçlü silahını ${dominantChakra}. Çakradan alıyor.`,
       bodyDominantNote: `Beden Haritanız (Doğum Tarihiniz) ayın ${day}. günü mührüyle "${birthDaySingle}" frekansında ve ${planetEntry.planet} yönetiminde fiziksel dünyaya kökleniyor.`,
