@@ -264,12 +264,8 @@ export default function NumerolojiEgitimScreen() {
                 Her sayının bir Evrensel (Genel) Anlamı, bir de kişinin haritasında Oturduğu Koltuğa Göre Değişen Özel Anlamı vardır. Örneğin 2 sayısını ele alalım:
               </Text>
               <Text style={styles.methodExample}>
-                • Beden Alan Koruma (Açık Kapı) Koltuğunda 2: Doğum tarihinde hiç 2 rakamı yoksa (Örn: 17.03.1995), ilk boş halka 2 olduğu için bu kişide 2 sayısı "Alan Kapatan / Sınır Kodu" olur. 22:22 görmek bu kişiye "Alanını kapat, sınır çiz ve başkasının yükünü alma!" uyarısıdır.{"
-
-"}
-                • Doğum Yeteneği veya Yaşam Yolu Koltuğunda 2: Ayın 2., 11., 20. günü doğanlarda ise 2 açık kapı değil, "Ana Güç Merkezi"dir; "Birleştirici şifacılığını ve ortaklık yeteneğini kullan" demektir.{"
-
-"}
+                • Beden Alan Koruma (Açık Kapı) Koltuğunda 2: Doğum tarihinde hiç 2 rakamı yoksa (Örn: 17.03.1995), ilk boş halka 2 olduğu için bu kişide 2 sayısı "Alan Kapatan / Sınır Kodu" olur. 22:22 görmek bu kişiye "Alanını kapat, sınır çiz ve başkasının yükünü alma!" uyarısıdır.{"\n\n"}
+                • Doğum Yeteneği veya Yaşam Yolu Koltuğunda 2: Ayın 2., 11., 20. günü doğanlarda ise 2 açık kapı değil, "Ana Güç Merkezi"dir; "Birleştirici şifacılığını ve ortaklık yeteneğini kullan" demektir.{"\n\n"}
                 • Ruh Koduna Gömülü Karmik Kilit (Örn: 1 ve Gömülü 19/1): Ruh veya Benlik kodu dışarıdan 1 göründüğü halde 19 toplamından geliyorsa (veya doğum matrisinde 1 ve 9 çift kilitlenmişse), geçmiş yaşamda gücün hatalı kullanımından doğan "Kimseden kurtarıcı beklemeden kendi ayakları üzerinde durma" sınavı olarak çalışır.
               </Text>
             </View>
@@ -356,12 +352,8 @@ export default function NumerolojiEgitimScreen() {
                 Üstat seviyesinde tek haneli sayılar (1–9) sadece dış kabuktur; asıl sır iki basamaklı Keldani Bileşik Sayılarında (10–52) ve Astrolojik Üst Haritalara geçişte gizlidir:
               </Text>
               <Text style={styles.methodExample}>
-                • Cheiro 10–52 Sembolleri: İki kişinin de tek haneli sayısı 8 (Satürn) olabilir; ancak birinin bileşik sayısı 17/8 (Ölümsüzlerin Yıldızı) iken diğerininki 26/8 (Ortaklık ve Finansal İhtiyat Sınavı) olabilir.{"
-
-"}
-                • İlk Nefes Saati & Gece/Gündüz Modu: Doğulan saat (SS:DD) bedene İlk Nefes Portal Kodunu ve Keldani Nöbetçi Gezegenini mühürler. Gündüz doğanlar (Diürnal) kodlarını görünür eylemle, gece doğanlar (Noktürnal) derin sezgi ve stratejik gizlilikle çalıştırır.{"
-
-"}
+                • Cheiro 10–52 Sembolleri: İki kişinin de tek haneli sayısı 8 (Satürn) olabilir; ancak birinin bileşik sayısı 17/8 (Ölümsüzlerin Yıldızı) iken diğerininki 26/8 (Ortaklık ve Finansal İhtiyat Sınavı) olabilir.{"\n\n"}
+                • İlk Nefes Saati & Gece/Gündüz Modu: Doğulan saat (SS:DD) bedene İlk Nefes Portal Kodunu ve Keldani Nöbetçi Gezegenini mühürler. Gündüz doğanlar (Diürnal) kodlarını görünür eylemle, gece doğanlar (Noktürnal) derin sezgi ve stratejik gizlilikle çalıştırır.{"\n\n"}
                 • Üst Haritalara Geçiş Sırrı: Sayısal kodlar 1. Katman (Assiah / Beden) şifreleridir. Kişi Alan Kodunu, Satürn sorumluluğunu ve Karmik Kilidini dengelediğinde 2. Harita (Drakonik Ruh), 3. Harita (9. Harmonik Beriyah) ve 4. Harita (Atziluth Kozmik Harita) uyanır.
               </Text>
             </View>
