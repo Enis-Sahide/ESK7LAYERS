@@ -199,8 +199,8 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
     summary:
       '19/1; başlangıç noktası (1) ile tamamlanma zirvesinin (9) yan yana geldiği, geçmiş enkarnasyonlardaki otorite ve güç kullanımını bu hayatta "kendi ayakları üzerinde duran şefkatli liderliğe" dönüştüren en güçlü karmik simya kodudur.',
     clockCodes: ['19:19', '10:10', '11:11', '01:01'],
-    totemSymbol: 'Zümrüdüanka (Phoenix) & Altın Aslan',
-    geometricSymbol: 'Merkez Noktalı Güneş Çemberi (Circumpunct)',
+    totemSymbol: 'Sol Invictus (Taçlı Zafer Güneşi), Altın Aslan & Horus Şahini (Arkana XIX)',
+    geometricSymbol: 'Merkez Noktalı Güneş Çemberi (Circumpunct) & Güneşin 6×6 Kamea Karesi (111)',
     instantMessage:
       'Saatlerde veya plakalarda 19, 19:19 ya da 11:11 gördüğünde Üst Benliğin sana sesleniyor: "Kimseden kurtarıcı bekleme ama kimseyi de sırtında taşıma. Kendi kararını ver, güneş gibi parlamaktan korkma!"',
     sections: [
@@ -231,8 +231,8 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
     summary:
       '13/4; dönüşüm (13) ile sarsılmaz temel ve düzenin (4) birleşimidir. Dağınık enerjiyi tek bir odakta toplamayı, ertelemeyi bırakmayı ve sabırla kalıcı bir imparatorluk inşa etmeyi öğreten karmik ustalık kodudur.',
     clockCodes: ['13:13', '04:04', '14:41', '444'],
-    totemSymbol: 'Çalışkan Kunduz & Kutsal Bokböceği (Khepri)',
-    geometricSymbol: 'Kutsal Küp (Metatron Küpü Temeli)',
+    totemSymbol: 'Khepri (Yeniden Doğuş Skarabı), Hasat Orakçısı & Anka Kuşu (Arkana XIII)',
+    geometricSymbol: 'Kutsal Küp (Heksahedron), Dalet Kapısı & Dört Yön Haçı',
     instantMessage:
       '13 veya 04:04 kodunu gördüğünde Üst Benliğin seni uyarıyor: "Kestirme yol arama, yarım bıraktığın işi tamamla ve masanı/zihnini topla. Sabrının ödülü çok yakın!"',
     sections: [
@@ -263,8 +263,8 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
     summary:
       '14/5; beş duyu dünyasının, özgürlüğün, değişimin ve manyetik çekimin (5) merkezindeki karmik denge kodudur. Kaos ve aşırılıklar içinde kendi merkezini kaybetmeden özgürleşmeyi öğretir.',
     clockCodes: ['14:14', '05:05', '15:51', '555'],
-    totemSymbol: 'Beyaz Küheylan & Göçmen Şahin',
-    geometricSymbol: 'Beş Köşeli Yıldız (Pentagram - Mikrokozmos)',
+    totemSymbol: 'İki Kadeh Arasında İksir Aktaran Simya Meleği (İtidal - Arkana XIV) & Thoth İbis Kuşu',
+    geometricSymbol: 'Pentagram (Beş Köşeli Mikrokozmos Yıldızı) & Caduceus Çift Yılanlı Asa',
     instantMessage:
       '14:14 veya 05:05 gördüğünde Üst Benliğin diyor ki: "Anlık hazlara veya öfkeye kapılma, enerjini dağıtma! Değişimden korkma ama direksiyonu elinde tut."',
     sections: [
@@ -295,8 +295,8 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
     summary:
       '16/7; sahte kimliklerin ve kibir kulelerinin yıkılıp (16), altından saf ruhsal bilgeliğin ve ilahi sezginin (7) doğduğu en derin mistik uyanış kodudur.',
     clockCodes: ['16:16', '07:07', '17:17', '777'],
-    totemSymbol: 'Gece Baykuşu & Beyaz Kuğu',
-    geometricSymbol: 'Yedi Köşeli Mistik Yıldız (Heptagram)',
+    totemSymbol: 'Taçlı Kuleye Düşen İlahi Yıldırım (The Tower - Arkana XVI) & Athena Baykuşu',
+    geometricSymbol: 'Heptagram (Yedi Köşeli Mistik Yıldız) & Yedi Kollu Menorah',
     instantMessage:
       '16:16 veya 07:07 gördüğünde Üst Benliğin fısıldıyor: "Yıkılan şeye üzülme; o senin sahte kafesindi. Dışarıdaki gürültüden çekil, iç sesini dinle, hakikat sana açılıyor."',
     sections: [
@@ -327,8 +327,8 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
     summary:
       'Ana isim ve doğum kodlarınızda 13/4, 14/5, 16/7 veya 19/1 karmik borç mührü bulunmamaktadır. Bu durum, geçmişten devreden ağır bir güç/ego borcu yerine bu hayata "Serbest İrade ve Yeni Ekim" kontratıyla geldiğinizi gösterir.',
     clockCodes: ['11:11', '22:22', '09:09'],
-    totemSymbol: 'Beyaz Güvercin & Altın Anahtar',
-    geometricSymbol: 'Yaşam Çiçeği (Tam Simetri)',
+    totemSymbol: 'Ankh (Ölümsüz Yaşam Anahtarı), Beyaz Güvercin & Kader Çarkı Sfenksi (Arkana X)',
+    geometricSymbol: 'Tetractys (Pisagor 10 Noktalı Kutsal Üçgeni) & Yaşam Çiçeği',
     instantMessage:
       '11:11 veya 22:22 gördüğünde Üst Benliğin sana hatırlatıyor: "Önünde geçmişten gelen bir pranga yok; bugün attığın her adım doğrudan yeni kaderini yazıyor!"',
     sections: [
@@ -365,8 +365,8 @@ const SOUL_URGE_LIBRARY: Record<
 > = {
   1: {
     title: 'Öncü Kıvılcım & Bağımsız Ruh (Alef Nefesi)',
-    totem: 'Altın Kartal',
-    geometry: 'Tekil Işık Noktası (Monad)',
+    totem: 'Alef (Kutsal Boğa / İlk Nefes), Altın Aslan & Apollon Güneş Şahini',
+    geometry: 'Monad — Merkez Noktalı Çember (Circumpunct)',
     summary: 'Ruhunuzun en derin açlığı kendi kararlarını kendi vermek, özgün olmak ve kimsenin taklidi olmadan kendi yolunu açmaktır.',
     soulHunger: 'İçsel dünyanızda emir almaya, kısıtlanmaya ve sıradanlığa tahammülünüz yoktur. Ruhunuz yaratıcı bir projeyi sıfırdan başlatırken canlanır.',
     shadowTrap: 'Sabırsızlık, içsel öfke, "Her şeyi ben bilirim" yalnızlığı veya takdir edilmediğinde hızla soğuma.',
@@ -374,8 +374,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   2: {
     title: 'Kutsal Ayna & Şefkatli Bütünleşme (Bet Kabı)',
-    totem: 'Çift Kuğu',
-    geometry: 'Vesica Piscis (İki Çemberin Kesişimi)',
+    totem: 'Bet (Kutsal Tapınak / Ev), İsis Hilali & Gümüş Kuğu',
+    geometry: 'Dyad — Vesica Piscis (İki Kesişen Çember) & Jachin-Boaz Sütunları',
     summary: 'Ruhunuzun en derin açlığı huzur, derin duygusal bağ, zarafet ve ruhsal düzeyde anlaşılmaktır.',
     soulHunger: 'Çatışma, kabalık ve gürültü ruhunuzu hızla yorar. İkili ilişkilerde ve ortaklıklarda görünmeyen duygusal akıntıları anında hissedersiniz.',
     shadowTrap: 'Sevilmek uğruna kendi sınırlarını feda etmek, alınganlık, kararsızlık ve başkasının duygusal yükünü sırtlanmak.',
@@ -383,8 +383,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   3: {
     title: 'İlahi Neşe & Yaratıcı İfade (Gimel-Lamed Kanadı)',
-    totem: 'Zümrüt Sinekkuşu & Yunus',
-    geometry: 'Kutsal Üçgen (Triskele)',
+    totem: 'Gimel (Çölü Geçen Deve / Bereket Köprüsü) & Jüpiter Kraliyet Kartalı',
+    geometry: 'Triad — Kutsal Eşkenar Üçgen (Delta) & Triskele',
     summary: 'Ruhunuzun en derin açlığı kendini sözle, sanatla, estetikle ve ilhamla özgürce ifade etmektir.',
     soulHunger: 'İçinizde sürekli konuşmak, üretmek, güzelleştirmek ve insanlara umut aşılamak isteyen çocuksu ama bilge bir ışık vardır.',
     shadowTrap: 'Duygusal iniş çıkışlar, anlaşılmadığında içe kapanıp küsmek, enerjisini aynı anda çok fazla şeye dağıtmak.',
@@ -392,8 +392,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   4: {
     title: 'Kutsal Mimar & Güven Kalesi (Dalet-Mem Temeli)',
-    totem: 'Dağ Keçisi & Kaplumbağa',
-    geometry: 'Dörtgen Tapınak (Küp)',
+    totem: 'Dalet (Tapınak Kapısı) & Dört Kerubim Muhafızı (Boğa-Aslan-Kartal-İnsan)',
+    geometry: 'Tetrad — Kutsal Küp (Heksahedron) & Pisagor Tetractys Piramidi',
     summary: 'Ruhunuzun en derin açlığı güven, netlik, sadakat ve zamana meydan okuyan kalıcı bir düzen kurmaktır.',
     soulHunger: 'Belirsizlik ve tutarsız insanlar ruhunuzu huzursuz eder. Sevdikleriniz için sarsılmaz bir sığınak olmak istersiniz.',
     shadowTrap: 'Değişime direnç göstermek, aşırı kontrolcülük, geçmiş hatalara takılıp kalmak ve kendine karşı fazla acımasız olmak.',
@@ -401,8 +401,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   5: {
     title: 'Özgür Rüzgar & Deneyim Kaşifi (He-Nun Akışı)',
-    totem: 'Alaca Şahin & Pegasus',
-    geometry: 'Beş Köşeli Yıldız (Pentagram)',
+    totem: 'He (İlahi Nefes Penceresi), Thoth İbis Kuşu & Hermes Caduceus Asası',
+    geometry: 'Pentad — Pentagram (Altın Oran Beş Köşeli Yıldız)',
     summary: 'Ruhunuzun en derin açlığı keşfetmek, sınırları aşmak, yeni kültürler/bilgiler deneyimlemek ve ruhsal özgürlüktür.',
     soulHunger: 'Rutin ve tekdüzelik ruhunuzun ışığını söndürür. Değişim rüzgarları estiğinde herkes korkarken siz canlanırsınız.',
     shadowTrap: 'Derinleşmekten kaçmak, huzursuzluk, sabırsızlık ve "Acaba başka yerde daha iyi bir şey mi var?" tatminsizliği.',
@@ -410,8 +410,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   6: {
     title: 'Kozmik Şifacı & Kalp Koruyucusu (Vav Köprüsü)',
-    totem: 'Zümrüt Güvercin & Dişi Aslan',
-    geometry: 'Altı Köşeli Yıldız (Mühr-ü Süleyman / Merkaba)',
+    totem: 'Vav (Göğü Yere Bağlayan Altın Kanca), Venüs Güvercini & Kuğu',
+    geometry: 'Hexad — Hekzagram (Mühr-ü Süleyman / Altı Köşeli Merkaba Yıldızı)',
     summary: 'Ruhunuzun en derin açlığı koşulsuz sevgi, estetik uyum, aile sıcaklığı ve dokunduğu hayatları iyileştirmektir.',
     soulHunger: 'Adaletsizliğe ve sevgisizliğe dayanamazsınız. Bulunduğunuz her mekanı ve insanı güzelleştirme, onarma içgüdünüz vardır.',
     shadowTrap: 'Kurtarıcı sendromu (istenmeden herkesin hayatına müdahale etmek), mükemmeliyetçilik ve nankörlük gördüğünde derin kalp kırıklığı.',
@@ -419,8 +419,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   7: {
     title: 'Sırların Bekçisi & Mistik Gözlemci (Zayin-Yod Işığı)',
-    totem: 'Kar Baykuşu & Yalnız Kurt',
-    geometry: 'Yedi Köşeli Mistik Yıldız (Heptagram)',
+    totem: 'Zayin (Alevli Ruhsal Kılıç), Giza Sfenksi & Athena Baykuşu (Arkana VII)',
+    geometry: 'Heptad — Heptagram (Yedi Köşeli Yıldız) & Yedi Kollu Menorah',
     summary: 'Ruhunuzun en derin açlığı yüzeyin altındaki gizli hakikati bulmak, bilgelik ve kutsal yalnızlık alanında dinlenmektir.',
     soulHunger: 'Sığ sohbetler ve yapay ortamlar sizi boğar. Doğada, sessizlikte, araştırmada ve ezoterik ilimlerde ruhunuz şarj olur.',
     shadowTrap: 'Zihinsel aşırı analiz, duygularını gizlemek, insanlara mesafe koymak ve içsel melankoli.',
@@ -428,8 +428,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   8: {
     title: 'Karmik Hükümran & Bereket Simyacısı (Het-Zayin Tacı)',
-    totem: 'Siyah Panter & Kral Kartal',
-    geometry: 'Sonsuzluk Döngüsü (Lemniskat / Oktav)',
+    totem: 'Het (Yaşam Sınırı), Ouroboros Yılanı & Ma\'at Adalet Terazisi (Arkana VIII)',
+    geometry: 'Ogdoad — Oktagram (Sekiz Köşeli Melkisedek Yıldızı) & Lemniskat (∞)',
     summary: 'Ruhunuzun en derin açlığı ruhsal gücü maddi dünyada somut başarıya, otoriteye ve büyük ölçekli etkiye dönüştürmektir.',
     soulHunger: 'Küçük hedefler sizi tatmin etmez. Gücü, parayı ve organizasyonu adil bir şekilde yöneterek iz bırakmak istersiniz.',
     shadowTrap: 'Güç savaşları, her şeyi maddi başarıyla ölçmek, duygusal sertlik veya kaybetme korkusu.',
@@ -437,8 +437,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   9: {
     title: 'Evrensel Bilge & Şefkat Okyanusu (Tet-Resh Işığı)',
-    totem: 'Beyaz Fil & Anka Kuşu',
-    geometry: 'Dokuz Köşeli Enneagram Çemberi',
+    totem: 'Tet (Bilgelik Yılanı), Hermit\'in Altın Feneri & Zümrüdüanka (Arkana IX)',
+    geometry: 'Ennead — Enneagram (Dokuz Köşeli Tamamlanma Çemberi)',
     summary: 'Ruhunuzun en derin açlığı insanlığa hizmet etmek, evrensel bilgelik yaymak ve koşulsuz şefkatle bütünleşmektir.',
     soulHunger: 'Sadece kendiniz için yaşamak size anlamsız gelir; bir öğreti, sanat veya şifa yoluyla kitlelerin ruhuna dokunmak istersiniz.',
     shadowTrap: 'Geçmişi ve bitmiş ilişkileri bırakamamak, hayal kırıklıkları ve dünyaya küsmek.',
@@ -446,8 +446,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   11: {
     title: 'Üstat Aydınlatıcı & İlahi Anten (11/2 Master Frekansı)',
-    totem: 'Gümüş Tekboynuz (Unicorn) & Beyaz Kartal',
-    geometry: 'İkiz Işık Sütunu (Jachin ve Boaz)',
+    totem: 'Jachin ve Boaz İkiz Tapınak Sütunları & Aslanın Ağzını Tutan Güç (Arkana XI)',
+    geometry: '11. Kabalistik Yol (Alef) & Çift Işık Sütunu',
     summary: 'Ruhunuz üst boyutlarla fiziksel dünya arasında doğrudan elektrik hattı taşıyan bir "Üstat Kanal" (11/2) frekansındadır.',
     soulHunger: 'Sıradan bir hayat sizi asla tatmin etmez; rüyalarınız, ani bilişleriniz ve ilhamlarınızla insanları uyandırmak için buradasınız.',
     shadowTrap: 'Yüksek voltajlı sinir sistemi gerginliği, anksiyete, kendi ışığından korkup 2 sayısının pasifliğine saklanmak.',
@@ -455,8 +455,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   22: {
     title: 'Üstat Mimar & Dünyaları Kurucu (22/4 Master Frekansı)',
-    totem: 'Altın Ejderha & Kutsal Aslan',
-    geometry: '22 Kabalistik Yol & Metatron Küpü',
+    totem: 'Hayat Ağacının 22 Kutsal Harf Kapısı & Dört Element Tacı (Arkana XXI)',
+    geometry: 'Metatron Küpü & 22 Sefirot Kanalı',
     summary: 'Ruhunuz en yüksek ruhsal vizyonları (11) fiziksel dünyada kalıcı kurumlara ve sistemlere (4) dönüştüren "Üstat Mimar" frekansındadır.',
     soulHunger: 'Yüzlerce insanın faydalanacağı somut bir sistem, platform veya eser inşa etmek ruhunuzun en büyük tutkusudur.',
     shadowTrap: 'Kendi potansiyelinin büyüklüğü altında ezilme hissi, aşırı kontrolcülük ve tükenmişlik.',
@@ -464,8 +464,8 @@ const SOUL_URGE_LIBRARY: Record<
   },
   33: {
     title: 'Üstat Şifacı & Evrensel Öğretmen (33/6 Avatar Frekansı)',
-    totem: 'Altın Anka & Kristal Lotus',
-    geometry: '33 Omurga Işık Sütunu & Merkaba Yıldızı',
+    totem: '33 Omurga Kundalini Tacı, Altın Anka & Bin Yapraklı Sahasrara Lotusu',
+    geometry: 'Üçboyutlu Altın Merkaba (Yıldız Tetrahedron)',
     summary: 'Ruhunuz sezgisel aydınlanma (11) ile somut ustalığı (22) koşulsuz sevgi potasında birleştiren en yüksek "Üstat Öğretmen ve Şifacı" (33/6) frekansındadır.',
     soulHunger: 'Karşılık beklemeden kitlelere rehberlik etmek, ruhsal bilgelik aktarmak ve kalpleri şifalandırmak için enkarne oldunuz.',
     shadowTrap: 'Dünyanın acısını kendi sırtında taşıyarak tükenmek ve kendi insani ihtiyaçlarını tamamen unutmak.',
@@ -489,8 +489,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   1: {
     chakraName: '1. Kök Çakra (Muladhara) Kapısı',
     gateTitle: 'Topraklanma ve Öz-Varoluş Kalkanı',
-    totem: 'Kırmızı Akik & Köklenen Çınar',
-    geometry: 'Dört Yapraklı Kırmızı Lotus & Küp',
+    totem: 'Airavata (7 Hortumlu Kutsal Beyaz Fil - Muladhara Vahanası) & Kırmızı Akik',
+    geometry: '4 Yapraklı Kırmızı Lotus & Sarı Toprak Karesi (Prithvi Yantra)',
     leakageSymptom: 'İsminizde 1. Çakra (A, J, S, Ş) frekansı açık/zayıf olduğunda enerji sızıntınız "ayaklarınızın yerden kesilmesi ve başlangıç ataleti" şeklinde çalışır.',
     dailyVulnerability: 'Kaotik ortamlarda veya baskın karakterlerin yanında kendi merkezinizden hızla uzaklaşabilir, fiziksel yorgunluk ve "Bu dünyaya ait değilim" hissi yaşayabilirsiniz.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Sabahları çıplak ayakla toprağa/zemine basarak 3 derin nefes alın. Kuyruk sokumunuzdan dünyanın merkezine yakut kırmızısı bir ışık kökü indiğini imgeleyin ve kararlarınızı ertelemeden ilk 5 dakikada eyleme dökün.',
@@ -499,8 +499,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   2: {
     chakraName: '2. Sakral Çakra (Svadhisthana) Kapısı',
     gateTitle: 'Duygusal Sünger & Empatik Sınır Kalkanı',
-    totem: 'Aytaşı & Su Nilüferi',
-    geometry: 'Altı Yapraklı Turuncu Lotus & Hilal',
+    totem: 'Makara (Kutsal Su Ejderi - Svadhisthana Vahanası) & Aytaşı',
+    geometry: '6 Yapraklı Turuncu Lotus & Gümüş Hilal Su Yantrası (Apas Yantra)',
     leakageSymptom: 'İsminizde 2. Çakra (B, K, T) kapısı açık olduğunda auranız ortamdaki diğer insanların duygularını, üzüntüsünü ve negatifliğini sünger gibi çeker.',
     dailyVulnerability: 'Birisiyle konuştuktan sonra sebepsiz yere enerjinizin çekildiğini, suçluluk duyduğunuzu veya "hayır" diyemediğiniz için alma-verme dengenizin bozulduğunu hissedersiniz.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Göbek deliğinizin 3 parmak altında turuncu-altın bir ışık küresi imgeleyin. İnsanlarla konuşurken "Senin duygun sana, benim ışığım bana aittir" niyetini tekrarlayın ve suyla (duş/tuzlu su) auranızı sık sık nötrleyin.',
@@ -509,8 +509,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   3: {
     chakraName: '3. Solar Pleksus (Manipura) Kapısı',
     gateTitle: 'Sınır, İrade ve Nazar/Manipülasyon Kalkanı',
-    totem: 'Altın Güneş Kalkanı & Kaplan Gözü',
-    geometry: 'On Yapraklı Altın Lotus & Ateş Üçgeni',
+    totem: 'Agni\'nin Kızıl Koçu (Manipura Vahanası), Güneş Kalkanı & Kaplan Gözü',
+    geometry: '10 Yapraklı Altın Lotus & Ters Ateş Üçgeni (Tejas Yantra)',
     leakageSymptom: 'İsminizde 3. Çakra (C, Ç, L, U, Ü) kapısı açık olduğunda en büyük enerji kaçağı "Mide/Karın merkezinden (Solar Pleksus)" gerçekleşir; nazar, kıskançlık ve duygusal manipülasyon doğrudan mide çakranıza vurur.',
     dailyVulnerability: 'Stres anında mide kasılması, başkalarının eleştirisinden aşırı etkilenme, kendi sınırını çizerken öfke patlaması ya da tam tersi içine atıp enerjisini düşürme.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Kalabalık ortamlara girmeden veya zor bir görüşme öncesinde mide boşluğunuzun (diyafram) önünde altın sarısı dönen bir Güneş Kalkanı imgeleyin. Ellerinizi göbeğinizin üzerinde birleştirmekten kaçının; dik durup diyafram nefesi alın.',
@@ -519,8 +519,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   4: {
     chakraName: '4. Kalp Çakrası (Anahata) Kapısı',
     gateTitle: 'Koşulsuz Sevgi & Kalp Zırhı Kalkanı',
-    totem: 'Zümrüt Kalkan & Pembe Kuvars',
-    geometry: 'On İki Yapraklı Yeşil Lotus & Hekzagram',
+    totem: 'Kutsal Ceylan / Antilop (Anahata Vahanası - Kalp Saflığı) & Zümrüt',
+    geometry: '12 Yapraklı Yeşil Lotus & Altı Köşeli Hava Yıldızı (Şatkon / Vayu Yantra)',
     leakageSymptom: 'İsminizde 4. Çakra (D, M, V) kapısı açık olduğunda enerji sızıntısı göğüs kafesinden gerçekleşir; ya aşırı verici olup tükenirsiniz ya da kırılmamak için kalbinize görünmez bir buz duvarı örersiniz.',
     dailyVulnerability: 'Sevdiklerinizin acısını kendi bedeninizde hissetmek, geçmiş kırgınlıkları göğüste ağırlık olarak taşımak veya maddi/manevi bereketi tutmakta zorlanmak.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Göğüs kafesinizin ortasında zümrüt yeşili ve altın pembe iki iç içe geçmiş üçgen (Merkaba) imgeleyin. Affetmeyi karşı taraf için değil, göğsünüzdeki enerji kaçağını kapatmak için uygulayın.',
@@ -529,8 +529,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   5: {
     chakraName: '5. Boğaz Çakrası (Vishuddha) Kapısı',
     gateTitle: 'Hakikat Sözü & Akustik Frekans Kalkanı',
-    totem: 'Turkuaz Kalkan & Mavi Safir',
-    geometry: 'On Altı Yapraklı Mavi Lotus & Eter Çemberi',
+    totem: 'Kar Beyazı Kutsal Fil (Vishuddha Akasha Vahanası) & Mavi Safir',
+    geometry: '16 Yapraklı Turkuaz Lotus & Dolunay İçinde Eter Üçgeni (Akasha Yantra)',
     leakageSymptom: 'İsminizde 5. Çakra (E, N, W) kapısı açık olduğunda enerji sızıntısı "yutkunulan sözler, anlatılamayan hakikatler ve boğaz düğümlenmesi" üzerinden yaşanır.',
     dailyVulnerability: 'Tartışma çıkmasın diye sustuğunuz her an auranızda yırtılma oluşur; boyun/omuz tutulmaları, ses kısılması veya yanlış anlaşılma döngüleri tetiklenir.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Boğazınızda safir mavisi bir ışık halkası imgeleyin. İçinize attığınız hiçbir cümleyi bedeninizde tutmayın; kişiye söyleyemiyorsanız bile sesli olarak yalnızken ifade edin veya yazıya dökün.',
@@ -539,8 +539,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   6: {
     chakraName: '6. Üçüncü Göz (Ajna) Kapısı',
     gateTitle: 'Zihinsel Projeksiyon & Nazar Kalkanı',
-    totem: 'Lapis Lazuli & Horus\'un Gözü',
-    geometry: 'İki Kanatlı İndigo Lotus',
+    totem: 'Hamsa (İlahi Bilgelik Kuğusu - Ajna Sembolü), Horus\'un Gözü & Lapis Lazuli',
+    geometry: '2 Kanatlı İndigo Lotus & Pranava (OM) Işık Mührü',
     leakageSymptom: 'İsminizde 6. Çakra (F, O, Ö, X) kapısı açık olduğunda, dışarıdan gelen negatif bakışlar (nazar), kolektif korkular ve zihinsel vesveseler alın çakranızdan içeri sızar.',
     dailyVulnerability: 'Gece uykuya dalarken durmayan düşünceler, baş ağrısı, gelecek kaygısı senaryoları kurmak ve kendi sezgisiyle korkusunu birbirine karıştırmak.',
     shieldingRitual: 'Aura Mühürleme Pratiği: İki kaşınızın ortasında çivit mavisi (indigo) bir ışık mührü imgeleyin. Yatmadan önce ekran ışığını kesin ve "Zihnimi kolektif korku frekanslarına kapatıyorum, sadece Üst Benliğimin net vizyonuna açığım" mührünü koyun.',
@@ -549,8 +549,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   7: {
     chakraName: '7. Taç Çakra (Sahasrara) Kapısı',
     gateTitle: 'İlahi Bağlantı & Astral Koruma Kalkanı',
-    totem: 'Ametist Tacı & Beyaz Lotus',
-    geometry: 'Bin Yapraklı Mor-Altın Lotus',
+    totem: 'Kala-Hamsa (Zamanı Aşan Beyaz Kuğu) & Ametist Tacı',
+    geometry: '1000 Yapraklı Mor-Altın Sahasrara Lotusu & Bindu (Mutlak Nokta)',
     leakageSymptom: 'İsminizde 7. Çakra (G, Ğ, P, Y) kapısı açık olduğunda, uyku ve rüya boyutu (astral alan) ile tepe çakranız dış tesirlere karşı hassaslaşır.',
     dailyVulnerability: 'Karmakarışık rüyalarla yorgun uyanmak, inanç/anlam krizleri yaşamak veya zihinsel olarak her şeyi kontrol etmeye çalışıp ilahi akışa güvenememek.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Başınızın tam tepesinden (bıngıldak) aşağıya doğru mor ve altın beyazı bir ışık sütununun tüm bedeninizi yumurta biçiminde (Ouroboros kozası) sardığını imgeleyerek uykuya geçin.',
@@ -559,8 +559,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   8: {
     chakraName: '8. Aura / Kozmik Hükümranlık Kapısı',
     gateTitle: 'Manyetik Otorite & Bereket Kalkanı',
-    totem: 'Obsidyen & Altın Piramit',
-    geometry: 'Sekiz Köşeli Yıldız (Oktagram / Melkisedek Mührü)',
+    totem: 'Ouroboros (Kuyruğunu Isıran Koruyucu Ejderha), Kum Saati & Obsidyen',
+    geometry: 'Sekiz Köşeli Yıldız (Oktagram / Melkisedek Mührü) & Satürn Küpü',
     leakageSymptom: 'İsminizde 8. Çakra (H, Q, Z) kapısı açık olduğunda enerji sızıntısı "hak ettiğiniz maddi/manevi değeri talep etmekte zorlanma veya kazancın elde durmaması" şeklinde görülür.',
     dailyVulnerability: 'Çok emek verip tam hasat zamanında geri çekilmek, otorite figürleri karşısında kendi gücünü küçültmek veya ani finansal dalgalanmalar.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Tüm auranızın en dış çeperini (bedenden 50 cm dışarıyı) altın-mor bir sekizgen kalkanla mühürleyin. Emeğinizin karşılığını isterken suçluluk duymayı tamamen bırakın.',
@@ -569,8 +569,8 @@ const AURA_PROTECTION_LIBRARY: Record<
   9: {
     chakraName: '9. Evrensel Bilinç & Tamamlanma Kapısı',
     gateTitle: 'Karmik Bağ Kesme & Bütünlük Kalkanı',
-    totem: 'Kristal Kuvars & Zümrüdüanka',
-    geometry: 'Dokuz Köşeli Işık Küresi (Enneagram)',
+    totem: 'Simurg / Zümrüdüanka (Küllerinden Doğan Kuş) & Kristal Kuvars',
+    geometry: 'Dokuz Köşeli Işık Küresi (Enneagram) & Kether Tacı',
     leakageSymptom: 'İsminizde 9. Çakra (I, İ, R) kapısı açık olduğunda, geçmişte kalması gereken insanlar, eski olaylar ve tamamlanmamış enerjiler auranıza kanca atarak yaşam enerjinizi çeker.',
     dailyVulnerability: 'Eski defterleri kapatamamak, "Keşke"lerle enerji kaybetmek ve başkalarının karmik sınavlarını kendi sırtında taşımaya devam etmek.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Güneş batarken veya uyumadan önce, o gün temas ettiğiniz herkesle aranızdaki eterik kordonları altın bir ışık kılıcıyla sevgiyle kestiğinizi imgeleyin: "Benden sana geçen, senden bana geçen tüm ağır yükleri kaynağa iade ediyorum."',
@@ -601,8 +601,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Ateş',
     metalAndStone: 'Altın • Yakut & Güneş Taşı',
     clockCodes: ['01:01', '10:10', '11:11', '19:19'],
-    totem: 'Altın Aslan & Şahin',
-    geometry: 'Merkez Noktalı Çember (Güneş Mührü)',
+    totem: 'Altın Aslan, Horus Şahini & Apollon Defne Tacı',
+    geometry: 'Güneş Mührü (☉) & Güneşin 6×6 Sihirli Karesi (Kamea Toplamı: 111 / 666)',
     summary: 'Beden haritanızın yöneticisi Güneş\'tir. Doğduğunuz gün itibarıyla fiziksel auranız "merkezde olma, yön verme ve etrafını aydınlatma" koduyla mühürlenmiştir.',
     bodyEffects: 'Kalp, omurga, yaşam enerjisi (prana) ve gözler Güneş yönetimindedir. Kendi kararlarınızı ertelediğinizde veya başkasının gölgesinde kaldığınızda fiziksel enerjiniz hızla düşer.',
     synchronicityGuide: 'Pazar günleri ve gün doğumundaki ilk Güneş saati sizin en güçlü tezahür zamanınızdır. Önemli imzalarınızı ve başlangıçlarınızı Güneş saatine denk getirin.'
@@ -614,8 +614,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Su',
     metalAndStone: 'Gümüş • Aytaşı & İnci',
     clockCodes: ['02:02', '20:20', '22:22'],
-    totem: 'Beyaz Kuğu & Gümüş Hilal Geyiği',
-    geometry: 'Hilal ve Dolunay Çemberi',
+    totem: 'Gümüş Hilal, Kuğu, Yengeç & İbis',
+    geometry: 'Ay Mührü (☽) & Ayın 9×9 Sihirli Karesi (Kamea Toplamı: 369 / 3321)',
     summary: 'Beden haritanızın yöneticisi Ay\'dır. Fiziksel bedeniniz Ay fazlarına (Yeni Ay, Dolunay), mekan enerjilerine ve insanların gizli duygularına doğrudan ayarlı bir biyolojik anten gibidir.',
     bodyEffects: 'Mide, sıvı dengesi, lenf sistemi ve epifiz/uyku ritmi Ay yönetimindedir. Yeni Ay ve Dolunay geçişlerinde rüyalarınız habercidir.',
     synchronicityGuide: 'Pazartesi günleri ve Ay saatleri sezgisel çalışmalar, şifa, ailevi konular ve yaratıcı ilham için en güçlü zaman diliminizdir.'
@@ -627,8 +627,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Ateş / Eter',
     metalAndStone: 'Kalay & Bronz • Safir & Ametist',
     clockCodes: ['03:03', '12:12', '21:21', '333'],
-    totem: 'Kraliyet Kartalı & Beyaz At',
-    geometry: 'Kutsal Üçgen & Jüpiter Karesi (4x4)',
+    totem: 'Kraliyet Kartalı, Yıldırım Asası & Beyaz At',
+    geometry: 'Jüpiter Mührü (♃) & Jüpiter\'in 4×4 Sihirli Karesi (Kamea Toplamı: 34 / 136)',
     summary: 'Beden haritanızın yöneticisi bolluk, bilgelik ve ilahi koruma gezegeni Jüpiter\'dir. Girdiğiniz her işi, fikri ve ortamı büyütme (amplifikasyon) gücüne sahipsiniz.',
     bodyEffects: 'Karaciğer, büyüme hormonları ve neşe frekansı Jüpiter yönetimindedir. Vizyonunuz daraldığında veya umutsuzluğa düştüğünüzde bedeniniz ağırlaşır.',
     synchronicityGuide: 'Perşembe günleri ve Jüpiter saatleri finansal başvurular, eğitim, yayın ve bereket ritüelleri için sizin altın kapınızdır.'
@@ -640,8 +640,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Toprak / Elektrik Havası',
     metalAndStone: 'Uranyum / Platin • Labradorit & Kehribar',
     clockCodes: ['04:04', '13:13', '14:41', '444'],
-    totem: 'Şimşek Kuşu & Dağ Aslanı',
-    geometry: 'Tesseract (4 Boyutlu Küp)',
+    totem: 'Caput Draconis (Göksel Ejderha Başı) & Prometheus Ateşi',
+    geometry: 'Rahu Düğümü (☊), Dört Boyutlu Küp & Tetractys',
     summary: 'Beden haritanız hem somut düzeni (4) hem de kalıpları kıran ani sıçramaları (Uranüs) bir arada taşır. Herkesin imkansız dediği krizlerde en orijinal ve pratik çözümü bulan zihinsiniz.',
     bodyEffects: 'Sinir sistemi, elektriksel dürtüler, kemik yapısı ve ayak bilekleri yönetimindedir. Topraklanma (doğa teması) sizin için hayati önem taşır.',
     synchronicityGuide: 'Saatlerde 04:04 veya 13:13 gördüğünüz an zihninize düşen o sıradışı fikri hemen not alın; o sizin gelecekteki sıçrama anahtarınızdır.'
@@ -653,8 +653,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Hava',
     metalAndStone: 'Cıva / Gümüş Alaşım • Zümrüt & Sitrin',
     clockCodes: ['05:05', '14:14', '15:15', '555'],
-    totem: 'Hermes\'in Kanatlı Asası (Caduceus) & Kırlangıç',
-    geometry: 'Pentagram & Sekiz Köşeli Hod Yıldızı',
+    totem: 'Hermes\'in Çift Yılanlı Caduceus Asası & Thoth İbis Kuşu',
+    geometry: 'Merkür Mührü (☿) & Merkür\'ün 8×8 Sihirli Karesi (Kamea Toplamı: 260 / 2080)',
     summary: 'Beden haritanızın yöneticisi haberci, simyacı ve ticaret gezegeni Merkür\'dür. Hızlı düşünme, genç kalma, ikna gücü ve farklı dünyaları birbirine bağlama yeteneğiniz doğuştandır.',
     bodyEffects: 'Solunum yolları, ses telleri, eller, tiroid ve sinir ağları Merkür yönetimindedir. İletişiminiz kısıtlandığında nefesiniz daralır.',
     synchronicityGuide: 'Çarşamba günleri ve Merkür saatleri sözleşmeler, ticaret, yazılım, eğitim ve önemli konuşmalar için en yüksek frekanslı zamanınızdır.'
@@ -666,8 +666,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Toprak / Su',
     metalAndStone: 'Bakır • Zümrüt, Turkuaz & Pembe Kuvars',
     clockCodes: ['06:06', '15:15', '16:16', '666'],
-    totem: 'Beyaz Güvercin & Kuğu',
-    geometry: 'Venüs\'ün Beş Yapraklı Gül Geometrisi (Pentagram Gül)',
+    totem: 'Afrodit Güvercini, Kuğu, Bakır Ayna & Gül',
+    geometry: 'Venüs Mührü (♀), Beş Yapraklı Venüs Gülü & 7×7 Sihirli Karesi (Toplam: 175)',
     summary: 'Beden haritanızın yöneticisi sevgi, estetik, çekim yasası ve uyum gezegeni Venüs\'tür. Zorlamayla değil, kendi manyetik zarafetinizle insanları ve fırsatları kendinize çekersiniz.',
     bodyEffects: 'Boğaz, boyun, böbrekler ve hormonal denge Venüs yönetimindedir. Huzursuz ve çirkin ortamlarda fiziksel enerjiniz hızla düşer.',
     synchronicityGuide: 'Cuma günleri ve Venüs saatleri ilişkiler, barışma, sanatsal üretim, güzellik ve bereket çekimi için sizin kutsal zamanınızdır.'
@@ -679,8 +679,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Su / Eter',
     metalAndStone: 'Platin & Gümüş • Akuamarin, Ametist & Kedi Gözü',
     clockCodes: ['07:07', '16:16', '17:17', '777'],
-    totem: 'Mistik Yunus & Beyaz Baykuş',
-    geometry: 'Yedi Köşeli Yıldız (Heptagram)',
+    totem: 'Cauda Draconis (Ejderha Kuyruğu), Üç Dişli Trident & Yunus',
+    geometry: 'Ketu Düğümü (☋) & Yedi Köşeli Mistik Yıldız (Heptagram)',
     summary: 'Beden haritanızın yöneticisi görünmeyen alemlerin, rüyaların ve derin bilgeliğin gezegeni Neptün\'dür. İnsanların maskelerinin arkasındaki gerçeği ilk bakışta okursunuz.',
     bodyEffects: 'Epifiz bezi (üçüncü göz), bağışıklık sistemi ve aura hassasiyeti yönetimindedir. Kalabalıklardan sonra mutlaka yalnız kalıp dinlenmeniz gerekir.',
     synchronicityGuide: 'Su kenarları, gece sessizliği ve 07:07 / 17:17 anları rüya rehberliğinizin ve durugörünüzün en açık olduğu anlardır.'
@@ -692,8 +692,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Toprak',
     metalAndStone: 'Kurşun / Demir • Oniks, Obsidyen & Mavi Safir',
     clockCodes: ['08:08', '17:17', '18:18', '888'],
-    totem: 'Kuzgun & Dağ Keçisi',
-    geometry: 'Satürn\'ün Kuzey Kutbu Altıgeni & 3x3 Sihirli Kare',
+    totem: 'Zaman Kum Saati, Hasat Orağı, Kuzgun & Oğlak (Dağ Keçisi)',
+    geometry: 'Satürn Mührü (♄), Kuzey Kutbu Altıgeni & 3×3 Lo Shu Sihirli Karesi (Toplam: 15)',
     summary: 'Beden haritanızın yöneticisi "Büyük Öğretmen ve Zamanın Efendisi" Satürn\'dür. Satürn kolay ve ucuz ödül vermez; önce sınar, olgunlaştırır, ardından kimsenin elinizden alamayacağı kalıcı bir imparatorluk, otorite ve servet verir.',
     bodyEffects: 'İskelet sistemi, dişler, dizler, eklemler ve deri Satürn yönetimindedir. Sorumlulukları ertelediğinizde veya fazla yük aldığınızda diz/sırt ağrılarıyla uyarı verir.',
     synchronicityGuide: 'Cumartesi günleri ve 08:08 / 888 kodları Satürn\'ün size mesajıdır: "Disiplinini bozma, adil ol, ektiğin tohumun hasat vakti geldi."'
@@ -705,8 +705,8 @@ const PLANETARY_RULER_LIBRARY: Record<
     element: 'Ateş',
     metalAndStone: 'Demir / Çelik • Yakut, Lal (Garnet) & Kırmızı Mercan',
     clockCodes: ['09:09', '18:18', '19:19', '999'],
-    totem: 'Kızıl Kurt & Koç',
-    geometry: 'Beş Köşeli Geburah Kalkanı & Ok',
+    totem: 'Demir Kılıç ve Kalkan, Kızıl Koç & Savaşçı Kurt',
+    geometry: 'Mars Mührü (♂) & Mars\'ın 5×5 Sihirli Karesi (Kamea Toplamı: 65 / 325)',
     summary: 'Beden haritanızın yöneticisi cesaret, yaşam gücü ve haksızlığa karşı duran savaşçı gezegen Mars\'tır (9 oktavında Ruhsal Savaşçı). Kriz anında herkes geri çekilirken öne çıkan koruyucu güçsünüz.',
     bodyEffects: 'Kan dolaşımı, kas sistemi, demir oranı, baş bölgesi ve adrenalin Mars yönetimindedir. Enerjinizi spor veya üretimle akıtmazsanız içsel hararete dönüşür.',
     synchronicityGuide: 'Salı günleri ve Mars saatleri cesaret gerektiren hamleler, engelleri aşmak ve karmik bağları kesmek için en güçlü zamanınızdır.'
@@ -1503,9 +1503,9 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       summary: bridgeEntry.summary,
       calculationFormula: `| Yaşam Yolu Kodu (${lifePathSingle}) - İsim Kader Kodu (${reduceToSingle(destinyCode, false)}) | = ${bridgeCode}. Bu fark, Ruh Haritanız ile Beden Haritanızı birbirine kilitleyen anahtardır.`,
       higherSelfTrigger: {
-        clockCodes: [`0${bridgeCode || 9}:0${bridgeCode || 9}`, `${bridgeCode}${bridgeCode}`],
-        totemSymbol: 'İki Yakayı Birleştiren Altın Köprü & Anahtar',
-        geometricSymbol: 'İç İçe Geçmiş İki Halka (Vesica Piscis)',
+        clockCodes: [`0${bridgeCode || 9}:0${bridgeCode || 9}`, `${bridgeCode || 9}${bridgeCode || 9}${bridgeCode || 9}`],
+        totemSymbol: bridgeCode === 0 ? 'Ouroboros (Tam Birlik Halkası) & Ankh Anahtarı' : `${(SOUL_URGE_LIBRARY[bridgeCode] || SOUL_URGE_LIBRARY[1]).totem} (Köprü Muhafızı)`,
+        geometricSymbol: bridgeCode === 0 ? 'Tam Simetrik Birlik Çemberi (Monad-Dyad Uyumu)' : (SOUL_URGE_LIBRARY[bridgeCode] || SOUL_URGE_LIBRARY[1]).geometry,
         instantMessage: `İçinde "Ne istediğimi biliyorum ama hayat beni başka yere çekiyor" çatışması hissettiğinde ${bridgeCode} frekansını devreye sok!`
       },
       sections: [
@@ -1623,8 +1623,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       calculationFormula: `9 (Tam Çakra Matrisi) - ${missingChakras.length} (İsimdeki Eksik Çakra Sayısı) = ${subconsciousSelfCode}.`,
       higherSelfTrigger: {
         clockCodes: [`0${subconsciousSelfCode}:0${subconsciousSelfCode}`, `09:0${subconsciousSelfCode}`],
-        totemSymbol: 'Refleks Yay & Kalkan',
-        geometricSymbol: `${subconsciousSelfCode} Köşeli Aktif Prizma`,
+        totemSymbol: (AURA_PROTECTION_LIBRARY[subconsciousSelfCode] || AURA_PROTECTION_LIBRARY[9]).totem,
+        geometricSymbol: (SOUL_URGE_LIBRARY[subconsciousSelfCode] || SOUL_URGE_LIBRARY[9]).geometry,
         instantMessage: `Kriz anında panik yapma; bilinçaltında ${subconsciousSelfCode} çakra birden aynı anda çözüm üretiyor.`
       },
       sections: [
@@ -1650,9 +1650,9 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       summary: chaldeanEntry.meaning,
       calculationFormula: `Orijinal Babil/Kalde 1–8 ses titreşim tablosuna göre isminizin bileşik toplamı ${rawChaldeanSum} (${chaldeanCompoundNum}/${reduceToSingle(chaldeanCompoundNum, false)}) olarak hesaplanmıştır.`,
       higherSelfTrigger: {
-        clockCodes: [`${chaldeanCompoundNum}`, `${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}`],
-        totemSymbol: chaldeanEntry.symbolName,
-        geometricSymbol: 'Kalde Güneş-Ay Mührü',
+        clockCodes: [`${chaldeanCompoundNum}`, `0${reduceToSingle(chaldeanCompoundNum, false)}:0${reduceToSingle(chaldeanCompoundNum, false)}`, `${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}${reduceToSingle(chaldeanCompoundNum, false)}`],
+        totemSymbol: `${chaldeanEntry.symbolName} (Kalde Tablet Sembolü)`,
+        geometricSymbol: (PLANETARY_RULER_LIBRARY[reduceToSingle(chaldeanCompoundNum, false)] || PLANETARY_RULER_LIBRARY[1]).geometry,
         instantMessage: `Günlük hayatta ${chaldeanCompoundNum} sayısını gördüğünde bil ki Kalde arketipin (${chaldeanEntry.symbolName}) devrede!`
       },
       sections: [
