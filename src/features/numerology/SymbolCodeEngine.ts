@@ -1587,7 +1587,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${rawSoulUrgeSum}/${soulUrgeCode}`,
       subLabel: 'Sesli Harf Rezonansı (İçsel Öz)',
       layer: 'soul',
-      layerBadge: '2. Bölüm • İsimden Gelen Ruh Kodu',
+      layerBadge: 'Klasik Pisagor İsim Analizi • Sesli Harfler',
       color: '#D4AF37',
       archetypeTitle: soulEntry.title,
       summary: soulEntry.summary,
@@ -1622,7 +1622,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${auraProtectionCode}`,
       subLabel: `Geliştirilecek: ${chakraLessonEntry.chakraName}`,
       layer: 'soul',
-      layerBadge: '2. Bölüm • İsimden Gelen Çakra Dersi',
+      layerBadge: 'Klasik Pisagor İsim Analizi • Çakra Matrisi',
       color: '#F59E0B',
       archetypeTitle: `${auraProtectionCode}. Çakra Dersi — ${chakraLessonEntry.lessonTitle}`,
       summary: chakraLessonEntry.lessonMeaning,
@@ -1664,7 +1664,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
           ? `Ruh Kodu: ${birthEmbeddedRuhDigit} • Gömülü Kilit: ${birthKarmicKey}`
           : `Beden Öz Kodu: ${birthDaySingle} • Karmik Kilit Yok`,
       layer: 'body',
-      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Karmik Öz',
+      layerBadge: '1. Bölüm • Beden Haritası (Doğum Tarihi) Kodu',
       color: '#EF4444',
       archetypeTitle:
         birthKarmicKey !== 'YOK'
@@ -1696,7 +1696,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: day > 9 ? `${day}/${birthDaySingle}` : `${birthDaySingle}`,
       subLabel: `Ayın ${day}. Günü Enkarnasyon Mührü`,
       layer: 'body',
-      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Kod',
+      layerBadge: '1. Bölüm • Beden Haritası (Doğum Tarihi) Kodu',
       color: '#38BDF8',
       archetypeTitle: `${birthDaySingle} Frekansı — ${planetEntry.planet} Beden Mührü`,
       summary: `Ruhunuz dünyaya ayın ${day}. gününde inerek fiziksel bedenine ve sinir sistemine "${birthDaySingle}" kodunun doğal yeteneğini mühürlemiştir.`,
@@ -1731,7 +1731,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${rawLifePathSum}/${lifePathCode}`,
       subLabel: `Yol Yöneticisi: ${lifePathPlanetEntry.planet.split(' ')[0]}`,
       layer: 'body',
-      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Kod',
+      layerBadge: '1. Bölüm • Beden Haritası (Doğum Tarihi) Kodu',
       color: '#0EA5E9',
       archetypeTitle: `${rawLifePathSum}/${lifePathCode} — ${ (SOUL_URGE_LIBRARY[lifePathCode] || SOUL_URGE_LIBRARY[lifePathSingle] || SOUL_URGE_LIBRARY[1]).title }`,
       summary: `Doğum tarihinizin tüm basamaklarının toplamından (${rawLifePathSum} → ${lifePathCode}) doğan bu kod, fiziksel dünyada yürüyeceğiniz ana enkarnasyon otobanını ve hayat derslerinizi gösterir.`,
@@ -1763,7 +1763,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: planetEntry.planet.split(' ')[0],
       subLabel: `Güç Günü: ${planetEntry.powerDay} • ${planetEntry.element}`,
       layer: 'body',
-      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Kod',
+      layerBadge: '1. Bölüm • Beden Haritası (Doğum Tarihi) Kodu',
       color: '#A855F7',
       archetypeTitle: `${planetEntry.planet} — ${planetEntry.kabbalahSphere}`,
       summary: `Kişisel zaman döngünüzü, otorite sınavlarınızı ve eşzamanlılık saatlerinizi yöneten baş gezegen ${planetEntry.planet}'dir.`,
@@ -1799,7 +1799,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${birthMatrixFieldCode}`,
       subLabel: `Doğum Matrisi Açık Alanı (Alan Kapatan: ${birthMatrixFieldCode})`,
       layer: 'body',
-      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Alan Kodu',
+      layerBadge: '1. Bölüm • Beden Haritası (Alan Kapatan) Kodu',
       color: '#FACC15',
       archetypeTitle: `Beden Alan Kodu ${birthMatrixFieldCode} — ${(AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).gateTitle}`,
       summary: `Doğum tarihinizdeki (${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}) rakamlar 1–9 Pisagor Beden Matrisine yerleştirildiğinde ilk açık kalan sınır kapısı "${birthMatrixFieldCode}" frekansıdır ("Alan Kapatan" koruma şifreniz).`,
@@ -1837,7 +1837,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${bridgeCode}`,
       subLabel: 'İsim (Ruh) ile Doğum (Beden) Köprüsü',
       layer: 'alchemy',
-      layerBadge: '3. Bölüm • İsim + Doğum Sentez Kodu',
+      layerBadge: 'Klasik Pisagor İsim & Yaşam Yolu Sentezi',
       color: '#10B981',
       archetypeTitle: bridgeEntry.title,
       summary: bridgeEntry.summary,
@@ -1868,7 +1868,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${maturityCode}`,
       subLabel: '35+ Yaş Üstatlık & Miras Frekansı',
       layer: 'alchemy',
-      layerBadge: '3. Bölüm • İsim + Doğum Sentez Kodu',
+      layerBadge: 'Klasik Pisagor İsim & Yaşam Yolu Sentezi',
       color: '#EC4899',
       archetypeTitle: `Hasat Arketipi: ${maturityEntry.title}`,
       summary: `Ruh Haritanız (İsim: ${destinyCode}) ile Beden Haritanızın (Yaşam Yolu: ${lifePathCode}) toplamından doğan ${maturityCode} kodu; özellikle 35–40 yaş sonrasında açığa çıkan nihai üstatlık ve miras frekansınızdır.`,
@@ -1891,38 +1891,6 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       ]
     },
 
-    // 7B. ÜST HARİTA (3. HARİTA / RUH & HASAT) GEZEGEN YÖNETİCİSİ KODU
-    {
-      id: 'upper-planet-ruler',
-      isCoreSynchronicityCode: true,
-      title: '3. Harita (Üst Bilinç) Gezegen Yöneticisi',
-      shortTitle: 'ÜST HARİTA GEZEGENİ',
-      codeValue: `${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]} (${maturityCode})`,
-      subLabel: `Beden (${lifePathPlanetEntry.planet.split(' ')[0]}) → Üst Harita (${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]})`,
-      layer: 'alchemy',
-      layerBadge: '2. Aşama • 3. Harita (Üst Harita) Yöneticisi',
-      color: '#C084FC',
-      archetypeTitle: `${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} — ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).kabbalahSphere}`,
-      summary: `1. Haritadaki (Beden Haritasındaki) ${lifePathPlanetEntry.planet.split(' ')[0]} sınavlarını tamamladığınızda, 3. Haritanızın (Üst Bilinç ve Hasat Haritanızın) yeni yöneticisi olarak "${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet}" devreye girer.`,
-      calculationFormula: `Beden Yaşam Yolu (${lifePathSingle}) + Ruh İsim Kader (${reduceToSingle(destinyCode, false)}) = ${maturityCode} Hasat Frekansı → Yöneticisi: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet}.`,
-      higherSelfTrigger: {
-        clockCodes: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).clockCodes,
-        totemSymbol: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).totem,
-        geometricSymbol: (PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).geometry,
-        instantMessage: `3. Haritayı çalıştırdığınızda ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).powerDay} günleri ve ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet.split(' ')[0]} saatleri sizin yeni kozmik taçlanma kapınızdır.`
-      },
-      sections: [
-        {
-          heading: '1. Beden Gezegeninden Üst Harita Gezegenine ve Burç Arketipine Geçiş',
-          content: `3. Haritayı çalıştırmadığınız sürece hayatınızı 1. Harita yöneticiniz olan ${lifePathPlanetEntry.planet} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[lifePathSingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign}) yönetir. 3. Haritaya geçtiğinizde ise direksiyona ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).planet} (${(CLASSICAL_ZODIAC_CORRESPONDENCES[maturitySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).planetAndSign} • ${(CLASSICAL_ZODIAC_CORRESPONDENCES[maturitySingle] || CLASSICAL_ZODIAC_CORRESPONDENCES[1]).classicalDomicile}) geçer.`
-        },
-        {
-          heading: '2. Üst Haritada Zamanlama, Taş ve Frekans Uyumu',
-          content: `Üst Harita Güç Gününüz: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).powerDay} • Element: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).element} • Uyumlu Metal & Taş: ${(PLANETARY_RULER_LIBRARY[maturitySingle] || PLANETARY_RULER_LIBRARY[1]).metalAndStone}.`
-        }
-      ]
-    },
-
     // 8. GİZLİ TUTKU / BASKIN ÇAKRA MIKNATISI (1. Harita - Ruh Haritası)
     {
       id: 'hidden-passion',
@@ -1931,7 +1899,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${dominantChakra}`,
       subLabel: `${maxCount} Harf Yoğunluğu (${dominantChakra}. Çakra)`,
       layer: 'soul',
-      layerBadge: '2. Bölüm • İsimden Gelen Güç Merkezi',
+      layerBadge: 'Klasik Pisagor İsim Analizi • Baskın Çakra',
       color: '#EAB308',
       archetypeTitle: `Baskın Çakra Mıknatısı: ${dominantEntry.title}`,
       summary: `İsminizde en çok tekrar eden çakra frekansı ${dominantChakra} (${maxCount} harf) olduğu için, ruhunuzun geçmişten getirdiği en güçlü doğal mıknatıs ve yetenek merkezi burasıdır.`,
@@ -1962,7 +1930,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${rawPersonalitySum}/${personalityCode}`,
       subLabel: 'Sessiz Harf Kalkanı (İlk İzlenim)',
       layer: 'soul',
-      layerBadge: '2. Bölüm • İsimden Gelen Aura Kodu',
+      layerBadge: 'Klasik Pisagor İsim Analizi • Sessiz Harfler',
       color: '#06B6D4',
       archetypeTitle: `Dış Vitrin: ${personaEntry.title}`,
       summary: `Hiç konuşmadan bir odaya girdiğinizde insanların auranızdan okuduğu ilk frekans ve dış dünyaya giydiğiniz koruyucu kıyafet "${personalityCode}" kodudur.`,
@@ -2000,7 +1968,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${subconsciousSelfCode}/9`,
       subLabel: `9 Çakradan ${subconsciousSelfCode} Aktif Merkez`,
       layer: 'alchemy',
-      layerBadge: '3. Bölüm • Bilinçaltı Kriz Refleksi',
+      layerBadge: 'Klasik Pisagor Çakra Tamlık Analizi',
       color: '#6366F1',
       archetypeTitle: `${subconsciousSelfCode}/9 Bilinçaltı Dayanıklılık & İlk 3 Saniye Refleksi`,
       summary: `Ani bir şok, kriz veya beklenmedik bir olay karşısında bilinçaltınızın ilk 3 saniyede nasıl tepki verdiğini gösteren Pisagor kodudur (${subconsciousSelfCode}).`,
@@ -2030,7 +1998,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       codeValue: `${chaldeanCompoundNum}/${reduceToSingle(chaldeanCompoundNum, false)}`,
       subLabel: chaldeanEntry.symbolName,
       layer: 'alchemy',
-      layerBadge: '3. Bölüm • Kadim Babil Sembol Kodu',
+      layerBadge: 'Kadim Kalde (Cheiro) İsim & Doğum Arketipi',
       color: '#F43F5E',
       archetypeTitle: chaldeanEntry.title,
       summary: chaldeanEntry.meaning,

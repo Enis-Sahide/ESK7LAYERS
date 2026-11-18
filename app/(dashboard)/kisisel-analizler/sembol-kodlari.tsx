@@ -30,9 +30,8 @@ export default function SymbolCodesMobileScreen() {
   const [birthMinute, setBirthMinute] = useState('');
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
-  const [activeMapStage, setActiveMapStage] = useState<'stage1_body' | 'stage2_upper'>('stage1_body');
-  const [selectedStage1Id, setSelectedStage1Id] = useState<string>('body-karmic-soul');
-  const [selectedStage2Id, setSelectedStage2Id] = useState<string>('soul-urge');
+  const [selectedBodyId, setSelectedBodyId] = useState<string>('body-karmic-soul');
+  const [selectedNameId, setSelectedNameId] = useState<string>('soul-urge');
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
 
   const runAnalysis = (n: string, d: string, m: string, y: string, bh?: string, bm?: string) => {
@@ -42,7 +41,7 @@ export default function SymbolCodesMobileScreen() {
     const computed = analyzePersonalSymbolCodes(cleanName, formattedDate, timeStr);
     setResult(computed);
     if (timeStr) {
-      setSelectedStage1Id('birth-time-portal');
+      setSelectedBodyId('birth-time-portal');
     }
   };
 
@@ -55,7 +54,7 @@ export default function SymbolCodesMobileScreen() {
     runAnalysis(fullName, day, month, year, birthHour, birthMinute);
   };
 
-  const stage1BodyCodes = result
+  const coreBodyCodes = result
     ? [
         result.codes.find((c) => c.id === 'body-karmic-soul'),
         result.codes.find((c) => c.id === 'body-field-code'),
@@ -67,16 +66,15 @@ export default function SymbolCodesMobileScreen() {
       ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
     : [];
 
-  const stage2UpperCodes = result
+  const classicNameCodes = result
     ? [
         result.codes.find((c) => c.id === 'soul-urge'),
-        result.codes.find((c) => c.id === 'aura-protection'),
-        result.codes.find((c) => c.id === 'bridge-code'),
-        result.codes.find((c) => c.id === 'chaldean-compound'),
-        result.codes.find((c) => c.id === 'maturity-code'),
-        result.codes.find((c) => c.id === 'upper-planet-ruler'),
         result.codes.find((c) => c.id === 'outer-persona'),
+        result.codes.find((c) => c.id === 'aura-protection'),
         result.codes.find((c) => c.id === 'hidden-passion'),
+        result.codes.find((c) => c.id === 'chaldean-compound'),
+        result.codes.find((c) => c.id === 'bridge-code'),
+        result.codes.find((c) => c.id === 'maturity-code'),
         result.codes.find((c) => c.id === 'subconscious-self')
       ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
     : [];
@@ -140,7 +138,7 @@ export default function SymbolCodesMobileScreen() {
             Üst Benlik Sembol & Kodlar
           </Text>
           <Text style={styles.headerSubtitle}>
-            1. Harita (Beden) ➡️ 3. Harita (Üst Bilinç)
+            Beden Haritası Kodları • Pisagor & Kalde İsim Analizi
           </Text>
         </View>
         <View style={{ width: 32 }} />
@@ -155,10 +153,10 @@ export default function SymbolCodesMobileScreen() {
         <View style={styles.inputCard}>
           <View style={styles.badgePill}>
             <Ionicons name="key-outline" size={13} color={COLORS.primary} />
-            <Text style={styles.badgePillText}>1. HARİTA ➡️ 3. HARİTA KOD DÖNÜŞÜMÜ</Text>
+            <Text style={styles.badgePillText}>BEDEN HARİTASI KODLARI & İSİM ANALİZİ</Text>
           </View>
 
-          <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız (İsim Katmanı)</Text>
+          <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız (İsim Analizi)</Text>
           <TextInput
             style={styles.textInput}
             value={fullName}
@@ -167,7 +165,7 @@ export default function SymbolCodesMobileScreen() {
             placeholderTextColor="rgba(255,255,255,0.35)"
           />
 
-          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Doğum Tarihiniz (Beden Katmanı)</Text>
+          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Doğum Tarihiniz (Beden Haritası Kodları)</Text>
           <View style={styles.dateRow}>
             <TextInput
               style={[styles.dateInput, { flex: 1 }]}
@@ -233,301 +231,175 @@ export default function SymbolCodesMobileScreen() {
 
         {result && (
           <>
-            {/* HARİTA AŞAMASI SEÇİCİ */}
-            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.45)' }]}>
-              <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
-                HANGİ HARİTAYI ÇALIŞTIRIYORSUNUZ? • AKTİF KOD SEÇİCİ
+            <TouchableOpacity
+              onPress={() => setShowAllExpanded((p) => !p)}
+              style={[
+                styles.expandAllBanner,
+                showAllExpanded && { borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.15)' }
+              ]}
+            >
+              <Ionicons
+                name={showAllExpanded ? 'contract-outline' : 'book-outline'}
+                size={16}
+                color={showAllExpanded ? '#6EE7B7' : COLORS.primary}
+              />
+              <Text style={styles.expandAllBannerText}>
+                {showAllExpanded
+                  ? 'Seçili Kart Görünümüne Dön'
+                  : 'Tüm Kodların Açıklamalarını Aynı Anda Aç'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* 1. BÖLÜM: BEDEN HARİTASI ÇEKİRDEK KODLARI */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(56,189,248,0.4)' }]}>
+              <Text style={[styles.sectionPill, { color: '#38BDF8' }]}>
+                1. BÖLÜM • BEDEN HARİTASI ÇEKİRDEK KODLARINIZ ({result.birthDate}
+                {result.birthTime ? ` • ${result.birthTime}` : ''})
               </Text>
               <Text style={styles.sectionHeading}>
-                Çalıştırdığınız Haritaya Göre Aldığınız Mesajlar Değişir
+                Beden Haritası 5 Çekirdek Giriş Kodunuz
+              </Text>
+              <Text style={styles.sectionSub}>
+                Doğum tarihinizden hesaplanan ve günlük hayatta Üst Benliğinizden mesaj aldığınız çekirdek Beden Haritası şifreleriniz (Ruh: {result.summaryMetrics.embeddedRuhKodu}, Alan: {result.summaryMetrics.birthMatrixFieldCode}, Karmik: {result.summaryMetrics.primaryKarmicCode}, Doğum & Yol: {result.summaryMetrics.lifePathCode}, Gezegen: {result.summaryMetrics.lifePathPlanetName}):
               </Text>
 
-              <TouchableOpacity
-                style={[
-                  styles.stageBtn,
-                  activeMapStage === 'stage1_body' && styles.stageBtnActiveSky
-                ]}
-                onPress={() => setActiveMapStage('stage1_body')}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.stageBtnBadge, { color: '#38BDF8' }]}>
-                  1. AŞAMA • VARSAYILAN AKTİF HARİTA {activeMapStage === 'stage1_body' ? ' (AÇIK ●)' : ''}
-                </Text>
-                <Text style={styles.stageBtnTitle}>
-                  1. Harita — Beden Haritası Kodlarınız
-                </Text>
-                <Text style={styles.stageBtnDesc}>
-                  3. Haritanızı çalıştırmadığınız sürece saatlerde ve sembollerde mesaj olarak alacağınız 5 Çekirdek Beden Kodu (Ruh: {result.summaryMetrics.embeddedRuhKodu}, Alan: {result.summaryMetrics.birthMatrixFieldCode}, Karmik: {result.summaryMetrics.primaryKarmicCode}, Doğum: {result.summaryMetrics.lifePathCode}, Gezegen: {result.summaryMetrics.lifePathPlanetName}).
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.codesGrid}>
+                {coreBodyCodes.map((item) => {
+                  const isSelected = selectedBodyId === item.id && !showAllExpanded;
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.codeGridItem,
+                        isSelected && {
+                          borderColor: '#38BDF8',
+                          backgroundColor: 'rgba(56,189,248,0.14)'
+                        }
+                      ]}
+                      onPress={() => {
+                        setSelectedBodyId(item.id);
+                        setShowAllExpanded(false);
+                      }}
+                      activeOpacity={0.82}
+                    >
+                      <Text style={[styles.codeShortTitle, { color: '#38BDF8' }]} numberOfLines={1}>
+                        {item.shortTitle}
+                      </Text>
+                      <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
+                        {item.codeValue}
+                      </Text>
+                      <Text style={styles.codeSubLabel} numberOfLines={1}>
+                        {item.subLabel}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
 
-              <TouchableOpacity
-                style={[
-                  styles.stageBtn,
-                  activeMapStage === 'stage2_upper' && styles.stageBtnActiveGold
-                ]}
-                onPress={() => setActiveMapStage('stage2_upper')}
-                activeOpacity={0.85}
-              >
-                <Text style={[styles.stageBtnBadge, { color: COLORS.primary }]}>
-                  2. AŞAMA • ÜST HARİTA AKTİVASYONU {activeMapStage === 'stage2_upper' ? ' (AÇIK ●)' : ''}
-                </Text>
-                <Text style={styles.stageBtnTitle}>
-                  3. Harita — Üst Haritayı Çalıştırınca Değişen Yeni Kodlarınız
-                </Text>
-                <Text style={styles.stageBtnDesc}>
-                  Beden Haritasındaki Alan Koruma ({result.summaryMetrics.birthMatrixFieldCode}) ve Karmik Kilit ({result.summaryMetrics.primaryKarmicCode}) sınavlarını aşıp 3. Haritanızı çalıştırmaya başladığınızda devreye giren yeni kodlarınız.
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setShowAllExpanded((p) => !p)}
-                style={[
-                  styles.expandAllBanner,
-                  showAllExpanded && { borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,0.15)' }
-                ]}
-              >
-                <Ionicons
-                  name={showAllExpanded ? 'contract-outline' : 'book-outline'}
-                  size={16}
-                  color={showAllExpanded ? '#6EE7B7' : COLORS.primary}
-                />
-                <Text style={styles.expandAllBannerText}>
-                  {showAllExpanded
-                    ? 'Tek Kart Görünümüne Dön'
-                    : 'Bu Aşamadaki Tüm Kodların Açıklamasını Aç'}
-                </Text>
-              </TouchableOpacity>
+              {(showAllExpanded
+                ? coreBodyCodes
+                : [coreBodyCodes.find((c) => c.id === selectedBodyId) || coreBodyCodes[0]].filter(Boolean)
+              ).map((item) => renderDetailCard(item!))}
             </View>
 
-            {activeMapStage === 'stage1_body' ? (
-              <>
-                {/* 1. HARİTA (BEDEN HARİTASI) KODLARI */}
-                <View style={[styles.sectionCard, { borderColor: 'rgba(56,189,248,0.4)' }]}>
-                  <Text style={[styles.sectionPill, { color: '#38BDF8' }]}>
-                    1. HARİTA (BEDEN HARİTASI) • 3. HARİTAYI ÇALIŞTIRMADIĞINIZ SÜRECE AKTİF OLAN KODLAR
-                  </Text>
-                  <Text style={styles.sectionHeading}>
-                    1. Harita — Beden Haritası Çekirdek Kodlarınız
-                  </Text>
-                  <Text style={styles.sectionSub}>
-                    3. Haritanızı (Üst Bilinç Haritanızı) kalıcı olarak çalıştırmaya başlamadığınız sürece, günlük hayatta Üst Benliğinizden mesaj olarak alacağınız kodlar yalnızca bu 1. Harita kodlarıdır:
-                  </Text>
+            {/* 2. BÖLÜM: GÜNLÜK HAYATTA KARŞINIZA ÇIKAN 3 ÇEKİRDEK EŞZAMANLILIK MESAJI */}
+            <View style={styles.sectionCard}>
+              <Text style={[styles.sectionPill, { color: '#38BDF8' }]}>
+                2. BÖLÜM • BEDEN HARİTASI CANLI UYANIŞ & SAAT MESAJLARI
+              </Text>
+              <Text style={styles.sectionHeading}>
+                Günlük Hayatta Takip Edeceğiniz 3 Çekirdek Saat & Eşzamanlılık Kodu
+              </Text>
+              <Text style={styles.sectionSub}>
+                Üst Benliğiniz sizinle rastgele her sayı üzerinden değil, doğrudan yukarıdaki Beden Haritası çekirdek kodlarınız üzerinden konuşur:
+              </Text>
 
-                  <View style={styles.codesGrid}>
-                    {stage1BodyCodes.map((item) => {
-                      const isSelected = selectedStage1Id === item.id && !showAllExpanded;
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          style={[
-                            styles.codeGridItem,
-                            isSelected && {
-                              borderColor: '#38BDF8',
-                              backgroundColor: 'rgba(56,189,248,0.14)'
-                            }
-                          ]}
-                          onPress={() => {
-                            setSelectedStage1Id(item.id);
-                            setShowAllExpanded(false);
-                          }}
-                          activeOpacity={0.82}
-                        >
-                          <Text style={[styles.codeShortTitle, { color: '#38BDF8' }]} numberOfLines={1}>
-                            {item.shortTitle}
-                          </Text>
-                          <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
-                            {item.codeValue}
-                          </Text>
-                          <Text style={styles.codeSubLabel} numberOfLines={1}>
-                            {item.subLabel}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
+              {result.synchronicitySignals.map((sig, idx) => (
+                <View
+                  key={idx}
+                  style={[styles.syncCard, { borderColor: sig.color + '55' }]}
+                >
+                  <View style={styles.syncHeaderRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.syncSourceTag, { color: sig.color }]}>
+                        {sig.sourceCodeName}
+                      </Text>
+                      <Text style={styles.syncTitle}>{sig.title}</Text>
+                    </View>
+                    <View style={[styles.syncCodeBadge, { borderColor: sig.color }]}>
+                      <Text style={[styles.syncCodeBadgeText, { color: sig.color }]}>
+                        {sig.code}
+                      </Text>
+                    </View>
                   </View>
 
-                  {(showAllExpanded
-                    ? stage1BodyCodes
-                    : [stage1BodyCodes.find((c) => c.id === selectedStage1Id) || stage1BodyCodes[0]].filter(Boolean)
-                  ).map((item) => renderDetailCard(item!))}
-                </View>
-
-                {/* 1. HARİTA EŞZAMANLILIK MESAJLARI */}
-                <View style={styles.sectionCard}>
-                  <Text style={[styles.sectionPill, { color: '#38BDF8' }]}>
-                    1. HARİTA AKTİFKEN • TAKİP EDECEĞİNİZ 3 ÇEKİRDEK SAAT & MESAJ KODU
-                  </Text>
-                  <Text style={styles.sectionHeading}>
-                    Beden Haritası Aşamasında Üst Benlikten Gelen Mesajlar
-                  </Text>
-                  <Text style={styles.sectionSub}>
-                    3. Haritayı çalıştırmadığınız sürece yalnızca bu 3 çekirdek Beden kodunuzu gördüğünüzde mesaj olarak almalısınız:
+                  <Text style={styles.syncTotemText}>
+                    Eşleşen Sembol:{' '}
+                    <Text style={{ color: '#FFF', fontWeight: '700' }}>{sig.symbolArchetype}</Text>
                   </Text>
 
-                  {result.synchronicitySignals.map((sig, idx) => (
-                    <View
-                      key={idx}
-                      style={[styles.syncCard, { borderColor: sig.color + '55' }]}
-                    >
-                      <View style={styles.syncHeaderRow}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.syncSourceTag, { color: sig.color }]}>
-                            {sig.sourceCodeName}
-                          </Text>
-                          <Text style={styles.syncTitle}>{sig.title}</Text>
-                        </View>
-                        <View style={[styles.syncCodeBadge, { borderColor: sig.color }]}>
-                          <Text style={[styles.syncCodeBadgeText, { color: sig.color }]}>
-                            {sig.code}
-                          </Text>
-                        </View>
-                      </View>
+                  <Text style={styles.syncWhenText}>{sig.whenYouSeeIt}</Text>
 
-                      <Text style={styles.syncTotemText}>
-                        Eşleşen Sembol:{' '}
-                        <Text style={{ color: '#FFF', fontWeight: '700' }}>{sig.symbolArchetype}</Text>
-                      </Text>
-
-                      <Text style={styles.syncWhenText}>{sig.whenYouSeeIt}</Text>
-
-                      <View style={styles.syncActionBox}>
-                        <Text style={styles.syncActionText}>
-                          <Text style={{ fontWeight: '700', color: '#34D399' }}>Ne Yapmalısınız? </Text>
-                          {sig.actionStep}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </>
-            ) : (
-              <>
-                {/* 1. HARİTA -> 3. HARİTA KOD DÖNÜŞÜM TABLOSU */}
-                <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.45)' }]}>
-                  <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
-                    1. HARİTA ➡️ 3. HARİTA KOD DÖNÜŞÜM ANAHTARI
-                  </Text>
-                  <Text style={styles.sectionHeading}>
-                    3. Haritayı Çalıştırdığınızda Kodlarınız Nasıl Değişir?
-                  </Text>
-                  <Text style={styles.sectionSub}>
-                    Beden Haritasındaki sınavlarınızı tamamladığınızda eski Beden kodlarınız yerini aşağıdaki 3. Harita (Üst Harita) kodlarına bırakır:
-                  </Text>
-
-                  {result.mapTransitionTable.map((row, rIdx) => (
-                    <View key={rIdx} style={styles.transitionRowCard}>
-                      <Text style={styles.transitionSlotTitle}>{row.category}</Text>
-                      <Text style={styles.transitionOldText}>
-                        <Text style={{ color: '#38BDF8', fontWeight: '800' }}>1. Harita (Eski): </Text>
-                        {row.bodyMapCode} — {row.bodyMapMeaning}
-                      </Text>
-                      <Text style={styles.transitionNewText}>
-                        <Text style={{ color: COLORS.primary, fontWeight: '800' }}>3. Harita (Yeni): </Text>
-                        {row.upperMapCode} — {row.upperMapMeaning}
-                      </Text>
-                      <Text style={styles.transitionHowText}>
-                        <Text style={{ color: '#34D399', fontWeight: '700' }}>Geçiş Şartı: </Text>
-                        {row.unlockCondition}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-
-                {/* 3. HARİTA (ÜST HARİTA) KOD KARTLARI */}
-                <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.4)' }]}>
-                  <Text style={[styles.sectionPill, { color: '#D4AF37' }]}>
-                    3. HARİTA (ÜST HARİTA) • YENİ AKTİFLEŞEN KODLARINIZ ({result.fullName})
-                  </Text>
-                  <Text style={styles.sectionHeading}>
-                    3. Haritayı Çalıştırdığınızda Devreye Giren Üst Bilinç Kodlarınız
-                  </Text>
-
-                  <View style={styles.codesGrid}>
-                    {stage2UpperCodes.map((item) => {
-                      const isSelected = selectedStage2Id === item.id && !showAllExpanded;
-                      return (
-                        <TouchableOpacity
-                          key={item.id}
-                          style={[
-                            styles.codeGridItem,
-                            isSelected && {
-                              borderColor: COLORS.primary,
-                              backgroundColor: 'rgba(212,175,55,0.14)'
-                            }
-                          ]}
-                          onPress={() => {
-                            setSelectedStage2Id(item.id);
-                            setShowAllExpanded(false);
-                          }}
-                          activeOpacity={0.82}
-                        >
-                          <Text style={[styles.codeShortTitle, { color: '#D4AF37' }]} numberOfLines={1}>
-                            {item.shortTitle}
-                          </Text>
-                          <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
-                            {item.codeValue}
-                          </Text>
-                          <Text style={styles.codeSubLabel} numberOfLines={1}>
-                            {item.subLabel}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
+                  <View style={styles.syncActionBox}>
+                    <Text style={styles.syncActionText}>
+                      <Text style={{ fontWeight: '700', color: '#34D399' }}>Ne Yapmalısınız? </Text>
+                      {sig.actionStep}
+                    </Text>
                   </View>
-
-                  {(showAllExpanded
-                    ? stage2UpperCodes
-                    : [stage2UpperCodes.find((c) => c.id === selectedStage2Id) || stage2UpperCodes[0]].filter(Boolean)
-                  ).map((item) => renderDetailCard(item!))}
                 </View>
+              ))}
+            </View>
 
-                {/* 3. HARİTA EŞZAMANLILIK MESAJLARI */}
-                <View style={styles.sectionCard}>
-                  <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
-                    3. HARİTA AKTİFKEN • YENİ SAAT & SEMBOL REHBERLİĞİ
-                  </Text>
-                  <Text style={styles.sectionHeading}>
-                    3. Haritayı Çalıştırdığınızda Üst Benliğinizin Kullandığı Yeni Kodlar
-                  </Text>
+            {/* 3. BÖLÜM: KLASİK PİSAGOR & KALDE İSİM, AURA VE ÇAKRA ANALİZİ */}
+            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.4)' }]}>
+              <Text style={[styles.sectionPill, { color: '#D4AF37' }]}>
+                3. BÖLÜM • KLASİK PİSAGOR & KALDE İSİM VE ÇAKRA ANALİZİ ({result.fullName})
+              </Text>
+              <Text style={styles.sectionHeading}>
+                İsminizden Gelen Karakter, Aura (Yükselen Vitrin) & Çakra Matrisi Analizi
+              </Text>
+              <Text style={styles.sectionSub}>
+                Adınızın ve soyadınızın sesli/sessiz harflerinden Pisagor ve Kalde (Cheiro) tablolarına göre hesaplanan içsel arzunuz, dışsal ilk izleniminiz ve çakra matrisiniz:
+              </Text>
 
-                  {result.upperMapSynchronicitySignals.map((sig, idx) => (
-                    <View
-                      key={idx}
-                      style={[styles.syncCard, { borderColor: sig.color + '55' }]}
+              <View style={styles.codesGrid}>
+                {classicNameCodes.map((item) => {
+                  const isSelected = selectedNameId === item.id && !showAllExpanded;
+                  return (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.codeGridItem,
+                        isSelected && {
+                          borderColor: COLORS.primary,
+                          backgroundColor: 'rgba(212,175,55,0.14)'
+                        }
+                      ]}
+                      onPress={() => {
+                        setSelectedNameId(item.id);
+                        setShowAllExpanded(false);
+                      }}
+                      activeOpacity={0.82}
                     >
-                      <View style={styles.syncHeaderRow}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={[styles.syncSourceTag, { color: sig.color }]}>
-                            {sig.sourceCodeName}
-                          </Text>
-                          <Text style={styles.syncTitle}>{sig.title}</Text>
-                        </View>
-                        <View style={[styles.syncCodeBadge, { borderColor: sig.color }]}>
-                          <Text style={[styles.syncCodeBadgeText, { color: sig.color }]}>
-                            {sig.code}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <Text style={styles.syncTotemText}>
-                        Eşleşen Sembol:{' '}
-                        <Text style={{ color: '#FFF', fontWeight: '700' }}>{sig.symbolArchetype}</Text>
+                      <Text style={[styles.codeShortTitle, { color: '#D4AF37' }]} numberOfLines={1}>
+                        {item.shortTitle}
                       </Text>
+                      <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
+                        {item.codeValue}
+                      </Text>
+                      <Text style={styles.codeSubLabel} numberOfLines={1}>
+                        {item.subLabel}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
 
-                      <Text style={styles.syncWhenText}>{sig.whenYouSeeIt}</Text>
-
-                      <View style={styles.syncActionBox}>
-                        <Text style={styles.syncActionText}>
-                          <Text style={{ fontWeight: '700', color: '#34D399' }}>Ne Yapmalısınız? </Text>
-                          {sig.actionStep}
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
+              {(showAllExpanded
+                ? classicNameCodes
+                : [classicNameCodes.find((c) => c.id === selectedNameId) || classicNameCodes[0]].filter(Boolean)
+              ).map((item) => renderDetailCard(item!))}
+            </View>
           </>
         )}
       </ScrollView>
@@ -642,67 +514,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800'
   },
-  stageBtn: {
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderRadius: 14,
-    padding: 13,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)',
-    marginBottom: 10
-  },
-  stageBtnActiveSky: {
-    borderColor: '#38BDF8',
-    backgroundColor: 'rgba(56,189,248,0.14)'
-  },
-  stageBtnActiveGold: {
-    borderColor: COLORS.primary,
-    backgroundColor: 'rgba(212,175,55,0.14)'
-  },
-  stageBtnBadge: {
-    fontSize: 10,
-    fontWeight: '800',
-    marginBottom: 3
-  },
-  stageBtnTitle: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800',
-    marginBottom: 4
-  },
-  stageBtnDesc: {
-    color: '#D1D5DB',
-    fontSize: 12,
-    lineHeight: 17
-  },
-  transitionRowCard: {
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    marginBottom: 10
-  },
-  transitionSlotTitle: {
-    color: COLORS.primary,
-    fontSize: 12,
-    fontWeight: '800',
-    marginBottom: 4
-  },
-  transitionOldText: {
-    color: '#E5E7EB',
-    fontSize: 12,
-    marginBottom: 2
-  },
-  transitionNewText: {
-    color: '#FFFFFF',
-    fontSize: 12.5,
-    marginBottom: 4
-  },
-  transitionHowText: {
-    color: '#D1D5DB',
-    fontSize: 11.5,
-    lineHeight: 17
-  },
   expandAllBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -714,7 +525,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212,175,55,0.35)',
     backgroundColor: 'rgba(212,175,55,0.1)',
-    marginTop: 4
+    marginBottom: 14
   },
   expandAllBannerText: {
     color: '#FDE68A',
