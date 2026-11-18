@@ -29,6 +29,7 @@ export interface PersonalSymbolCodeItem {
   archetypeTitle: string;
   summary: string;
   calculationFormula: string;
+  isCoreSynchronicityCode?: boolean;
   higherSelfTrigger: {
     clockCodes: string[];
     totemSymbol: string;
@@ -1445,6 +1446,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 1. KARMİK BORÇ KODU (3. Harita - Karmik Simya)
     {
       id: 'karmic-debt',
+      isCoreSynchronicityCode: true,
       title: 'Karmik Borç & Simya Kodu',
       shortTitle: 'KARMİK BORÇ KODU',
       codeValue: primaryKarmicKey === 'YOK' ? 'Muaf' : primaryKarmicKey,
@@ -1546,6 +1548,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 4A. BEDEN RUH & KARMİK KİLİT KODU (1. Bölüm - Doğum Tarihinden Gelen Kod)
     {
       id: 'body-karmic-soul',
+      isCoreSynchronicityCode: true,
       title: 'Beden Ruh & Karmik Kilit Kodu',
       shortTitle: 'RUH & KARMİK KODU',
       codeValue: birthKarmicKey === 'YOK' ? `${birthDaySingle} (Muaf)` : `${birthEmbeddedRuhDigit} (${birthKarmicKey})`,
@@ -1580,6 +1583,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 4. DOĞUM KODU (2. Harita - Beden Haritası)
     {
       id: 'birth-code',
+      isCoreSynchronicityCode: true,
       title: 'Doğum Günü Yetenek Kodu',
       shortTitle: 'DOĞUM GÜNÜ KODU',
       codeValue: day > 9 ? `${day}/${birthDaySingle}` : `${birthDaySingle}`,
@@ -1646,6 +1650,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 6. GEZEGEN YÖNETİCİSİ KODU (2. Harita - Beden & Kozmik Saat)
     {
       id: 'planet-ruler',
+      isCoreSynchronicityCode: true,
       title: 'Kozmik Gezegen Yöneticisi',
       shortTitle: 'GEZEGEN YÖNETİCİSİ',
       codeValue: planetEntry.planet.split(' ')[0],
@@ -1681,6 +1686,7 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 6B. BEDEN ALAN (DOĞUM MATRİSİ SINIR & KORUMA) KODU (1. Bölüm - Doğum Tarihinden Gelen Kod)
     {
       id: 'body-field-code',
+      isCoreSynchronicityCode: true,
       title: 'Alan Koruma ("Alan Kapatan" Sınır) Kodu',
       shortTitle: 'ALAN KORUMA KODU',
       codeValue: `${birthMatrixFieldCode}`,
@@ -1947,83 +1953,70 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     });
   }
 
+  // ÜST BENLİK EŞZAMANLILIK SİNYALLERİ (Sadece 3 Gerçek Çekirdek Matrix Frekansı)
+  const activeRuhDigit = birthEmbeddedRuhDigit;
+  const isNestedKarmic = primaryKarmicKey !== 'YOK';
+  const karmicShadowText = {
+    '19/1': 'bencillik, inatçılık, korku veya eylemsizlik',
+    '13/4': 'erteleme, dağınıklık, şikayet veya kestirme yol arayışı',
+    '14/5': 'duygusal uçlarda savrulma, sabırsızlık veya aşırı haz/kaçış eğilimi',
+    '16/7': 'egosal kurgular, kibir veya sahte güven alanlarına tutunma'
+  }[primaryKarmicKey] || 'eski alışkanlık kalıpları';
+  const ruhClockStr =
+    activeRuhDigit === 1
+      ? '1 / 11:11 / 10:10'
+      : `${activeRuhDigit} / 0${activeRuhDigit}:0${activeRuhDigit} / ${activeRuhDigit}${activeRuhDigit}${activeRuhDigit}`;
+  const alanClockStr =
+    birthMatrixFieldCode === 2
+      ? '2 / 22:22 / 222'
+      : `${birthMatrixFieldCode} / 0${birthMatrixFieldCode}:0${birthMatrixFieldCode} / ${birthMatrixFieldCode}${birthMatrixFieldCode}${birthMatrixFieldCode}`;
+  const dogumClockStr = `${birthDaySingle} / ${birthDaySingle}:0${birthDaySingle} / ${birthDaySingle}${birthDaySingle}${birthDaySingle}`;
+
   const synchronicitySignals: SynchronicitySignal[] = [
+    // 1. SİNYAL: RUH KODU & GÖMÜLÜ KARMİK BORÇ KODU (ÇİFT YÖNLÜ UYANIŞ FREKANSI)
     {
-      code: karmicEntry.clockCodes[0] || '19:19',
-      title: `Karmik Uyanış Çağrısı (${primaryKarmicKey === 'YOK' ? '11:11' : primaryKarmicKey})`,
-      sourceCodeName: `Karmik Borç Kodu: ${primaryKarmicKey === 'YOK' ? 'Muaf' : primaryKarmicKey}`,
-      layer: 'alchemy',
-      color: '#EF4444',
-      symbolArchetype: karmicEntry.totemSymbol,
-      whenYouSeeIt: karmicEntry.instantMessage,
-      actionStep: 'O an kiminle veya hangi kararla uğraşıyorsanız, eski alışkanlıkla (korku, inat veya erteleme) değil; yeni bilinçle hareket edin.'
-    },
-    {
-      code: getClockCodesForNumber(soulUrgeCode, soulUrgeSingle).display,
-      title: `Ruh Haritası Onay Frekansı (${soulUrgeCode})`,
-      sourceCodeName: `Ruh Güdüsü Kodu: ${soulUrgeCode}`,
-      layer: 'soul',
-      color: '#D4AF37',
-      symbolArchetype: soulEntry.totem,
-      whenYouSeeIt: soulEntry.higherSelfMessage,
-      actionStep: 'Kalbinizin gerçek arzusunu bastırmayın; o an aklınızdan geçen düşünce Ruh Haritanızla tam uyumludur.'
-    },
-    {
-      code: `0${birthMatrixFieldCode}:0${birthMatrixFieldCode} / ${birthMatrixFieldCode}${birthMatrixFieldCode}${birthMatrixFieldCode}`,
-      title: `Beden Alan Kalkanı ("Alan Kapatan" Kodu: ${birthMatrixFieldCode})`,
-      sourceCodeName: `Beden Alan Kodu: ${birthMatrixFieldCode} (Doğum Matrisi)`,
+      code: isNestedKarmic ? `${ruhClockStr} (${primaryKarmicKey})` : ruhClockStr,
+      title: `${activeRuhDigit === 1 ? '11:11' : `0${activeRuhDigit}:0${activeRuhDigit}`} Çift Yönlü Uyanış Frekansı`,
+      sourceCodeName: isNestedKarmic
+        ? `Ruh Kodu: ${activeRuhDigit} • Gömülü Karmik Kod: ${primaryKarmicKey}`
+        : `Ruh / Benlik Kodu: ${activeRuhDigit}`,
       layer: 'body',
-      color: '#FACC15',
-      symbolArchetype: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).totem,
-      whenYouSeeIt: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).instantMessage,
-      actionStep: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).shieldingRitual
+      color: '#EAB308',
+      symbolArchetype: karmicEntry.totemSymbol,
+      whenYouSeeIt: `Haritanızda Ruh Kodu: ${activeRuhDigit}${
+        isNestedKarmic ? ` ve bu kodun içine gömülü olan Karmik Borç Kodu: ${primaryKarmicKey}` : ''
+      } bulunmaktadır. ${
+        isNestedKarmic
+          ? `Ruh kodunuzun içinde karmik kilit çıkması (${primaryKarmicKey}), geçmiş yaşamlardan bu yana aynı sınavın tekrarlandığını ve eski davranış kalıplarına düşmemeniz gerektiğini gösterir. `
+          : ''
+      }Günlük hayatta ${activeRuhDigit} sayı dizilerini görmeniz iki anlam taşır: (1) Rehberlik olarak; zihinsel kaygıları bırakıp lider, bağımsız ve öncü ruhunuzu aktif ederek "akışta kalmanız" hatırlatılır. (2) Karmik uyarı olarak; geçmiş yaşam ezberlerinize (${karmicShadowText}) düşerek bu yaşamda yeni bir karma yaratmamanız gerektiği konusunda sert bir sistem alarmı verilir.`,
+      actionStep: karmicEntry.sections[3]?.content || 'Kendi merkezinizde kalın; eski alışkanlık tepkisi yerine bilinçli iradeyle hareket edin.'
     },
+
+    // 2. SİNYAL: ALAN KORUMA KODU ("ALAN KAPATAN" SINIR FREKANSI)
     {
-      code: `0${auraProtectionCode}:0${auraProtectionCode} / ${auraProtectionCode}${auraProtectionCode}${auraProtectionCode}`,
-      title: `Çakra Yetenek Aktivasyonu (${auraProtectionCode}. Çakra Dersi)`,
-      sourceCodeName: `Eksik Çakra Dersi Kodu: ${auraProtectionCode} (İsim Matrisi)`,
-      layer: 'soul',
-      color: '#F59E0B',
-      symbolArchetype: chakraLessonEntry.totem,
-      whenYouSeeIt: chakraLessonEntry.instantMessage,
-      actionStep: chakraLessonEntry.activationPractice
-    },
-    {
-      code: `0${birthDaySingle}:0${birthDaySingle} / Gün: ${day}`,
-      title: `${planetEntry.planet} Beden & Zaman Mührü`,
-      sourceCodeName: `Doğum Kodu: ${day}/${birthDaySingle} (${planetEntry.planet})`,
+      code: alanClockStr,
+      title: `${birthMatrixFieldCode === 2 ? '22:22' : `0${birthMatrixFieldCode}:0${birthMatrixFieldCode}`} Koruma ve Sınır Frekansı (Alan Kapatan)`,
+      sourceCodeName: `Alan Kodu: ${birthMatrixFieldCode} (Alan Kapatan)`,
       layer: 'body',
       color: '#38BDF8',
-      symbolArchetype: planetEntry.totem,
-      whenYouSeeIt: `Beden yöneticiniz ${planetEntry.planet} devrede. Fiziksel dünyada somut adım atmanız ve sorumluluklarınızı ertelememeniz hatırlatılıyor.`,
-      actionStep: `Önemli kararlarınızı ${planetEntry.powerDay} gününe ve ${planetEntry.planet.split(' ')[0]} saatine hizalayın.`
+      symbolArchetype: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).totem,
+      whenYouSeeIt: `Alandaki koruma kodunuz ${birthMatrixFieldCode}'dir. Bu sayı sizin için "Alan Kapatan" (enerji alanını koruyan ve kapatan sınır) anlamına gelir. Günlük hayatta ${birthMatrixFieldCode} sayı dizilerini görmeniz; dışarıdan gelen negatif enerjilere karşı kendi alanınızı kapatmanız, sınırlarınızı net bir şekilde çizmeniz ve gereksiz enerji sızıntılarını engellemeniz gerektiği mesajını taşır.`,
+      actionStep: (AURA_PROTECTION_LIBRARY[birthMatrixFieldCode] || AURA_PROTECTION_LIBRARY[2]).shieldingRitual
     },
+
+    // 3. SİNYAL: DOĞUM KODU & GEZEGEN YÖNETİCİSİ FREKANSI
     {
-      code: `0${bridgeCode || 9}:0${bridgeCode || 9} & ${chaldeanCompoundNum}`,
-      title: `Köprü (${bridgeCode}) & Kalde (${chaldeanCompoundNum}) Senkronizasyonu`,
-      sourceCodeName: `Köprü Kodu: ${bridgeCode} • Kalde: ${chaldeanCompoundNum}`,
-      layer: 'alchemy',
-      color: '#10B981',
-      symbolArchetype: chaldeanEntry.symbolName,
-      whenYouSeeIt: `Ruh Haritanız ile Beden Haritanızı birleştiren ${bridgeEntry.title} aktive oluyor.`,
-      actionStep: bridgeEntry.synchronizationKey
+      code: dogumClockStr,
+      title: `${birthDaySingle}:0${birthDaySingle} Sorumluluk ve ${lifePathPlanetEntry.planet.split(' ')[0]} Frekansı`,
+      sourceCodeName: `Doğum Kodu: ${birthDaySingle} • Gezegen Yöneticisi: ${lifePathPlanetEntry.planet.split(' ')[0]}`,
+      layer: 'body',
+      color: '#EF4444',
+      symbolArchetype: lifePathPlanetEntry.totem,
+      whenYouSeeIt: `Doğum kodu yeteneğiniz ${birthDaySingle}'dir ve beden yöneticiniz ${lifePathPlanetEntry.planet.split(' ')[0]}'dür. Günlük hayatta ${birthDaySingle} görmek; Yüksek Benliğin size dünyevi sorumlulukları ertelememeyi, korkuların üstüne disiplinle gitmeyi ve ${lifePathPlanetEntry.planet.split(' ')[0]} dengesini korumanız gerektiğini hatırlatan uyarısıdır.`,
+      actionStep: lifePathPlanetEntry.synchronicityGuide
     }
   ];
-
-  if (cleanBirthTime && chaldeanHourInfo) {
-    synchronicitySignals.unshift({
-      code: `${cleanBirthTime} / ${getClockCodesForNumber(portalCode, portalSingle).list[0]}`,
-      title: `İlk Nefes Saat Kapısı & ${chaldeanHourInfo.hourPlanet} Nöbeti`,
-      sourceCodeName: `Doğum Saati Kodu: ${rawTimeDigitsSum}/${portalCode} (${cleanBirthTime})`,
-      layer: 'body',
-      color: '#14B8A6',
-      symbolArchetype: `${chaldeanHourInfo.hourPlanet} Muhafızı (${chaldeanHourInfo.isDayBirth ? 'Gündüz' : 'Gece'} Modu)`,
-      whenYouSeeIt: `Saatlerde kendi doğum saatiniz olan ${cleanBirthTime} veya ${rawTimeDigitsSum}/${portalCode} kodunu görmeniz, Üst Benliğinizin en kişisel "Buradayım ve seni koruyorum" imzasıdır.`,
-      actionStep: chaldeanHourInfo.isDayBirth
-        ? `Gündüz (Diürnal) doğumlu olduğunuz için niyetinizi gizlemeyin; ${chaldeanHourInfo.hourPlanet} enerjisiyle hemen görünür bir adım atın.`
-        : `Gece (Noktürnal) doğumlu olduğunuz için iç sesinizi dinleyin; niyetinizi kimseye söylemeden stratejik olarak mühürleyin.`
-    });
-  }
 
   return {
     fullName: cleanName,

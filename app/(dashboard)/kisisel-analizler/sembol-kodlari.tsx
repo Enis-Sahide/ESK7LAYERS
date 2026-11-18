@@ -119,18 +119,15 @@ export default function SymbolCodesMobileScreen() {
 
       <View style={styles.triggerBox}>
         <Text style={styles.triggerTitle}>
-          ⚡ GÜNLÜK EŞLEŞEN SAAT & SEMBOLLER ({codeItem.higherSelfTrigger.clockCodes.join(' • ')})
+          🏛️ KADİM KAYNAK SEMBOL & KUTSAL GEOMETRİ KARŞILIĞI
         </Text>
         <Text style={styles.triggerMeta}>
-          <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Totem / Sembol: </Text>
+          <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Kadim Sembol: </Text>
           {codeItem.higherSelfTrigger.totemSymbol}
         </Text>
         <Text style={styles.triggerMeta}>
           <Text style={{ color: '#D4AF37', fontWeight: '700' }}>Kutsal Geometri: </Text>
           {codeItem.higherSelfTrigger.geometricSymbol}
-        </Text>
-        <Text style={styles.triggerInstantMsg}>
-          {codeItem.higherSelfTrigger.instantMessage}
         </Text>
       </View>
     </View>
