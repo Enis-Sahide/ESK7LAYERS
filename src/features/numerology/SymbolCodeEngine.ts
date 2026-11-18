@@ -1,6 +1,13 @@
 /**
  * SymbolCodeEngine.ts
- * Üst Benlik Sembol & Kişisel Kod Analizi Motoru ve Derin Ezoterik Kütüphanesi (Mobil)
+ * Üst Benlik Sembol & Kişisel Kod Analizi Motoru ve Derin Ezoterik Kütüphanesi
+ *
+ * 3 Harita Mimarisi:
+ * 1. RUH HARİTASI (Briah - İsim & Ses Frekansı): Ruh Güdüsü, Dışsal Persona, Gizli Tutku (Baskın Çakra)
+ * 2. BEDEN HARİTASI (Assiah - Doğum & Enkarnasyon Mührü): Doğum Kodu, Yaşam Yolu, Gezegen Yöneticisi
+ * 3. 3. HARİTA / SENTEZ & KARMİK SİMYA (Yetzirah - Eterik Kalkan & Köprü):
+ *    Karmik Borç Kodu (13/4, 14/5, 16/7, 19/1), Aura Koruma Kodu, Ruh-Beden Köprü Kodu,
+ *    Olgunluk (Simyasal Hasat) Kodu, Bilinçaltı Kriz Refleksi & Kalde Bileşik Arketipi.
  */
 
 export type MapLayerType = 'soul' | 'body' | 'alchemy';
@@ -82,6 +89,7 @@ export interface SymbolCodeAnalysisResult {
   };
 }
 
+// Pisagor Harf Değerleri (Türkçe Karakter Destekli)
 // Pisagor (Pythagorean) 1-9 Harf Değerleri
 const LETTER_VALUES: Record<string, number> = {
   A: 1, B: 2, C: 3, Ç: 3, D: 4, E: 5, F: 6, G: 7, Ğ: 7, H: 8, I: 9, İ: 9,
@@ -183,6 +191,9 @@ function calculateChaldeanBirthHourInfo(year: number, month: number, day: number
   };
 }
 
+// ============================================================================
+// 1. KARMİK BORÇ KODLARI DERİN KÜTÜPHANESİ (13/4, 14/5, 16/7, 19/1 ve YOK)
+// ============================================================================
 interface KarmicLibraryEntry {
   archetypeTitle: string;
   summary: string;
@@ -351,6 +362,9 @@ const KARMIC_DEBT_LIBRARY: Record<string, KarmicLibraryEntry> = {
   }
 };
 
+// ============================================================================
+// 2. RUH GÜDÜSÜ (İÇSEL ARZU) KODLARI (1-9, 11, 22) - RUH HARİTASI (BRIAH)
+// ============================================================================
 const SOUL_URGE_LIBRARY: Record<
   number,
   {
@@ -473,6 +487,9 @@ const SOUL_URGE_LIBRARY: Record<
   }
 };
 
+// ============================================================================
+// 3. AURA KORUMA (AÇIK KAPI) KODLARI (1-9) - ETERİK KALKAN (YETZIRAH)
+// ============================================================================
 const AURA_PROTECTION_LIBRARY: Record<
   number,
   {
@@ -491,7 +508,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Topraklanma ve Öz-Varoluş Kalkanı',
     totem: 'Airavata (7 Hortumlu Kutsal Beyaz Fil - Muladhara Vahanası) & Kırmızı Akik',
     geometry: '4 Yapraklı Kırmızı Lotus & Sarı Toprak Karesi (Prithvi Yantra)',
-    leakageSymptom: 'İsminizde 1. Çakra (A, J, S, Ş) frekansı açık/zayıf olduğunda enerji sızıntınız "ayaklarınızın yerden kesilmesi ve başlangıç ataleti" şeklinde çalışır.',
+    leakageSymptom: 'Doğum matrisinizde 1 (Kök/Merkez) alanı açık olduğunda enerji sızıntınız "ayaklarınızın yerden kesilmesi ve başlangıç ataleti" şeklinde çalışır.',
     dailyVulnerability: 'Kaotik ortamlarda veya baskın karakterlerin yanında kendi merkezinizden hızla uzaklaşabilir, fiziksel yorgunluk ve "Bu dünyaya ait değilim" hissi yaşayabilirsiniz.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Sabahları çıplak ayakla toprağa/zemine basarak 3 derin nefes alın. Kuyruk sokumunuzdan dünyanın merkezine yakut kırmızısı bir ışık kökü indiğini imgeleyin ve kararlarınızı ertelemeden ilk 5 dakikada eyleme dökün.',
     instantMessage: '01:01 veya 111 gördüğünde: "Enerjin zihnine fazla çıktı, hemen bedenine ve toprağa dön!"'
@@ -501,7 +518,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Duygusal Sünger & Empatik Sınır Kalkanı',
     totem: 'Makara (Kutsal Su Ejderi - Svadhisthana Vahanası) & Aytaşı',
     geometry: '6 Yapraklı Turuncu Lotus & Gümüş Hilal Su Yantrası (Apas Yantra)',
-    leakageSymptom: 'İsminizde 2. Çakra (B, K, T) kapısı açık olduğunda auranız ortamdaki diğer insanların duygularını, üzüntüsünü ve negatifliğini sünger gibi çeker.',
+    leakageSymptom: 'Doğum matrisinizde 2 (Alan Kapatan / Duygusal Sınır) kapısı açık olduğunda auranız ortamdaki diğer insanların duygularını, üzüntüsünü ve negatifliğini sünger gibi çeker.',
     dailyVulnerability: 'Birisiyle konuştuktan sonra sebepsiz yere enerjinizin çekildiğini, suçluluk duyduğunuzu veya "hayır" diyemediğiniz için alma-verme dengenizin bozulduğunu hissedersiniz.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Göbek deliğinizin 3 parmak altında turuncu-altın bir ışık küresi imgeleyin. İnsanlarla konuşurken "Senin duygun sana, benim ışığım bana aittir" niyetini tekrarlayın ve suyla (duş/tuzlu su) auranızı sık sık nötrleyin.',
     instantMessage: '02:02 veya 222 gördüğünde: "Şu an hissettiğin ağırlık sana ait değil! Başkasının duygusunu kendi aurandan bırak."'
@@ -511,7 +528,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Sınır, İrade ve Nazar/Manipülasyon Kalkanı',
     totem: 'Agni\'nin Kızıl Koçu (Manipura Vahanası), Güneş Kalkanı & Kaplan Gözü',
     geometry: '10 Yapraklı Altın Lotus & Ters Ateş Üçgeni (Tejas Yantra)',
-    leakageSymptom: 'İsminizde 3. Çakra (C, Ç, L, U, Ü) kapısı açık olduğunda en büyük enerji kaçağı "Mide/Karın merkezinden (Solar Pleksus)" gerçekleşir; nazar, kıskançlık ve duygusal manipülasyon doğrudan mide çakranıza vurur.',
+    leakageSymptom: 'Doğum matrisinizde 3 (Solar Pleksus / İrade) alanı açık olduğunda en büyük enerji kaçağı "Mide/Karın merkezinden (Solar Pleksus)" gerçekleşir; nazar, kıskançlık ve duygusal manipülasyon doğrudan mide çakranıza vurur.',
     dailyVulnerability: 'Stres anında mide kasılması, başkalarının eleştirisinden aşırı etkilenme, kendi sınırını çizerken öfke patlaması ya da tam tersi içine atıp enerjisini düşürme.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Kalabalık ortamlara girmeden veya zor bir görüşme öncesinde mide boşluğunuzun (diyafram) önünde altın sarısı dönen bir Güneş Kalkanı imgeleyin. Ellerinizi göbeğinizin üzerinde birleştirmekten kaçının; dik durup diyafram nefesi alın.',
     instantMessage: '03:03 veya 333 gördüğünde: "Karın merkezini (Solar Pleksus) kapat! Kimsenin senin özdeğerini tanımlamasına izin verme."'
@@ -521,7 +538,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Koşulsuz Sevgi & Kalp Zırhı Kalkanı',
     totem: 'Kutsal Ceylan / Antilop (Anahata Vahanası - Kalp Saflığı) & Zümrüt',
     geometry: '12 Yapraklı Yeşil Lotus & Altı Köşeli Hava Yıldızı (Şatkon / Vayu Yantra)',
-    leakageSymptom: 'İsminizde 4. Çakra (D, M, V) kapısı açık olduğunda enerji sızıntısı göğüs kafesinden gerçekleşir; ya aşırı verici olup tükenirsiniz ya da kırılmamak için kalbinize görünmez bir buz duvarı örersiniz.',
+    leakageSymptom: 'Doğum matrisinizde 4 (Kalp & Toprak Sınırı) alanı açık olduğunda enerji sızıntısı göğüs kafesinden gerçekleşir; ya aşırı verici olup tükenirsiniz ya da kırılmamak için kalbinize görünmez bir buz duvarı örersiniz.',
     dailyVulnerability: 'Sevdiklerinizin acısını kendi bedeninizde hissetmek, geçmiş kırgınlıkları göğüste ağırlık olarak taşımak veya maddi/manevi bereketi tutmakta zorlanmak.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Göğüs kafesinizin ortasında zümrüt yeşili ve altın pembe iki iç içe geçmiş üçgen (Merkaba) imgeleyin. Affetmeyi karşı taraf için değil, göğsünüzdeki enerji kaçağını kapatmak için uygulayın.',
     instantMessage: '04:04 veya 444 gördüğünde: "Kalbindeki kapıyı sadece hak edene aç; şefkati koru ama enerjini tüketen bağı kes."'
@@ -531,7 +548,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Hakikat Sözü & Akustik Frekans Kalkanı',
     totem: 'Kar Beyazı Kutsal Fil (Vishuddha Akasha Vahanası) & Mavi Safir',
     geometry: '16 Yapraklı Turkuaz Lotus & Dolunay İçinde Eter Üçgeni (Akasha Yantra)',
-    leakageSymptom: 'İsminizde 5. Çakra (E, N, W) kapısı açık olduğunda enerji sızıntısı "yutkunulan sözler, anlatılamayan hakikatler ve boğaz düğümlenmesi" üzerinden yaşanır.',
+    leakageSymptom: 'Doğum matrisinizde 5 (İfade & Sinir Sistemi) alanı açık olduğunda enerji sızıntısı "yutkunulan sözler, anlatılamayan hakikatler ve boğaz düğümlenmesi" üzerinden yaşanır.',
     dailyVulnerability: 'Tartışma çıkmasın diye sustuğunuz her an auranızda yırtılma oluşur; boyun/omuz tutulmaları, ses kısılması veya yanlış anlaşılma döngüleri tetiklenir.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Boğazınızda safir mavisi bir ışık halkası imgeleyin. İçinize attığınız hiçbir cümleyi bedeninizde tutmayın; kişiye söyleyemiyorsanız bile sesli olarak yalnızken ifade edin veya yazıya dökün.',
     instantMessage: '05:05 veya 555 gördüğünde: "Yutkunduğun gerçeği serbest bırak; kendi sesini bastırdığında auran zayıflıyor."'
@@ -541,7 +558,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Zihinsel Projeksiyon & Nazar Kalkanı',
     totem: 'Hamsa (İlahi Bilgelik Kuğusu - Ajna Sembolü), Horus\'un Gözü & Lapis Lazuli',
     geometry: '2 Kanatlı İndigo Lotus & Pranava (OM) Işık Mührü',
-    leakageSymptom: 'İsminizde 6. Çakra (F, O, Ö, X) kapısı açık olduğunda, dışarıdan gelen negatif bakışlar (nazar), kolektif korkular ve zihinsel vesveseler alın çakranızdan içeri sızar.',
+    leakageSymptom: 'Doğum matrisinizde 6 (Üçüncü Göz & Nazar Sınırı) alanı açık olduğunda, dışarıdan gelen negatif bakışlar (nazar), kolektif korkular ve zihinsel vesveseler alın çakranızdan içeri sızar.',
     dailyVulnerability: 'Gece uykuya dalarken durmayan düşünceler, baş ağrısı, gelecek kaygısı senaryoları kurmak ve kendi sezgisiyle korkusunu birbirine karıştırmak.',
     shieldingRitual: 'Aura Mühürleme Pratiği: İki kaşınızın ortasında çivit mavisi (indigo) bir ışık mührü imgeleyin. Yatmadan önce ekran ışığını kesin ve "Zihnimi kolektif korku frekanslarına kapatıyorum, sadece Üst Benliğimin net vizyonuna açığım" mührünü koyun.',
     instantMessage: '06:06 veya 666 gördüğünde: "Zihnindeki felaket senaryosu gerçeğin değil, açık kalan 6. çakrandan sızan bir illüzyon!"'
@@ -551,7 +568,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'İlahi Bağlantı & Astral Koruma Kalkanı',
     totem: 'Kala-Hamsa (Zamanı Aşan Beyaz Kuğu) & Ametist Tacı',
     geometry: '1000 Yapraklı Mor-Altın Sahasrara Lotusu & Bindu (Mutlak Nokta)',
-    leakageSymptom: 'İsminizde 7. Çakra (G, Ğ, P, Y) kapısı açık olduğunda, uyku ve rüya boyutu (astral alan) ile tepe çakranız dış tesirlere karşı hassaslaşır.',
+    leakageSymptom: 'Doğum matrisinizde 7 (Astral & Rüya Alanı) kapısı açık olduğunda, uyku ve rüya boyutu (astral alan) ile tepe çakranız dış tesirlere karşı hassaslaşır.',
     dailyVulnerability: 'Karmakarışık rüyalarla yorgun uyanmak, inanç/anlam krizleri yaşamak veya zihinsel olarak her şeyi kontrol etmeye çalışıp ilahi akışa güvenememek.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Başınızın tam tepesinden (bıngıldak) aşağıya doğru mor ve altın beyazı bir ışık sütununun tüm bedeninizi yumurta biçiminde (Ouroboros kozası) sardığını imgeleyerek uykuya geçin.',
     instantMessage: '07:07 veya 777 gördüğünde: "Her şeyi zihninle çözemezsin; tepe çakranı ilahi korumaya aç ve kontrolü teslim et."'
@@ -561,7 +578,7 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Manyetik Otorite & Bereket Kalkanı',
     totem: 'Ouroboros (Kuyruğunu Isıran Koruyucu Ejderha), Kum Saati & Obsidyen',
     geometry: 'Sekiz Köşeli Yıldız (Oktagram / Melkisedek Mührü) & Satürn Küpü',
-    leakageSymptom: 'İsminizde 8. Çakra (H, Q, Z) kapısı açık olduğunda enerji sızıntısı "hak ettiğiniz maddi/manevi değeri talep etmekte zorlanma veya kazancın elde durmaması" şeklinde görülür.',
+    leakageSymptom: 'Doğum matrisinizde 8 (Otorite & Bereket Sınırı) alanı açık olduğunda enerji sızıntısı "hak ettiğiniz maddi/manevi değeri talep etmekte zorlanma veya kazancın elde durmaması" şeklinde görülür.',
     dailyVulnerability: 'Çok emek verip tam hasat zamanında geri çekilmek, otorite figürleri karşısında kendi gücünü küçültmek veya ani finansal dalgalanmalar.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Tüm auranızın en dış çeperini (bedenden 50 cm dışarıyı) altın-mor bir sekizgen kalkanla mühürleyin. Emeğinizin karşılığını isterken suçluluk duymayı tamamen bırakın.',
     instantMessage: '08:08 veya 888 gördüğünde: "Kendi değerini küçültme! Bereket kapın açık, otoriteni sahiplen."'
@@ -571,13 +588,136 @@ const AURA_PROTECTION_LIBRARY: Record<
     gateTitle: 'Karmik Bağ Kesme & Bütünlük Kalkanı',
     totem: 'Simurg / Zümrüdüanka (Küllerinden Doğan Kuş) & Kristal Kuvars',
     geometry: 'Dokuz Köşeli Işık Küresi (Enneagram) & Kether Tacı',
-    leakageSymptom: 'İsminizde 9. Çakra (I, İ, R) kapısı açık olduğunda, geçmişte kalması gereken insanlar, eski olaylar ve tamamlanmamış enerjiler auranıza kanca atarak yaşam enerjinizi çeker.',
+    leakageSymptom: 'Doğum matrisinizde 9 (Karmik Kordon & Bütünlük) alanı açık olduğunda, geçmişte kalması gereken insanlar, eski olaylar ve tamamlanmamış enerjiler auranıza kanca atarak yaşam enerjinizi çeker.',
     dailyVulnerability: 'Eski defterleri kapatamamak, "Keşke"lerle enerji kaybetmek ve başkalarının karmik sınavlarını kendi sırtında taşımaya devam etmek.',
     shieldingRitual: 'Aura Mühürleme Pratiği: Güneş batarken veya uyumadan önce, o gün temas ettiğiniz herkesle aranızdaki eterik kordonları altın bir ışık kılıcıyla sevgiyle kestiğinizi imgeleyin: "Benden sana geçen, senden bana geçen tüm ağır yükleri kaynağa iade ediyorum."',
     instantMessage: '09:09 veya 999 gördüğünde: "Süresi dolmuş bir enerjiyi hala auranda taşıyorsun; kordonu kes ve özgürleş!"'
   }
 };
 
+
+// ============================================================================
+// 3B. İSİMDEKİ EKSİK ÇAKRA / KARMİK DERS (KARMIC LESSON: 1-9) KÜTÜPHANESİ
+// (Pisagor sisteminde isimde harfi bulunmayan sayı: "Sıfırdan Geliştirilecek Yetenek")
+// ============================================================================
+const CHAKRA_LESSON_LIBRARY: Record<
+  number,
+  {
+    chakraName: string;
+    lessonTitle: string;
+    missingLetters: string;
+    totem: string;
+    geometry: string;
+    lessonMeaning: string;
+    dailyManifestation: string;
+    activationPractice: string;
+    instantMessage: string;
+  }
+> = {
+  1: {
+    chakraName: '1. Kök Çakra (A, J, S, Ş Harfleri)',
+    lessonTitle: 'Öz-İrade, İnisiyatif Alma ve Tek Başına Başlama Dersi',
+    missingLetters: 'A, J, S, Ş',
+    totem: 'Alef (Kutsal Boğa) & Altın Aslan',
+    geometry: 'Monad — Merkez Noktalı Çember',
+    lessonMeaning: 'İsminizde 1. Çakra (A, J, S, Ş) harflerinin bulunmaması, ruhunuzun bu hayatta "kimseden onay beklemeden kendi kararını verme ve liderlik etme" kasını sıfırdan geliştirmek üzere geldiğini gösterir.',
+    dailyManifestation: 'Başkalarının fikirlerine fazla uyum sağlamak, bir işe başlarken yanınızda mutlaka bir destekçi aramak veya kendi hakkınızı savunurken tereddüt etmek.',
+    activationPractice: 'Yetenek Aktivasyonu: Küçük veya büyük kararlarınızda başkasına sormadan ilk adımı kendiniz atın. Spor, yürüyüş ve somut hedef takibiyle 1. Çakra kasınızı güçlendirin.',
+    instantMessage: '01:01 veya 111 gördüğünde: "Bu karar senin! Kimseden onay bekleme, kendi liderliğini ortaya koy."'
+  },
+  2: {
+    chakraName: '2. Sakral Çakra (B, K, T Harfleri)',
+    lessonTitle: 'Sabır, Diplomasi, İşbirliği ve Detay Ustalığı Dersi',
+    missingLetters: 'B, K, T',
+    totem: 'Bet (Kutsal Tapınak) & Gümüş Kuğu',
+    geometry: 'Dyad — Vesica Piscis (İki Kesişen Çember)',
+    lessonMeaning: 'İsminizde 2. Çakra (B, K, T) harflerinin bulunmaması, bu hayatta "sabırla dinlemeyi, ekip çalışmasını, nezaketi ve zamanlamaya güvenmeyi" bilinçli olarak öğrenmek üzere geldiğinizi gösterir.',
+    dailyManifestation: 'İşlerin hemen olmasını istemek (sabırsızlık), her şeyi tek başına yapmaya çalışmak veya ilişkilerde karşı tarafın duygusal nüanslarını gözden kaçırmak.',
+    activationPractice: 'Yetenek Aktivasyonu: İkili ilişkilerde ve ortaklıklarda karşı tarafı sözünü kesmeden dinleme pratiği yapın. Sanatsal üretim ve su elementiyle temas 2. Çakra yaratıcılığınızı açar.',
+    instantMessage: '02:02 veya 222 gördüğünde: "Acele etme; bu işi güçle değil, sabır, nezaket ve işbirliğiyle çözeceksin."'
+  },
+  3: {
+    chakraName: '3. Solar Pleksus Çakrası (C, Ç, L, U, Ü Harfleri)',
+    lessonTitle: 'Yaratıcı İfade, Görünür Olma ve Özdeğer Dersi',
+    missingLetters: 'C, Ç, L, U, Ü',
+    totem: 'Gimel (Bereket Köprüsü) & Jüpiter Kraliyet Kartalı',
+    geometry: 'Triad — Kutsal Eşkenar Üçgen (Delta)',
+    lessonMeaning: 'İsminizde 3. Çakra (C, Ç, L, U, Ü) harflerinin bulunmaması, bu hayatta "sahneye çıkmayı, yeteneklerinizi görünür kılmayı, kendinizi neşeyle ifade etmeyi ve özgüveninizi inşa etmeyi" öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Çok bilgili ve yetenekli olduğunuz halde geri planda kalmayı seçmek, kendinizi acımasızca eleştirmek veya işlerinizi ertelemek.',
+    activationPractice: 'Yetenek Aktivasyonu: Bilginizi ve üretiminizi saklamayın; yazın, konuşun, sunum yapın ve görünür olun. Kendinizi başkalarıyla kıyaslamayı bırakıp kendi neşenizi merkeze koyun.',
+    instantMessage: '03:03 veya 333 gördüğünde: "Arka planda saklanma! Yeteneğini, sözünü ve neşeni cesurca ortaya koy."'
+  },
+  4: {
+    chakraName: '4. Kalp & Düzen Çakrası (D, M, V Harfleri)',
+    lessonTitle: 'Sistem Kurma, Disiplin, Sabır ve Somut İnşa Dersi',
+    missingLetters: 'D, M, V',
+    totem: 'Dalet (Tapınak Kapısı) & Dört Kerubim',
+    geometry: 'Tetrad — Kutsal Küp (Heksahedron)',
+    lessonMeaning: 'İsminizde 4. Çakra (D, M, V) harflerinin bulunmaması, bu hayatta "dağınık fikirleri somut bir düzene, takvime ve kalıcı bir sisteme dönüştürme" ustalığını geliştirmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Harika vizyonlar kurup detay ve rutin aşamasına gelince sıkılmak, finansal veya günlük planlamada düzensizlik yaşamak.',
+    activationPractice: 'Yetenek Aktivasyonu: Her gün aynı saatte yapılan küçük ama sarsılmaz rutinler kurun. Başladığınız bir işi bitirmeden yenisine geçmeyin; yazılı plan ve bütçe tutun.',
+    instantMessage: '04:04 veya 444 gördüğünde: "Vizyonunu havada bırakma; hemen somut bir plan, takvim ve düzen kur."'
+  },
+  5: {
+    chakraName: '5. Boğaz Çakrası (E, N, W Harfleri)',
+    lessonTitle: 'Esneklik, Yeniliğe Açıklık ve İletişim Cesareti Dersi',
+    missingLetters: 'E, N, W',
+    totem: 'He (İlahi Nefes) & Hermes Caduceus Asası',
+    geometry: 'Pentad — Pentagram (Beş Köşeli Yıldız)',
+    lessonMeaning: 'İsminizde 5. Çakra (E, N, W) harflerinin bulunmaması, bu hayatta "konfor alanından çıkmayı, değişimden korkmamayı ve farklı insanlarla özgürce iletişim kurmayı" öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Alışkanlıklara ve bildiği ortamlara aşırı tutunmak, ani değişiklikler karşısında gerilmek veya yeni ortamlarda kendini ifade etmekten çekinmek.',
+    activationPractice: 'Yetenek Aktivasyonu: Rutininizi bilinçli olarak kırın; yeni yerler keşfedin, yeni teknolojiler/diller öğrenin ve düşüncelerinizi yüksek sesle ifade etme antrenmanı yapın.',
+    instantMessage: '05:05 veya 555 gördüğünde: "Değişime direnme! Konfor alanından çık, bu yenilik seni büyütmek için geldi."'
+  },
+  6: {
+    chakraName: '6. Üçüncü Göz & Uyum Çakrası (F, O, Ö, X Harfleri)',
+    lessonTitle: 'Dengeli Sorumluluk, Aile/Topluluk Bağı ve Estetik Dersi',
+    missingLetters: 'F, O, Ö, X',
+    totem: 'Vav (Altın Kanca), Venüs Güvercini & Kuğu',
+    geometry: 'Hexad — Hekzagram (Mühr-ü Süleyman)',
+    lessonMeaning: 'İsminizde 6. Çakra (F, O, Ö, X) harflerinin bulunmaması, bu hayatta "yakın ilişkilerde açık duygusal bağ kurmayı, sorumluluk dengesini ve kusursuz olmayana şefkat göstermeyi" öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'İlişkilerde ya aşırı mesafeli durmak ya da her yükü tek başına sırtlanmak; insanlardan gerçekçi olmayan bir mükemmeliyet beklemek.',
+    activationPractice: 'Yetenek Aktivasyonu: Sevdiklerinize takdirinizi ve sevginizi açıkça dile getirin. Yaşam alanınızı güzelleştirin ve insanları olduğu gibi kabul etme bilgeliğini seçin.',
+    instantMessage: '06:06 veya 666 gördüğünde: "Mükemmeliyetçiliği bırak; kalbini şefkate, uyuma ve güzelliğe aç."'
+  },
+  7: {
+    chakraName: '7. Taç Çakra (G, Ğ, P, Y Harfleri)',
+    lessonTitle: 'İçsel Tefekkür, Derin Uzmanlık ve Sezgiye Güven Dersi',
+    missingLetters: 'G, Ğ, P, Y',
+    totem: 'Zayin (Ruhsal Kılıç), Sfenks & Athena Baykuşu',
+    geometry: 'Heptad — Heptagram (Yedi Köşeli Yıldız)',
+    lessonMeaning: 'İsminizde 7. Çakra (G, Ğ, P, Y) harflerinin bulunmaması, bu hayatta "sadece dış dünyadaki maddi kanıtlara değil, kendi iç sesinize, rüyalarınıza ve derin araştırmaya güvenmeyi" öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Yüzeysel hız içinde derinleşmeye vakit ayırmamak, sezgilerini mantıkla bastırmak veya yalnız kalmaktan huzursuz olmak.',
+    activationPractice: 'Yetenek Aktivasyonu: Her gün en az 20 dakika sessizlik ve tefekkür zamanı ayırın. Seçtiğiniz bir konuda yüzeyde kalmayıp en derin uzmanlığa inin.',
+    instantMessage: '07:07 veya 777 gördüğünde: "Dışarıdaki gürültüyü kapat; biraz yalnız kal ve içindeki bilge sesi dinle."'
+  },
+  8: {
+    chakraName: '8. Kozmik Güç & Finans Çakrası (H, Q, Z Harfleri)',
+    lessonTitle: 'Finansal Yönetim, Öz-Otorite ve Maddi Hükümranlık Dersi',
+    missingLetters: 'H, Q, Z',
+    totem: 'Het (Yaşam Sınırı) & Ma\'at Adalet Terazisi',
+    geometry: 'Ogdoad — Oktagram & Lemniskat (∞)',
+    lessonMeaning: 'İsminizde 8. Çakra (H, Q, Z) harflerinin bulunmaması, bu hayatta "parayı, gücü, zamanı ve otoriteyi suçluluk duymadan, ustalıkla yönetmeyi" sıfırdan öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Maddi konuları göz ardı etmek, emeğinin gerçek finansal karşılığını istemekten çekinmek veya yetki devretmekte zorlanmak.',
+    activationPractice: 'Yetenek Aktivasyonu: Finansal okuryazarlığınızı, yatırım ve yönetim becerinizi geliştirin. Emeğinizin değerini net belirleyin ve kendi otoritenizi sahiplenin.',
+    instantMessage: '08:08 veya 888 gördüğünde: "Maddi gücünü ve otoriteni erteleme; emeğinin karşılığını tam olarak sahiplen."'
+  },
+  9: {
+    chakraName: '9. Evrensel Bilinç Çakrası (I, İ, R Harfleri)',
+    lessonTitle: 'Bütünü Görme, Şefkat ve Geçmişi Bırakabilme Dersi',
+    missingLetters: 'I, İ, R',
+    totem: 'Tet (Bilgelik) & Hermit\'in Altın Feneri',
+    geometry: 'Ennead — Enneagram (Dokuz Köşeli Çember)',
+    lessonMeaning: 'İsminizde 9. Çakra (I, İ, R) harflerinin bulunmaması, bu hayatta "geniş vizyonla insanlığa fayda üretmeyi, hoşgörüyü ve süresi dolmuş döngüleri sevgiyle uğurlamayı" öğrenmeye geldiğinizi gösterir.',
+    dailyManifestation: 'Kendi yakın çevresinin dışındaki dünyaya kapanmak veya geçmişte yaşanmış kırgınlıkları uzun süre zihinde tutmak.',
+    activationPractice: 'Yetenek Aktivasyonu: Yaptığınız işi sadece kişisel kazanç için değil, insanlara ilham ve şifa katacak büyük bir vizyonla yapın. Affetme ve bırakma pratiğini uygulayın.',
+    instantMessage: '09:09 veya 999 gördüğünde: "Bakış açını büyüt; geçmişe takılma, bilginle ve şefkatinle bütüne katkı sun."'
+  }
+};
+
+// ============================================================================
+// 4. GEZEGEN YÖNETİCİSİ KÜTÜPHANESİ (GÜNEŞ..MARS) - BEDEN HARİTASI (ASSIAH)
+// ============================================================================
 const PLANETARY_RULER_LIBRARY: Record<
   number,
   {
@@ -638,7 +778,7 @@ const PLANETARY_RULER_LIBRARY: Record<
     kabbalahSphere: 'Da\'at / Chokmah Yansıması (Sıradışı Zeka & Düzen Kırıcı)',
     powerDay: 'Cumartesi / Pazar Geçişi',
     element: 'Toprak / Elektrik Havası',
-    metalAndStone: 'Uranyum / Platin • Labradorit & Kehribar',
+    metalAndStone: 'Uranyum / Platin • Labradorit & kehribar',
     clockCodes: ['04:04', '13:13', '14:41', '444'],
     totem: 'Caput Draconis (Göksel Ejderha Başı) & Prometheus Ateşi',
     geometry: 'Rahu Düğümü (☊), Dört Boyutlu Küp & Tetractys',
@@ -677,12 +817,12 @@ const PLANETARY_RULER_LIBRARY: Record<
     kabbalahSphere: 'Binah / Kether Köprüsü (Derin Sezgi & Sırlar)',
     powerDay: 'Pazartesi / Perşembe',
     element: 'Su / Eter',
-    metalAndStone: 'Platin & Gümüş • Akuamarin, Ametist & Kedi Gözü',
+    metalAndStone: 'Platin & Gümüş • Akuamarin, Ametist & Кedi Gözü',
     clockCodes: ['07:07', '16:16', '17:17', '777'],
     totem: 'Cauda Draconis (Ejderha Kuyruğu), Üç Dişli Trident & Yunus',
     geometry: 'Ketu Düğümü (☋) & Yedi Köşeli Mistik Yıldız (Heptagram)',
     summary: 'Beden haritanızın yöneticisi görünmeyen alemlerin, rüyaların ve derin bilgeliğin gezegeni Neptün\'dür. İnsanların maskelerinin arkasındaki gerçeği ilk bakışta okursunuz.',
-    bodyEffects: 'Epifiz bezi (üçüncü göz), bağışıklık sistemi ve aura hassasiyeti yönetimindedir. Kalabalıklardan sonra mutlaka yalnız kalıp dinlenmeniz gerekir.',
+    bodyEffects: 'Epifiz bezi (üçüncü göz), bağışıklık sistemi ve ауra hassasiyeti yönetimindedir. Kalabalıklardan sonra mutlaka yalnız kalıp dinlenmeniz gerekir.',
     synchronicityGuide: 'Su kenarları, gece sessizliği ve 07:07 / 17:17 anları rüya rehberliğinizin ve durugörünüzün en açık olduğu anlardır.'
   },
   8: {
@@ -713,6 +853,9 @@ const PLANETARY_RULER_LIBRARY: Record<
   }
 };
 
+// ============================================================================
+// 5. KALDE (BABİL) BİLEŞİK ARKETİPLERİ (10 - 52 ARASI ÖZEL MİSTİK KODLAR)
+// ============================================================================
 function getChaldeanCompoundArchetype(compoundNum: number): {
   title: string;
   symbolName: string;
@@ -987,6 +1130,9 @@ function getChaldeanCompoundArchetype(compoundNum: number): {
   return table[fallbackMap[single] || 19];
 }
 
+// ============================================================================
+// 6. KÖPRÜ KODU (RUH - BEDEN SENKRONİZASYON KÖPRÜSÜ: 0 - 8)
+// ============================================================================
 const BRIDGE_CODE_LIBRARY: Record<
   number,
   {
@@ -1052,11 +1198,15 @@ const BRIDGE_CODE_LIBRARY: Record<
   }
 };
 
+// ============================================================================
+// ANA HESAPLAMA MOTORU: analyzePersonalSymbolCodes
+// ============================================================================
 export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput: string, birthTimeInput?: string): SymbolCodeAnalysisResult {
   const cleanName = (fullNameInput || 'Misafir Ruh').trim();
   const upperName = cleanName.toLocaleUpperCase('tr-TR');
   const letters = upperName.split('').filter((ch) => LETTER_VALUES[ch] !== undefined);
 
+  // Tarih ayrıştırma (YYYY-MM-DD veya DD.MM.YYYY)
   let year = 1990;
   let month = 1;
   let day = 1;
@@ -1286,11 +1436,13 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
   const personaEntry = SOUL_URGE_LIBRARY[personalityCode] || SOUL_URGE_LIBRARY[1];
   const dominantEntry = SOUL_URGE_LIBRARY[dominantChakra] || SOUL_URGE_LIBRARY[1];
   const auraEntry = AURA_PROTECTION_LIBRARY[auraProtectionCode] || AURA_PROTECTION_LIBRARY[1];
+  const chakraLessonEntry = CHAKRA_LESSON_LIBRARY[auraProtectionCode] || CHAKRA_LESSON_LIBRARY[1];
   const planetEntry = PLANETARY_RULER_LIBRARY[birthDaySingle] || PLANETARY_RULER_LIBRARY[1];
   const lifePathPlanetEntry = PLANETARY_RULER_LIBRARY[lifePathSingle] || PLANETARY_RULER_LIBRARY[1];
   const maturityEntry = SOUL_URGE_LIBRARY[maturityCode] || SOUL_URGE_LIBRARY[maturitySingle] || SOUL_URGE_LIBRARY[1];
 
   const codes: PersonalSymbolCodeItem[] = [
+    // 1. KARMİK BORÇ KODU (3. Harita - Karmik Simya)
     {
       id: 'karmic-debt',
       title: 'Karmik Borç & Simya Kodu',
@@ -1317,6 +1469,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
       },
       sections: karmicEntry.sections
     },
+
+    // 2. RUH GÜDÜSÜ / KİŞİLİK ÖZÜ KODU (1. Harita - Ruh Haritası)
     {
       id: 'soul-urge',
       title: 'İçsel Ruh Arzusu (Sesli Harf) Kodu',
@@ -1350,42 +1504,80 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 3. İSİMDEKİ EKSİK ÇAKRA / KARMİK DERS KODU (2. Bölüm - İsimden Gelen Gelişim Alanı)
     {
       id: 'aura-protection',
-      title: 'Aura Koruma (Açık Çakra Kapısı) Kodu',
-      shortTitle: 'AURA KORUMA KODU',
+      title: 'Eksik Çakra (Geliştirilecek Yetenek) Kodu',
+      shortTitle: 'EKSİK ÇAKRA DERSİ',
       codeValue: `${auraProtectionCode}`,
-      subLabel: `${auraEntry.chakraName}`,
+      subLabel: `Geliştirilecek: ${chakraLessonEntry.chakraName}`,
       layer: 'soul',
-      layerBadge: '2. Bölüm • İsim & Çakra Kalkanı',
+      layerBadge: '2. Bölüm • İsimden Gelen Çakra Dersi',
       color: '#F59E0B',
-      archetypeTitle: auraEntry.gateTitle,
-      summary: auraEntry.leakageSymptom,
+      archetypeTitle: `${auraProtectionCode}. Çakra Dersi — ${chakraLessonEntry.lessonTitle}`,
+      summary: chakraLessonEntry.lessonMeaning,
       calculationFormula:
         missingChakras.length > 0
-          ? `İsminizin 9'lu çakra matrisinde [${missingChakras.join(', ')}. Çakra] harfleri bulunmamaktadır (0 harf). İlk açık kapı olan ${auraProtectionCode}. Çakra sizin birincil Aura Koruma Kodunuzdur.`
-          : `İsminizde tüm çakralarda harf mevcuttur (Tam Matris); en düşük yoğunluklu kapı olan ${auraProtectionCode}. Çakra hassas denge noktanızdır.`,
+          ? `İsminizdeki harfler 9 çakraya yerleştirildiğinde [${missingChakras.join(', ')}. Çakra] harfleri (${chakraLessonEntry.missingLetters}) bulunmamaktadır. İlk eksik basamak olan ${auraProtectionCode}. Çakra, bu hayatta bilinçli olarak geliştireceğiniz yetenek merkezidir.`
+          : `İsminizde 9 çakranın tamamında harf mevcuttur (Tam Matris); en az yoğunluklu merkez olan ${auraProtectionCode}. Çakra gelişim alanınızdır.`,
       higherSelfTrigger: {
         clockCodes: [`0${auraProtectionCode}:0${auraProtectionCode}`, `${auraProtectionCode}${auraProtectionCode}${auraProtectionCode}`],
-        totemSymbol: auraEntry.totem,
-        geometricSymbol: auraEntry.geometry,
-        instantMessage: auraEntry.instantMessage
+        totemSymbol: chakraLessonEntry.totem,
+        geometricSymbol: chakraLessonEntry.geometry,
+        instantMessage: chakraLessonEntry.instantMessage
       },
       sections: [
         {
-          heading: '1. Enerjiniz Nereden Sızıyor? (Açık Çakra Kapısı)',
-          content: auraEntry.leakageSymptom
+          heading: '1. Bu Hayatta Sıfırdan Geliştireceğiniz Yetenek (Karmik Ders)',
+          content: chakraLessonEntry.lessonMeaning
         },
         {
-          heading: '2. Günlük Hayattaki Hassasiyet ve Belirtiler',
-          content: auraEntry.dailyVulnerability
+          heading: '2. Günlük Hayatta Dikkat Edilmesi Gereken Yansıması',
+          content: chakraLessonEntry.dailyManifestation
         },
         {
-          heading: '3. Pratik Aura Mühürleme & Sınır Ritüeli',
-          content: auraEntry.shieldingRitual
+          heading: '3. Çakra Yetenek Aktivasyonu & Uygulama Anahtarı',
+          content: chakraLessonEntry.activationPractice
         }
       ]
     },
+
+    // 4A. BEDEN RUH & KARMİK KİLİT KODU (1. Bölüm - Doğum Tarihinden Gelen Kod)
+    {
+      id: 'body-karmic-soul',
+      title: 'Beden Ruh & Karmik Kilit Kodu',
+      shortTitle: 'RUH & KARMİK KODU',
+      codeValue: birthKarmicKey === 'YOK' ? `${birthDaySingle} (Muaf)` : `${birthEmbeddedRuhDigit} (${birthKarmicKey})`,
+      subLabel:
+        birthDateKarmicDebts.length > 0
+          ? `Ruh Kodu: ${birthEmbeddedRuhDigit} • Gömülü Kilit: ${birthKarmicKey}`
+          : `Beden Öz Kodu: ${birthDaySingle} • Karmik Kilit Yok`,
+      layer: 'body',
+      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Karmik Öz',
+      color: '#EF4444',
+      archetypeTitle:
+        birthKarmicKey !== 'YOK'
+          ? `Ruh Kodu ${birthEmbeddedRuhDigit} (İçine Gömülü Karmik Kod: ${birthKarmicKey}) — ${birthKarmicEntry.archetypeTitle}`
+          : `Beden Öz Kodu ${birthDaySingle} — ${birthKarmicEntry.archetypeTitle}`,
+      summary:
+        birthKarmicKey !== 'YOK'
+          ? `Doğum tarihinizde (${birthDateKarmicDebts.map((d) => d.source).join(' • ')}) üzerinden Beden Ruh Kodunuz "${birthEmbeddedRuhDigit}" ve bu kodun içine gömülü olan "${birthKarmicKey}" Karmik Kilidi bulunmaktadır. ${birthKarmicEntry.summary}`
+          : birthKarmicEntry.summary,
+      calculationFormula:
+        birthDateKarmicDebts.length > 0
+          ? `Doğum tarihinizde ${birthDateKarmicDebts.map((d) => `${d.source} → ${d.code}`).join(', ')} kilidi tespit edilmiştir.`
+          : 'Doğum tarihinizin gün, yaşam yolu ve matris eksenlerinde 13/4, 14/5, 16/7 veya 19/1 karmik kilidi bulunmamaktadır.',
+      higherSelfTrigger: {
+        clockCodes: birthKarmicEntry.clockCodes,
+        totemSymbol: birthKarmicEntry.totemSymbol,
+        geometricSymbol: birthKarmicEntry.geometricSymbol,
+        instantMessage: birthKarmicEntry.instantMessage
+      },
+      sections: birthKarmicEntry.sections
+    },
+
+    // 4. DOĞUM KODU (2. Harita - Beden Haritası)
     {
       id: 'birth-code',
       title: 'Doğum Günü Yetenek Kodu',
@@ -1419,6 +1611,39 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 5. YAŞAM YOLU / ENKARNASYON ROTASI KODU (2. Harita - Beden Haritası)
+    {
+      id: 'life-path',
+      title: 'Yaşam Yolu (Enkarnasyon Rotası) Kodu',
+      shortTitle: 'YAŞAM YOLU KODU',
+      codeValue: `${rawLifePathSum}/${lifePathCode}`,
+      subLabel: `Yol Yöneticisi: ${lifePathPlanetEntry.planet.split(' ')[0]}`,
+      layer: 'body',
+      layerBadge: '1. Bölüm • Doğum Tarihinden Gelen Kod',
+      color: '#0EA5E9',
+      archetypeTitle: `${rawLifePathSum}/${lifePathCode} — ${ (SOUL_URGE_LIBRARY[lifePathCode] || SOUL_URGE_LIBRARY[lifePathSingle] || SOUL_URGE_LIBRARY[1]).title }`,
+      summary: `Doğum tarihinizin tüm basamaklarının toplamından (${rawLifePathSum} → ${lifePathCode}) doğan bu kod, fiziksel dünyada yürüyeceğiniz ana enkarnasyon otobanını ve hayat derslerinizi gösterir.`,
+      calculationFormula: `Doğum tarihinizdeki rakamların toplamı (${day}.${month}.${year}) = ${rawLifePathSum} → ${lifePathCode} (3 Sütun Toplamı: ${pureThreeCycleLifePathSum}/${reduceToSingle(pureThreeCycleLifePathSum, true)}).`,
+      higherSelfTrigger: {
+        clockCodes: getClockCodesForNumber(lifePathCode, lifePathSingle).list,
+        totemSymbol: lifePathPlanetEntry.totem,
+        geometricSymbol: lifePathPlanetEntry.geometry,
+        instantMessage: `Saatlerde ${getClockCodesForNumber(lifePathCode, lifePathSingle).display} gördüğünde Üst Benliğin diyor ki: "Şu an ana yaşam yolu rotandasın (${lifePathCode}); şüpheye düşmeden ilerle!"`
+      },
+      sections: [
+        {
+          heading: '1. Fiziksel Enkarnasyon Otobanınız (Assiah)',
+          content: `Doğum Günü Kodunuz (${day}/${birthDaySingle}) sizin aracınız ve yeteneğinizdir; Yaşam Yolu Kodunuz (${rawLifePathSum}/${lifePathCode}) ise o aracı sürdüğünüz ana otoyoldur. ${lifePathPlanetEntry.summary}`
+        },
+        {
+          heading: '2. Yaşam Yolu Gezegen Rezonansı',
+          content: `Kader yolu yöneticiniz ${lifePathPlanetEntry.planet} (${lifePathPlanetEntry.kabbalahSphere}) frekansındadır. ${lifePathPlanetEntry.synchronicityGuide}`
+        }
+      ]
+    },
+
+    // 6. GEZEGEN YÖNETİCİSİ KODU (2. Harita - Beden & Kozmik Saat)
     {
       id: 'planet-ruler',
       title: 'Kozmik Gezegen Yöneticisi',
@@ -1456,8 +1681,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     // 6B. BEDEN ALAN (DOĞUM MATRİSİ SINIR & KORUMA) KODU (1. Bölüm - Doğum Tarihinden Gelen Kod)
     {
       id: 'body-field-code',
-      title: 'Beden Alan (Sınır & Koruma) Kodu',
-      shortTitle: 'BEDEN ALAN KODU',
+      title: 'Alan Koruma ("Alan Kapatan" Sınır) Kodu',
+      shortTitle: 'ALAN KORUMA KODU',
       codeValue: `${birthMatrixFieldCode}`,
       subLabel: `Doğum Matrisi Açık Alanı (Alan Kapatan: ${birthMatrixFieldCode})`,
       layer: 'body',
@@ -1490,6 +1715,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 6. RUH - BEDEN KÖPRÜ KODU (3. Harita - Senkronizasyon)
     {
       id: 'bridge-code',
       title: 'Ruh–Beden Köprü Kodu',
@@ -1519,6 +1746,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 7. OLGUNLUK / SİMYASAL HASAT KODU (3. Harita - 35+ Yaş Üstatlık)
     {
       id: 'maturity-code',
       title: 'Olgunluk & Simyasal Hasat Kodu',
@@ -1548,6 +1777,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 8. GİZLİ TUTKU / BASKIN ÇAKRA MIKNATISI (1. Harita - Ruh Haritası)
     {
       id: 'hidden-passion',
       title: 'Doğal Mıknatıs (Baskın Çakra) Kodu',
@@ -1573,10 +1804,12 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         },
         {
           heading: '2. Aşırı Yüklenme (Hiper-Çakra) Uyarısı',
-          content: `Bu merkez çok güçlü olduğu için hayatta her şeyi bu çakranın gözlüğünden görme eğiliminiz vardır. Denge için dikkat etmeniz gereken gölge: ${dominantEntry.shadowTrap}`
+          content: `Bu merkez çok güçlü olduğu için hayat फेलsefesinde her şeyi bu çakranın gözlüğünden görme eğiliminiz vardır. Denge için dikkat etmeniz gereken gölge: ${dominantEntry.shadowTrap}`
         }
       ]
     },
+
+    // 9. DIŞSAL PERSONA / AURA VİTRİNİ (1. Harita - Ruh Haritası)
     {
       id: 'outer-persona',
       title: 'Dışsal Aura (İlk İzlenim) Kodu',
@@ -1609,6 +1842,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 10. BİLİNÇALTI KRİZ REFLEKSİ KODU (3. Harita - Eterik Sinir Sistemi)
     {
       id: 'subconscious-self',
       title: 'Bilinçaltı Kriz Refleksi Kodu',
@@ -1637,6 +1872,8 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
         }
       ]
     },
+
+    // 11. KALDE (BABİL) BİLEŞİK SEMBOL ARKETİPİ (3. Harita - Kadim Arketip)
     {
       id: 'chaldean-compound',
       title: 'Kalde (Babil) Bileşik Arketipi',
@@ -1668,6 +1905,9 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     }
   ];
 
+  // ============================================================================
+  // ÜST BENLİK GÜNLÜK SEMBOL & EŞZAMANLILIK SÖZLÜĞÜ (CANLI MESAJ REHBERİ)
+  // ============================================================================
   if (cleanBirthTime && chaldeanHourInfo) {
     const portalSoulEntry = SOUL_URGE_LIBRARY[portalCode] || SOUL_URGE_LIBRARY[portalSingle] || SOUL_URGE_LIBRARY[1];
     codes.push({
@@ -1740,13 +1980,13 @@ export function analyzePersonalSymbolCodes(fullNameInput: string, birthDateInput
     },
     {
       code: `0${auraProtectionCode}:0${auraProtectionCode} / ${auraProtectionCode}${auraProtectionCode}${auraProtectionCode}`,
-      title: `İsim Çakra Kalkanı Uyarısı (${auraProtectionCode}. Çakra Kapısı)`,
-      sourceCodeName: `Aura Koruma Kodu: ${auraProtectionCode}`,
-      layer: 'alchemy',
+      title: `Çakra Yetenek Aktivasyonu (${auraProtectionCode}. Çakra Dersi)`,
+      sourceCodeName: `Eksik Çakra Dersi Kodu: ${auraProtectionCode} (İsim Matrisi)`,
+      layer: 'soul',
       color: '#F59E0B',
-      symbolArchetype: auraEntry.totem,
-      whenYouSeeIt: auraEntry.instantMessage,
-      actionStep: auraEntry.shieldingRitual
+      symbolArchetype: chakraLessonEntry.totem,
+      whenYouSeeIt: chakraLessonEntry.instantMessage,
+      actionStep: chakraLessonEntry.activationPractice
     },
     {
       code: `0${birthDaySingle}:0${birthDaySingle} / Gün: ${day}`,
