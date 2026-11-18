@@ -528,28 +528,6 @@ export default function SymbolCodesMobileScreen() {
                 </View>
               </>
             )}
-
-            {/* ASTROLOJİK ÜST HARİTALAR KÖPRÜSÜ */}
-            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.55)' }]}>
-              <Text style={[styles.sectionPill, { color: COLORS.primary }]}>
-                ASTROLOJİK 4 HARİTA SİSTEMİ • KABALİSTİK 4 ALEM
-              </Text>
-              <Text style={styles.sectionHeading}>
-                Astrolojik 1., 2., 3. ve 4. Haritalarınızı Görüntüleyin
-              </Text>
-              <Text style={styles.sectionSub}>
-                1. Beden Haritası (Assiah / Natal), 2. Ruh Haritası (Yetzirah / Drakonik), 3. Yüksek Zihin Haritası (Beriyah / 9. Harmonik) ve 4. İlahi Öz Haritası (Atziluth / Heliocentric) tablolarınızı incelemek için:
-              </Text>
-
-              <TouchableOpacity
-                style={styles.calcBtn}
-                onPress={() => router.push('/(dashboard)/kisisel-analizler/kabalistik-4-alem' as any)}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="git-network-outline" size={18} color="#000" style={{ marginRight: 8 }} />
-                <Text style={styles.calcBtnText}>Kabalistik 4 Alem (Üst Haritalar) Analizini Aç</Text>
-              </TouchableOpacity>
-            </View>
           </>
         )}
       </ScrollView>
