@@ -6,7 +6,8 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
-  Keyboard
+  Keyboard,
+  Alert
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,10 +23,10 @@ export default function SymbolCodesMobileScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ name?: string; day?: string; month?: string; year?: string }>();
 
-  const [fullName] = useState(params.name || 'Bahadır');
-  const [day, setDay] = useState(params.day || '17');
-  const [month, setMonth] = useState(params.month || '03');
-  const [year, setYear] = useState(params.year || '1995');
+  const [fullName] = useState(params.name || '');
+  const [day, setDay] = useState(params.day || '');
+  const [month, setMonth] = useState(params.month || '');
+  const [year, setYear] = useState(params.year || '');
   const [birthHour, setBirthHour] = useState('');
   const [birthMinute, setBirthMinute] = useState('');
 
@@ -34,8 +35,8 @@ export default function SymbolCodesMobileScreen() {
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
 
   const runAnalysis = (n: string, d: string, m: string, y: string, bh?: string, bm?: string) => {
-    const cleanName = (n || 'Bahadır').trim();
-    const formattedDate = `${y || '1995'}-${String(m || '03').padStart(2, '0')}-${String(d || '17').padStart(2, '0')}`;
+    const cleanName = (n || 'Misafir').trim();
+    const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const timeStr = bh && bh.trim() !== '' ? `${bh.trim()}:${(bm || '00').trim()}` : undefined;
     const computed = analyzePersonalSymbolCodes(cleanName, formattedDate, timeStr);
     setResult(computed);
@@ -45,11 +46,20 @@ export default function SymbolCodesMobileScreen() {
   };
 
   useEffect(() => {
-    runAnalysis(fullName, day, month, year, birthHour, birthMinute);
-  }, []);
+    if (params.day && params.month && params.year) {
+      runAnalysis(params.name || '', params.day, params.month, params.year);
+    }
+  }, [params.day, params.month, params.year]);
 
   const handleCalculate = () => {
     Keyboard.dismiss();
+    const dNum = parseInt(day, 10);
+    const mNum = parseInt(month, 10);
+    const yNum = parseInt(year, 10);
+    if (!day || !month || !year || isNaN(dNum) || isNaN(mNum) || isNaN(yNum) || dNum < 1 || dNum > 31 || mNum < 1 || mNum > 12 || yNum < 1900 || yNum > 2100) {
+      Alert.alert('Eksik veya Geçersiz Tarih', 'Lütfen geçerli bir doğum tarihi (Gün, Ay, Yıl) girin.');
+      return;
+    }
     runAnalysis(fullName, day, month, year, birthHour, birthMinute);
   };
 
