@@ -22,7 +22,7 @@ export default function SymbolCodesMobileScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ name?: string; day?: string; month?: string; year?: string }>();
 
-  const [fullName, setFullName] = useState(params.name || 'Bahadır');
+  const [fullName] = useState(params.name || 'Bahadır');
   const [day, setDay] = useState(params.day || '17');
   const [month, setMonth] = useState(params.month || '03');
   const [year, setYear] = useState(params.year || '1995');
@@ -31,7 +31,6 @@ export default function SymbolCodesMobileScreen() {
 
   const [result, setResult] = useState<SymbolCodeAnalysisResult | null>(null);
   const [selectedBodyId, setSelectedBodyId] = useState<string>('body-karmic-soul');
-  const [selectedNameId, setSelectedNameId] = useState<string>('soul-urge');
   const [showAllExpanded, setShowAllExpanded] = useState<boolean>(false);
 
   const runAnalysis = (n: string, d: string, m: string, y: string, bh?: string, bm?: string) => {
@@ -63,19 +62,6 @@ export default function SymbolCodesMobileScreen() {
         result.codes.find((c) => c.id === 'life-path'),
         result.codes.find((c) => c.id === 'planet-ruler'),
         result.codes.find((c) => c.id === 'birth-time-portal')
-      ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
-    : [];
-
-  const classicNameCodes = result
-    ? [
-        result.codes.find((c) => c.id === 'soul-urge'),
-        result.codes.find((c) => c.id === 'outer-persona'),
-        result.codes.find((c) => c.id === 'aura-protection'),
-        result.codes.find((c) => c.id === 'hidden-passion'),
-        result.codes.find((c) => c.id === 'chaldean-compound'),
-        result.codes.find((c) => c.id === 'bridge-code'),
-        result.codes.find((c) => c.id === 'maturity-code'),
-        result.codes.find((c) => c.id === 'subconscious-self')
       ].filter((c): c is PersonalSymbolCodeItem => Boolean(c))
     : [];
 
@@ -138,7 +124,7 @@ export default function SymbolCodesMobileScreen() {
             Üst Benlik Sembol & Kodlar
           </Text>
           <Text style={styles.headerSubtitle}>
-            Beden Haritası Kodları • Pisagor & Kalde İsim Analizi
+            Beden Haritası Çekirdek Kodları & Saat Rehberi
           </Text>
         </View>
         <View style={{ width: 32 }} />
@@ -153,19 +139,10 @@ export default function SymbolCodesMobileScreen() {
         <View style={styles.inputCard}>
           <View style={styles.badgePill}>
             <Ionicons name="key-outline" size={13} color={COLORS.primary} />
-            <Text style={styles.badgePillText}>BEDEN HARİTASI KODLARI & İSİM ANALİZİ</Text>
+            <Text style={styles.badgePillText}>BEDEN HARİTASI ÇEKİRDEK KODLARI</Text>
           </View>
 
-          <Text style={styles.inputLabel}>Nüfus Cüzdanındaki Tam Adınız (İsim Analizi)</Text>
-          <TextInput
-            style={styles.textInput}
-            value={fullName}
-            onChangeText={setFullName}
-            placeholder="Örn: Ahmet Yılmaz"
-            placeholderTextColor="rgba(255,255,255,0.35)"
-          />
-
-          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Doğum Tarihiniz (Beden Haritası Kodları)</Text>
+          <Text style={styles.inputLabel}>Doğum Tarihiniz (Beden Haritası Kodları)</Text>
           <View style={styles.dateRow}>
             <TextInput
               style={[styles.dateInput, { flex: 1 }]}
@@ -349,57 +326,6 @@ export default function SymbolCodesMobileScreen() {
                 </View>
               ))}
             </View>
-
-            {/* 3. BÖLÜM: KLASİK PİSAGOR & KALDE İSİM, AURA VE ÇAKRA ANALİZİ */}
-            <View style={[styles.sectionCard, { borderColor: 'rgba(212,175,55,0.4)' }]}>
-              <Text style={[styles.sectionPill, { color: '#D4AF37' }]}>
-                3. BÖLÜM • KLASİK PİSAGOR & KALDE İSİM VE ÇAKRA ANALİZİ ({result.fullName})
-              </Text>
-              <Text style={styles.sectionHeading}>
-                İsminizden Gelen Karakter, Aura (Yükselen Vitrin) & Çakra Matrisi Analizi
-              </Text>
-              <Text style={styles.sectionSub}>
-                Adınızın ve soyadınızın sesli/sessiz harflerinden Pisagor ve Kalde (Cheiro) tablolarına göre hesaplanan içsel arzunuz, dışsal ilk izleniminiz ve çakra matrisiniz:
-              </Text>
-
-              <View style={styles.codesGrid}>
-                {classicNameCodes.map((item) => {
-                  const isSelected = selectedNameId === item.id && !showAllExpanded;
-                  return (
-                    <TouchableOpacity
-                      key={item.id}
-                      style={[
-                        styles.codeGridItem,
-                        isSelected && {
-                          borderColor: COLORS.primary,
-                          backgroundColor: 'rgba(212,175,55,0.14)'
-                        }
-                      ]}
-                      onPress={() => {
-                        setSelectedNameId(item.id);
-                        setShowAllExpanded(false);
-                      }}
-                      activeOpacity={0.82}
-                    >
-                      <Text style={[styles.codeShortTitle, { color: '#D4AF37' }]} numberOfLines={1}>
-                        {item.shortTitle}
-                      </Text>
-                      <Text style={[styles.codeBigVal, { color: item.color }]} numberOfLines={1}>
-                        {item.codeValue}
-                      </Text>
-                      <Text style={styles.codeSubLabel} numberOfLines={1}>
-                        {item.subLabel}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {(showAllExpanded
-                ? classicNameCodes
-                : [classicNameCodes.find((c) => c.id === selectedNameId) || classicNameCodes[0]].filter(Boolean)
-              ).map((item) => renderDetailCard(item!))}
-            </View>
           </>
         )}
       </ScrollView>
@@ -469,16 +395,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     marginBottom: 6
-  },
-  textInput: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 11,
-    color: '#FFF',
-    fontSize: 14
   },
   dateRow: {
     flexDirection: 'row',
