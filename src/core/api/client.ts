@@ -243,6 +243,13 @@ export async function changePassword(password: string) {
   return apiFetch('/api/auth/change-password', { method: 'POST', body: JSON.stringify({ password }) });
 }
 
+export async function deleteAccount() {
+  const res = await apiFetch('/api/auth/profile', { method: 'DELETE' });
+  await setTokens(null, null);
+  notify();
+  return res;
+}
+
 // ── Progress metotları ──────────────────────────────────────────
 export async function getProgress() {
   return apiFetch('/api/progress');

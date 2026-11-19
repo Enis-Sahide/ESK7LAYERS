@@ -173,27 +173,31 @@ export default function RegisterScreen() {
 
           {step === 'form' ? (
             <>
-              <TouchableOpacity
-                style={styles.googleButton}
-                onPress={handleGoogleRegister}
-                disabled={loading || googleLoading}
-                activeOpacity={0.85}
-              >
-                {googleLoading ? (
-                  <ActivityIndicator color="#1F2937" />
-                ) : (
-                  <>
-                    <GoogleIcon />
-                    <Text style={styles.googleButtonText}>Google ile Hızlı Kayıt Ol</Text>
-                  </>
-                )}
-              </TouchableOpacity>
+              {Platform.OS !== 'ios' && (
+                <>
+                  <TouchableOpacity
+                    style={styles.googleButton}
+                    onPress={handleGoogleRegister}
+                    disabled={loading || googleLoading}
+                    activeOpacity={0.85}
+                  >
+                    {googleLoading ? (
+                      <ActivityIndicator color="#1F2937" />
+                    ) : (
+                      <>
+                        <GoogleIcon />
+                        <Text style={styles.googleButtonText}>Google ile Hızlı Kayıt Ol</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
 
-              <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>VEYA E-POSTA İLE</Text>
-                <View style={styles.dividerLine} />
-              </View>
+                  <View style={styles.dividerRow}>
+                    <View style={styles.dividerLine} />
+                    <Text style={styles.dividerText}>VEYA E-POSTA İLE</Text>
+                    <View style={styles.dividerLine} />
+                  </View>
+                </>
+              )}
 
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Ad Soyad</Text>

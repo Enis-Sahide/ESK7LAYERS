@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { useProgress } from '@/src/context/ProgressContext';
 import { apiFetch, isAuthenticated } from '@/src/core/api/client';
 
@@ -67,7 +67,9 @@ export function useAnalysisAccess(analysisType: string) {
 export function showAnalysisLockedAlert(title = "Kapsamlı Analiz Görünümü") {
   Alert.alert(
     title,
-    "Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.",
+    Platform.OS === 'ios'
+      ? "Bu kapsamlı analiz raporu ve ileri seviye katmanlar 7Layers ileri seviye üyelik hesabınıza tanımlandığında otomatik olarak açılır."
+      : "Daha detaylı analiz ve tüm katmanları incelemek için 7Layers web sitesini ziyaret edin.",
     [
       {
         text: "Tamam",

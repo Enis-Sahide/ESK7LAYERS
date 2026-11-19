@@ -86,27 +86,31 @@ export default function LoginScreen() {
 
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={handleGoogleLogin}
-            disabled={loading || googleLoading}
-            activeOpacity={0.85}
-          >
-            {googleLoading ? (
-              <ActivityIndicator color="#1F2937" />
-            ) : (
-              <>
-                <GoogleIcon />
-                <Text style={styles.googleButtonText}>Google ile Giriş Yap</Text>
-              </>
-            )}
-          </TouchableOpacity>
+          {Platform.OS !== 'ios' && (
+            <>
+              <TouchableOpacity
+                style={styles.googleButton}
+                onPress={handleGoogleLogin}
+                disabled={loading || googleLoading}
+                activeOpacity={0.85}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator color="#1F2937" />
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    <Text style={styles.googleButtonText}>Google ile Giriş Yap</Text>
+                  </>
+                )}
+              </TouchableOpacity>
 
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>VEYA E-POSTA İLE</Text>
-            <View style={styles.dividerLine} />
-          </View>
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>VEYA E-POSTA İLE</Text>
+                <View style={styles.dividerLine} />
+              </View>
+            </>
+          )}
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>E-Posta</Text>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { showAnalysisLockedAlert } from '@/src/hooks/useAnalysisAccess';
 
@@ -17,8 +17,12 @@ export default function WebLockedAnalysisCard({
       onPress={() => showAnalysisLockedAlert(title)}
       style={styles.badge}
     >
-      <Ionicons name="globe-outline" size={15} color="#FDE68A" />
-      <Text style={styles.badgeText}>Daha detaylı analiz için 7Layers web sitesini ziyaret edin</Text>
+      <Ionicons name={Platform.OS === 'ios' ? 'lock-closed-outline' : 'globe-outline'} size={15} color="#FDE68A" />
+      <Text style={styles.badgeText}>
+        {Platform.OS === 'ios'
+          ? 'Kapsamlı analiz görünümü ileri seviye üyelik kapsamındadır'
+          : 'Daha detaylı analiz için 7Layers web sitesini ziyaret edin'}
+      </Text>
     </TouchableOpacity>
   );
 }

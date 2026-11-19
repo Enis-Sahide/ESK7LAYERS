@@ -10,10 +10,15 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.enissahide.esk7layers",
+      "buildNumber": "15",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
           "audio"
-        ]
+        ],
+        "NSMicrophoneUsageDescription": "7LAYERS nefes ve ses frekansı pratiklerinde mikrofon erişimi için izniniz gereklidir.",
+        "NSPhotoLibraryUsageDescription": "Analiz raporlarınızı ve görsellerinizi kaydetmek için fotoğraf galerisi erişimi gereklidir."
       }
     },
     "android": {
@@ -51,7 +56,7 @@
       [
         "expo-av",
         {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+          "microphonePermission": "7LAYERS nefes ve ses frekansı pratiklerinde mikrofon erişimi için izniniz gereklidir."
         }
       ],
       [

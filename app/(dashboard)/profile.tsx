@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getMe, updateProfile, changePassword, logout as apiLogout } from '@/src/core/api/client';
+import { getMe, updateProfile, changePassword, logout as apiLogout, deleteAccount } from '@/src/core/api/client';
 import { COLORS, SIZES } from '@/src/theme';
 import { useProgress } from '@/src/context/ProgressContext';
 
@@ -49,6 +49,7 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pwdLoading, setPwdLoading] = useState(false);
   const [showPwdSection, setShowPwdSection] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -115,6 +116,32 @@ export default function ProfileScreen() {
     } catch (err: any) {
       console.error('Çıkış hatası:', err);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Hesabımı Kalıcı Olarak Sil',
+      'Hesabınızı ve tüm kişisel ilerleme/analiz verilerinizi kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      [
+        { text: 'Vazgeç', style: 'cancel' },
+        {
+          text: 'Evet, Hesabımı Sil',
+          style: 'destructive',
+          onPress: async () => {
+            setDeletingAccount(true);
+            try {
+              await deleteAccount();
+              Alert.alert('Hesap Silindi', 'Hesabınız ve tüm verileriniz kalıcı olarak silinmiştir.');
+              router.replace('/(auth)/login');
+            } catch (err: any) {
+              Alert.alert('Hata', err?.message || 'Hesap silinirken bir hata oluştu.');
+            } finally {
+              setDeletingAccount(false);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const roleMeta = ROLE_LABELS[role] || ROLE_LABELS.free;
@@ -275,6 +302,23 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
           <Ionicons name="log-out-outline" size={16} color="#FF453A" style={{ marginRight: 8 }} />
           <Text style={styles.logoutBtnText}>Çıkış Yap</Text>
+        </TouchableOpacity>
+
+        {/* Delete Account Button (Apple App Store Guideline 5.1.1v Mandatory) */}
+        <TouchableOpacity
+          style={[styles.logoutBtn, { marginTop: 14, borderColor: 'rgba(239,68,68,0.45)', backgroundColor: 'rgba(239,68,68,0.08)' }]}
+          onPress={handleDeleteAccount}
+          disabled={deletingAccount}
+          activeOpacity={0.8}
+        >
+          {deletingAccount ? (
+            <ActivityIndicator color="#FF453A" />
+          ) : (
+            <>
+              <Ionicons name="trash-outline" size={16} color="#FF453A" style={{ marginRight: 8 }} />
+              <Text style={styles.logoutBtnText}>Hesabımı Kalıcı Olarak Sil</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <View style={{ height: 60 }} />
