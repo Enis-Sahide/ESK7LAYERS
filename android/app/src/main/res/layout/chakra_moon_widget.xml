@@ -148,11 +148,25 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/cm_play_freq_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/cosmic_pill_bg"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="3dp"
+            android:text="▶ 639 Hz Aç"
+            android:textColor="#FDE68A"
+            android:textSize="9.5sp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/cm_open_freq_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
-            android:text="Frekans Odası →"
+            android:text="Oda →"
             android:textColor="#D4AF37"
             android:textSize="9.5sp"
             android:textStyle="bold" />

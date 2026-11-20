@@ -1,7 +1,7 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ImageBackground, Animated, TextInput } from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -111,7 +111,10 @@ const WEBVIEW_HTML = `
 
 export default function MeditationScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ hz?: string; autoPlay?: string }>();
   const webviewRef = useRef<WebView>(null);
+  const [webViewReady, setWebViewReady] = useState(false);
+  const autoPlayedRef = useRef(false);
   
   const { data: medData } = useContent<{ chakra: any[]; organ: any[] }>('/api/content/meditation');
   const FREQUENCIES = medData?.chakra ?? [];
@@ -132,11 +135,32 @@ export default function MeditationScreen() {
   // Ekrandan çıkınca müziği durdur
   useFocusEffect(
     useCallback(() => {
+      autoPlayedRef.current = false;
       return () => {
         stopSound();
       };
     }, [])
   );
+
+  useEffect(() => {
+    if (!webViewReady || autoPlayedRef.current) return;
+    const targetHz = params?.hz ? parseInt(String(params.hz), 10) : NaN;
+    if (!isNaN(targetHz) && targetHz > 0) {
+      autoPlayedRef.current = true;
+      setCustomHz(targetHz);
+      const matched = FREQUENCIES.find((f: any) => Number(f.hz) === targetHz);
+      if (matched) {
+        setActiveFreq(matched);
+      } else {
+        setActiveFreq('CUSTOM');
+      }
+      if (params?.autoPlay === '1' || params?.autoPlay === 'true') {
+        setTimeout(() => {
+          playSound(targetHz);
+        }, 180);
+      }
+    }
+  }, [webViewReady, params?.hz, params?.autoPlay, FREQUENCIES]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -285,6 +309,7 @@ export default function MeditationScreen() {
         mediaPlaybackRequiresUserAction={false}
         allowsInlineMediaPlayback={true}
         javaScriptEnabled={true}
+        onLoadEnd={() => setWebViewReady(true)}
       />
 
       <View style={styles.header}>

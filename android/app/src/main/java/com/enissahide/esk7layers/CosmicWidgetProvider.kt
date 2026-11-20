@@ -11,6 +11,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioTrack
 import android.net.Uri
 import android.widget.RemoteViews
 import java.io.File
@@ -34,9 +37,113 @@ import kotlin.math.tan
 import kotlin.math.cos
 import kotlin.math.roundToInt
 
+object CosmicWidgetAudioPlayer {
+    @Volatile
+    private var isPlaying = false
+    @Volatile
+    private var activeHz = 0
+    private var audioThread: Thread? = null
+    private var audioTrack: AudioTrack? = null
+
+    fun isCurrentlyPlaying(): Boolean = isPlaying
+    fun getActiveHz(): Int = activeHz
+
+    @Synchronized
+    fun toggle(hz: Int): Boolean {
+        return if (isPlaying) {
+            stop()
+            false
+        } else {
+            start(hz)
+            true
+        }
+    }
+
+    @Synchronized
+    fun stop() {
+        isPlaying = false
+        activeHz = 0
+        try {
+            audioTrack?.pause()
+            audioTrack?.flush()
+            audioTrack?.release()
+        } catch (_: Exception) {
+        }
+        audioTrack = null
+        audioThread = null
+    }
+
+    @Synchronized
+    fun start(hz: Int) {
+        stop()
+        val sampleRate = 22050
+        val minBuf = AudioTrack.getMinBufferSize(
+            sampleRate,
+            AudioFormat.CHANNEL_OUT_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        ).coerceAtLeast(sampleRate / 2)
+
+        val track = AudioTrack.Builder()
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(sampleRate)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(minBuf)
+            .setTransferMode(AudioTrack.MODE_STREAM)
+            .build()
+
+        audioTrack = track
+        isPlaying = true
+        activeHz = hz
+        track.play()
+
+        audioThread = Thread {
+            val chunkSamples = sampleRate / 10
+            val buffer = ShortArray(chunkSamples)
+            var sampleIndex = 0L
+            val twoPi = 2.0 * Math.PI
+            val freqStep = twoPi * hz.toDouble() / sampleRate.toDouble()
+            val lfoStep = twoPi * 0.5 / sampleRate.toDouble() // 0.5 Hz Tibetan bowl LFO
+
+            try {
+                while (isPlaying) {
+                    for (i in 0 until chunkSamples) {
+                        val s = sampleIndex + i
+                        val carrier = sin(s * freqStep)
+                        val lfo = 0.45 + 0.18 * sin(s * lfoStep)
+                        buffer[i] = (carrier * lfo * Short.MAX_VALUE).toInt().coerceIn(-32767, 32767).toShort()
+                    }
+                    sampleIndex += chunkSamples
+                    track.write(buffer, 0, chunkSamples)
+                }
+            } catch (_: Exception) {
+            } finally {
+                try {
+                    track.stop()
+                    track.release()
+                } catch (_: Exception) {
+                }
+            }
+        }.apply {
+            isDaemon = true
+            start()
+        }
+    }
+}
+
 object CosmicWidgetHelper {
     const val ACTION_REFRESH_WIDGETS = "com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS"
     const val ACTION_MINUTE_TICK = "com.enissahide.esk7layers.ACTION_MINUTE_TICK"
+    const val ACTION_TOGGLE_WIDGET_FREQ = "com.enissahide.esk7layers.ACTION_TOGGLE_WIDGET_FREQ"
     const val PREFS_NAME = "CosmicWidgetPrefs"
 
     val CHALDEAN_ORDER = arrayOf(
@@ -79,7 +186,8 @@ object CosmicWidgetHelper {
         val chakraTitle: String,
         val affirmation: String,
         val doText: String,
-        val avoidText: String
+        val avoidText: String,
+        val recommendedHz: Int = 639
     )
 
     data class MoonInfo(
@@ -201,7 +309,8 @@ object CosmicWidgetHelper {
                 "3. Katman: Solar Pleksus (Manipura)",
                 "\"İçimdeki ilahi güneş parlıyor; irademi bilgelik, özgüven ve sevgiyle kullanıyorum.\"",
                 "✓ Önerilen: Öz-değer, liderlik, niyet çalışmaları ve yaşam enerjisini yükseltmek",
-                "✗ Kaçının: Kibir, ego çatışmaları ve enerjinizi tüketen gereksiz güç savaşları"
+                "✗ Kaçının: Kibir, ego çatışmaları ve enerjinizi tüketen gereksiz güç savaşları",
+                528
             )
             Calendar.MONDAY -> DayCosmicInfo(
                 "☽",
@@ -211,7 +320,8 @@ object CosmicWidgetHelper {
                 "4. Katman: Kalp Çakrası (Anahata)",
                 "\"Sevgi en yüksek frekanstır; kalbimi evrenin şefkatine ve içsel rehberliğe açıyorum.\"",
                 "✓ Önerilen: Sezgisel çalışmalar, rüya analizi, şefkat ve duygusal dengeleme",
-                "✗ Kaçının: Duygusal alınganlık, geçmişe takılı kalma ve kararsızlık dalgaları"
+                "✗ Kaçının: Duygusal alınganlık, geçmişe takılı kalma ve kararsızlık dalgaları",
+                639
             )
             Calendar.TUESDAY -> DayCosmicInfo(
                 "♂",
@@ -221,7 +331,8 @@ object CosmicWidgetHelper {
                 "1. Katman: Kök Çakra (Muladhara)",
                 "\"Yaşamın sarsılmaz kökleriyle güvendeyim; toprağın gücü ve cesareti her hücremde akıyor.\"",
                 "✓ Önerilen: Cesaret, fiziksel dayanıklılık, sınır koyma ve ertelediğiniz adımlar",
-                "✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar"
+                "✗ Kaçının: Ani öfke, aceleci tartışma ve dürtüsel çatışmalar",
+                396
             )
             Calendar.WEDNESDAY -> DayCosmicInfo(
                 "☿",
@@ -231,7 +342,8 @@ object CosmicWidgetHelper {
                 "5. Katman: Boğaz Çakrası (Vishuddha)",
                 "\"Hakikatimi berraklıkla, bilgelikle ve yüksek farkındalıkla ifade ediyorum.\"",
                 "✓ Önerilen: Ezoterik okuma, araştırma, iletişim, yazı ve nefes çalışmaları",
-                "✗ Kaçının: Dedikodu, zihinsel dağınıklık ve yüzeysel tartışmalar"
+                "✗ Kaçının: Dedikodu, zihinsel dağınıklık ve yüzeysel tartışmalar",
+                741
             )
             Calendar.THURSDAY -> DayCosmicInfo(
                 "♃",
@@ -241,7 +353,8 @@ object CosmicWidgetHelper {
                 "6. Katman: Üçüncü Göz (Ajna)",
                 "\"Görünenin ötesindeki kadim bilgeliği ve evrensel düzeni berraklıkla görüyorum.\"",
                 "✓ Önerilen: Yüksek öğretiler, vizyon çalışmaları, şükür ve bolluk bilinci",
-                "✗ Kaçının: Aşırılık, abartı ve detayları gözden kaçıran savrukluk"
+                "✗ Kaçının: Aşırılık, abartı ve detayları gözden kaçıran savrukluk",
+                852
             )
             Calendar.FRIDAY -> DayCosmicInfo(
                 "♀",
@@ -251,7 +364,8 @@ object CosmicWidgetHelper {
                 "2. Katman: Sakral Çakra (Svadhisthana)",
                 "\"Yaratıcı yaşam enerjisiyle uyum içindeyim; güzelliği ve uyumu hayatıma çekiyorum.\"",
                 "✓ Önerilen: Sanat, uyum, sevgi frekansı, estetik ve yaratıcı üretim",
-                "✗ Kaçının: Tembellik, bağımlılıklar ve duygusal manipülasyonlar"
+                "✗ Kaçının: Tembellik, bağımlılıklar ve duygusal manipülasyonlar",
+                417
             )
             else -> DayCosmicInfo(
                 "♄",
@@ -261,7 +375,8 @@ object CosmicWidgetHelper {
                 "7. Katman: Taç Çakra (Sahasrara)",
                 "\"Zamanın ve mekanın ötesindeki Tek'likle bir ve bütünüm; ilahi düzene güveniyorum.\"",
                 "✓ Önerilen: Derin meditasyon, tefekkür, sadeleşme ve karmik arınma",
-                "✗ Kaçının: Karamsarlık, katı yargılar ve korku odaklı direnç"
+                "✗ Kaçının: Karamsarlık, katı yargılar ve korku odaklı direnç",
+                963
             )
         }
 
@@ -286,8 +401,74 @@ object CosmicWidgetHelper {
         val bodySignIdx = getSignIndexByName(zodiacSign)
         val soulSignIdx = getSignIndexByName(soulZodiacSign)
         val activeTargetIdx = if (chartMode == "body") bodySignIdx else soulSignIdx
-        val aspect = getAspectThemeForSignDiff(moonSignIdx - activeTargetIdx)
+        val signDiff = ((moonSignIdx - activeTargetIdx) % 12 + 12) % 12
+        val aspect = getAspectThemeForSignDiff(signDiff)
         val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
+
+        // Compute personalDay from birthDate (DD.MM.YYYY) + today
+        fun reduceNum(num: Int): Int {
+            var n = kotlin.math.abs(num)
+            while (n > 9) {
+                var s = 0
+                while (n > 0) {
+                    s += n % 10
+                    n /= 10
+                }
+                n = s
+            }
+            return if (n == 0) 1 else n
+        }
+        val bParts = birthDate.split(".", "/", "-")
+        val bDay = bParts.getOrNull(0)?.toIntOrNull() ?: 1
+        val bMonth = bParts.getOrNull(1)?.toIntOrNull() ?: 1
+        val personalDay = reduceNum(
+            reduceNum(bDay) +
+            reduceNum(bMonth) +
+            reduceNum(cal.get(Calendar.DAY_OF_MONTH)) +
+            reduceNum(cal.get(Calendar.MONTH) + 1) +
+            reduceNum(cal.get(Calendar.YEAR))
+        )
+
+        val personalHz: Int
+        val personalChakraTitle: String
+        val personalAffirmation: String
+        when {
+            signDiff == 3 || signDiff == 9 || personalDay == 1 || personalDay == 8 -> {
+                personalHz = 396
+                personalChakraTitle = "1. Katman: Kök Çakra (Muladhara)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Sarsılmaz köklerle güvendeyim; korkuları serbest bırakıyorum.\""
+            }
+            signDiff == 6 || personalDay == 6 -> {
+                personalHz = 639
+                personalChakraTitle = "4. Katman: Kalp Çakrası (Anahata)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Kalbimi evrenin şefkatine ve ilişkilerde ayna dengesine açıyorum.\""
+            }
+            signDiff == 0 || personalDay == 3 -> {
+                personalHz = 528
+                personalChakraTitle = "3. Katman: Solar Pleksus (Manipura)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): İçimdeki ilahi güneş parlıyor; irademi bilgelik ve özgüvenle kullanıyorum.\""
+            }
+            signDiff == 2 || signDiff == 10 || personalDay == 5 -> {
+                personalHz = 741
+                personalChakraTitle = "5. Katman: Boğaz Çakrası (Vishuddha)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Hakikatimi berraklıkla, bilgelikle ve yüksek farkındalıkla ifade ediyorum.\""
+            }
+            signDiff == 4 || signDiff == 8 || personalDay == 7 -> {
+                personalHz = 852
+                personalChakraTitle = "6. Katman: Üçüncü Göz (Ajna)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Görünenin ötesindeki kadim bilgeliği ve eşzamanlılıkları berraklıkla görüyorum.\""
+            }
+            personalDay == 2 || personalDay == 4 -> {
+                personalHz = 417
+                personalChakraTitle = "2. Katman: Sakral Çakra (Svadhisthana)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Yaratıcı yaşam enerjisiyle uyum içindeyim; duygusal akışı dengeliyorum.\""
+            }
+            else -> {
+                personalHz = 963
+                personalChakraTitle = "7. Katman: Taç Çakra (Sahasrara)"
+                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Zamanın ötesindeki Tek'likle bütünüm; ilahi düzene güveniyorum.\""
+            }
+        }
 
         val customDo: String
         val customAvoid: String
@@ -297,19 +478,19 @@ object CosmicWidgetHelper {
         when (chartMode) {
             "soul" -> {
                 customBadge = "✨ RUH: ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "${base.chakraBadge} • RUH: ${soulZodiacSign.uppercase()}"
+                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • RUH: ${soulZodiacSign.uppercase()}"
                 customDo = "✓ Ruh Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo} ($soulRulingPlanet üst oktavı)"
                 customAvoid = "✗ Beden Gölgesi ($zodiacSign / $element Otomatiği): ${aspect.soulAvoid}"
             }
             "synthesis" -> {
                 customBadge = "☯️ ${zodiacSign.uppercase()} → ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "${base.chakraBadge} • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
+                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
                 customDo = "✓ Sentez ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo}"
                 customAvoid = "✗ Gölge Uyarısı ($element → $soulElement): ${aspect.bodyAvoid}"
             }
             else -> {
                 customBadge = "🌍 BEDEN: ${zodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "${base.chakraBadge} • BEDEN: ${zodiacSign.uppercase()}"
+                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • BEDEN: ${zodiacSign.uppercase()}"
                 customDo = "✓ Beden Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.bodyDo} ($rulingPlanet uyumu)"
                 customAvoid = "✗ Kaçının ($elementLabel): ${aspect.bodyAvoid}"
             }
@@ -318,8 +499,11 @@ object CosmicWidgetHelper {
         return base.copy(
             headerBadge = customBadge,
             chakraBadge = chakraSignBadge,
+            chakraTitle = personalChakraTitle,
+            affirmation = personalAffirmation,
             doText = customDo,
-            avoidText = customAvoid
+            avoidText = customAvoid,
+            recommendedHz = personalHz
         )
     }
 
@@ -842,6 +1026,16 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ) {
+            val cal = Calendar.getInstance()
+            val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
+            val targetHz = intent.getIntExtra("hz", dayInfo.recommendedHz)
+            CosmicWidgetAudioPlayer.toggle(targetHz)
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+            return
+        }
         if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
@@ -857,6 +1051,8 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
         val cal = Calendar.getInstance()
         val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
         val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
+        val isPlaying = CosmicWidgetAudioPlayer.isCurrentlyPlaying()
+        val hz = dayInfo.recommendedHz
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.chakra_moon_widget)
@@ -869,8 +1065,29 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
                 R.id.cm_moon_desc,
                 "${moonInfo.icon} ${moonInfo.name}: ${moonInfo.sub}"
             )
+            views.setTextViewText(
+                R.id.cm_play_freq_btn,
+                if (isPlaying) "⏹ Durdur (${CosmicWidgetAudioPlayer.getActiveHz()} Hz)" else "▶ $hz Hz Aç"
+            )
 
-            val freqIntent = Intent(Intent.ACTION_VIEW, Uri.parse("proje1://(dashboard)/meditation"), context, MainActivity::class.java).apply {
+            val toggleIntent = Intent(context, ChakraMoonWidgetProvider::class.java).apply {
+                action = CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ
+                putExtra("hz", hz)
+            }
+            val togglePending = PendingIntent.getBroadcast(
+                context,
+                9103,
+                toggleIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.cm_play_freq_btn, togglePending)
+
+            val freqIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("proje1://(dashboard)/meditation?hz=$hz&autoPlay=1"),
+                context,
+                MainActivity::class.java
+            ).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             }
             val freqPending = PendingIntent.getActivity(context, 9102, freqIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)

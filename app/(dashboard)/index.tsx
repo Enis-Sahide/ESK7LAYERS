@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPlanetaryHours, getPlanetInfo, PlanetaryHour, PLANET_DAY_GUIDELINES } from '@/src/features/astrology/engine/PlanetaryHours';
 import SacredBackground from '@/components/SacredBackground';
 import * as Notifications from 'expo-notifications';
+import { WebView } from 'react-native-webview';
 
 if (Platform.OS !== 'web') {
   try {
@@ -145,7 +146,177 @@ interface WidgetBirthProfile {
   aspectName: string;
   personalDo: string;
   personalAvoid: string;
+  recommendedChakraId: number;
+  recommendedChakraName: string;
+  recommendedChakraShort: string;
+  recommendedHz: number;
+  recommendedColor: string;
+  recommendedReason: string;
+  recommendedAffirmation: string;
 }
+
+interface QuickChakraFreqPreset {
+  id: number;
+  hz: number;
+  shortName: string;
+  fullName: string;
+  sanskrit: string;
+  color: string;
+  affirmation: string;
+}
+
+const CHAKRA_FREQ_PRESETS: QuickChakraFreqPreset[] = [
+  {
+    id: 1,
+    hz: 396,
+    shortName: 'Kök Çakra',
+    fullName: '1. Katman: Kök Çakra (Muladhara)',
+    sanskrit: 'Muladhara',
+    color: '#EF4444',
+    affirmation: 'Yaşamın sarsılmaz kökleriyle güvendeyim; toprağın gücü ve cesareti her hücremde akıyor.',
+  },
+  {
+    id: 2,
+    hz: 417,
+    shortName: 'Sakral Çakra',
+    fullName: '2. Katman: Sakral Çakra (Svadhisthana)',
+    sanskrit: 'Svadhisthana',
+    color: '#F97316',
+    affirmation: 'Yaratıcı yaşam enerjisiyle uyum içindeyim; güzelliği ve duygusal akışı hayatıma çekiyorum.',
+  },
+  {
+    id: 3,
+    hz: 528,
+    shortName: 'Solar Pleksus',
+    fullName: '3. Katman: Solar Pleksus (Manipura)',
+    sanskrit: 'Manipura',
+    color: '#EAB308',
+    affirmation: 'İçimdeki ilahi güneş parlıyor; irademi bilgelik, özgüven ve sevgiyle kullanıyorum.',
+  },
+  {
+    id: 4,
+    hz: 639,
+    shortName: 'Kalp Çakrası',
+    fullName: '4. Katman: Kalp Çakrası (Anahata)',
+    sanskrit: 'Anahata',
+    color: '#10B981',
+    affirmation: 'Sevgi en yüksek frekanstır; kalbimi evrenin şefkatine ve içsel rehberliğe açıyorum.',
+  },
+  {
+    id: 5,
+    hz: 741,
+    shortName: 'Boğaz Çakrası',
+    fullName: '5. Katman: Boğaz Çakrası (Vishuddha)',
+    sanskrit: 'Vishuddha',
+    color: '#0EA5E9',
+    affirmation: 'Hakikatimi berraklıkla, bilgelikle ve yüksek farkındalıkla ifade ediyorum.',
+  },
+  {
+    id: 6,
+    hz: 852,
+    shortName: 'Üçüncü Göz',
+    fullName: '6. Katman: Üçüncü Göz (Ajna)',
+    sanskrit: 'Ajna',
+    color: '#6366F1',
+    affirmation: 'Görünenin ötesindeki kadim bilgeliği ve evrensel düzeni berraklıkla görüyorum.',
+  },
+  {
+    id: 7,
+    hz: 963,
+    shortName: 'Taç Çakra',
+    fullName: '7. Katman: Taç Çakra (Sahasrara)',
+    sanskrit: 'Sahasrara',
+    color: '#A855F7',
+    affirmation: 'Zamanın ve mekanın ötesindeki Tek\'likle bir ve bütünüm; ilahi düzene güveniyorum.',
+  },
+];
+
+const QUICK_EXTRA_FREQS: { hz: number; label: string; color: string }[] = [
+  { hz: 396, label: '396 Hz • Kök', color: '#EF4444' },
+  { hz: 417, label: '417 Hz • Sakral', color: '#F97316' },
+  { hz: 432, label: '432 Hz • Evrensel', color: '#D4AF37' },
+  { hz: 528, label: '528 Hz • Solar', color: '#EAB308' },
+  { hz: 639, label: '639 Hz • Kalp', color: '#10B981' },
+  { hz: 741, label: '741 Hz • Boğaz', color: '#0EA5E9' },
+  { hz: 852, label: '852 Hz • 3. Göz', color: '#6366F1' },
+  { hz: 963, label: '963 Hz • Taç', color: '#A855F7' },
+];
+
+const WIDGET_FREQ_WEBVIEW_HTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    let audioCtx = null;
+    let masterGain = null;
+    let currentOscillator = null;
+    let currentLfo = null;
+
+    function startAudio(freq) {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      stopAudio();
+
+      currentOscillator = audioCtx.createOscillator();
+      currentOscillator.type = 'sine';
+      currentOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.48, audioCtx.currentTime);
+
+      currentLfo = audioCtx.createOscillator();
+      currentLfo.type = 'sine';
+      currentLfo.frequency.value = 0.5;
+      let lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 0.18;
+
+      currentLfo.connect(lfoGain);
+      lfoGain.connect(masterGain.gain);
+
+      currentOscillator.connect(masterGain);
+      masterGain.connect(audioCtx.destination);
+
+      currentOscillator.start();
+      currentLfo.start();
+    }
+
+    function stopAudio() {
+      if (currentOscillator) {
+        try { currentOscillator.stop(); currentOscillator.disconnect(); } catch (e) {}
+        currentOscillator = null;
+      }
+      if (currentLfo) {
+        try { currentLfo.stop(); currentLfo.disconnect(); } catch (e) {}
+        currentLfo = null;
+      }
+      if (masterGain) {
+        try { masterGain.disconnect(); } catch (e) {}
+        masterGain = null;
+      }
+    }
+
+    function handleMsg(raw) {
+      try {
+        const data = JSON.parse(raw);
+        if (data.type === 'PLAY') startAudio(data.freq);
+        else if (data.type === 'STOP') stopAudio();
+      } catch (e) {}
+    }
+
+    document.addEventListener('message', function(e) { handleMsg(e.data); });
+    window.addEventListener('message', function(e) { handleMsg(e.data); });
+  </script>
+</head>
+<body style="background:transparent;"></body>
+</html>
+`;
 
 const reduceDigit = (num: number): number => {
   let n = Math.abs(num);
@@ -311,7 +482,44 @@ const computeWidgetBirthProfile = (
   const moonSignIdx = getTransitMoonSignIndexJS(now.getTime());
   const moonMeta = ZODIAC_SECTORS[moonSignIdx] || ZODIAC_SECTORS[0];
   const targetSignIdx = chartMode === 'body' ? bodySignIdx : soulSignIdx;
-  const aspect = getAspectThemeForSignDiffJS(moonSignIdx - targetSignIdx);
+  const signDiff = ((moonSignIdx - targetSignIdx) % 12 + 12) % 12;
+  const aspect = getAspectThemeForSignDiffJS(signDiff);
+
+  // Kişisel Günlük Çakra & Frekans Odağı (Transit Ay Açısı + Kişisel Gün + Aktif Harita Katmanı)
+  let recChakraIdx = 3; // Default Kalp (639 Hz)
+  let recReasonCore = '';
+  const activeSignName = chartMode === 'body' ? bodyMeta.sign : soulMeta.sign;
+  const activeModeLabel =
+    chartMode === 'soul'
+      ? `Ruh Haritası (${soulMeta.symbol} ${soulMeta.sign})`
+      : chartMode === 'synthesis'
+      ? `Sentez (${bodyMeta.sign}→${soulMeta.sign})`
+      : `Beden Haritası (${bodyMeta.symbol} ${bodyMeta.sign})`;
+
+  if (signDiff === 3 || signDiff === 9 || personalDay === 1 || personalDay === 8) {
+    recChakraIdx = 0; // 1. Kök Çakra (396 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün içsel gerilimi topraklamak, korkuları serbest bırakmak ve sarsılmaz güven için Kök Çakra (396 Hz) frekansına yoğunlaşın.`;
+  } else if (signDiff === 6 || personalDay === 6) {
+    recChakraIdx = 3; // 4. Kalp Çakrası (639 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün ikili ilişkilerde ayna dengesini kurmak ve şefkat frekansını açmak için Kalp Çakrası (639 Hz) frekansına yoğunlaşın.`;
+  } else if (signDiff === 0 || personalDay === 3) {
+    recChakraIdx = 2; // 3. Solar Pleksus (528 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün irade merkezini güçlendirmek, yaşam enerjisi ve öz-değer aktivasyonu için Solar Pleksus (528 Hz) frekansına yoğunlaşın.`;
+  } else if (signDiff === 2 || signDiff === 10 || personalDay === 5) {
+    recChakraIdx = 4; // 5. Boğaz Çakrası (741 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün hakikatinizi berraklıkla ifade etmek ve zihinsel alanı arındırmak için Boğaz Çakrası (741 Hz) frekansına yoğunlaşın.`;
+  } else if (signDiff === 4 || signDiff === 8 || personalDay === 7) {
+    recChakraIdx = 5; // 6. Üçüncü Göz (852 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün yüksek sezgi, durugörü ve eşzamanlılıkları okumak için Üçüncü Göz (852 Hz) frekansına yoğunlaşın.`;
+  } else if (personalDay === 2 || personalDay === 4) {
+    recChakraIdx = 1; // 2. Sakral Çakra (417 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün duygusal akışı dengelemek, yaratıcı enerjiyi uyandırmak ve blokajları çözmek için Sakral Çakra (417 Hz) frekansına yoğunlaşın.`;
+  } else {
+    recChakraIdx = 6; // 7. Taç Çakra (963 Hz)
+    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay} (${activeSignName}): Bugün derin tefekkür, ruhsal sadeleşme ve üst bilinç bağlantısı için Taç Çakra (963 Hz) frekansına yoğunlaşın.`;
+  }
+
+  const recPreset = CHAKRA_FREQ_PRESETS[recChakraIdx] || CHAKRA_FREQ_PRESETS[3];
 
   let personalDo = '';
   let personalAvoid = '';
@@ -346,7 +554,272 @@ const computeWidgetBirthProfile = (
     aspectName: aspect.aspectName,
     personalDo,
     personalAvoid,
+    recommendedChakraId: recPreset.id,
+    recommendedChakraName: recPreset.fullName,
+    recommendedChakraShort: recPreset.shortName,
+    recommendedHz: recPreset.hz,
+    recommendedColor: recPreset.color,
+    recommendedReason: recReasonCore,
+    recommendedAffirmation: recPreset.affirmation,
   };
+};
+
+const QuickFrequencyPlayerWidget = ({
+  visible = true,
+  birthProfile,
+  onOpenSettings,
+}: {
+  visible?: boolean;
+  birthProfile: WidgetBirthProfile | null;
+  onOpenSettings: () => void;
+}) => {
+  const router = useRouter();
+  const webviewRef = useRef<WebView>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const todayDayInfo = DAY_CHAKRA_MAP[new Date().getDay()];
+  const defaultPreset =
+    CHAKRA_FREQ_PRESETS.find((p) => p.id === todayDayInfo.chakraId) || CHAKRA_FREQ_PRESETS[3];
+
+  const targetPreset = birthProfile
+    ? CHAKRA_FREQ_PRESETS.find((p) => p.id === birthProfile.recommendedChakraId) || defaultPreset
+    : defaultPreset;
+
+  const [selectedHz, setSelectedHz] = useState<number>(targetPreset.hz);
+  const [selectedLabel, setSelectedLabel] = useState<string>(targetPreset.shortName);
+  const [selectedColor, setSelectedColor] = useState<string>(targetPreset.color);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setSelectedHz(targetPreset.hz);
+      setSelectedLabel(targetPreset.shortName);
+      setSelectedColor(targetPreset.color);
+    }
+  }, [targetPreset.hz, targetPreset.shortName, targetPreset.color]);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (webviewRef.current) {
+          webviewRef.current.postMessage(JSON.stringify({ type: 'STOP' }));
+        }
+        setIsPlaying(false);
+      };
+    }, [])
+  );
+
+  if (!visible) return null;
+
+  const togglePlayHz = (hz: number, label: string, color: string) => {
+    if (isPlaying && selectedHz === hz) {
+      webviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
+      setIsPlaying(false);
+    } else {
+      setSelectedHz(hz);
+      setSelectedLabel(label);
+      setSelectedColor(color);
+      webviewRef.current?.postMessage(JSON.stringify({ type: 'PLAY', freq: hz }));
+      setIsPlaying(true);
+    }
+  };
+
+  return (
+    <View
+      style={[
+        styles.schumannWidget,
+        {
+          borderLeftColor: selectedColor || '#D4AF37',
+          marginBottom: 15,
+          paddingBottom: 12,
+        },
+      ]}
+    >
+      <WebView
+        ref={webviewRef}
+        source={{ html: WIDGET_FREQ_WEBVIEW_HTML }}
+        style={{ width: 0, height: 0, opacity: 0 }}
+        originWhitelist={['*']}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        javaScriptEnabled={true}
+      />
+
+      <View style={styles.schumannRow}>
+        <TouchableOpacity
+          onPress={() => togglePlayHz(selectedHz, selectedLabel, selectedColor)}
+          activeOpacity={0.8}
+          style={[
+            styles.planetIconWrapper,
+            {
+              backgroundColor: isPlaying ? selectedColor : selectedColor + '22',
+              borderColor: selectedColor,
+            },
+          ]}
+        >
+          <Ionicons
+            name={isPlaying ? 'stop' : 'play'}
+            size={18}
+            color={isPlaying ? '#000000' : selectedColor}
+          />
+        </TouchableOpacity>
+
+        <View style={{ flex: 1, marginLeft: 13, marginRight: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+            <Text style={[styles.schumannTitle, { color: selectedColor }]}>
+              {birthProfile
+                ? `🎯 Kişisel Çakra Odağı • ${targetPreset.hz} Hz`
+                : `🎵 Günün Çakra Frekansı • ${targetPreset.hz} Hz`}
+            </Text>
+            {isPlaying && (
+              <View
+                style={{
+                  backgroundColor: 'rgba(16,185,129,0.2)',
+                  borderWidth: 1,
+                  borderColor: '#10B981',
+                  borderRadius: 8,
+                  paddingHorizontal: 6,
+                  paddingVertical: 1,
+                }}
+              >
+                <Text style={{ color: '#34D399', fontSize: 9, fontWeight: '800' }}>
+                  🔊 {selectedHz} HZ ÇALIYOR
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <Text style={[styles.schumannStatusName, { color: '#FFFFFF', fontSize: 13.5 }]} numberOfLines={1}>
+            {targetPreset.fullName}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => togglePlayHz(selectedHz, selectedLabel, selectedColor)}
+          activeOpacity={0.8}
+          style={{
+            backgroundColor: isPlaying ? 'rgba(239,68,68,0.2)' : 'rgba(212,175,55,0.2)',
+            borderWidth: 1,
+            borderColor: isPlaying ? '#EF4444' : '#D4AF37',
+            borderRadius: 12,
+            paddingHorizontal: 11,
+            paddingVertical: 7,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <Ionicons
+            name={isPlaying ? 'stop-circle' : 'musical-notes'}
+            size={14}
+            color={isPlaying ? '#F87171' : '#FDE68A'}
+          />
+          <Text
+            style={{
+              color: isPlaying ? '#F87171' : '#FDE68A',
+              fontSize: 11,
+              fontWeight: '800',
+            }}
+          >
+            {isPlaying ? 'Durdur' : `${selectedHz} Hz Aç`}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Kişisel Çakra Sebebi veya Kişiselleştirme Daveti */}
+      <View
+        style={{
+          marginTop: 8,
+          backgroundColor: 'rgba(255,255,255,0.03)',
+          borderRadius: 10,
+          paddingHorizontal: 10,
+          paddingVertical: 7,
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.06)',
+        }}
+      >
+        {birthProfile ? (
+          <Text style={{ color: '#D1D5DB', fontSize: 11, lineHeight: 15 }}>
+            {birthProfile.recommendedReason}
+          </Text>
+        ) : (
+          <TouchableOpacity
+            onPress={onOpenSettings}
+            activeOpacity={0.75}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <Text style={{ color: '#D1D5DB', fontSize: 11, flex: 1, marginRight: 8 }}>
+              ✨ Doğum tarihinize göre bugün hangi çakraya yoğunlaşmanız gerektiğini görmek için dokunun.
+            </Text>
+            <Text style={{ color: '#FDE68A', fontSize: 10.5, fontWeight: '800' }}>Kişiselleştir →</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Hızlı Frekans Seçici Şerit (Frekans Odasına Girmeden Tek Dokunuşla Çal) */}
+      <View style={{ marginTop: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <Text style={{ color: '#9CA3AF', fontSize: 10, fontWeight: '700' }}>
+            ⚡ HIZLI FREKANS SEÇ &amp; ANINDA DİNLE:
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push(`/(dashboard)/meditation?hz=${selectedHz}` as any)}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+          >
+            <Text style={{ fontSize: 10, color: '#D4AF37', fontWeight: '700' }}>Frekans Odası</Text>
+            <Ionicons name="chevron-forward" size={12} color="#D4AF37" style={{ marginLeft: 2 }} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+          {QUICK_EXTRA_FREQS.map((item) => {
+            const isThisActive = isPlaying && selectedHz === item.hz;
+            const isRecommended = targetPreset.hz === item.hz;
+            return (
+              <TouchableOpacity
+                key={item.hz}
+                onPress={() => togglePlayHz(item.hz, item.label, item.color)}
+                activeOpacity={0.8}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                  backgroundColor: isThisActive
+                    ? item.color + '33'
+                    : isRecommended
+                    ? 'rgba(212,175,55,0.14)'
+                    : 'rgba(255,255,255,0.05)',
+                  borderWidth: 1,
+                  borderColor: isThisActive
+                    ? item.color
+                    : isRecommended
+                    ? 'rgba(212,175,55,0.55)'
+                    : 'rgba(255,255,255,0.12)',
+                  borderRadius: 10,
+                  paddingHorizontal: 9,
+                  paddingVertical: 5,
+                }}
+              >
+                <Ionicons
+                  name={isThisActive ? 'stop' : 'play'}
+                  size={10}
+                  color={isThisActive ? item.color : '#FDE68A'}
+                />
+                <Text
+                  style={{
+                    color: isThisActive ? '#FFFFFF' : isRecommended ? '#FDE68A' : '#D1D5DB',
+                    fontSize: 10.5,
+                    fontWeight: isThisActive || isRecommended ? '800' : '600',
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+    </View>
+  );
 };
 
 const PlanetaryHourWidget = ({ visible = true }: { visible?: boolean }) => {
@@ -547,6 +1020,7 @@ export default function DashboardScreen() {
   const [widgetChartMode, setWidgetChartMode] = useState<WidgetChartMode>('soul');
   const [savedBirthProfile, setSavedBirthProfile] = useState<WidgetBirthProfile | null>(null);
   const [widgetPrefs, setWidgetPrefs] = useState({
+    frequencyPlayer: true,
     planetaryHour: true,
     cosmicWeather: true,
     schumann: true,
@@ -565,7 +1039,8 @@ export default function DashboardScreen() {
             sound: null,
           }).catch(() => {});
         }
-        const [pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
+        const [freqW, pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
+          AsyncStorage.getItem('@show_frequency_widget'),
           AsyncStorage.getItem('@show_planetary_widget'),
           AsyncStorage.getItem('@show_cosmic_weather_widget'),
           AsyncStorage.getItem('@show_schumann_widget'),
@@ -604,6 +1079,7 @@ export default function DashboardScreen() {
         }
         const isLockEnabled = lockN !== 'false';
         setWidgetPrefs({
+          frequencyPlayer: freqW !== 'false',
           planetaryHour: pHour !== 'false',
           cosmicWeather: cWeather !== 'false',
           schumann: sch !== 'false',
@@ -830,7 +1306,7 @@ export default function DashboardScreen() {
   }, []);
 
   const toggleWidgetPref = async (
-    key: 'planetaryHour' | 'cosmicWeather' | 'schumann' | 'meclis' | 'lockScreenNotif',
+    key: 'frequencyPlayer' | 'planetaryHour' | 'cosmicWeather' | 'schumann' | 'meclis' | 'lockScreenNotif',
     storageKey: string,
     val: boolean
   ) => {
@@ -1122,6 +1598,11 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
+        <QuickFrequencyPlayerWidget
+          visible={widgetPrefs.frequencyPlayer}
+          birthProfile={savedBirthProfile}
+          onOpenSettings={() => setShowWidgetModal(true)}
+        />
         <PlanetaryHourWidget visible={widgetPrefs.planetaryHour} />
         <CosmicMoonWeatherWidget visible={widgetPrefs.cosmicWeather} />
         {widgetPrefs.schumann && <SchumannMiniWidget />}
@@ -1437,6 +1918,21 @@ export default function DashboardScreen() {
                     <Text style={{ color: '#FDE68A', fontSize: 10.5, fontWeight: '800', marginBottom: 3 }}>
                       ☽ Transit Ay: {savedBirthProfile.transitMoonSymbol} {savedBirthProfile.transitMoonSign} ({savedBirthProfile.aspectName}) • KAD: {savedBirthProfile.northNodeSign}
                     </Text>
+                    <View
+                      style={{
+                        backgroundColor: 'rgba(212,175,55,0.14)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(212,175,55,0.45)',
+                        borderRadius: 8,
+                        paddingHorizontal: 8,
+                        paddingVertical: 5,
+                        marginBottom: 5,
+                      }}
+                    >
+                      <Text style={{ color: '#FDE68A', fontSize: 10.5, fontWeight: '800' }}>
+                        🎯 Bugün Yoğunlaşmanız Gereken Çakra: {savedBirthProfile.recommendedChakraShort} ({savedBirthProfile.recommendedHz} Hz)
+                      </Text>
+                    </View>
                     <Text style={{ color: '#34D399', fontSize: 10.5, fontWeight: '700', lineHeight: 14 }}>
                       {savedBirthProfile.personalDo}
                     </Text>
@@ -1487,6 +1983,12 @@ export default function DashboardScreen() {
               </Text>
 
               {[
+                {
+                  key: 'frequencyPlayer' as const,
+                  storageKey: '@show_frequency_widget',
+                  title: '🎵 Kişisel Çakra & Hızlı Frekans Widget\'ı',
+                  sub: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını hesaplar ve Frekans Odasına girmeden tek tuşla çalar.',
+                },
                 {
                   key: 'planetaryHour' as const,
                   storageKey: '@show_planetary_widget',
@@ -1577,9 +2079,9 @@ export default function DashboardScreen() {
                   },
                   {
                     type: 'chakra' as const,
-                    badge: '5. SEÇENEK • 4x2 ORTA BOY',
-                    title: '🌙 Günün Çakrası & Ay Fazı',
-                    desc: 'Günün çakra frekansı (Hz), olumlaması, canlı Ay fazı ve Frekans Odası kısayolu.',
+                    badge: '5. SEÇENEK • 4x2 FREKANS ÇALAR',
+                    title: '🎵 Kişisel Çakra & Frekans Açma Widget\'ı',
+                    desc: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını ayarlı gösterir ve tek tuşla ana ekrandan çalar.',
                   },
                 ].map((w) => (
                   <View
@@ -1709,17 +2211,28 @@ export default function DashboardScreen() {
                       {w.type === 'chakra' && (
                         <View style={{ gap: 4 }}>
                           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{ color: '#FFFFFF', fontSize: 9.5, fontWeight: '800' }}>4. Katman: Kalp Çakrası (639 Hz)</Text>
+                            <Text style={{ color: '#FFFFFF', fontSize: 9.5, fontWeight: '800' }}>
+                              {savedBirthProfile
+                                ? `${savedBirthProfile.recommendedChakraName} (${savedBirthProfile.recommendedHz} Hz)`
+                                : '4. Katman: Kalp Çakrası (639 Hz)'}
+                            </Text>
                             <Text style={{ color: '#FDE68A', fontSize: 8.5, fontWeight: '800' }}>%50 Ay</Text>
                           </View>
                           <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: 5 }}>
                             <Text style={{ color: '#E5E7EB', fontSize: 8.5, fontStyle: 'italic' }} numberOfLines={1}>
-                              &ldquo;Sevgi en yüksek frekanstır; kalbimi evrenin şefkatine açıyorum.&rdquo;
+                              &ldquo;{savedBirthProfile ? savedBirthProfile.recommendedAffirmation : 'Sevgi en yüksek frekanstır; kalbimi evrenin şefkatine açıyorum.'}&rdquo;
                             </Text>
                           </View>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ color: '#7DD3FC', fontSize: 8, fontWeight: '700' }}>🌓 İlk Dördün: İrade ve kararlılık</Text>
-                            <Text style={{ color: '#D4AF37', fontSize: 8, fontWeight: '800' }}>Frekans Odası →</Text>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ color: '#7DD3FC', fontSize: 8, fontWeight: '700' }}>🎯 Kişisel Odak Frekansı Hazır</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <View style={{ backgroundColor: 'rgba(212,175,55,0.2)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
+                                <Text style={{ color: '#FDE68A', fontSize: 8, fontWeight: '800' }}>
+                                  ▶ {savedBirthProfile ? savedBirthProfile.recommendedHz : 639} Hz Aç
+                                </Text>
+                              </View>
+                              <Text style={{ color: '#D4AF37', fontSize: 8, fontWeight: '800' }}>Oda →</Text>
+                            </View>
                           </View>
                         </View>
                       )}
