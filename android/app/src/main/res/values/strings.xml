@@ -16,6 +16,6 @@
   <string name="widget_planetary_label">7Layers • Canlı Gezegen Saatleri (4x2)</string>
   <string name="widget_planetary_desc">Aktif Keldani gezegen saati, kalan dakika ve sıradaki 3 gezegen saati akışı (4x2).</string>
 
-  <string name="widget_chakra_label">7Layers • Günün Çakrası &amp; Ay Fazı (4x2)</string>
-  <string name="widget_chakra_desc">Günün aktif çakra frekansı (Hz), olumlaması ve canlı Ay fazı aydınlanma oranı (4x2).</string>
+  <string name="widget_chakra_label">7Layers • Kişisel Çakra &amp; Frekans Açma (4x2)</string>
+  <string name="widget_chakra_desc">Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını (Hz) gösterir ve tek tuşla ana ekrandan çalar (4x2).</string>
 </resources>

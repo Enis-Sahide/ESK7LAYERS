@@ -1213,27 +1213,30 @@ export default function DashboardScreen() {
       Alert.alert('Bilgi', 'Ana ekran widget sabitleme özelliği Android cihazlarda desteklenmektedir.');
       return;
     }
-    try {
-      if (NativeModules.CosmicWidgetModule?.pinWidgetToHomeScreen) {
-        const ok = await NativeModules.CosmicWidgetModule.pinWidgetToHomeScreen(widgetType);
-        if (!ok) {
+    setShowWidgetModal(false);
+    setTimeout(async () => {
+      try {
+        if (NativeModules.CosmicWidgetModule?.pinWidgetToHomeScreen) {
+          const ok = await NativeModules.CosmicWidgetModule.pinWidgetToHomeScreen(widgetType);
+          if (!ok) {
+            Alert.alert(
+              'Manuel Ekleme',
+              `Telefonunuzun ana ekranında boş bir yere basılı tutup "Widget'lar -> 7LAYERS" listesinden "${label}" aracını sürükleyip bırakabilirsiniz.`
+            );
+          }
+        } else {
           Alert.alert(
-            'Manuel Ekleme',
-            `Telefonunuzun ana ekranında boş bir yere basılı tutup "Widget'lar -> 7LAYERS" listesinden "${label}" aracını sürükleyip bırakabilirsiniz.`
+            'Bilgi',
+            `Ana ekranda boş bir yere basılı tutup "Widget'lar -> 7LAYERS" menüsünden "${label}" widget'ını ekleyebilirsiniz.`
           );
         }
-      } else {
+      } catch {
         Alert.alert(
-          'Bilgi',
+          'Manuel Ekleme',
           `Ana ekranda boş bir yere basılı tutup "Widget'lar -> 7LAYERS" menüsünden "${label}" widget'ını ekleyebilirsiniz.`
         );
       }
-    } catch {
-      Alert.alert(
-        'Manuel Ekleme',
-        `Ana ekranda boş bir yere basılı tutup "Widget'lar -> 7LAYERS" menüsünden "${label}" widget'ını ekleyebilirsiniz.`
-      );
-    }
+    }, 300);
   };
 
   const syncLockScreenCosmicWidget = useCallback(async (enabled: boolean) => {
