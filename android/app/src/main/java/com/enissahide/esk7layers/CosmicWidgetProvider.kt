@@ -405,7 +405,7 @@ object CosmicWidgetHelper {
         val aspect = getAspectThemeForSignDiff(signDiff)
         val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
 
-        // Compute personalDay from birthDate (DD.MM.YYYY) + today
+        // 1. Katman: Pisagor Doğum Matrisi Eksik Çakra (Alan Koruma Kodu 1-7)
         fun reduceNum(num: Int): Int {
             var n = kotlin.math.abs(num)
             while (n > 9) {
@@ -421,52 +421,97 @@ object CosmicWidgetHelper {
         val bParts = birthDate.split(".", "/", "-")
         val bDay = bParts.getOrNull(0)?.toIntOrNull() ?: 1
         val bMonth = bParts.getOrNull(1)?.toIntOrNull() ?: 1
-        val personalDay = reduceNum(
-            reduceNum(bDay) +
-            reduceNum(bMonth) +
-            reduceNum(cal.get(Calendar.DAY_OF_MONTH)) +
-            reduceNum(cal.get(Calendar.MONTH) + 1) +
-            reduceNum(cal.get(Calendar.YEAR))
-        )
+        val bYear = bParts.getOrNull(2)?.toIntOrNull() ?: 1990
+        val lifePath = reduceNum(reduceNum(bDay) + reduceNum(bMonth) + reduceNum(bYear))
 
+        val presentChakras = HashSet<Int>()
+        for (ch in birthDate) {
+            if (ch in '1'..'7') presentChakras.add(ch - '0')
+        }
+        val dRed = reduceNum(bDay)
+        val mRed = reduceNum(bMonth)
+        val yRed = reduceNum(bYear)
+        if (dRed in 1..7) presentChakras.add(dRed)
+        if (mRed in 1..7) presentChakras.add(mRed)
+        if (yRed in 1..7) presentChakras.add(yRed)
+        if (lifePath in 1..7) presentChakras.add(lifePath)
+
+        var birthMatrixChakraId = ((lifePath - 1) % 7) + 1
+        for (c in 1..7) {
+            if (!presentChakras.contains(c)) {
+                birthMatrixChakraId = c
+                break
+            }
+        }
+
+        // 2. Katman: Astronomik Transit Ay Açısı + Doğum Matrisi Eksik Çakra Odağı
         val personalHz: Int
         val personalChakraTitle: String
         val personalAffirmation: String
         when {
-            signDiff == 3 || signDiff == 9 || personalDay == 1 || personalDay == 8 -> {
+            signDiff == 3 || signDiff == 9 -> {
                 personalHz = 396
                 personalChakraTitle = "1. Katman: Kök Çakra (Muladhara)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Sarsılmaz köklerle güvendeyim; korkuları serbest bırakıyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Kare Açı): İçsel sürtünmeyi farkındalığa dönüştürüyor, sarsılmaz köklerle merkezleniyorum.\""
             }
-            signDiff == 6 || personalDay == 6 -> {
+            signDiff == 6 -> {
                 personalHz = 639
                 personalChakraTitle = "4. Katman: Kalp Çakrası (Anahata)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Kalbimi evrenin şefkatine ve ilişkilerde ayna dengesine açıyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Karşıt Açı): İlişkilerde ayna yasasını okuyor, dualiteyi kalp merkezinde şefkatle birleştiriyorum.\""
             }
-            signDiff == 0 || personalDay == 3 -> {
+            signDiff == 0 -> {
                 personalHz = 528
                 personalChakraTitle = "3. Katman: Solar Pleksus (Manipura)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): İçimdeki ilahi güneş parlıyor; irademi bilgelik ve özgüvenle kullanıyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Kavuşum): Öz-merkezime akan yaşam enerjisini, irademi ve içsel güneşimi aktive ediyorum.\""
             }
-            signDiff == 2 || signDiff == 10 || personalDay == 5 -> {
+            signDiff == 2 || signDiff == 10 -> {
                 personalHz = 741
                 personalChakraTitle = "5. Katman: Boğaz Çakrası (Vishuddha)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Hakikatimi berraklıkla, bilgelikle ve yüksek farkındalıkla ifade ediyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Sekstil Açı): Boğaz çakrasından berrak idrakle hakikatimi ifade ediyor, eşzamanlılıkları okuyorum.\""
             }
-            signDiff == 4 || signDiff == 8 || personalDay == 7 -> {
+            signDiff == 4 || signDiff == 8 -> {
                 personalHz = 852
                 personalChakraTitle = "6. Katman: Üçüncü Göz (Ajna)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Görünenin ötesindeki kadim bilgeliği ve eşzamanlılıkları berraklıkla görüyorum.\""
-            }
-            personalDay == 2 || personalDay == 4 -> {
-                personalHz = 417
-                personalChakraTitle = "2. Katman: Sakral Çakra (Svadhisthana)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Yaratıcı yaşam enerjisiyle uyum içindeyim; duygusal akışı dengeliyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Üçgen Açı): Element uyumuyla zahmetsiz sezgi akışına, durugörüye ve yüksek idrake açılıyorum.\""
             }
             else -> {
-                personalHz = 963
-                personalChakraTitle = "7. Katman: Taç Çakra (Sahasrara)"
-                personalAffirmation = "\"Kişisel Gün #$personalDay (${aspect.aspectName}): Zamanın ötesindeki Tek'likle bütünüm; ilahi düzene güveniyorum.\""
+                when (birthMatrixChakraId) {
+                    1 -> {
+                        personalHz = 396
+                        personalChakraTitle = "1. Katman: Kök Çakra (Muladhara)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #1): Doğum matrisimdeki kök güven alanını 396 Hz ile dengeliyorum.\""
+                    }
+                    2 -> {
+                        personalHz = 417
+                        personalChakraTitle = "2. Katman: Sakral Çakra (Svadhisthana)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #2): Doğum matrisimdeki yaratıcı su akışını 417 Hz ile dengeliyorum.\""
+                    }
+                    3 -> {
+                        personalHz = 528
+                        personalChakraTitle = "3. Katman: Solar Pleksus (Manipura)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #3): Doğum matrisimdeki irade ve öz-değer merkezini 528 Hz ile dengeliyorum.\""
+                    }
+                    4 -> {
+                        personalHz = 639
+                        personalChakraTitle = "4. Katman: Kalp Çakrası (Anahata)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #4): Doğum matrisimdeki kalp ve şefkat alanını 639 Hz ile dengeliyorum.\""
+                    }
+                    5 -> {
+                        personalHz = 741
+                        personalChakraTitle = "5. Katman: Boğaz Çakrası (Vishuddha)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #5): Doğum matrisimdeki ifade ve hakikat merkezini 741 Hz ile dengeliyorum.\""
+                    }
+                    6 -> {
+                        personalHz = 852
+                        personalChakraTitle = "6. Katman: Üçüncü Göz (Ajna)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #6): Doğum matrisimdeki sezgi ve idrak merkezini 852 Hz ile dengeliyorum.\""
+                    }
+                    else -> {
+                        personalHz = 963
+                        personalChakraTitle = "7. Katman: Taç Çakra (Sahasrara)"
+                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #7): Doğum matrisimdeki üst bilinç bağlantısını 963 Hz ile dengeliyorum.\""
+                    }
+                }
             }
         }
 

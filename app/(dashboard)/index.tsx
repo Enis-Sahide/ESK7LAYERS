@@ -485,10 +485,33 @@ const computeWidgetBirthProfile = (
   const signDiff = ((moonSignIdx - targetSignIdx) % 12 + 12) % 12;
   const aspect = getAspectThemeForSignDiffJS(signDiff);
 
-  // Kişisel Günlük Çakra & Frekans Odağı (Transit Ay Açısı + Kişisel Gün + Aktif Harita Katmanı)
+  // 1. Katman: Pisagor Doğum Matrisi Eksik Çakra (Alan Koruma Kodu 1-7)
+  const rawDateDigits = `${String(day).padStart(2, '0')}${String(month).padStart(2, '0')}${year}`;
+  const presentChakraSet = new Set<number>();
+  for (const ch of rawDateDigits) {
+    const d = parseInt(ch, 10);
+    if (d >= 1 && d <= 7) presentChakraSet.add(d);
+  }
+  const dRed = reduceDigit(day);
+  const mRed = reduceDigit(month);
+  const yRed = reduceDigit(year);
+  if (dRed >= 1 && dRed <= 7) presentChakraSet.add(dRed);
+  if (mRed >= 1 && mRed <= 7) presentChakraSet.add(mRed);
+  if (yRed >= 1 && yRed <= 7) presentChakraSet.add(yRed);
+  if (lifePath >= 1 && lifePath <= 7) presentChakraSet.add(lifePath);
+
+  let birthMatrixChakraId = ((lifePath - 1) % 7) + 1;
+  for (let c = 1; c <= 7; c++) {
+    if (!presentChakraSet.has(c)) {
+      birthMatrixChakraId = c;
+      break;
+    }
+  }
+
+  // 2. Katman: Astronomik Transit Ay Açısı + Aktif Harita Katmanı (Beden / Ruh / Sentez)
   let recChakraIdx = 3; // Default Kalp (639 Hz)
   let recReasonCore = '';
-  const activeSignName = chartMode === 'body' ? bodyMeta.sign : soulMeta.sign;
+  let recAffirmationCustom = '';
   const activeModeLabel =
     chartMode === 'soul'
       ? `Ruh Haritası (${soulMeta.symbol} ${soulMeta.sign})`
@@ -496,27 +519,32 @@ const computeWidgetBirthProfile = (
       ? `Sentez (${bodyMeta.sign}→${soulMeta.sign})`
       : `Beden Haritası (${bodyMeta.symbol} ${bodyMeta.sign})`;
 
-  if (signDiff === 3 || signDiff === 9 || personalDay === 1 || personalDay === 8) {
+  if (signDiff === 3 || signDiff === 9) {
     recChakraIdx = 0; // 1. Kök Çakra (396 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün içsel gerilimi topraklamak, korkuları serbest bırakmak ve sarsılmaz güven için Kök Çakra (396 Hz) frekansına yoğunlaşın.`;
-  } else if (signDiff === 6 || personalDay === 6) {
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Kare Açı • 90° Simyasal Sınav): Gökyüzündeki kare açı gerilimini topraklamak, içsel sürtünmeyi güce dönüştürmek ve köklenmek için bugün 1. Katman Kök Çakra (396 Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kare Açı): İçsel sürtünmeyi farkındalığa dönüştürüyor, sarsılmaz köklerle merkezleniyorum.`;
+  } else if (signDiff === 6) {
     recChakraIdx = 3; // 4. Kalp Çakrası (639 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün ikili ilişkilerde ayna dengesini kurmak ve şefkat frekansını açmak için Kalp Çakrası (639 Hz) frekansına yoğunlaşın.`;
-  } else if (signDiff === 0 || personalDay === 3) {
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Karşıt Açı • 180° Ayna Denge): İkili ilişkilerde ayna yasasını okumak ve Beden-Ruh kutuplarını kalpte dengelemek için bugün 4. Katman Kalp Çakrası (639 Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Karşıt Açı): İlişkilerde ayna yasasını okuyor, dualiteyi kalp merkezinde şefkatle birleştiriyorum.`;
+  } else if (signDiff === 0) {
     recChakraIdx = 2; // 3. Solar Pleksus (528 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün irade merkezini güçlendirmek, yaşam enerjisi ve öz-değer aktivasyonu için Solar Pleksus (528 Hz) frekansına yoğunlaşın.`;
-  } else if (signDiff === 2 || signDiff === 10 || personalDay === 5) {
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Kavuşum • 0° Öz Hizalanma): Transit Ay doğrudan harita merkezinizle kavuşumda; öz-değer, irade ve yaşam ateşini yükseltmek için bugün 3. Katman Solar Pleksus (528 Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kavuşum): Öz-merkezime akan yaşam enerjisini, irademi ve içsel güneşimi aktive ediyorum.`;
+  } else if (signDiff === 2 || signDiff === 10) {
     recChakraIdx = 4; // 5. Boğaz Çakrası (741 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün hakikatinizi berraklıkla ifade etmek ve zihinsel alanı arındırmak için Boğaz Çakrası (741 Hz) frekansına yoğunlaşın.`;
-  } else if (signDiff === 4 || signDiff === 8 || personalDay === 7) {
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Sekstil Açı • 60° Uyumlu Kapı): Berrak idrak, yaratıcı ifade ve zihinsel alanı arındırmak için bugün 5. Katman Boğaz Çakrası (741 Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Sekstil Açı): Boğaz çakrasından berrak idrakle hakikatimi ifade ediyor, eşzamanlılıkları okuyorum.`;
+  } else if (signDiff === 4 || signDiff === 8) {
     recChakraIdx = 5; // 6. Üçüncü Göz (852 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün yüksek sezgi, durugörü ve eşzamanlılıkları okumak için Üçüncü Göz (852 Hz) frekansına yoğunlaşın.`;
-  } else if (personalDay === 2 || personalDay === 4) {
-    recChakraIdx = 1; // 2. Sakral Çakra (417 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay}: Bugün duygusal akışı dengelemek, yaratıcı enerjiyi uyandırmak ve blokajları çözmek için Sakral Çakra (417 Hz) frekansına yoğunlaşın.`;
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Üçgen Açı • 120° Element Akışı): Element uyumuyla açılan yüksek sezgi, durugörü ve ilham kanalını aktive etmek için bugün 6. Katman Üçüncü Göz (852 Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Üçgen Açı): Element uyumuyla zahmetsiz sezgi akışına, durugörüye ve yüksek idrake açılıyorum.`;
   } else {
-    recChakraIdx = 6; // 7. Taç Çakra (963 Hz)
-    recReasonCore = `${activeModeLabel} • Transit Ay ${aspect.aspectName} & Kişisel Gün #${personalDay} (${activeSignName}): Bugün derin tefekkür, ruhsal sadeleşme ve üst bilinç bağlantısı için Taç Çakra (963 Hz) frekansına yoğunlaşın.`;
+    // İnce Ayar Açısı (30°/150°): Doğrudan kişinin Doğum Matrisi Eksik Çakrasını (Alan Koruma Kodu) besler
+    recChakraIdx = Math.max(0, Math.min(6, birthMatrixChakraId - 1));
+    const matPreset = CHAKRA_FREQ_PRESETS[recChakraIdx] || CHAKRA_FREQ_PRESETS[3];
+    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (İnce Ayar) & Doğum Matrisi Alan Kodunuz (#${birthMatrixChakraId}): İçsel arınma fazında bugün doğuştan gelen çakra alanınızı beslemek için ${matPreset.fullName} (${matPreset.hz} Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (İnce Ayar • Matris #${birthMatrixChakraId}): ${matPreset.affirmation}`;
   }
 
   const recPreset = CHAKRA_FREQ_PRESETS[recChakraIdx] || CHAKRA_FREQ_PRESETS[3];
@@ -560,7 +588,7 @@ const computeWidgetBirthProfile = (
     recommendedHz: recPreset.hz,
     recommendedColor: recPreset.color,
     recommendedReason: recReasonCore,
-    recommendedAffirmation: recPreset.affirmation,
+    recommendedAffirmation: recAffirmationCustom || recPreset.affirmation,
   };
 };
 
