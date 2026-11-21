@@ -1208,9 +1208,6 @@ export default function AnlikGokyuzuScreen() {
           )}
         </View>
 
-        {/* Kadim Astro-Çakra & Canlı Frekans Reçetesi */}
-        {renderChakraPrescriptionCard(currentSkyOverview.chakraPrescription)}
-
         {/* 13 Gezegen Detayına Geçiş Butonu */}
         <TouchableOpacity
           onPress={() => setSkyViewMode('SYNTHESIS')}
@@ -1450,9 +1447,6 @@ export default function AnlikGokyuzuScreen() {
             </View>
           )}
         </View>
-
-        {/* Kadim Astro-Çakra & Canlı Frekans Reçetesi */}
-        {renderChakraPrescriptionCard(personalOverview.chakraPrescription)}
 
         {/* Günün Yaşam Reçetesi & Gezegen Kartları Butonu */}
         <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}>
