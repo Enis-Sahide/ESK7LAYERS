@@ -15,6 +15,7 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.net.Uri
+import android.view.View
 import android.widget.RemoteViews
 import java.io.File
 import java.io.FileOutputStream
@@ -50,7 +51,7 @@ object CosmicWidgetAudioPlayer {
 
     @Synchronized
     fun toggle(hz: Int): Boolean {
-        return if (isPlaying) {
+        return if (isPlaying && activeHz == hz) {
             stop()
             false
         } else {
@@ -187,8 +188,47 @@ object CosmicWidgetHelper {
         val affirmation: String,
         val doText: String,
         val avoidText: String,
-        val recommendedHz: Int = 639
+        val recommendedHz: Int = 639,
+        val secondaryHz: Int = 0,
+        val isNaturalRestDay: Boolean = false
     )
+
+    data class ChakraMeta(
+        val id: Int,
+        val hz: Int,
+        val shortTitle: String,
+        val fullTitle: String,
+        val planetName: String
+    )
+
+    fun getChakraForSignIndex(signIdx: Int): ChakraMeta {
+        return when (((signIdx % 12) + 12) % 12) {
+            0 -> ChakraMeta(1, 396, "1. Kök", "1. Katman: Kök Çakra (Muladhara)", "Mars ♂")        // Koç
+            1 -> ChakraMeta(2, 417, "2. Sakral", "2. Katman: Sakral Çakra (Svadhisthana)", "Venüs ♀") // Boğa
+            2 -> ChakraMeta(5, 741, "5. Boğaz", "5. Katman: Boğaz Çakrası (Vishuddha)", "Merkür ☿")   // İkizler
+            3 -> ChakraMeta(4, 639, "4. Kalp", "4. Katman: Kalp Çakrası (Anahata)", "Ay ☽")          // Yengeç
+            4 -> ChakraMeta(3, 528, "3. Solar Pleksus", "3. Katman: Solar Pleksus (Manipura)", "Güneş ☉") // Aslan
+            5 -> ChakraMeta(5, 741, "5. Boğaz", "5. Katman: Boğaz Çakrası (Vishuddha)", "Merkür ☿")   // Başak
+            6 -> ChakraMeta(4, 639, "4. Kalp", "4. Katman: Kalp Çakrası (Anahata)", "Venüs ♀")       // Terazi
+            7 -> ChakraMeta(1, 396, "1. Kök", "1. Katman: Kök Çakra (Muladhara)", "Mars ♂")          // Akrep
+            8 -> ChakraMeta(6, 852, "6. Üçüncü Göz", "6. Katman: Üçüncü Göz (Ajna)", "Jüpiter ♃")    // Yay
+            9 -> ChakraMeta(7, 963, "7. Taç", "7. Katman: Taç Çakra (Sahasrara)", "Satürn ♄")        // Oğlak
+            10 -> ChakraMeta(7, 963, "7. Taç", "7. Katman: Taç Çakra (Sahasrara)", "Satürn ♄")       // Kova
+            else -> ChakraMeta(6, 852, "6. Üçüncü Göz", "6. Katman: Üçüncü Göz (Ajna)", "Jüpiter ♃") // Balık
+        }
+    }
+
+    fun getChakraById(id: Int): ChakraMeta {
+        return when (id) {
+            1 -> ChakraMeta(1, 396, "1. Kök", "1. Katman: Kök Çakra (Muladhara)", "Mars ♂")
+            2 -> ChakraMeta(2, 417, "2. Sakral", "2. Katman: Sakral Çakra (Svadhisthana)", "Venüs ♀")
+            3 -> ChakraMeta(3, 528, "3. Solar Pleksus", "3. Katman: Solar Pleksus (Manipura)", "Güneş ☉")
+            4 -> ChakraMeta(4, 639, "4. Kalp", "4. Katman: Kalp Çakrası (Anahata)", "Ay/Venüs")
+            5 -> ChakraMeta(5, 741, "5. Boğaz", "5. Katman: Boğaz Çakrası (Vishuddha)", "Merkür ☿")
+            6 -> ChakraMeta(6, 852, "6. Üçüncü Göz", "6. Katman: Üçüncü Göz (Ajna)", "Jüpiter ♃")
+            else -> ChakraMeta(7, 963, "7. Taç", "7. Katman: Taç Çakra (Sahasrara)", "Satürn ♄")
+        }
+    }
 
     data class MoonInfo(
         val icon: String,
@@ -444,75 +484,71 @@ object CosmicWidgetHelper {
             }
         }
 
-        // 2. Katman: Astronomik Transit Ay Açısı + Doğum Matrisi Eksik Çakra Odağı
+        // 2. Katman: 3 Durumlu Kadim Astro-Çakra Sistemi (1. Doğal Akış/Dinlenme, 2. Tek Çakra, 3. İki Çakra)
+        val chartChakra = getChakraForSignIndex(activeTargetIdx)
+        val moonChakra = getChakraForSignIndex(moonSignIdx)
+        val matrixChakra = getChakraById(birthMatrixChakraId)
+        val activeSignLabel = if (chartMode == "body") zodiacSign else soulZodiacSign
+
         val personalHz: Int
+        var personalHz2 = 0
+        var isRestDay = false
         val personalChakraTitle: String
         val personalAffirmation: String
+
         when {
+            // Durum 1: Görmeyen / Açısız Günler (30° veya 150°) -> Doğal Akış & Dinlenme Günü (Özel çakra yüklemesi gerekmez)
+            signDiff == 1 || signDiff == 5 || signDiff == 7 || signDiff == 11 -> {
+                isRestDay = true
+                personalHz = 432
+                personalHz2 = matrixChakra.hz
+                personalChakraTitle = "🌿 Doğal Akış Günü (Özel Çakra Şart Değil)"
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Nötr Akış): Bugün haritamda zorlu bir açı yok; enerji bedenim doğal dengesinde (Sushumna). İsteğe bağlı: 432 Hz veya Matris #${matrixChakra.id} (${matrixChakra.hz} Hz).\""
+            }
+            // Durum 2: Kavuşum (0°) veya aynı çakra yöneticili uyumlu açı -> Tek Çakra Odağı
+            signDiff == 0 || ((signDiff == 2 || signDiff == 4 || signDiff == 8 || signDiff == 10) && chartChakra.hz == moonChakra.hz) -> {
+                personalHz = chartChakra.hz
+                personalHz2 = 0
+                personalChakraTitle = "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
+                personalAffirmation = "\"☽ Ay $transitMoonSign (${aspect.aspectName} → $activeSignLabel): Tüm kozmik akış ${chartChakra.shortTitle} (${chartChakra.planetName}) merkezimde toplanıyor.\""
+            }
+            // Durum 3A: Uyumlu Açı (Üçgen 120° veya Sekstil 60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı (Harita + Transit Ay)
+            signDiff == 2 || signDiff == 4 || signDiff == 8 || signDiff == 10 -> {
+                personalHz = chartChakra.hz
+                personalHz2 = moonChakra.hz
+                personalChakraTitle = "${chartChakra.shortTitle} (${chartChakra.hz} Hz) & ${moonChakra.shortTitle} (${moonChakra.hz} Hz)"
+                personalAffirmation = "\"☽ Ay $transitMoonSign → $activeSignLabel (${aspect.aspectName}): 1. ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ve 2. ${moonChakra.shortTitle} (${moonChakra.hz} Hz) merkezlerimi birlikte aktive ediyorum.\""
+            }
+            // Durum 3B: Kare Açı (90° Simyasal Sınav) -> 2 Çakra Odağı (Harita Çakrası + 1. Kök Topraklama 396 Hz)
             signDiff == 3 || signDiff == 9 -> {
-                personalHz = 396
-                personalChakraTitle = "1. Katman: Kök Çakra (Muladhara)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Kare Açı): İçsel sürtünmeyi farkındalığa dönüştürüyor, sarsılmaz köklerle merkezleniyorum.\""
-            }
-            signDiff == 6 -> {
-                personalHz = 639
-                personalChakraTitle = "4. Katman: Kalp Çakrası (Anahata)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Karşıt Açı): İlişkilerde ayna yasasını okuyor, dualiteyi kalp merkezinde şefkatle birleştiriyorum.\""
-            }
-            signDiff == 0 -> {
-                personalHz = 528
-                personalChakraTitle = "3. Katman: Solar Pleksus (Manipura)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Kavuşum): Öz-merkezime akan yaşam enerjisini, irademi ve içsel güneşimi aktive ediyorum.\""
-            }
-            signDiff == 2 || signDiff == 10 -> {
-                personalHz = 741
-                personalChakraTitle = "5. Katman: Boğaz Çakrası (Vishuddha)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Sekstil Açı): Boğaz çakrasından berrak idrakle hakikatimi ifade ediyor, eşzamanlılıkları okuyorum.\""
-            }
-            signDiff == 4 || signDiff == 8 -> {
-                personalHz = 852
-                personalChakraTitle = "6. Katman: Üçüncü Göz (Ajna)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Üçgen Açı): Element uyumuyla zahmetsiz sezgi akışına, durugörüye ve yüksek idrake açılıyorum.\""
-            }
-            else -> {
-                when (birthMatrixChakraId) {
-                    1 -> {
-                        personalHz = 396
-                        personalChakraTitle = "1. Katman: Kök Çakra (Muladhara)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #1): Doğum matrisimdeki kök güven alanını 396 Hz ile dengeliyorum.\""
-                    }
-                    2 -> {
-                        personalHz = 417
-                        personalChakraTitle = "2. Katman: Sakral Çakra (Svadhisthana)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #2): Doğum matrisimdeki yaratıcı su akışını 417 Hz ile dengeliyorum.\""
-                    }
-                    3 -> {
-                        personalHz = 528
-                        personalChakraTitle = "3. Katman: Solar Pleksus (Manipura)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #3): Doğum matrisimdeki irade ve öz-değer merkezini 528 Hz ile dengeliyorum.\""
-                    }
-                    4 -> {
-                        personalHz = 639
-                        personalChakraTitle = "4. Katman: Kalp Çakrası (Anahata)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #4): Doğum matrisimdeki kalp ve şefkat alanını 639 Hz ile dengeliyorum.\""
-                    }
-                    5 -> {
-                        personalHz = 741
-                        personalChakraTitle = "5. Katman: Boğaz Çakrası (Vishuddha)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #5): Doğum matrisimdeki ifade ve hakikat merkezini 741 Hz ile dengeliyorum.\""
-                    }
-                    6 -> {
-                        personalHz = 852
-                        personalChakraTitle = "6. Katman: Üçüncü Göz (Ajna)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #6): Doğum matrisimdeki sezgi ve idrak merkezini 852 Hz ile dengeliyorum.\""
-                    }
-                    else -> {
-                        personalHz = 963
-                        personalChakraTitle = "7. Katman: Taç Çakra (Sahasrara)"
-                        personalAffirmation = "\"☽ Ay $transitMoonSign (İnce Ayar • Matris #7): Doğum matrisimdeki üst bilinç bağlantısını 963 Hz ile dengeliyorum.\""
-                    }
+                val stabilizer = if (chartChakra.hz != 396) getChakraById(1) else moonChakra
+                personalHz = chartChakra.hz
+                personalHz2 = if (stabilizer.hz != chartChakra.hz) stabilizer.hz else 0
+                personalChakraTitle = if (personalHz2 > 0) {
+                    "${chartChakra.shortTitle} (${chartChakra.hz} Hz) & ${stabilizer.shortTitle} (${stabilizer.hz} Hz)"
+                } else {
+                    "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
                 }
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Kare Açı Sınavı): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) merkezimi koruyor ve ${stabilizer.shortTitle} (${stabilizer.hz} Hz) ile sarsılmaz şekilde topraklanıyorum.\""
             }
+            // Durum 3C: Karşıt Açı (180° Ayna Denge) -> 2 Çakra Odağı (Harita Çakrası + 4. Kalp Köprüsü 639 Hz)
+            else -> {
+                val stabilizer = if (chartChakra.hz != 639) getChakraById(4) else moonChakra
+                personalHz = chartChakra.hz
+                personalHz2 = if (stabilizer.hz != chartChakra.hz) stabilizer.hz else 0
+                personalChakraTitle = if (personalHz2 > 0) {
+                    "${chartChakra.shortTitle} (${chartChakra.hz} Hz) & ${stabilizer.shortTitle} (${stabilizer.hz} Hz)"
+                } else {
+                    "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
+                }
+                personalAffirmation = "\"☽ Ay $transitMoonSign (Karşıt Açı): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ile ${stabilizer.shortTitle} (${stabilizer.hz} Hz) kutuplarını kalp dengesinde birleştiriyorum.\""
+            }
+        }
+
+        val hzBadgeLabel = when {
+            isRestDay -> "🌿 DOĞAL AKIŞ • ÖZEL ÇAKRA YOK"
+            personalHz2 > 0 -> "⚡ 2 ÇAKRA ODAĞI • $personalHz & $personalHz2 HZ"
+            else -> "🎯 1 ÇAKRA ODAĞI • $personalHz HZ"
         }
 
         val customDo: String
@@ -523,19 +559,19 @@ object CosmicWidgetHelper {
         when (chartMode) {
             "soul" -> {
                 customBadge = "✨ RUH: ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • RUH: ${soulZodiacSign.uppercase()}"
+                chakraSignBadge = "$hzBadgeLabel • RUH: ${soulZodiacSign.uppercase()}"
                 customDo = "✓ Ruh Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo} ($soulRulingPlanet üst oktavı)"
                 customAvoid = "✗ Beden Gölgesi ($zodiacSign / $element Otomatiği): ${aspect.soulAvoid}"
             }
             "synthesis" -> {
                 customBadge = "☯️ ${zodiacSign.uppercase()} → ${soulZodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
+                chakraSignBadge = "$hzBadgeLabel • ${zodiacSign.uppercase()}→${soulZodiacSign.uppercase()}"
                 customDo = "✓ Sentez ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.soulDo}"
                 customAvoid = "✗ Gölge Uyarısı ($element → $soulElement): ${aspect.bodyAvoid}"
             }
             else -> {
                 customBadge = "🌍 BEDEN: ${zodiacSign.uppercase()} • ☽ AY: ${transitMoonSign.uppercase()} (${aspect.shortTag})"
-                chakraSignBadge = "🎯 KİŞİSEL ODAK • $personalHz HZ • BEDEN: ${zodiacSign.uppercase()}"
+                chakraSignBadge = "$hzBadgeLabel • BEDEN: ${zodiacSign.uppercase()}"
                 customDo = "✓ Beden Haritası ($transitMoonSymbol Ay $transitMoonSign • ${aspect.aspectName}): ${aspect.bodyDo} ($rulingPlanet uyumu)"
                 customAvoid = "✗ Kaçının ($elementLabel): ${aspect.bodyAvoid}"
             }
@@ -548,7 +584,9 @@ object CosmicWidgetHelper {
             affirmation = personalAffirmation,
             doText = customDo,
             avoidText = customAvoid,
-            recommendedHz = personalHz
+            recommendedHz = personalHz,
+            secondaryHz = personalHz2,
+            isNaturalRestDay = isRestDay
         )
     }
 
@@ -1097,7 +1135,9 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
         val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
         val moonInfo = CosmicWidgetHelper.getMoonInfo(cal.timeInMillis)
         val isPlaying = CosmicWidgetAudioPlayer.isCurrentlyPlaying()
-        val hz = dayInfo.recommendedHz
+        val activeHz = CosmicWidgetAudioPlayer.getActiveHz()
+        val hz1 = dayInfo.recommendedHz
+        val hz2 = dayInfo.secondaryHz
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.chakra_moon_widget)
@@ -1110,26 +1150,50 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
                 R.id.cm_moon_desc,
                 "${moonInfo.icon} ${moonInfo.name}: ${moonInfo.sub}"
             )
+
+            val isPlayingHz1 = isPlaying && activeHz == hz1
             views.setTextViewText(
                 R.id.cm_play_freq_btn,
-                if (isPlaying) "⏹ Durdur (${CosmicWidgetAudioPlayer.getActiveHz()} Hz)" else "▶ $hz Hz Aç"
+                if (isPlayingHz1) "⏹ $hz1 Hz" else if (hz2 > 0) "▶ $hz1 Hz" else "▶ $hz1 Hz Aç"
             )
 
-            val toggleIntent = Intent(context, ChakraMoonWidgetProvider::class.java).apply {
+            val toggleIntent1 = Intent(context, ChakraMoonWidgetProvider::class.java).apply {
                 action = CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ
-                putExtra("hz", hz)
+                putExtra("hz", hz1)
             }
-            val togglePending = PendingIntent.getBroadcast(
+            val togglePending1 = PendingIntent.getBroadcast(
                 context,
                 9103,
-                toggleIntent,
+                toggleIntent1,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.cm_play_freq_btn, togglePending)
+            views.setOnClickPendingIntent(R.id.cm_play_freq_btn, togglePending1)
+
+            if (hz2 > 0 && hz2 != hz1) {
+                val isPlayingHz2 = isPlaying && activeHz == hz2
+                views.setViewVisibility(R.id.cm_play_freq2_btn, View.VISIBLE)
+                views.setTextViewText(
+                    R.id.cm_play_freq2_btn,
+                    if (isPlayingHz2) "⏹ $hz2 Hz" else "▶ $hz2 Hz"
+                )
+                val toggleIntent2 = Intent(context, ChakraMoonWidgetProvider::class.java).apply {
+                    action = CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ
+                    putExtra("hz", hz2)
+                }
+                val togglePending2 = PendingIntent.getBroadcast(
+                    context,
+                    9104,
+                    toggleIntent2,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.cm_play_freq2_btn, togglePending2)
+            } else {
+                views.setViewVisibility(R.id.cm_play_freq2_btn, View.GONE)
+            }
 
             val freqIntent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("proje1://(dashboard)/meditation?hz=$hz&autoPlay=1"),
+                Uri.parse("proje1://(dashboard)/meditation?hz=$hz1&autoPlay=1"),
                 context,
                 MainActivity::class.java
             ).apply {

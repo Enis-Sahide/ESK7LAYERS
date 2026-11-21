@@ -153,6 +153,9 @@ interface WidgetBirthProfile {
   recommendedColor: string;
   recommendedReason: string;
   recommendedAffirmation: string;
+  secondaryChakra?: QuickChakraFreqPreset | null;
+  isNaturalRestDay?: boolean;
+  recommendedChakras: QuickChakraFreqPreset[];
 }
 
 interface QuickChakraFreqPreset {
@@ -508,10 +511,16 @@ const computeWidgetBirthProfile = (
     }
   }
 
-  // 2. Katman: Astronomik Transit Ay Açısı + Aktif Harita Katmanı (Beden / Ruh / Sentez)
-  let recChakraIdx = 3; // Default Kalp (639 Hz)
-  let recReasonCore = '';
-  let recAffirmationCustom = '';
+  // 2. Katman: 3 Durumlu Kadim Astro-Çakra Sistemi (Keldani 7 Gezegen - 7 Çakra Yasası)
+  const SIGN_CHAKRA_ID_MAP = [1, 2, 5, 4, 3, 5, 4, 1, 6, 7, 7, 6]; // Koç..Balık klasik gezegen yöneticisi çakraları
+  const chartChakraId = SIGN_CHAKRA_ID_MAP[targetSignIdx] || 4;
+  const moonChakraId = SIGN_CHAKRA_ID_MAP[moonSignIdx] || 4;
+  const chartPreset = CHAKRA_FREQ_PRESETS[chartChakraId - 1] || CHAKRA_FREQ_PRESETS[3];
+  const moonPreset = CHAKRA_FREQ_PRESETS[moonChakraId - 1] || CHAKRA_FREQ_PRESETS[3];
+  const matrixPreset = CHAKRA_FREQ_PRESETS[Math.max(0, Math.min(6, birthMatrixChakraId - 1))] || CHAKRA_FREQ_PRESETS[3];
+
+  const activeSignName = chartMode === 'body' ? bodyMeta.sign : soulMeta.sign;
+  const activeRulerName = chartMode === 'body' ? bodyMeta.ruler : soulMeta.ruler;
   const activeModeLabel =
     chartMode === 'soul'
       ? `Ruh Haritası (${soulMeta.symbol} ${soulMeta.sign})`
@@ -519,35 +528,55 @@ const computeWidgetBirthProfile = (
       ? `Sentez (${bodyMeta.sign}→${soulMeta.sign})`
       : `Beden Haritası (${bodyMeta.symbol} ${bodyMeta.sign})`;
 
-  if (signDiff === 3 || signDiff === 9) {
-    recChakraIdx = 0; // 1. Kök Çakra (396 Hz)
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Kare Açı • 90° Simyasal Sınav): Gökyüzündeki kare açı gerilimini topraklamak, içsel sürtünmeyi güce dönüştürmek ve köklenmek için bugün 1. Katman Kök Çakra (396 Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kare Açı): İçsel sürtünmeyi farkındalığa dönüştürüyor, sarsılmaz köklerle merkezleniyorum.`;
-  } else if (signDiff === 6) {
-    recChakraIdx = 3; // 4. Kalp Çakrası (639 Hz)
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Karşıt Açı • 180° Ayna Denge): İkili ilişkilerde ayna yasasını okumak ve Beden-Ruh kutuplarını kalpte dengelemek için bugün 4. Katman Kalp Çakrası (639 Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Karşıt Açı): İlişkilerde ayna yasasını okuyor, dualiteyi kalp merkezinde şefkatle birleştiriyorum.`;
-  } else if (signDiff === 0) {
-    recChakraIdx = 2; // 3. Solar Pleksus (528 Hz)
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Kavuşum • 0° Öz Hizalanma): Transit Ay doğrudan harita merkezinizle kavuşumda; öz-değer, irade ve yaşam ateşini yükseltmek için bugün 3. Katman Solar Pleksus (528 Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kavuşum): Öz-merkezime akan yaşam enerjisini, irademi ve içsel güneşimi aktive ediyorum.`;
-  } else if (signDiff === 2 || signDiff === 10) {
-    recChakraIdx = 4; // 5. Boğaz Çakrası (741 Hz)
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Sekstil Açı • 60° Uyumlu Kapı): Berrak idrak, yaratıcı ifade ve zihinsel alanı arındırmak için bugün 5. Katman Boğaz Çakrası (741 Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Sekstil Açı): Boğaz çakrasından berrak idrakle hakikatimi ifade ediyor, eşzamanlılıkları okuyorum.`;
-  } else if (signDiff === 4 || signDiff === 8) {
-    recChakraIdx = 5; // 6. Üçüncü Göz (852 Hz)
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (Üçgen Açı • 120° Element Akışı): Element uyumuyla açılan yüksek sezgi, durugörü ve ilham kanalını aktive etmek için bugün 6. Katman Üçüncü Göz (852 Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Üçgen Açı): Element uyumuyla zahmetsiz sezgi akışına, durugörüye ve yüksek idrake açılıyorum.`;
+  let recPreset: QuickChakraFreqPreset = chartPreset;
+  let secondaryPreset: QuickChakraFreqPreset | null = null;
+  let isNaturalRestDay = false;
+  let recReasonCore = '';
+  let recAffirmationCustom = '';
+
+  if (signDiff === 1 || signDiff === 5 || signDiff === 7 || signDiff === 11) {
+    // Durum 1: Görmeyen / Açısız Günler (30° veya 150°) -> Doğal Akış & Dinlenme Günü
+    isNaturalRestDay = true;
+    recPreset = matrixPreset;
+    secondaryPreset = null;
+    recReasonCore = `🌿 Doğal Akış & Dinlenme Günü (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Nötr Konum): Bugün haritanızda zorlayıcı veya acil müdahale gerektiren bir açı yok. Kadim kaynaklara göre enerji bedeniniz doğal dengesinde (Sushumna); özel bir çakra yüklemesi yapmanıza gerek yok. Dilerseniz sadece 432 Hz Doğal Denge veya Doğum Matrisi alanınızı (${matrixPreset.shortName} • ${matrixPreset.hz} Hz) hafifçe dinleyebilirsiniz.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Doğal Akış): Bugün özel çakra yüklemesi gerekmiyor; enerji bedenim doğal dengesinde.`;
+  } else if (
+    signDiff === 0 ||
+    ((signDiff === 2 || signDiff === 4 || signDiff === 8 || signDiff === 10) && chartPreset.hz === moonPreset.hz)
+  ) {
+    // Durum 2: Kavuşum (0°) veya aynı çakra yöneticili uyumlu açı -> 1 Tek Çakra Odağı
+    recPreset = chartPreset;
+    secondaryPreset = null;
+    recReasonCore = `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${aspect.aspectName}): Tüm kozmik enerji harita yöneticiniz (${activeRulerName}) üzerinden ${chartPreset.fullName} (${chartPreset.hz} Hz) merkezinde toplanıyor.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (${aspect.aspectName} → ${activeSignName}): Tüm kozmik akış ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimde toplanıyor.`;
+  } else if (signDiff === 2 || signDiff === 4 || signDiff === 8 || signDiff === 10) {
+    // Durum 3A: Uyumlu Açı (Üçgen 120° veya Sekstil 60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı
+    recPreset = chartPreset;
+    secondaryPreset = moonPreset;
+    recReasonCore = `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${aspect.aspectName}): 1. Harita merkeziniz (${activeSignName} / ${activeRulerName}) için ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. Transit Ay (${moonMeta.sign} / ${moonMeta.ruler}) akışı için ${moonPreset.shortName} (${moonPreset.hz} Hz) birlikte çalışıyor.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} → ${activeSignName} (${aspect.aspectName}): 1. ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. ${moonPreset.shortName} (${moonPreset.hz} Hz) merkezlerimi birlikte aktive ediyorum.`;
+  } else if (signDiff === 3 || signDiff === 9) {
+    // Durum 3B: Kare Açı (90° Simyasal Sınav) -> 2 Çakra Odağı (Harita Çakrası + 1. Kök Topraklama 396 Hz)
+    const stabilizer = chartPreset.hz !== 396 ? CHAKRA_FREQ_PRESETS[0] : moonPreset;
+    recPreset = chartPreset;
+    secondaryPreset = stabilizer.hz !== chartPreset.hz ? stabilizer : null;
+    recReasonCore = secondaryPreset
+      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Kare Açı): 1. Baskı alan ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezinizi korumak ve 2. Kare açı gerilimini ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) ile topraklamak için iki frekansı birlikte kullanabilirsiniz.`
+      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Kare Açı): Kare açı sınavını topraklamak için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kare Açı Sınavı): ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimi koruyor ve sarsılmaz şekilde topraklanıyorum.`;
   } else {
-    // İnce Ayar Açısı (30°/150°): Doğrudan kişinin Doğum Matrisi Eksik Çakrasını (Alan Koruma Kodu) besler
-    recChakraIdx = Math.max(0, Math.min(6, birthMatrixChakraId - 1));
-    const matPreset = CHAKRA_FREQ_PRESETS[recChakraIdx] || CHAKRA_FREQ_PRESETS[3];
-    recReasonCore = `${activeModeLabel} • ☽ Ay ${moonMeta.sign} (İnce Ayar) & Doğum Matrisi Alan Kodunuz (#${birthMatrixChakraId}): İçsel arınma fazında bugün doğuştan gelen çakra alanınızı beslemek için ${matPreset.fullName} (${matPreset.hz} Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (İnce Ayar • Matris #${birthMatrixChakraId}): ${matPreset.affirmation}`;
+    // Durum 3C: Karşıt Açı (180° Ayna Denge) -> 2 Çakra Odağı (Harita Çakrası + 4. Kalp Köprüsü 639 Hz)
+    const stabilizer = chartPreset.hz !== 639 ? CHAKRA_FREQ_PRESETS[3] : moonPreset;
+    recPreset = chartPreset;
+    secondaryPreset = stabilizer.hz !== chartPreset.hz ? stabilizer : null;
+    recReasonCore = secondaryPreset
+      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Karşıt Açı): 1. Harita merkeziniz ${chartPreset.shortName} (${chartPreset.hz} Hz) ile 2. Kutupları birleştiren ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) köprüsünü birlikte dengeleyin.`
+      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Karşıt Açı): Kutupları kalp merkezinde birleştirmek için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Karşıt Açı): Kutupları kalp dengesinde (${recPreset.hz} Hz) şefkatle birleştiriyorum.`;
   }
 
-  const recPreset = CHAKRA_FREQ_PRESETS[recChakraIdx] || CHAKRA_FREQ_PRESETS[3];
+  const recommendedChakras = secondaryPreset ? [recPreset, secondaryPreset] : [recPreset];
 
   let personalDo = '';
   let personalAvoid = '';
@@ -583,12 +612,23 @@ const computeWidgetBirthProfile = (
     personalDo,
     personalAvoid,
     recommendedChakraId: recPreset.id,
-    recommendedChakraName: recPreset.fullName,
-    recommendedChakraShort: recPreset.shortName,
-    recommendedHz: recPreset.hz,
-    recommendedColor: recPreset.color,
+    recommendedChakraName: secondaryPreset
+      ? `${recPreset.shortName} (${recPreset.hz} Hz) & ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz)`
+      : isNaturalRestDay
+      ? '🌿 Doğal Akış & Dinlenme Günü (Özel Çakra Şart Değil)'
+      : recPreset.fullName,
+    recommendedChakraShort: secondaryPreset
+      ? `${recPreset.shortName} & ${secondaryPreset.shortName}`
+      : isNaturalRestDay
+      ? 'Doğal Akış (Özel Çakra Gerekmez)'
+      : recPreset.shortName,
+    recommendedHz: isNaturalRestDay ? 432 : recPreset.hz,
+    recommendedColor: isNaturalRestDay ? '#34D399' : recPreset.color,
     recommendedReason: recReasonCore,
     recommendedAffirmation: recAffirmationCustom || recPreset.affirmation,
+    secondaryChakra: secondaryPreset,
+    isNaturalRestDay,
+    recommendedChakras,
   };
 };
 
@@ -695,7 +735,11 @@ const QuickFrequencyPlayerWidget = ({
           <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
             <Text style={[styles.schumannTitle, { color: selectedColor }]}>
               {birthProfile
-                ? `🎯 Kişisel Çakra Odağı • ${targetPreset.hz} Hz`
+                ? birthProfile.isNaturalRestDay
+                  ? '🌿 Doğal Akış & Dinlenme Günü'
+                  : birthProfile.secondaryChakra
+                  ? `⚡ Bugün 2 Çakra Odağınız Var • ${targetPreset.hz} & ${birthProfile.secondaryChakra.hz} Hz`
+                  : `🎯 Bugün 1 Çakra Odağınız Var • ${targetPreset.hz} Hz`
                 : `🎵 Günün Çakra Frekansı • ${targetPreset.hz} Hz`}
             </Text>
             {isPlaying && (
@@ -717,7 +761,7 @@ const QuickFrequencyPlayerWidget = ({
           </View>
 
           <Text style={[styles.schumannStatusName, { color: '#FFFFFF', fontSize: 13.5 }]} numberOfLines={1}>
-            {targetPreset.fullName}
+            {birthProfile ? birthProfile.recommendedChakraName : targetPreset.fullName}
           </Text>
         </View>
 
@@ -752,6 +796,51 @@ const QuickFrequencyPlayerWidget = ({
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* 2 Çakra Çıktığı Günlerde Yan Yana Hızlı Çalma Butonları */}
+      {birthProfile && birthProfile.recommendedChakras && birthProfile.recommendedChakras.length > 1 && (
+        <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+          {birthProfile.recommendedChakras.map((chk, idx) => {
+            const active = isPlaying && selectedHz === chk.hz;
+            return (
+              <TouchableOpacity
+                key={chk.id}
+                onPress={() => togglePlayHz(chk.hz, chk.shortName, chk.color)}
+                activeOpacity={0.8}
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  backgroundColor: active ? chk.color + '33' : 'rgba(212,175,55,0.12)',
+                  borderWidth: 1,
+                  borderColor: active ? chk.color : 'rgba(212,175,55,0.45)',
+                  borderRadius: 10,
+                  paddingVertical: 7,
+                  paddingHorizontal: 8,
+                }}
+              >
+                <Ionicons
+                  name={active ? 'stop-circle' : 'play-circle'}
+                  size={15}
+                  color={active ? '#FFFFFF' : '#FDE68A'}
+                />
+                <Text
+                  style={{
+                    color: active ? '#FFFFFF' : '#FDE68A',
+                    fontSize: 11,
+                    fontWeight: '800',
+                  }}
+                  numberOfLines={1}
+                >
+                  {active ? `⏹ ${chk.hz} Hz Durdur` : `▶ ${idx + 1}. Odak: ${chk.shortName} (${chk.hz} Hz)`}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
 
       {/* Kişisel Çakra Sebebi veya Kişiselleştirme Daveti */}
       <View

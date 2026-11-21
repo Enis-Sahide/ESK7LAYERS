@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { WebView } from 'react-native-webview';
 import moment from 'moment-timezone';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
@@ -18,6 +19,7 @@ import {
   CurrentSkyOverview,
   generatePersonalTransitOverview,
   PersonalTransitOverview,
+  DailyChakraPrescription,
 } from '@/src/features/astrology/engine/TransitSynthesisEngine';
 import { AstroPoint, TransitAspect } from '@/src/features/astrology/engine/AstrologyConstants';
 
@@ -79,6 +81,82 @@ const ASPECT_COLORS: Record<string, string> = {
 const ASPECT_SYMBOLS: Record<string, string> = {
   'Kavuşum': '☌', 'Sekstil': '⚹', 'Kare': '□', 'Üçgen': '△', 'Karşıt': '☍', 'Görmeyen': '⚻'
 };
+
+const SKY_FREQ_WEBVIEW_HTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    let audioCtx = null;
+    let masterGain = null;
+    let currentOscillator = null;
+    let currentLfo = null;
+
+    function startAudio(freq) {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      stopAudio();
+
+      currentOscillator = audioCtx.createOscillator();
+      currentOscillator.type = 'sine';
+      currentOscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.48, audioCtx.currentTime);
+
+      currentLfo = audioCtx.createOscillator();
+      currentLfo.type = 'sine';
+      currentLfo.frequency.value = 0.5;
+      let lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 0.18;
+
+      currentLfo.connect(lfoGain);
+      lfoGain.connect(masterGain.gain);
+
+      currentOscillator.connect(masterGain);
+      masterGain.connect(audioCtx.destination);
+
+      currentOscillator.start();
+      currentLfo.start();
+    }
+
+    function stopAudio() {
+      if (currentOscillator) {
+        try { currentOscillator.stop(); currentOscillator.disconnect(); } catch (e) {}
+        currentOscillator = null;
+      }
+      if (currentLfo) {
+        try { currentLfo.stop(); currentLfo.disconnect(); } catch (e) {}
+        currentLfo = null;
+      }
+      if (masterGain) {
+        try { masterGain.disconnect(); } catch (e) {}
+        masterGain = null;
+      }
+    }
+
+    function handleMsg(raw) {
+      try {
+        const data = JSON.parse(raw);
+        if (data.type === 'PLAY') startAudio(data.freq);
+        else if (data.type === 'STOP') stopAudio();
+      } catch (e) {}
+    }
+
+    document.addEventListener('message', function(e) { handleMsg(e.data); });
+    window.addEventListener('message', function(e) { handleMsg(e.data); });
+  </script>
+</head>
+<body style="background:transparent;"></body>
+</html>
+`;
 
 interface TransitChartData {
   natalChart: {
@@ -157,6 +235,26 @@ export default function AnlikGokyuzuScreen() {
   const [skyAspectFilter, setSkyAspectFilter] = useState<'ALL' | 'HARMONIOUS' | 'CHALLENGING' | 'CONJUNCTION'>('ALL');
   const [isMundanePlanetsExpanded, setIsMundanePlanetsExpanded] = useState(true);
   const [isMundaneAspectsExpanded, setIsMundaneAspectsExpanded] = useState(true);
+
+  // Canlı Astro-Çakra Frekans Çalar State
+  const freqWebviewRef = useRef<WebView>(null);
+  const [playingChakraHz, setPlayingChakraHz] = useState<number | null>(null);
+
+  const togglePlayChakraFrequency = (hz: number) => {
+    if (playingChakraHz === hz) {
+      freqWebviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
+      setPlayingChakraHz(null);
+    } else {
+      freqWebviewRef.current?.postMessage(JSON.stringify({ type: 'PLAY', freq: hz }));
+      setPlayingChakraHz(hz);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      freqWebviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
+    };
+  }, []);
 
   // Mundane Sentez Memos (Kozmik Hava Durumu ve 13 Gezegen Kartı)
   const currentSkyOverview = React.useMemo(() => {
@@ -822,6 +920,98 @@ export default function AnlikGokyuzuScreen() {
     );
   };
 
+  const renderChakraPrescriptionCard = (prescription?: DailyChakraPrescription) => {
+    if (!prescription) return null;
+    const isRest = prescription.mode === 'NATURAL_REST';
+    return (
+      <View
+        style={{
+          marginTop: 14,
+          padding: 14,
+          backgroundColor: isRest ? 'rgba(16, 185, 129, 0.08)' : 'rgba(212, 175, 55, 0.09)',
+          borderRadius: 14,
+          borderWidth: 1,
+          borderColor: isRest ? 'rgba(16, 185, 129, 0.35)' : 'rgba(212, 175, 55, 0.4)',
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6, marginBottom: 6 }}>
+          <Text style={{ fontSize: 11.5, fontWeight: '900', color: isRest ? '#34D399' : '#FDE68A', letterSpacing: 0.5 }}>
+            {prescription.badge}
+          </Text>
+          {playingChakraHz && (
+            <View style={{ backgroundColor: 'rgba(16,185,129,0.2)', borderWidth: 1, borderColor: '#10B981', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 2 }}>
+              <Text style={{ color: '#34D399', fontSize: 10, fontWeight: '800' }}>🔊 {playingChakraHz} HZ ÇALIYOR</Text>
+            </View>
+          )}
+        </View>
+
+        <Text style={{ fontSize: 15.5, fontWeight: '800', color: '#FFFFFF', marginBottom: 6 }}>
+          {prescription.headline}
+        </Text>
+        <Text style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 19, marginBottom: 12 }}>
+          {prescription.explanation}
+        </Text>
+
+        {prescription.recommendedChakras.map((item, idx) => {
+          const isThisPlaying = playingChakraHz === item.hz;
+          return (
+            <View
+              key={`cp-${item.chakraId}-${idx}`}
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.4)',
+                borderRadius: 12,
+                padding: 11,
+                marginBottom: idx < prescription.recommendedChakras.length - 1 ? 8 : 0,
+                borderWidth: 1,
+                borderColor: isThisPlaying ? item.color : 'rgba(255,255,255,0.1)',
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 10.5, fontWeight: '800', color: item.color }}>
+                    {prescription.recommendedChakras.length > 1 ? `${idx + 1}. ÇAKRA ODAĞI • ` : ''}{item.planetSource}
+                  </Text>
+                  <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFFFFF', marginTop: 2 }}>
+                    {item.fullName} ({item.hz} Hz)
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => togglePlayChakraFrequency(item.hz)}
+                  activeOpacity={0.8}
+                  style={{
+                    backgroundColor: isThisPlaying ? 'rgba(239,68,68,0.22)' : 'rgba(212,175,55,0.22)',
+                    borderWidth: 1,
+                    borderColor: isThisPlaying ? '#EF4444' : '#D4AF37',
+                    borderRadius: 10,
+                    paddingHorizontal: 11,
+                    paddingVertical: 8,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  <Ionicons
+                    name={isThisPlaying ? 'stop-circle' : 'play-circle'}
+                    size={16}
+                    color={isThisPlaying ? '#F87171' : '#FDE68A'}
+                  />
+                  <Text style={{ fontSize: 11.5, fontWeight: '800', color: isThisPlaying ? '#F87171' : '#FDE68A' }}>
+                    {isThisPlaying ? 'Durdur' : `${item.hz} Hz Aç`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={{ fontSize: 12.5, color: '#D1D5DB', lineHeight: 18 }}>
+                {item.reason}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    );
+  };
+
   const renderCurrentSkyOverview = () => {
     if (!currentSkyOverview) return null;
     return (
@@ -898,6 +1088,9 @@ export default function AnlikGokyuzuScreen() {
             </View>
           )}
         </View>
+
+        {/* Kadim Astro-Çakra & Canlı Frekans Reçetesi */}
+        {renderChakraPrescriptionCard(currentSkyOverview.chakraPrescription)}
 
         {/* 13 Gezegen Detayına Geçiş Butonu */}
         <TouchableOpacity
@@ -1139,6 +1332,9 @@ export default function AnlikGokyuzuScreen() {
           )}
         </View>
 
+        {/* Kadim Astro-Çakra & Canlı Frekans Reçetesi */}
+        {renderChakraPrescriptionCard(personalOverview.chakraPrescription)}
+
         {/* Günün Yaşam Reçetesi & Gezegen Kartları Butonu */}
         <View style={{ marginTop: 12, padding: 12, backgroundColor: 'rgba(212, 175, 55, 0.1)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(212, 175, 55, 0.3)' }}>
           <Text style={{ fontSize: 13.5, color: '#FDE68A', lineHeight: 20 }}>
@@ -1286,6 +1482,15 @@ export default function AnlikGokyuzuScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
       <SacredBackground>
+        <WebView
+          ref={freqWebviewRef}
+          source={{ html: SKY_FREQ_WEBVIEW_HTML }}
+          style={{ width: 0, height: 0, opacity: 0 }}
+          originWhitelist={['*']}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
+          javaScriptEnabled={true}
+        />
 
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>

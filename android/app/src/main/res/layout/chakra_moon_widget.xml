@@ -151,15 +151,30 @@
             android:id="@+id/cm_play_freq_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/cosmic_pill_bg"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="7dp"
+            android:paddingVertical="3dp"
+            android:text="▶ 528 Hz"
+            android:textColor="#FDE68A"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/cm_play_freq2_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="6dp"
             android:background="@drawable/cosmic_pill_bg"
             android:includeFontPadding="false"
-            android:paddingHorizontal="8dp"
+            android:paddingHorizontal="7dp"
             android:paddingVertical="3dp"
-            android:text="▶ 639 Hz Aç"
+            android:text="▶ 396 Hz"
             android:textColor="#FDE68A"
-            android:textSize="9.5sp"
-            android:textStyle="bold" />
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/cm_open_freq_btn"
