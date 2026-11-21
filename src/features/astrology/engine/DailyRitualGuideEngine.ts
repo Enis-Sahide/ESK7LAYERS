@@ -707,7 +707,8 @@ export function generate7LayersDailyGuide(params: {
     transitPlanets,
     allTransitAspects,
     natalPlanets,
-    natalHouses
+    natalHouses,
+    targetDate
   );
   if (!personalOverview) return null;
 
