@@ -334,8 +334,7 @@ const reduceDigit = (num: number): number => {
   return n === 0 ? 1 : n;
 };
 
-const getTransitMoonSignIndexJS = (nowMillis: number): number => {
-  const jd = nowMillis / 86400000.0 + 2440587.5;
+const getMoonLongitudeForJdJS = (jd: number): number => {
   const t = (jd - 2451545.0) / 36525.0;
   const degToRad = Math.PI / 180.0;
 
@@ -354,8 +353,41 @@ const getTransitMoonSignIndexJS = (nowMillis: number): number => {
     0.185116 * Math.sin(m) -
     0.114332 * Math.sin(2.0 * f);
 
-  const normLon = ((lon % 360.0) + 360.0) % 360.0;
+  return ((lon % 360.0) + 360.0) % 360.0;
+};
+
+const getTransitMoonLongitudeJS = (nowMillis: number): number => {
+  const jd = nowMillis / 86400000.0 + 2440587.5;
+  return getMoonLongitudeForJdJS(jd);
+};
+
+const getTransitMoonSignIndexJS = (nowMillis: number): number => {
+  const normLon = getTransitMoonLongitudeJS(nowMillis);
   return Math.max(0, Math.min(11, Math.floor(normLon / 30.0)));
+};
+
+const findExactDegreeAspectJS = (
+  transitLon: number,
+  targetLon: number,
+  maxOrb = 6.5
+): { diffCode: number; orb: number } => {
+  const raw = Math.abs(transitLon - targetLon) % 360.0;
+  const sep = raw > 180.0 ? 360.0 - raw : raw;
+  const candidates = [
+    { angle: 0.0, diffCode: 0 },
+    { angle: 60.0, diffCode: 2 },
+    { angle: 90.0, diffCode: 3 },
+    { angle: 120.0, diffCode: 4 },
+    { angle: 180.0, diffCode: 6 },
+  ];
+  let best = { diffCode: 1, orb: 999.0 };
+  for (const c of candidates) {
+    const o = Math.abs(sep - c.angle);
+    if (o <= maxOrb && o < best.orb) {
+      best = { diffCode: c.diffCode, orb: o };
+    }
+  }
+  return best;
 };
 
 const getAspectThemeForSignDiffJS = (diff: number) => {
@@ -465,6 +497,8 @@ const computeWidgetBirthProfile = (
   const sunTropicalLon = (((L0 + C) % 360) + 360) % 360;
   const northNodeLon = (((125.04452 - 1934.136261 * T + 0.0020708 * T * T) % 360) + 360) % 360;
   const sunDraconicLon = (((sunTropicalLon - northNodeLon) % 360) + 360) % 360;
+  const natalMoonTropicalLon = getMoonLongitudeForJdJS(jd);
+  const natalMoonDraconicLon = (((natalMoonTropicalLon - northNodeLon) % 360) + 360) % 360;
 
   const bodySignIdx = Math.floor(sunTropicalLon / 30) % 12;
   const soulSignIdx = Math.floor(sunDraconicLon / 30) % 12;
@@ -482,10 +516,23 @@ const computeWidgetBirthProfile = (
       reduceDigit(now.getFullYear())
   );
 
-  const moonSignIdx = getTransitMoonSignIndexJS(now.getTime());
+  const transitMoonLon = getTransitMoonLongitudeJS(now.getTime());
+  const moonSignIdx = Math.max(0, Math.min(11, Math.floor(transitMoonLon / 30)));
+  const transitMoonDegInSign = Math.floor(transitMoonLon % 30);
   const moonMeta = ZODIAC_SECTORS[moonSignIdx] || ZODIAC_SECTORS[0];
-  const targetSignIdx = chartMode === 'body' ? bodySignIdx : soulSignIdx;
-  const signDiff = ((moonSignIdx - targetSignIdx) % 12 + 12) % 12;
+
+  const targetSunLon = chartMode === 'body' ? sunTropicalLon : sunDraconicLon;
+  const targetMoonLon = chartMode === 'body' ? natalMoonTropicalLon : natalMoonDraconicLon;
+  const sunAspectCheck = findExactDegreeAspectJS(transitMoonLon, targetSunLon, 6.5);
+  const moonAspectCheck = findExactDegreeAspectJS(transitMoonLon, targetMoonLon, 5.5);
+
+  const useSunTarget = sunAspectCheck.orb <= moonAspectCheck.orb;
+  const activeAspectMatch = useSunTarget ? sunAspectCheck : moonAspectCheck;
+  const activeTargetLon = useSunTarget ? targetSunLon : targetMoonLon;
+  const targetSignIdx = Math.floor(activeTargetLon / 30) % 12;
+  const targetDegInSign = Math.floor(activeTargetLon % 30);
+  const signDiff = activeAspectMatch.diffCode;
+  const exactOrbStr = activeAspectMatch.orb < 90 ? `${activeAspectMatch.orb.toFixed(1)}° Orb` : '';
   const aspect = getAspectThemeForSignDiffJS(signDiff);
 
   // 1. Katman: Pisagor Doğum Matrisi Eksik Çakra (Alan Koruma Kodu 1-7)
@@ -512,21 +559,23 @@ const computeWidgetBirthProfile = (
   }
 
   // 2. Katman: 3 Durumlu Kadim Astro-Çakra Sistemi (Keldani 7 Gezegen - 7 Çakra Yasası)
-  const SIGN_CHAKRA_ID_MAP = [1, 2, 5, 4, 3, 5, 4, 1, 6, 7, 7, 6]; // Koç..Balık klasik gezegen yöneticisi çakraları
+  const SIGN_CHAKRA_ID_MAP = [1, 2, 5, 4, 3, 5, 2, 1, 6, 7, 7, 6]; // Koç..Balık klasik gezegen yöneticisi çakraları
   const chartChakraId = SIGN_CHAKRA_ID_MAP[targetSignIdx] || 4;
   const moonChakraId = SIGN_CHAKRA_ID_MAP[moonSignIdx] || 4;
   const chartPreset = CHAKRA_FREQ_PRESETS[chartChakraId - 1] || CHAKRA_FREQ_PRESETS[3];
   const moonPreset = CHAKRA_FREQ_PRESETS[moonChakraId - 1] || CHAKRA_FREQ_PRESETS[3];
   const matrixPreset = CHAKRA_FREQ_PRESETS[Math.max(0, Math.min(6, birthMatrixChakraId - 1))] || CHAKRA_FREQ_PRESETS[3];
 
-  const activeSignName = chartMode === 'body' ? bodyMeta.sign : soulMeta.sign;
-  const activeRulerName = chartMode === 'body' ? bodyMeta.ruler : soulMeta.ruler;
+  const targetMeta = ZODIAC_SECTORS[targetSignIdx] || ZODIAC_SECTORS[0];
+  const activeSignName = targetMeta.sign;
+  const activeRulerName = targetMeta.ruler;
+  const targetPointLabel = useSunTarget ? 'Güneş' : 'Ay';
   const activeModeLabel =
     chartMode === 'soul'
-      ? `Ruh Haritası (${soulMeta.symbol} ${soulMeta.sign})`
+      ? `Ruh Haritası (${targetPointLabel}: ${targetMeta.symbol} ${targetMeta.sign} ${targetDegInSign}°)`
       : chartMode === 'synthesis'
-      ? `Sentez (${bodyMeta.sign}→${soulMeta.sign})`
-      : `Beden Haritası (${bodyMeta.symbol} ${bodyMeta.sign})`;
+      ? `Sentez (${bodyMeta.sign}→${soulMeta.sign} ${targetDegInSign}°)`
+      : `Beden Haritası (${targetPointLabel}: ${targetMeta.symbol} ${targetMeta.sign} ${targetDegInSign}°)`;
 
   let recPreset: QuickChakraFreqPreset = chartPreset;
   let secondaryPreset: QuickChakraFreqPreset | null = null;
@@ -535,45 +584,46 @@ const computeWidgetBirthProfile = (
   let recAffirmationCustom = '';
 
   if (signDiff === 1 || signDiff === 5 || signDiff === 7 || signDiff === 11) {
-    // Durum 1: Görmeyen / Açısız Günler (30° veya 150°) -> Doğal Akış & Dinlenme Günü
+    // Durum 1: Derece bazında (<= 6.5° orb) aktif majör açı yok -> Doğal Akış & Dinlenme Günü
     isNaturalRestDay = true;
     recPreset = matrixPreset;
     secondaryPreset = null;
-    recReasonCore = `🌿 Doğal Akış & Dinlenme Günü (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Nötr Konum): Bugün haritanızda zorlayıcı veya acil müdahale gerektiren bir açı yok. Kadim kaynaklara göre enerji bedeniniz doğal dengesinde (Sushumna); özel bir çakra yüklemesi yapmanıza gerek yok. Dilerseniz sadece 432 Hz Doğal Denge veya Doğum Matrisi alanınızı (${matrixPreset.shortName} • ${matrixPreset.hz} Hz) hafifçe dinleyebilirsiniz.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Doğal Akış): Bugün özel çakra yüklemesi gerekmiyor; enerji bedenim doğal dengesinde.`;
+    recReasonCore = `🌿 Doğal Akış & Dinlenme Günü (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° Nötr Derece): Bugün Transit Ay haritanızdaki Güneş veya Ay derecesine keskin (<= 6.5°) bir majör açı yapmıyor. Kadim kaynaklara göre enerji bedeniniz doğal dengesinde (Sushumna); bugün özel bir çakra yüklemesi yapmanıza gerek yok. Dilerseniz sadece 432 Hz Doğal Denge veya Doğum Matrisi alanınızı (${matrixPreset.shortName} • ${matrixPreset.hz} Hz) hafifçe dinleyebilirsiniz.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° (Doğal Akış): Bugün özel çakra yüklemesi gerekmiyor; enerji bedenim doğal dengesinde.`;
   } else if (
     signDiff === 0 ||
-    ((signDiff === 2 || signDiff === 4 || signDiff === 8 || signDiff === 10) && chartPreset.hz === moonPreset.hz)
+    ((signDiff === 2 || signDiff === 4 || signDiff === 8 || signDiff === 10) &&
+      (chartPreset.hz === moonPreset.hz || activeAspectMatch.orb > 3.2))
   ) {
-    // Durum 2: Kavuşum (0°) veya aynı çakra yöneticili uyumlu açı -> 1 Tek Çakra Odağı
+    // Durum 2: Kavuşum (0°) veya tek merkezli / hafif orblu uyumlu açı -> 1 Tek Çakra Odağı
     recPreset = chartPreset;
     secondaryPreset = null;
-    recReasonCore = `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${aspect.aspectName}): Tüm kozmik enerji harita yöneticiniz (${activeRulerName}) üzerinden ${chartPreset.fullName} (${chartPreset.hz} Hz) merkezinde toplanıyor.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (${aspect.aspectName} → ${activeSignName}): Tüm kozmik akış ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimde toplanıyor.`;
+    recReasonCore = `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° ${aspect.aspectName} [${exactOrbStr}]): Kozmik enerji harita yöneticiniz (${activeRulerName}) üzerinden ${chartPreset.fullName} (${chartPreset.hz} Hz) merkezinde toplanıyor.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° (${aspect.aspectName} • ${exactOrbStr}): Tüm kozmik akış ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimde toplanıyor.`;
   } else if (signDiff === 2 || signDiff === 4 || signDiff === 8 || signDiff === 10) {
-    // Durum 3A: Uyumlu Açı (Üçgen 120° veya Sekstil 60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı
+    // Durum 3A: Keskin (<= 3.2° orb) Üçgen (120°) veya Sekstil (60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı
     recPreset = chartPreset;
     secondaryPreset = moonPreset;
-    recReasonCore = `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${aspect.aspectName}): 1. Harita merkeziniz (${activeSignName} / ${activeRulerName}) için ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. Transit Ay (${moonMeta.sign} / ${moonMeta.ruler}) akışı için ${moonPreset.shortName} (${moonPreset.hz} Hz) birlikte çalışıyor.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} → ${activeSignName} (${aspect.aspectName}): 1. ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. ${moonPreset.shortName} (${moonPreset.hz} Hz) merkezlerimi birlikte aktive ediyorum.`;
+    recReasonCore = `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° ${aspect.aspectName} [${exactOrbStr}]): 1. Harita merkeziniz (${activeSignName} ${targetDegInSign}° / ${activeRulerName}) için ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. Transit Ay (${moonMeta.sign} ${transitMoonDegInSign}° / ${moonMeta.ruler}) akışı için ${moonPreset.shortName} (${moonPreset.hz} Hz) birlikte çalışıyor.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° → ${activeSignName} ${targetDegInSign}° (${aspect.aspectName} • ${exactOrbStr}): 1. ${chartPreset.shortName} (${chartPreset.hz} Hz) ve 2. ${moonPreset.shortName} (${moonPreset.hz} Hz) merkezlerimi birlikte aktive ediyorum.`;
   } else if (signDiff === 3 || signDiff === 9) {
     // Durum 3B: Kare Açı (90° Simyasal Sınav) -> 2 Çakra Odağı (Harita Çakrası + 1. Kök Topraklama 396 Hz)
     const stabilizer = chartPreset.hz !== 396 ? CHAKRA_FREQ_PRESETS[0] : moonPreset;
     recPreset = chartPreset;
     secondaryPreset = stabilizer.hz !== chartPreset.hz ? stabilizer : null;
     recReasonCore = secondaryPreset
-      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Kare Açı): 1. Baskı alan ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezinizi korumak ve 2. Kare açı gerilimini ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) ile topraklamak için iki frekansı birlikte kullanabilirsiniz.`
-      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Kare Açı): Kare açı sınavını topraklamak için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Kare Açı Sınavı): ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimi koruyor ve sarsılmaz şekilde topraklanıyorum.`;
+      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° Kare Açı [${exactOrbStr}]): 1. Baskı alan ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezinizi korumak ve 2. Kare açı gerilimini ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) ile topraklamak için iki frekansı birlikte kullanabilirsiniz.`
+      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° Kare Açı [${exactOrbStr}]): Kare açı sınavını topraklamak için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° (Kare Açı • ${exactOrbStr}): ${chartPreset.shortName} (${chartPreset.hz} Hz) merkezimi koruyor ve sarsılmaz şekilde topraklanıyorum.`;
   } else {
     // Durum 3C: Karşıt Açı (180° Ayna Denge) -> 2 Çakra Odağı (Harita Çakrası + 4. Kalp Köprüsü 639 Hz)
     const stabilizer = chartPreset.hz !== 639 ? CHAKRA_FREQ_PRESETS[3] : moonPreset;
     recPreset = chartPreset;
     secondaryPreset = stabilizer.hz !== chartPreset.hz ? stabilizer : null;
     recReasonCore = secondaryPreset
-      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Karşıt Açı): 1. Harita merkeziniz ${chartPreset.shortName} (${chartPreset.hz} Hz) ile 2. Kutupları birleştiren ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) köprüsünü birlikte dengeleyin.`
-      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} Karşıt Açı): Kutupları kalp merkezinde birleştirmek için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
-    recAffirmationCustom = `☽ Ay ${moonMeta.sign} (Karşıt Açı): Kutupları kalp dengesinde (${recPreset.hz} Hz) şefkatle birleştiriyorum.`;
+      ? `⚡ Bugün 2 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° Karşıt Açı [${exactOrbStr}]): 1. Harita merkeziniz ${chartPreset.shortName} (${chartPreset.hz} Hz) ile 2. Kutupları birleştiren ${secondaryPreset.shortName} (${secondaryPreset.hz} Hz) köprüsünü birlikte dengeleyin.`
+      : `🎯 Bugün 1 Özel Çakra Odağınız Var (${activeModeLabel} • ☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° Karşıt Açı [${exactOrbStr}]): Kutupları kalp merkezinde birleştirmek için ${chartPreset.fullName} (${chartPreset.hz} Hz) frekansına yoğunlaşın.`;
+    recAffirmationCustom = `☽ Ay ${moonMeta.sign} ${transitMoonDegInSign}° (Karşıt Açı • ${exactOrbStr}): Kutupları kalp dengesinde (${recPreset.hz} Hz) şefkatle birleştiriyorum.`;
   }
 
   const recommendedChakras = secondaryPreset ? [recPreset, secondaryPreset] : [recPreset];

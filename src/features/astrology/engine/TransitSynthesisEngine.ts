@@ -1378,18 +1378,16 @@ const CHAKRA_CATALOG: Record<number, { chakraId: number; hz: number; shortName: 
 
 function resolveChakraForPlanetOrSign(planetName: string, signName = ''): { chakraId: number; hz: number; shortName: string; fullName: string; color: string } {
   if (planetName === 'Mars' || planetName === 'Plüton') return CHAKRA_CATALOG[1];
-  if (planetName === 'Venüs') return signName === 'Boğa' ? CHAKRA_CATALOG[2] : CHAKRA_CATALOG[4];
+  if (planetName === 'Venüs' || planetName === 'Lilith') return CHAKRA_CATALOG[2];
   if (planetName === 'Güneş') return CHAKRA_CATALOG[3];
-  if (planetName === 'Ay') return signName === 'Akrep' || signName === 'Balık' ? CHAKRA_CATALOG[2] : CHAKRA_CATALOG[4];
+  if (planetName === 'Ay' || planetName === 'Kiron') return CHAKRA_CATALOG[4];
   if (planetName === 'Merkür') return CHAKRA_CATALOG[5];
   if (planetName === 'Jüpiter' || planetName === 'Neptün') return CHAKRA_CATALOG[6];
   if (planetName === 'Satürn' || planetName === 'Uranüs') return CHAKRA_CATALOG[7];
-  if (planetName === 'Kiron') return CHAKRA_CATALOG[4];
-  if (planetName === 'Lilith') return CHAKRA_CATALOG[2];
 
   const signMap: Record<string, number> = {
     'Koç': 1, 'Boğa': 2, 'İkizler': 5, 'Yengeç': 4, 'Aslan': 3, 'Başak': 5,
-    'Terazi': 4, 'Akrep': 1, 'Yay': 6, 'Oğlak': 7, 'Kova': 7, 'Balık': 6
+    'Terazi': 2, 'Akrep': 1, 'Yay': 6, 'Oğlak': 7, 'Kova': 7, 'Balık': 6
   };
   return CHAKRA_CATALOG[signMap[signName] || 4];
 }
@@ -1738,43 +1736,54 @@ export function generateCurrentSkyOverview(
   const opportunities = buildMundaneSynthesizedOpportunities(harmoniousSky, moonSign, moonDeg, moonData.doAction);
   const cautions = buildMundaneSynthesizedCautions(challengingSky, moonSign, moonDeg, moonData.dontAction);
 
-  // Kolektif Gökyüzü 3 Durumlu Kadim Astro-Çakra Reçetesi
-  const tightSkyAspects = allEnrichedSkyAspects.filter(a => a.orb <= 2.2 && a.aspectType !== 'Görmeyen');
+  // Kolektif Gökyüzü 3 Durumlu Kadim Astro-Çakra Reçetesi (Sadece Günlük Hızlı Tetikleyiciler: Ay <= 3.8° veya Kişisel Gezegen Tam Pik <= 0.65°)
+  const fastPlanets = new Set(['Güneş', 'Merkür', 'Venüs', 'Mars']);
+  const dailySkyTriggers = allEnrichedSkyAspects
+    .filter(a => {
+      if (a.aspectType === 'Görmeyen') return false;
+      const hasMoon = a.p1 === 'Ay' || a.p2 === 'Ay';
+      if (hasMoon) return a.orb <= 3.8;
+      const hasFast = fastPlanets.has(a.p1) || fastPlanets.has(a.p2);
+      return hasFast && a.orb <= 0.65;
+    })
+    .sort((a, b) => a.orb - b.orb);
+
   let chakraPrescription: DailyChakraPrescription;
-  if (tightSkyAspects.length === 0) {
-    const moonChk = resolveChakraForPlanetOrSign('Ay', moonSign);
+  if (dailySkyTriggers.length === 0) {
+    const moonChk = resolveChakraForPlanetOrSign('', moonSign);
     chakraPrescription = {
       mode: 'NATURAL_REST',
       badge: '🌿 DOĞAL AKIŞ & DİNLENME GÜNÜ (SUSHUMNA)',
-      headline: 'Bugün Kolektif Gökyüzünde Keskin Bir Çakra Baskısı Yok',
-      explanation: `Kadim kaynaklara (Swara Yoga & Hermetik Astroloji) göre bugün gökyüzünde dar orblu zorlayıcı bir açı bulunmuyor. Enerji bedeni doğal dengesinde (Sushumna) olduğu için bugün özel bir çakra yüklemesi gerekmez. İsteğe bağlı olarak Ay'ın ${moonSign} akışına uyumlu ${moonChk.shortName} (${moonChk.hz} Hz) veya 432 Hz Doğal Denge dinlenebilir.`,
+      headline: 'Bugün Kolektif Gökyüzünde Keskin Bir Günlük Çakra Baskısı Yok',
+      explanation: `Kadim kaynaklara (Swara Yoga & Dina-Gochar) göre bugün Transit Ay veya kişisel gezegenler gökyüzünde dar orblu (keskin) bir açı yapmıyor. Enerji bedeni doğal dengesinde (Sushumna) olduğu için bugün özel bir çakra yüklemesi gerekmez. İsteğe bağlı olarak Ay'ın ${moonSign} burcu yöneticisine uyumlu ${moonChk.shortName} (${moonChk.hz} Hz) hafifçe dinlenebilir.`,
       recommendedChakras: [
         {
           ...moonChk,
-          planetSource: `☽ Ay ${moonSign} Doğal Akışı`,
+          planetSource: `☽ Ay ${moonSign} (${moonDeg}°) Doğal Akışı`,
           reason: 'Bugün zorunlu çakra çalışması yok; yalnızca hafif arka plan uyumu için dinlenebilir.'
         }
       ]
     };
   } else {
     const focusMap = new Map<number, ChakraFrequencyFocusItem>();
-    for (const asp of tightSkyAspects.slice(0, 2)) {
-      const c1 = resolveChakraForPlanetOrSign(asp.p1, asp.p1Sign);
+    for (const asp of dailySkyTriggers.slice(0, 2)) {
+      const targetPlanet = asp.p1 === 'Ay' ? asp.p2 : asp.p1;
+      const c1 = resolveChakraForPlanetOrSign(targetPlanet, asp.p1Sign);
       if (!focusMap.has(c1.chakraId)) {
         focusMap.set(c1.chakraId, {
           ...c1,
-          planetSource: `${asp.p1} • ${asp.aspectType} • ${asp.p2} (${asp.orb.toFixed(1)}°)`,
+          planetSource: `${asp.p1} (${asp.p1Coord}) • ${asp.aspectType} • ${asp.p2} (${asp.p2Coord}) [${asp.orb.toFixed(1)}° Orb]`,
           reason: asp.isHarmonious
-            ? `Gökyüzündeki ${asp.p1} – ${asp.p2} ${asp.aspectType} açısı bugün ${c1.shortName} (${c1.hz} Hz) kanalını güçlü şekilde destekliyor.`
-            : `Gökyüzündeki ${asp.p1} – ${asp.p2} ${asp.aspectType} gerilimi bugün ${c1.shortName} (${c1.hz} Hz) merkezinde bilinçli dengeleme gerektiriyor.`
+            ? `Bugün tam ${asp.orb.toFixed(1)}° derece hassasiyetiyle aktifleşen ${asp.p1} – ${asp.p2} ${asp.aspectType} açısı ${c1.shortName} (${c1.hz} Hz) kanalını güçlü şekilde destekliyor.`
+            : `Bugün tam ${asp.orb.toFixed(1)}° derece hassasiyetiyle aktifleşen ${asp.p1} – ${asp.p2} ${asp.aspectType} gerilimi ${c1.shortName} (${c1.hz} Hz) merkezinde bilinçli dengeleme gerektiriyor.`
         });
       }
-      if (!asp.isHarmonious && focusMap.size < 2) {
+      if (!asp.isHarmonious && asp.orb <= 2.4 && focusMap.size < 2) {
         const stab = asp.aspectType === 'Karşıt' ? CHAKRA_CATALOG[4] : CHAKRA_CATALOG[1];
         if (!focusMap.has(stab.chakraId)) {
           focusMap.set(stab.chakraId, {
             ...stab,
-            planetSource: `${asp.aspectType} Açısı Dengeleyici Merkez`,
+            planetSource: `${asp.aspectType} Açısı Dengeleyici Merkez (${asp.orb.toFixed(1)}° Orb)`,
             reason: asp.aspectType === 'Karşıt'
               ? 'Gökyüzündeki karşıt kutupları kalp merkezinde (639 Hz) şefkat ve dengeyle birleştirmek için ikinci odak.'
               : 'Gökyüzündeki kare açı gerilimini bedende topraklamak (396 Hz) ve sabrı korumak için ikinci odak.'
@@ -1788,8 +1797,8 @@ export function generateCurrentSkyOverview(
       badge: list.length > 1 ? `⚡ BUGÜN ${list.length} KOLEKTİF ÇAKRA ODAĞI VAR` : '🎯 BUGÜN 1 KOLEKTİF ÇAKRA ODAĞI VAR',
       headline: list.map(c => `${c.shortName} (${c.hz} Hz)`).join(' & '),
       explanation: list.length > 1
-        ? 'Bugün gökyüzündeki keskin açılar iki farklı gezegen merkezini aynı anda çalıştırıyor. İhtiyacınıza göre bu iki frekansı dinleyerek günün kozmik akışıyla uyumlanabilirsiniz.'
-        : 'Bugün gökyüzündeki ana açı tek bir enerji merkezinde toplanıyor. Bu frekansı dinleyerek günün kozmik ritmiyle hizalanabilirsiniz.',
+        ? 'Bugün gökyüzündeki günlük Ay/gezegen açıları iki farklı enerji merkezini aynı anda çalıştırıyor. İhtiyacınıza göre bu iki frekansı dinleyerek günün kozmik akışıyla uyumlanabilirsiniz.'
+        : 'Bugün gökyüzündeki günlük açı tek bir enerji merkezinde toplanıyor. Bu frekansı dinleyerek günün kozmik ritmiyle hizalanabilirsiniz.',
       recommendedChakras: list
     };
   }
@@ -2101,55 +2110,76 @@ export function generatePersonalTransitOverview(
     : 'Haritanızdaki sakin akışı içsel dinlenme ve hedeflerinizi sadeleştirme fırsatı olarak değerlendirin.';
 
   // Kişisel Harita 3 Durumlu Kadim Astro-Çakra & Frekans Reçetesi
-  const tightPersonal = allEnrichedAspects.filter(a => a.orb <= 2.4 && a.aspectType !== 'Görmeyen');
+  // (Dina-Gochar Günlük Hassasiyet Yasası: Sadece o güne özel hızlı tetikleyiciler baz alınır;
+  //  1) Transit Ay'ın 7 klasik doğum gezegenine yaptığı <= 3.8° derece açıları, veya
+  //  2) Hızlı kişisel transitlerin (Güneş, Merkür, Venüs, Mars) o günkü <= 0.65° tam pik açıları.
+  //  Aylarca sabit kalan Plüton/Neptün/Uranüs/Satürn açıları günlük çakrayı kilitlemez!)
+  const classicalNatalTargets = new Set(['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn']);
+  const fastPersonalTransits = new Set(['Güneş', 'Merkür', 'Venüs', 'Mars']);
+  const dailyPersonalTriggers = allEnrichedAspects
+    .filter(a => {
+      if (a.aspectType === 'Görmeyen') return false;
+      if (a.transitPlanet === 'Ay' && classicalNatalTargets.has(a.natalPlanet)) {
+        return a.orb <= 3.8;
+      }
+      if (fastPersonalTransits.has(a.transitPlanet) && classicalNatalTargets.has(a.natalPlanet)) {
+        return a.orb <= 0.65;
+      }
+      return false;
+    })
+    .sort((a, b) => {
+      const aScore = (a.transitPlanet === 'Ay' ? 0 : 0.3) + a.orb;
+      const bScore = (b.transitPlanet === 'Ay' ? 0 : 0.3) + b.orb;
+      return aScore - bScore;
+    });
+
   let chakraPrescription: DailyChakraPrescription;
 
-  if (tightPersonal.length === 0) {
+  if (dailyPersonalTriggers.length === 0) {
     const natalSun = natalPlanets.find(p => p.name === 'Güneş');
     const sunChk = resolveChakraForPlanetOrSign('Güneş', natalSun?.sign || 'Aslan');
     chakraPrescription = {
       mode: 'NATURAL_REST',
       badge: '🌿 DOĞAL AKIŞ & DİNLENME GÜNÜ (ÖZEL ÇAKRA ŞART DEĞİL)',
-      headline: 'Bugün Haritanızda Özel Çakra Yüklemesi Gerektiren Keskin Bir Açı Yok',
-      explanation: 'Kadim kaynaklara (Swara Yoga & Hermetik Astroloji) göre her gün zorla çakra çalışması yapılmaz. Bugün transit gezegenler doğum haritanıza dar orblu (keskin) bir baskı yapmadığı için enerji bedeniniz kendi doğal dengesinde (Sushumna akışında) bulunuyor. Dilerseniz sadece öz-merkezinizi hafifçe beslemek için aşağıdaki frekansı dinleyebilirsiniz.',
+      headline: 'Bugün Haritanızda Özel Çakra Yüklemesi Gerektiren Günlük Bir Açı Yok',
+      explanation: 'Kadim kaynaklara (Swara Yoga & Dina-Gochar Günlük Transit Yasası) göre her gün zorla çakra çalışması yapılmaz. Bugün Transit Ay veya hızlı kişisel gezegenler doğum haritanızdaki 7 ana gezegen merkezine dar dereceli (<= 3.8°) bir açı yapmadığı için enerji bedeniniz kendi doğal dengesinde (Sushumna akışında) bulunuyor. Dilerseniz sadece öz-merkezinizi hafifçe beslemek için aşağıdaki frekansı dinleyebilirsiniz.',
       recommendedChakras: [
         {
           ...sunChk,
-          planetSource: '🌿 Doğal Akış (Sushumna)',
+          planetSource: '🌿 Doğal Akış (Sushumna • Açısız Gün)',
           reason: 'Bugün zorunlu çakra müdahalesi gerekmiyor; yalnızca isteğe bağlı hafif dinlenme frekansı.'
         }
       ]
     };
   } else {
     const focusMap = new Map<number, ChakraFrequencyFocusItem>();
-    for (const asp of tightPersonal.slice(0, 3)) {
+    for (const asp of dailyPersonalTriggers.slice(0, 2)) {
       const natalChk = resolveChakraForPlanetOrSign(asp.natalPlanet, asp.natalSign);
       if (!focusMap.has(natalChk.chakraId) && focusMap.size < 3) {
         const areaName = LIFE_AREA_NAMES[asp.natalHouse] || `${asp.natalHouse}. Ev`;
         focusMap.set(natalChk.chakraId, {
           ...natalChk,
-          planetSource: `Transit ${asp.transitPlanet} ${asp.aspectType} Natal ${asp.natalPlanet} (${asp.orb.toFixed(1)}°)`,
+          planetSource: `Transit ${asp.transitPlanet} (${asp.transitSign} ${asp.transitDegree}°) ${asp.aspectType} Natal ${asp.natalPlanet} (${asp.natalSign} ${asp.natalDegree}°) [${asp.orb.toFixed(1)}° Orb]`,
           reason: asp.isHarmonious
-            ? `${areaName} alanınızdaki Natal ${asp.natalPlanet} (${asp.natalSign}), Transit ${asp.transitPlanet} ile uyumlu ${asp.aspectType} açısında; bugün ${natalChk.shortName} (${natalChk.hz} Hz) merkezinizi aktive etmek yüksek akış sağlar.`
-            : `${areaName} alanınızdaki Natal ${asp.natalPlanet} (${asp.natalSign}), Transit ${asp.transitPlanet} ile ${asp.aspectType} sınavında; baskı alan ${natalChk.shortName} (${natalChk.hz} Hz) merkezinizi bugün bu frekansla dengeleyin.`
+            ? `${areaName} alanınızdaki Natal ${asp.natalPlanet} (${asp.natalSign} ${asp.natalDegree}°), bugün Transit ${asp.transitPlanet} ile ${asp.orb.toFixed(1)}° hassasiyetle uyumlu ${asp.aspectType} açısında; ${natalChk.shortName} (${natalChk.hz} Hz) merkezinizi aktive etmek yüksek akış sağlar.`
+            : `${areaName} alanınızdaki Natal ${asp.natalPlanet} (${asp.natalSign} ${asp.natalDegree}°), bugün Transit ${asp.transitPlanet} ile ${asp.orb.toFixed(1)}° hassasiyetle ${asp.aspectType} sınavında; baskı alan ${natalChk.shortName} (${natalChk.hz} Hz) merkezinizi bugün bu frekansla dengeleyin.`
         });
       }
-      // Sert açıda (Kare / Karşıt) veya güçlü üçgende ikinci dengeleyici/transit çakrayı da ekle
-      if (focusMap.size < 2) {
+      if (focusMap.size < 2 && ((asp.orb <= 2.2 && !asp.isHarmonious) || (asp.orb <= 1.8 && asp.isHarmonious))) {
         const secondChk = !asp.isHarmonious
           ? (asp.aspectType === 'Karşıt' ? CHAKRA_CATALOG[4] : CHAKRA_CATALOG[1])
-          : resolveChakraForPlanetOrSign(asp.transitPlanet, asp.transitSign);
+          : resolveChakraForPlanetOrSign('', asp.transitSign);
         if (!focusMap.has(secondChk.chakraId)) {
           focusMap.set(secondChk.chakraId, {
             ...secondChk,
             planetSource: !asp.isHarmonious
-              ? `${asp.aspectType} Açısı Dengeleyici Merkez`
-              : `Transit ${asp.transitPlanet} (${asp.transitSign}) Akış Hattı`,
+              ? `${asp.aspectType} Açısı Dengeleyici Merkez (${asp.orb.toFixed(1)}° Orb)`
+              : `Transit ${asp.transitPlanet} (${asp.transitSign} ${asp.transitDegree}°) Element Kanalı`,
             reason: !asp.isHarmonious
               ? (asp.aspectType === 'Karşıt'
                   ? `Karşıt açıdaki kutuplaşmayı kalp merkezinde (639 Hz) birleştirmek için tamamlayıcı ikinci odak.`
                   : `Kare açıdaki içsel sürtünmeyi ve stresi Kök Çakra (396 Hz) ile topraklamak için tamamlayıcı ikinci odak.`)
-              : `Gökyüzünden gelen Transit ${asp.transitPlanet} (${asp.transitSign}) desteğini bedene indiren ikinci çakra odağınız.`
+              : `Gökyüzünden gelen ${asp.transitSign} (${asp.transitDegree}°) desteğini bedene indiren tamamlayıcı ikinci çakra odağınız.`
           });
         }
       }
@@ -2163,8 +2193,8 @@ export function generatePersonalTransitOverview(
         : '🎯 BUGÜN HARİTANIZDA 1 ÖZEL ÇAKRA ODAĞI VAR',
       headline: list.map(c => `${c.shortName} (${c.hz} Hz)`).join(' & '),
       explanation: list.length > 1
-        ? `Bugün kişisel doğum haritanızdaki aktif transit açılar ${list.length} farklı çakra katmanını aynı anda tetikliyor. Aşağıdaki frekans butonlarına dokunarak Frekans Odasına gitmeden doğrudan burada dinleyebilirsiniz.`
-        : 'Bugün kişisel doğum haritanızdaki en keskin transit teması tek bir çakra katmanında yoğunlaşıyor. Aşağıdaki butona dokunarak frekansı doğrudan burada açıp dinleyebilirsiniz.',
+        ? `Bugün kişisel doğum haritanızdaki günlük dereceli transit açılar ${list.length} farklı çakra katmanını aynı anda tetikliyor. Aşağıdaki frekans butonlarına dokunarak doğrudan burada dinleyebilirsiniz.`
+        : 'Bugün kişisel doğum haritanızdaki günlük transit teması tek bir çakra katmanında yoğunlaşıyor. Aşağıdaki butona dokunarak frekansı doğrudan burada açıp dinleyebilirsiniz.',
       recommendedChakras: list
     };
   }

@@ -209,7 +209,7 @@ object CosmicWidgetHelper {
             3 -> ChakraMeta(4, 639, "4. Kalp", "4. Katman: Kalp Çakrası (Anahata)", "Ay ☽")          // Yengeç
             4 -> ChakraMeta(3, 528, "3. Solar Pleksus", "3. Katman: Solar Pleksus (Manipura)", "Güneş ☉") // Aslan
             5 -> ChakraMeta(5, 741, "5. Boğaz", "5. Katman: Boğaz Çakrası (Vishuddha)", "Merkür ☿")   // Başak
-            6 -> ChakraMeta(4, 639, "4. Kalp", "4. Katman: Kalp Çakrası (Anahata)", "Venüs ♀")       // Terazi
+            6 -> ChakraMeta(2, 417, "2. Sakral", "2. Katman: Sakral Çakra (Svadhisthana)", "Venüs ♀") // Terazi
             7 -> ChakraMeta(1, 396, "1. Kök", "1. Katman: Kök Çakra (Muladhara)", "Mars ♂")          // Akrep
             8 -> ChakraMeta(6, 852, "6. Üçüncü Göz", "6. Katman: Üçüncü Göz (Ajna)", "Jüpiter ♃")    // Yay
             9 -> ChakraMeta(7, 963, "7. Taç", "7. Katman: Taç Çakra (Sahasrara)", "Satürn ♄")        // Oğlak
@@ -256,8 +256,7 @@ object CosmicWidgetHelper {
         val soulAvoid: String
     )
 
-    fun getTransitMoonSignIndex(nowMillis: Long): Int {
-        val jd = nowMillis.toDouble() / 86400000.0 + 2440587.5
+    fun getMoonLongitudeForJd(jd: Double): Double {
         val t = (jd - 2451545.0) / 36525.0
         val degToRad = Math.PI / 180.0
 
@@ -275,8 +274,39 @@ object CosmicWidgetHelper {
             0.185116 * kotlin.math.sin(m) -
             0.114332 * kotlin.math.sin(2.0 * f)
 
-        val normLon = ((lon % 360.0) + 360.0) % 360.0
+        return ((lon % 360.0) + 360.0) % 360.0
+    }
+
+    fun getTransitMoonLongitude(nowMillis: Long): Double {
+        val jd = nowMillis.toDouble() / 86400000.0 + 2440587.5
+        return getMoonLongitudeForJd(jd)
+    }
+
+    fun getTransitMoonSignIndex(nowMillis: Long): Int {
+        val normLon = getTransitMoonLongitude(nowMillis)
         return (normLon / 30.0).toInt().coerceIn(0, 11)
+    }
+
+    fun findExactDegreeAspect(transitLon: Double, targetLon: Double, maxOrb: Double = 6.5): Pair<Int, Double> {
+        val raw = kotlin.math.abs(transitLon - targetLon) % 360.0
+        val sep = if (raw > 180.0) 360.0 - raw else raw
+        val candidates = arrayOf(
+            Pair(0.0, 0),
+            Pair(60.0, 2),
+            Pair(90.0, 3),
+            Pair(120.0, 4),
+            Pair(180.0, 6)
+        )
+        var bestCode = 1
+        var bestOrb = 999.0
+        for ((angle, code) in candidates) {
+            val o = kotlin.math.abs(sep - angle)
+            if (o <= maxOrb && o < bestOrb) {
+                bestCode = code
+                bestOrb = o
+            }
+        }
+        return Pair(bestCode, bestOrb)
     }
 
     private fun getSignIndexByName(signName: String): Int {
@@ -430,22 +460,12 @@ object CosmicWidgetHelper {
         val soulElement = prefs.getString("soulElement", "")?.trim()?.ifEmpty { element } ?: element
         val soulRulingPlanet = prefs.getString("soulRulingPlanet", "")?.trim()?.ifEmpty { rulingPlanet } ?: rulingPlanet
 
+        val birthTime = prefs.getString("birthTime", "")?.trim() ?: ""
         if (birthDate.isEmpty() || zodiacSign.isEmpty()) {
             return base
         }
 
-        val moonSignIdx = getTransitMoonSignIndex(cal.timeInMillis)
-        val transitMoonSign = ZODIAC_SIGNS[moonSignIdx]
-        val transitMoonSymbol = ZODIAC_SYMBOLS[moonSignIdx]
-
-        val bodySignIdx = getSignIndexByName(zodiacSign)
-        val soulSignIdx = getSignIndexByName(soulZodiacSign)
-        val activeTargetIdx = if (chartMode == "body") bodySignIdx else soulSignIdx
-        val signDiff = ((moonSignIdx - activeTargetIdx) % 12 + 12) % 12
-        val aspect = getAspectThemeForSignDiff(signDiff)
-        val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
-
-        // 1. Katman: Pisagor Doğum Matrisi Eksik Çakra (Alan Koruma Kodu 1-7)
+        // 1. Katman: Pisagor Doğum Matrisi Eksik Çakra (Alan Koruma Kodu 1-7) & Astronomik Doğum Boylamları
         fun reduceNum(num: Int): Int {
             var n = kotlin.math.abs(num)
             while (n > 9) {
@@ -463,6 +483,63 @@ object CosmicWidgetHelper {
         val bMonth = bParts.getOrNull(1)?.toIntOrNull() ?: 1
         val bYear = bParts.getOrNull(2)?.toIntOrNull() ?: 1990
         val lifePath = reduceNum(reduceNum(bDay) + reduceNum(bMonth) + reduceNum(bYear))
+
+        var bHour = 12
+        var bMin = 0
+        if (birthTime.contains(":")) {
+            val tParts = birthTime.split(":")
+            val h = tParts.getOrNull(0)?.toIntOrNull()
+            val m = tParts.getOrNull(1)?.toIntOrNull()
+            if (h != null && h in 0..23) bHour = h
+            if (m != null && m in 0..59) bMin = m
+        }
+
+        val yAdj = if (bMonth <= 2) bYear - 1 else bYear
+        val mAdj = if (bMonth <= 2) bMonth + 12 else bMonth
+        val aCoeff = yAdj / 100
+        val bCoeff = 2 - aCoeff + (aCoeff / 4)
+        val utHours = bHour.toDouble() - 3.0 + (bMin.toDouble() / 60.0)
+        val birthJd = floor(365.25 * (yAdj + 4716)) +
+            floor(30.6001 * (mAdj + 1)) +
+            bDay.toDouble() +
+            (utHours / 24.0) +
+            bCoeff.toDouble() -
+            1524.5
+        val birthT = (birthJd - 2451545.0) / 36525.0
+
+        val l0 = (((280.46646 + 36000.76983 * birthT + 0.0003032 * birthT * birthT) % 360.0) + 360.0) % 360.0
+        val mSun = (((357.52911 + 35999.05029 * birthT - 0.0001537 * birthT * birthT) % 360.0) + 360.0) % 360.0
+        val mRad = mSun * Math.PI / 180.0
+        val cSun = (1.914602 - 0.004817 * birthT - 0.000014 * birthT * birthT) * sin(mRad) +
+            (0.019993 - 0.000101 * birthT) * sin(2.0 * mRad) +
+            0.000289 * sin(3.0 * mRad)
+        val sunTropicalLon = (((l0 + cSun) % 360.0) + 360.0) % 360.0
+        val northNodeLon = (((125.04452 - 1934.136261 * birthT + 0.0020708 * birthT * birthT) % 360.0) + 360.0) % 360.0
+        val sunDraconicLon = (((sunTropicalLon - northNodeLon) % 360.0) + 360.0) % 360.0
+        val natalMoonTropicalLon = getMoonLongitudeForJd(birthJd)
+        val natalMoonDraconicLon = (((natalMoonTropicalLon - northNodeLon) % 360.0) + 360.0) % 360.0
+
+        val transitMoonLon = getTransitMoonLongitude(cal.timeInMillis)
+        val moonSignIdx = (transitMoonLon / 30.0).toInt().coerceIn(0, 11)
+        val transitMoonDeg = (transitMoonLon % 30.0).toInt()
+        val transitMoonSign = ZODIAC_SIGNS[moonSignIdx]
+        val transitMoonSymbol = ZODIAC_SYMBOLS[moonSignIdx]
+
+        val targetSunLon = if (chartMode == "body") sunTropicalLon else sunDraconicLon
+        val targetMoonLon = if (chartMode == "body") natalMoonTropicalLon else natalMoonDraconicLon
+        val sunAspect = findExactDegreeAspect(transitMoonLon, targetSunLon, 6.5)
+        val moonAspect = findExactDegreeAspect(transitMoonLon, targetMoonLon, 5.5)
+
+        val useSunTarget = sunAspect.second <= moonAspect.second
+        val activeMatch = if (useSunTarget) sunAspect else moonAspect
+        val activeTargetLon = if (useSunTarget) targetSunLon else targetMoonLon
+        val activeTargetIdx = (activeTargetLon / 30.0).toInt().coerceIn(0, 11)
+        val targetDeg = (activeTargetLon % 30.0).toInt()
+        val signDiff = activeMatch.first
+        val exactOrb = activeMatch.second
+        val orbLabel = if (exactOrb < 90.0) String.format(Locale.US, "%.1f° Orb", exactOrb) else ""
+        val aspect = getAspectThemeForSignDiff(signDiff)
+        val elementLabel = if (element.isNotEmpty()) "$element Elementi" else zodiacSign
 
         val presentChakras = HashSet<Int>()
         for (ch in birthDate) {
@@ -484,11 +561,11 @@ object CosmicWidgetHelper {
             }
         }
 
-        // 2. Katman: 3 Durumlu Kadim Astro-Çakra Sistemi (1. Doğal Akış/Dinlenme, 2. Tek Çakra, 3. İki Çakra)
+        // 2. Katman: 3 Durumlu Kadim Astro-Çakra Sistemi (Derece Hassasiyetli)
         val chartChakra = getChakraForSignIndex(activeTargetIdx)
         val moonChakra = getChakraForSignIndex(moonSignIdx)
         val matrixChakra = getChakraById(birthMatrixChakraId)
-        val activeSignLabel = if (chartMode == "body") zodiacSign else soulZodiacSign
+        val activeSignLabel = ZODIAC_SIGNS[activeTargetIdx]
 
         val personalHz: Int
         var personalHz2 = 0
@@ -497,27 +574,27 @@ object CosmicWidgetHelper {
         val personalAffirmation: String
 
         when {
-            // Durum 1: Görmeyen / Açısız Günler (30° veya 150°) -> Doğal Akış & Dinlenme Günü (Özel çakra yüklemesi gerekmez)
+            // Durum 1: Derece bazında (<= 6.5° orb) aktif majör açı yok -> Doğal Akış & Dinlenme Günü
             signDiff == 1 || signDiff == 5 || signDiff == 7 || signDiff == 11 -> {
                 isRestDay = true
                 personalHz = 432
                 personalHz2 = matrixChakra.hz
                 personalChakraTitle = "🌿 Doğal Akış Günü (Özel Çakra Şart Değil)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Nötr Akış): Bugün haritamda zorlu bir açı yok; enerji bedenim doğal dengesinde (Sushumna). İsteğe bağlı: 432 Hz veya Matris #${matrixChakra.id} (${matrixChakra.hz} Hz).\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign ${transitMoonDeg}° (Nötr Derece): Bugün haritamda keskin bir açı yok; enerji bedenim doğal dengesinde (Sushumna). İsteğe bağlı: 432 Hz veya Matris #${matrixChakra.id} (${matrixChakra.hz} Hz).\""
             }
-            // Durum 2: Kavuşum (0°) veya aynı çakra yöneticili uyumlu açı -> Tek Çakra Odağı
-            signDiff == 0 || ((signDiff == 2 || signDiff == 4 || signDiff == 8 || signDiff == 10) && chartChakra.hz == moonChakra.hz) -> {
+            // Durum 2: Kavuşum (0°) veya tek merkezli / hafif orblu (> 3.2°) uyumlu açı -> Tek Çakra Odağı
+            signDiff == 0 || ((signDiff == 2 || signDiff == 4 || signDiff == 8 || signDiff == 10) && (chartChakra.hz == moonChakra.hz || exactOrb > 3.2)) -> {
                 personalHz = chartChakra.hz
                 personalHz2 = 0
                 personalChakraTitle = "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign (${aspect.aspectName} → $activeSignLabel): Tüm kozmik akış ${chartChakra.shortTitle} (${chartChakra.planetName}) merkezimde toplanıyor.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign ${transitMoonDeg}° (${aspect.aspectName} → $activeSignLabel ${targetDeg}° • $orbLabel): Tüm kozmik akış ${chartChakra.shortTitle} (${chartChakra.planetName}) merkezimde toplanıyor.\""
             }
-            // Durum 3A: Uyumlu Açı (Üçgen 120° veya Sekstil 60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı (Harita + Transit Ay)
+            // Durum 3A: Keskin (<= 3.2° orb) Üçgen (120°) veya Sekstil (60°) farklı iki gezegen merkezi arasında -> 2 Çakra Odağı
             signDiff == 2 || signDiff == 4 || signDiff == 8 || signDiff == 10 -> {
                 personalHz = chartChakra.hz
                 personalHz2 = moonChakra.hz
                 personalChakraTitle = "${chartChakra.shortTitle} (${chartChakra.hz} Hz) & ${moonChakra.shortTitle} (${moonChakra.hz} Hz)"
-                personalAffirmation = "\"☽ Ay $transitMoonSign → $activeSignLabel (${aspect.aspectName}): 1. ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ve 2. ${moonChakra.shortTitle} (${moonChakra.hz} Hz) merkezlerimi birlikte aktive ediyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign ${transitMoonDeg}° → $activeSignLabel ${targetDeg}° (${aspect.aspectName} • $orbLabel): 1. ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ve 2. ${moonChakra.shortTitle} (${moonChakra.hz} Hz) merkezlerimi birlikte aktive ediyorum.\""
             }
             // Durum 3B: Kare Açı (90° Simyasal Sınav) -> 2 Çakra Odağı (Harita Çakrası + 1. Kök Topraklama 396 Hz)
             signDiff == 3 || signDiff == 9 -> {
@@ -529,7 +606,7 @@ object CosmicWidgetHelper {
                 } else {
                     "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
                 }
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Kare Açı Sınavı): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) merkezimi koruyor ve ${stabilizer.shortTitle} (${stabilizer.hz} Hz) ile sarsılmaz şekilde topraklanıyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign ${transitMoonDeg}° (Kare Açı • $orbLabel): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) merkezimi koruyor ve ${stabilizer.shortTitle} (${stabilizer.hz} Hz) ile sarsılmaz şekilde topraklanıyorum.\""
             }
             // Durum 3C: Karşıt Açı (180° Ayna Denge) -> 2 Çakra Odağı (Harita Çakrası + 4. Kalp Köprüsü 639 Hz)
             else -> {
@@ -541,7 +618,7 @@ object CosmicWidgetHelper {
                 } else {
                     "${chartChakra.fullTitle} (${chartChakra.hz} Hz)"
                 }
-                personalAffirmation = "\"☽ Ay $transitMoonSign (Karşıt Açı): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ile ${stabilizer.shortTitle} (${stabilizer.hz} Hz) kutuplarını kalp dengesinde birleştiriyorum.\""
+                personalAffirmation = "\"☽ Ay $transitMoonSign ${transitMoonDeg}° (Karşıt Açı • $orbLabel): ${chartChakra.shortTitle} (${chartChakra.hz} Hz) ile ${stabilizer.shortTitle} (${stabilizer.hz} Hz) kutuplarını kalp dengesinde birleştiriyorum.\""
             }
         }
 
