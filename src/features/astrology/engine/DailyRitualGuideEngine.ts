@@ -134,9 +134,9 @@ const PLANET_TR_TO_EN: Record<string, 'Saturn' | 'Jupiter' | 'Mars' | 'Sun' | 'V
   'Satürn': 'Saturn',
   'Uranüs': 'Saturn',
   'Neptün': 'Jupiter',
-  'Plüton': 'Saturn',
-  'Kiron': 'Venus',
-  'Lilith': 'Moon',
+  'Plüton': 'Mars',
+  'Kiron': 'Moon',
+  'Lilith': 'Venus',
 };
 
 const PLANET_EN_META: Record<
@@ -156,13 +156,13 @@ const CHAKRA_TO_RULING_PLANET_EN: Record<
   number,
   'Saturn' | 'Jupiter' | 'Mars' | 'Sun' | 'Venus' | 'Mercury' | 'Moon'
 > = {
-  1: 'Saturn',
-  2: 'Moon',
+  1: 'Mars',
+  2: 'Venus',
   3: 'Sun',
-  4: 'Venus',
+  4: 'Moon',
   5: 'Mercury',
   6: 'Jupiter',
-  7: 'Sun',
+  7: 'Saturn',
 };
 
 const CHAKRA_MUDRA_MANTRA_CATALOG: Record<
@@ -725,22 +725,27 @@ export function generate7LayersDailyGuide(params: {
     const dayRulerIdx = DAY_RULERS[targetDate.getDay()] ?? 3;
     activePlanetEn = CHALDEAN_ORDER[dayRulerIdx];
   } else {
+    const highestChkItem =
+      chakraPrescription.recommendedChakras[
+        chakraPrescription.recommendedChakras.length - 1
+      ] || primaryChkItem;
+
     activePlanetEn =
-      (primaryChkItem.rulingPlanetTr
-        ? PLANET_TR_TO_EN[primaryChkItem.rulingPlanetTr]
+      (highestChkItem.rulingPlanetTr
+        ? PLANET_TR_TO_EN[highestChkItem.rulingPlanetTr]
         : undefined) ||
-      (primaryChkItem.natalPlanet
-        ? PLANET_TR_TO_EN[primaryChkItem.natalPlanet]
-        : undefined) ||
-      CHAKRA_TO_RULING_PLANET_EN[primaryChkItem.chakraId] ||
+      CHAKRA_TO_RULING_PLANET_EN[highestChkItem.chakraId] ||
       'Sun';
 
-    if (primaryChkItem.aspectType === 'Kavuşum') {
-      aspectMode = primaryChkItem.isHarmonious !== false ? 'CONJUNCTION' : 'CHALLENGING';
-    } else if (primaryChkItem.isHarmonious !== false) {
-      aspectMode = 'HARMONIOUS';
-    } else {
+    const hasHardAspect = chakraPrescription.recommendedChakras.some(
+      (c) => c.isHarmonious === false
+    );
+    if (hasHardAspect) {
       aspectMode = 'CHALLENGING';
+    } else if (primaryChkItem.aspectType === 'Kavuşum') {
+      aspectMode = 'CONJUNCTION';
+    } else {
+      aspectMode = 'HARMONIOUS';
     }
   }
 
