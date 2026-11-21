@@ -584,6 +584,77 @@ export default function AnlikGokyuzuScreen() {
     setTransitTimeStr(formatted);
   };
 
+  const shiftDateStrByDays = (baseDateStr: string, deltaDays: number): string => {
+    const parts = baseDateStr.split('-').map(Number);
+    const dt =
+      parts.length === 3 && !isNaN(parts[0])
+        ? new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 12, 0, 0))
+        : new Date();
+    dt.setUTCDate(dt.getUTCDate() + deltaDays);
+    return dt.toISOString().split('T')[0];
+  };
+
+  const recalculatePersonalForDate = async (
+    targetDateStr: string = transitDateStr,
+    targetTimeStr: string = transitTimeStr
+  ) => {
+    if (natalDateStr.length !== 10 || natalTimeStr.length !== 5) return;
+    if (targetDateStr.length !== 10 || targetTimeStr.length !== 5) {
+      Alert.alert('Eksik Bilgi', 'Lütfen transit tarihini YYYY-AA-GG ve saatini SS:DD formatında giriniz.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiFetch('/api/astrology/calculate-transit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          natalDate: natalDateStr,
+          natalTime: natalTimeStr,
+          transitDate: targetDateStr,
+          transitTime: targetTimeStr,
+          cityData: selectedCityData,
+          transitCityData: selectedTransitCityData,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Transit hesaplaması başarısız oldu.');
+      }
+      setTransitData(result.data);
+      if (activeTab === 'TIMELINE') {
+        void fetchTimeline(timelineRange);
+      }
+      if (result.data?.natalChart?.houses) {
+        try {
+          const natalHouses = result.data.natalChart.houses.map((h: any) => ({
+            house: h.house,
+            sign: h.sign,
+          }));
+          const pRes = await apiFetch('/api/astrology/lunation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              targetDate: targetDateStr,
+              natalHouses,
+            }),
+          });
+          if (pRes.ok) {
+            const pJson = await pRes.json();
+            if (pJson && pJson.success) {
+              setPersonalLunationData(pJson.data);
+            }
+          }
+        } catch {}
+      }
+    } catch (error: any) {
+      Alert.alert('Hata', error.message || 'Transitler hesaplanırken bir hata oluştu.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCalculate = async () => {
     if (natalDateStr.length !== 10 || natalTimeStr.length !== 5) {
       Alert.alert("Eksik Bilgi", "Lütfen doğum tarihini ve saatini tam olarak giriniz.");
@@ -2045,15 +2116,153 @@ export default function AnlikGokyuzuScreen() {
                 <Text style={styles.resetBtnText}>Yeni Sorgulama</Text>
               </TouchableOpacity>
 
-              {/* Natal and Transit Info Header */}
+              {/* Natal and Transit Info Header + İleri/Geri Tarih Sorgulama Çubuğu */}
               <View style={styles.infoCard}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                   <View style={[styles.colorDot, { backgroundColor: COLORS.primary }]} />
                   <Text style={styles.infoText}>Doğum: {selectedCityData.name} • {natalDateStr.split('-').reverse().join('.')} {natalTimeStr}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                   <View style={[styles.colorDot, { backgroundColor: COLORS.secondary }]} />
                   <Text style={styles.infoText}>Transit: {selectedTransitCityData ? `${selectedTransitCityData.name} • ` : ''}{transitDateStr.split('-').reverse().join('.')} {transitTimeStr}</Text>
+                </View>
+
+                <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)', paddingTop: 10 }}>
+                  <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#FDE68A', marginBottom: 8 }}>
+                    📅 Kişisel Transit Tarihi Sorgula (Geçmiş &amp; Gelecek Günler):
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <TouchableOpacity
+                      disabled={isLoading}
+                      onPress={() => {
+                        const prevD = shiftDateStrByDays(transitDateStr, -1);
+                        setTransitDateStr(prevD);
+                        void recalculatePersonalForDate(prevD, transitTimeStr);
+                      }}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.06)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.14)',
+                        borderRadius: 10,
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                      }}
+                    >
+                      <Text style={{ color: '#FFF', fontSize: 11.5, fontWeight: '800' }}>◀ -1 Gün</Text>
+                    </TouchableOpacity>
+
+                    <TextInput
+                      value={transitDateStr}
+                      onChangeText={handleTransitDateChange}
+                      placeholder="YYYY-AA-GG"
+                      placeholderTextColor="#666"
+                      keyboardType="numeric"
+                      maxLength={10}
+                      style={{
+                        flex: 1.4,
+                        backgroundColor: 'rgba(0,0,0,0.45)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(212,175,55,0.35)',
+                        borderRadius: 10,
+                        paddingHorizontal: 10,
+                        paddingVertical: 6,
+                        color: '#FFF',
+                        fontSize: 12.5,
+                        fontWeight: '700',
+                        textAlign: 'center',
+                      }}
+                    />
+
+                    <TextInput
+                      value={transitTimeStr}
+                      onChangeText={handleTransitTimeChange}
+                      placeholder="12:00"
+                      placeholderTextColor="#666"
+                      keyboardType="numeric"
+                      maxLength={5}
+                      style={{
+                        flex: 0.8,
+                        backgroundColor: 'rgba(0,0,0,0.45)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 10,
+                        paddingHorizontal: 8,
+                        paddingVertical: 6,
+                        color: '#FFF',
+                        fontSize: 12.5,
+                        fontWeight: '700',
+                        textAlign: 'center',
+                      }}
+                    />
+
+                    <TouchableOpacity
+                      disabled={isLoading}
+                      onPress={() => {
+                        const nextD = shiftDateStrByDays(transitDateStr, 1);
+                        setTransitDateStr(nextD);
+                        void recalculatePersonalForDate(nextD, transitTimeStr);
+                      }}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.06)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.14)',
+                        borderRadius: 10,
+                        paddingHorizontal: 10,
+                        paddingVertical: 8,
+                      }}
+                    >
+                      <Text style={{ color: '#FFF', fontSize: 11.5, fontWeight: '800' }}>+1 Gün ▶</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <TouchableOpacity
+                      disabled={isLoading}
+                      onPress={() => {
+                        const nD = new Date().toISOString().split('T')[0];
+                        const nT = new Date().toTimeString().slice(0, 5);
+                        setTransitDateStr(nD);
+                        setTransitTimeStr(nT);
+                        void recalculatePersonalForDate(nD, nT);
+                      }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(255,255,255,0.06)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.14)',
+                        borderRadius: 10,
+                        paddingVertical: 8,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ color: '#E5E7EB', fontSize: 12, fontWeight: '700' }}>Bugüne Dön</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      disabled={isLoading}
+                      onPress={() => void recalculatePersonalForDate(transitDateStr, transitTimeStr)}
+                      style={{
+                        flex: 1.5,
+                        backgroundColor: COLORS.primary,
+                        borderRadius: 10,
+                        paddingVertical: 8,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6,
+                      }}
+                    >
+                      {isLoading ? (
+                        <ActivityIndicator size="small" color="#000" />
+                      ) : (
+                        <>
+                          <Ionicons name="refresh" size={14} color="#000" />
+                          <Text style={{ color: '#000', fontSize: 12, fontWeight: '800' }}>Seçili Tarihi Tara</Text>
+                        </>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
