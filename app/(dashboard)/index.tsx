@@ -683,10 +683,12 @@ const QuickFrequencyPlayerWidget = ({
   visible = true,
   birthProfile,
   onOpenSettings,
+  isAdmin = false,
 }: {
   visible?: boolean;
   birthProfile: WidgetBirthProfile | null;
   onOpenSettings: () => void;
+  isAdmin?: boolean;
 }) => {
   const router = useRouter();
   const webviewRef = useRef<WebView>(null);
@@ -982,31 +984,33 @@ const QuickFrequencyPlayerWidget = ({
           })}
         </ScrollView>
 
-        {/* 7Layers Günlük Uygulama Rehberi Kısayolu */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={() => router.push('/(dashboard)/kisisel-analizler/gunluk-rehber' as any)}
-          style={{
-            marginTop: 10,
-            backgroundColor: 'rgba(212,175,55,0.15)',
-            borderWidth: 1,
-            borderColor: 'rgba(212,175,55,0.45)',
-            borderRadius: 12,
-            paddingVertical: 9,
-            paddingHorizontal: 12,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 6 }}>
-            <Ionicons name="book-outline" size={15} color="#FDE68A" style={{ marginRight: 7 }} />
-            <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#FDE68A', flex: 1 }}>
-              📖 7Layers Günlük Rehber (En Etkili Saat • Nefes • Mudra • Yön • Taş)
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={15} color="#FDE68A" />
-        </TouchableOpacity>
+        {/* 7Layers Günlük Uygulama Rehberi Kısayolu (Yalnızca Admin) */}
+        {isAdmin && (
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => router.push('/(dashboard)/kisisel-analizler/gunluk-rehber' as any)}
+            style={{
+              marginTop: 10,
+              backgroundColor: 'rgba(212,175,55,0.15)',
+              borderWidth: 1,
+              borderColor: 'rgba(212,175,55,0.45)',
+              borderRadius: 12,
+              paddingVertical: 9,
+              paddingHorizontal: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 6 }}>
+              <Ionicons name="book-outline" size={15} color="#FDE68A" style={{ marginRight: 7 }} />
+              <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#FDE68A', flex: 1 }}>
+                📖 7Layers Günlük Rehber (Admin • Saat • Nefes • Mudra • Yön • Taş)
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={15} color="#FDE68A" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -1795,6 +1799,7 @@ export default function DashboardScreen() {
           visible={widgetPrefs.frequencyPlayer}
           birthProfile={savedBirthProfile}
           onOpenSettings={() => setShowWidgetModal(true)}
+          isAdmin={userRole === 'admin'}
         />
         <PlanetaryHourWidget visible={widgetPrefs.planetaryHour} />
         <CosmicMoonWeatherWidget visible={widgetPrefs.cosmicWeather} />

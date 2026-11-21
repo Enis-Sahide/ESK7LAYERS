@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
 import { apiFetch } from '@/src/core/config';
+import { getMe } from '@/src/core/api/client';
 import { ASTRO_CITIES } from '@/src/features/astrology/api/astrologyClient';
 import {
   generate7LayersDailyGuide,
@@ -105,9 +106,24 @@ const GUIDE_FREQ_WEBVIEW_HTML = `
 
 export default function GunlukRehberScreen() {
   const router = useRouter();
+  const [isAdminChecking, setIsAdminChecking] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const today = new Date();
   const defaultTDate = today.toISOString().split('T')[0];
   const defaultTTime = today.toTimeString().slice(0, 5);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const me: any = await getMe();
+        setIsAdmin(me?.role === 'admin');
+      } catch {
+        setIsAdmin(false);
+      } finally {
+        setIsAdminChecking(false);
+      }
+    })();
+  }, []);
 
   const [natalDateStr, setNatalDateStr] = useState('1990-01-01');
   const [natalTimeStr, setNatalTimeStr] = useState('12:00');
@@ -573,7 +589,46 @@ export default function GunlukRehberScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {!dailyGuide ? (
+        {isAdminChecking ? (
+          <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        ) : !isAdmin ? (
+          <BlurView intensity={25} tint="dark" style={styles.formCard}>
+            <View style={{ alignItems: 'center', paddingVertical: 16 }}>
+              <Ionicons name="lock-closed" size={38} color={COLORS.primary} />
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '900',
+                  color: '#FFF',
+                  textAlign: 'center',
+                  marginTop: 12,
+                  marginBottom: 8,
+                }}
+              >
+                Bu Modül Şu An Yalnızca Yönetici (Admin) Erişimine Açıktır
+              </Text>
+              <Text
+                style={{
+                  fontSize: 12.5,
+                  color: '#D1D5DB',
+                  textAlign: 'center',
+                  lineHeight: 18,
+                  marginBottom: 16,
+                }}
+              >
+                7Layers Günlük Rehber modülü kalibrasyon aşamasında olduğu için şu anda yalnızca Admin yetkisine sahip hesaplarla görüntülenebilir.
+              </Text>
+              <TouchableOpacity
+                style={[styles.calcBtn, { paddingHorizontal: 24 }]}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.calcBtnText}>Geri Dön</Text>
+              </TouchableOpacity>
+            </View>
+          </BlurView>
+        ) : !dailyGuide ? (
           <BlurView intensity={25} tint="dark" style={styles.formCard}>
             <Text style={styles.sectionHeader}>1. Doğum Bilgileriniz (Natal)</Text>
 

@@ -1,9 +1,10 @@
 import SacredBackground from '@/components/SacredBackground';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
+import { getMe } from '@/src/core/api/client';
 
 interface AnalysisTool {
   id: string;
@@ -14,6 +15,7 @@ interface AnalysisTool {
   color: string;
   isAvailable: boolean;
   isWebExclusive?: boolean;
+  isAdminOnly?: boolean;
 }
 
 const ANALYSIS_TOOLS: AnalysisTool[] = [
@@ -37,12 +39,13 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   },
   {
     id: 'gunlukrehber',
-    title: '7Layers Günlük Rehber',
+    title: '7Layers Günlük Rehber (Admin)',
     description: 'Kişisel günlük çakra frekansı, en etkili meditasyon gezegen saati, nefes sayacı, mudra, yön ve doğal taş reçeteniz.',
     icon: 'book-outline',
     route: '/(dashboard)/kisisel-analizler/gunluk-rehber',
     color: '#F59E0B',
     isAvailable: true,
+    isAdminOnly: true,
   },
   {
     id: 'aydonguleri',
@@ -177,9 +180,24 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
 export default function AnalysisHubScreen() {
   const router = useRouter();
   const [selectedWebTool, setSelectedWebTool] = useState<AnalysisTool | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const me: any = await getMe();
+        setIsAdmin(me?.role === 'admin');
+      } catch {
+        setIsAdmin(false);
+      }
+    })();
+  }, []);
+
+  const visibleTools = ANALYSIS_TOOLS.filter((t) => !t.isAdminOnly || isAdmin);
 
   const handlePress = (tool: AnalysisTool) => {
     if (!tool.isAvailable) return;
+    if (tool.isAdminOnly && !isAdmin) return;
     if (tool.isWebExclusive) {
       setSelectedWebTool(tool);
       return;
@@ -201,7 +219,7 @@ export default function AnalysisHubScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {ANALYSIS_TOOLS.map((tool) => (
+        {visibleTools.map((tool) => (
           <TouchableOpacity
             key={tool.id}
             style={[styles.toolCard, !tool.isAvailable && { opacity: 0.6 }]}
