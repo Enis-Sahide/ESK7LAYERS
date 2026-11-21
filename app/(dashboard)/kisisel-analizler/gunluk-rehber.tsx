@@ -919,7 +919,7 @@ export default function GunlukRehberScreen() {
               </View>
             </View>
 
-            {/* 4 Adımlı Günlük Uygulama Özeti */}
+            {/* 5'li Ezoterik Reçete Özeti (Çakra • Nefes • Topraklanma • Gezegen Saati • Renk) & 4 Adımlı Plan */}
             <View
               style={[
                 styles.layerCard,
@@ -940,7 +940,7 @@ export default function GunlukRehberScreen() {
                 }}
               >
                 <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FDE68A' }}>
-                  ✨ GÜNÜN 4 ADIMLI UYGULAMA PLANI ({appliedDateStr})
+                  ✨ GÜNÜN 5&apos;Lİ EZOTERİİK REÇETESİ ({appliedDateStr})
                 </Text>
                 <View
                   style={{
@@ -950,10 +950,122 @@ export default function GunlukRehberScreen() {
                     borderRadius: 8,
                   }}
                 >
-                  <Text style={{ fontSize: 10.5, fontWeight: '800', color: '#FFF' }}>
-                    Kanal: {dailyGuide.directionTattvaGuide.rulingPlanetSymbol}{' '}
-                    {dailyGuide.ActivePlanetTr}
+                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>
+                    {dailyGuide.fivePillarSummary.activeWorldsSummary}
                   </Text>
+                </View>
+              </View>
+
+              {/* 5'li Hızlı Reçete Kartları */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginBottom: 10 }}>
+                <View
+                  style={{
+                    flex: 1,
+                    minWidth: '47%',
+                    backgroundColor: 'rgba(0,0,0,0.55)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(212,175,55,0.4)',
+                    borderRadius: 12,
+                    padding: 9,
+                  }}
+                >
+                  <Text style={{ fontSize: 9.5, fontWeight: '900', color: '#D4AF37' }}>
+                    1. AKTİF ÇAKRA DEVRESİ
+                  </Text>
+                  <Text style={{ fontSize: 12, fontWeight: '900', color: '#FFF', marginTop: 2 }}>
+                    {dailyGuide.fivePillarSummary.activeChakrasSummary}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    minWidth: '47%',
+                    backgroundColor: 'rgba(0,0,0,0.55)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(14,165,233,0.4)',
+                    borderRadius: 12,
+                    padding: 9,
+                  }}
+                >
+                  <Text style={{ fontSize: 9.5, fontWeight: '900', color: '#38BDF8' }}>
+                    2. NEFES TEKNİĞİ
+                  </Text>
+                  <Text style={{ fontSize: 12, fontWeight: '900', color: '#FFF', marginTop: 2 }}>
+                    {dailyGuide.fivePillarSummary.breathTypeSummary}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    minWidth: '47%',
+                    backgroundColor: 'rgba(0,0,0,0.55)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(16,185,129,0.4)',
+                    borderRadius: 12,
+                    padding: 9,
+                  }}
+                >
+                  <Text style={{ fontSize: 9.5, fontWeight: '900', color: '#34D399' }}>
+                    3. TOPRAKLANMA SÜRESİ
+                  </Text>
+                  <Text style={{ fontSize: 12, fontWeight: '900', color: '#FFF', marginTop: 2 }}>
+                    {dailyGuide.fivePillarSummary.groundingSummary}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    minWidth: '47%',
+                    backgroundColor: 'rgba(0,0,0,0.55)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(245,158,11,0.4)',
+                    borderRadius: 12,
+                    padding: 9,
+                  }}
+                >
+                  <Text style={{ fontSize: 9.5, fontWeight: '900', color: '#FBBF24' }}>
+                    4. GEZEGEN SAATİ (HORA)
+                  </Text>
+                  <Text style={{ fontSize: 12, fontWeight: '900', color: '#FFF', marginTop: 2 }}>
+                    {dailyGuide.directionTattvaGuide.rulingPlanetSymbol}{' '}
+                    {dailyGuide.fivePillarSummary.planetaryHourSummary}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.55)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(244,63,94,0.4)',
+                    borderRadius: 12,
+                    padding: 9,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <View>
+                    <Text style={{ fontSize: 9.5, fontWeight: '900', color: '#FB7185' }}>
+                      5. GÜNÜN RENK REZONANSI
+                    </Text>
+                    <Text style={{ fontSize: 12, fontWeight: '900', color: '#FFF', marginTop: 2 }}>
+                      {dailyGuide.fivePillarSummary.colorSummary}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: 11,
+                      backgroundColor: dailyGuide.fivePillarSummary.colorHex,
+                      borderWidth: 1.5,
+                      borderColor: '#FFF',
+                    }}
+                  />
                 </View>
               </View>
 
@@ -1553,12 +1665,19 @@ export default function GunlukRehberScreen() {
                 }}
               >
                 <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 17 }}>
-                  <Text style={{ fontWeight: '800', color: '#FDA4AF' }}>Kristal Kullanımı: </Text>
-                  {dailyGuide.crystalAromaGuide.crystalPlacement}
+                  <Text style={{ fontWeight: '800', color: '#34D399' }}>Topraklanma Süresi: </Text>
+                  {dailyGuide.crystalAromaGuide.groundingDurationLabel}
                 </Text>
                 <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 17 }}>
                   <Text style={{ fontWeight: '800', color: '#FDE68A' }}>Günün Frekans Rengi: </Text>
                   {dailyGuide.crystalAromaGuide.colorToneName}
+                </Text>
+                <Text style={{ fontSize: 11.5, color: '#9CA3AF', lineHeight: 16 }}>
+                  {dailyGuide.crystalAromaGuide.colorReason}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 17 }}>
+                  <Text style={{ fontWeight: '800', color: '#FDA4AF' }}>Kristal Kullanımı: </Text>
+                  {dailyGuide.crystalAromaGuide.crystalPlacement}
                 </Text>
                 <Text style={{ fontSize: 12, color: '#D1D5DB', lineHeight: 17 }}>
                   <Text style={{ fontWeight: '800', color: '#6EE7B7' }}>Önerilen Bitki Çayı: </Text>
