@@ -132,11 +132,11 @@ const PLANET_TR_TO_EN: Record<string, 'Saturn' | 'Jupiter' | 'Mars' | 'Sun' | 'V
   'Mars': 'Mars',
   'Jüpiter': 'Jupiter',
   'Satürn': 'Saturn',
-  'Uranüs': 'Mercury',
-  'Neptün': 'Moon',
-  'Plüton': 'Mars',
-  'Kiron': 'Jupiter',
-  'Lilith': 'Saturn',
+  'Uranüs': 'Saturn',
+  'Neptün': 'Jupiter',
+  'Plüton': 'Saturn',
+  'Kiron': 'Venus',
+  'Lilith': 'Moon',
 };
 
 const PLANET_EN_META: Record<
@@ -192,10 +192,10 @@ const CHAKRA_MUDRA_MANTRA_CATALOG: Record<
       'Alt karın bölgenizde sıcak turuncu bir su girdabının yumuşakça döndüğünü, sıkışmış duyguları ve yaratıcılık blokajlarını çözdüğünü hissedin.',
   },
   3: {
-    mudraName: 'Surya & Rudra Mudra (Güneş İradesi Mührü)',
+    mudraName: 'Surya & Agni Mudra (Güneş İradesi Mührü)',
     mudraSubtitle: 'Öz-Disiplin, Yaşam İradesi, Kararlılık ve İçsel Ateş',
     handPosture:
-      'Başparmak, işaret parmağı ve yüzük parmağı uçlarınızı birbirine değdirin; orta ve serçe parmaklarınızı düz uzatın. Göğsünüz açık, omurganız dik konumda ellerinizi dizlerinize yerleştirin.',
+      'Her iki elde yüzük parmağınızı bükerek başparmağınızın köküne değdirin ve başparmağınızla yüzük parmağınızın üzerine hafifçe bastırın; diğer üç parmağınızı düz uzatın. Omurganız dik konumda ellerinizi dizlerinize yerleştirin.',
     bijaMantra: 'RAM',
     mantraPronunciation: 'R-A-A-A-M (Ses titreşimini mide ve güneş sinirağı merkezinde hissedin)',
     mantraRepetitions: '27 veya 54 Tekrar',
@@ -248,114 +248,141 @@ const CHAKRA_MUDRA_MANTRA_CATALOG: Record<
   },
 };
 
-const PLANET_DIRECTION_TATTVA_CATALOG: Record<
+const PLANET_DIG_SHUDDHI_CATALOG: Record<
   'Saturn' | 'Jupiter' | 'Mars' | 'Sun' | 'Venus' | 'Mercury' | 'Moon',
-  DirectionTattvaSection
+  {
+    rulingPlanetTr: string;
+    rulingPlanetSymbol: string;
+    compassDirectionTr: string;
+    compassCode: 'D' | 'KD' | 'K' | 'KB' | 'B' | 'GB' | 'G' | 'GD';
+    compassAngleDeg: number;
+    sanskritDirectionName: string;
+  }
 > = {
   Sun: {
     rulingPlanetTr: 'Güneş',
     rulingPlanetSymbol: '☉',
-    compassDirectionTr: 'Doğu (Doğan Güneş Yönü)',
+    compassDirectionTr: 'Doğu (Doğan Güneş & Surya Yönü)',
     compassCode: 'D',
     compassAngleDeg: 90,
-    sanskritDirectionName: 'Purva (İndra & Surya Yönü)',
-    tattvaName: 'Tejas / Agni Tattva',
-    tattvaElementTr: 'Kutsal Ateş & Işık Elementi',
-    tattvaGeometryName: 'Altın-Kırmızı Yukarı Bakan Eşkenar Üçgen',
-    tattvaSymbol: '▲',
-    tattvaColorHex: '#F59E0B',
-    visualizationGuide:
-      'Meditasyona otururken yüzünüzü Doğu yönüne dönün. Gözlerinizi kapattığınızda güneş sinirağınızda ve iki kaşınızın arasında altın-kırmızı bir eşkenar üçgenin (▲) parladığını imgeleyin.',
+    sanskritDirectionName: 'Purva (İndra & Surya Hattı)',
   },
   Moon: {
     rulingPlanetTr: 'Ay',
     rulingPlanetSymbol: '☽',
-    compassDirectionTr: 'Kuzeybatı (Soma & Ay Akışı Yönü)',
+    compassDirectionTr: 'Kuzeybatı (Soma & Chandra Su Akışı Yönü)',
     compassCode: 'KB',
     compassAngleDeg: 315,
     sanskritDirectionName: 'Vayavya (Chandra Kanalı)',
-    tattvaName: 'Apas Tattva',
-    tattvaElementTr: 'Saf Su & Duygusal Şifa Elementi',
-    tattvaGeometryName: 'Gümüş Beyazı Parlayan Hilal',
-    tattvaSymbol: '🌙',
-    tattvaColorHex: '#E2E8F0',
-    visualizationGuide:
-      'Yüzünüzü Kuzeybatı yönüne çevirerek oturun. Nefes alırken kalp ve sakral merkezinizde gümüş beyazı bir hilalin (🌙) serinletici ve şefkatli ışığını imgeleyin.',
   },
   Mars: {
     rulingPlanetTr: 'Mars',
     rulingPlanetSymbol: '♂',
-    compassDirectionTr: 'Güney (Ateş & İrade Yönü)',
+    compassDirectionTr: 'Güney (Agni & Mangala İrade Yönü)',
     compassCode: 'G',
     compassAngleDeg: 180,
     sanskritDirectionName: 'Dakshina (Mangala Güç Hattı)',
-    tattvaName: 'Agni Tattva',
-    tattvaElementTr: 'Dönüştürücü Ateş Elementi',
-    tattvaGeometryName: 'Yakut Kırmızısı Ateş Piramidi',
-    tattvaSymbol: '▲',
-    tattvaColorHex: '#EF4444',
-    visualizationGuide:
-      'Yüzünüzü Güney yönüne dönerek omurganızı dikleştirin. Kök ve solar pleksus hattınızda yakut kırmızısı bir ateş üçgeninin (▲) tüm ataleti ve korkuyu erittiğini imgeleyin.',
   },
   Mercury: {
     rulingPlanetTr: 'Merkür',
     rulingPlanetSymbol: '☿',
-    compassDirectionTr: 'Kuzey (Bilgelik & Zihin Berraklığı Yönü)',
+    compassDirectionTr: 'Kuzey (Budha & Zihin Berraklığı Yönü)',
     compassCode: 'K',
     compassAngleDeg: 0,
     sanskritDirectionName: 'Uttara (Budha & Kubera Hattı)',
-    tattvaName: 'Vayu-Prithvi Sentez Tattvası',
-    tattvaElementTr: 'Hava & Eter İletişim Elementi',
-    tattvaGeometryName: 'Turkuaz-Zümrüt Altı Köşeli Denge Yıldızı',
-    tattvaSymbol: '✡',
-    tattvaColorHex: '#38BDF8',
-    visualizationGuide:
-      'Yüzünüzü Kuzey yönüne dönün. Boğaz ve alın merkeziniz arasında turkuaz-mavi bir altı köşeli denge yıldızının (✡) zihinsel karmaşayı kristal berraklığına kavuşturduğunu imgeleyin.',
   },
   Jupiter: {
     rulingPlanetTr: 'Jüpiter',
     rulingPlanetSymbol: '♃',
-    compassDirectionTr: 'Kuzeydoğu (İlahi Bilgelik & Bereket Kapısı)',
+    compassDirectionTr: 'Kuzeydoğu (Ishanya • İlahi Bilgelik Kapısı)',
     compassCode: 'KD',
     compassAngleDeg: 45,
     sanskritDirectionName: 'Ishanya (Guru & Ruhsal Rehberlik Yönü)',
-    tattvaName: 'Akasha Tattva',
-    tattvaElementTr: 'Saf Eter & Ruhsal Genişleme Elementi',
-    tattvaGeometryName: 'Çivit Mavisi ve Altın Işıklı Eter Küresi',
-    tattvaSymbol: '◯',
-    tattvaColorHex: '#A855F7',
-    visualizationGuide:
-      'Kadim Vedik gelenekte meditasyonun en kutsal yönü olan Kuzeydoğu (Ishanya) yönüne dönün. Üçüncü göz ve taç merkezinizde altın-mor bir ışık küresinin (◯) bilincinizi genişlettiğini imgeleyin.',
   },
   Venus: {
     rulingPlanetTr: 'Venüs',
     rulingPlanetSymbol: '♀',
-    compassDirectionTr: 'Güneydoğu (Zarafet, Kalp & Yaratım Yönü)',
+    compassDirectionTr: 'Güneydoğu (Agneya • Shukra Kalp & Zarafet Yönü)',
     compassCode: 'GD',
     compassAngleDeg: 135,
     sanskritDirectionName: 'Agneya (Shukra Uyum Hattı)',
-    tattvaName: 'Apas-Vayu Tattva',
-    tattvaElementTr: 'Su & Hava Kalp Rezonansı',
-    tattvaGeometryName: 'Zümrüt Yeşili Açılan Lotus Geometrisi',
-    tattvaSymbol: '✿',
-    tattvaColorHex: '#10B981',
-    visualizationGuide:
-      'Yüzünüzü Güneydoğu yönüne çevirin. Kalp çakranızda zümrüt yeşili ve altın yapraklı bir lotus geometrisinin (✿) her nefesle açılarak içsel huzuru büyüttüğünü imgeleyin.',
   },
   Saturn: {
     rulingPlanetTr: 'Satürn',
     rulingPlanetSymbol: '♄',
-    compassDirectionTr: 'Batı (Topraklanma, Sabır & Karmik Denge Yönü)',
+    compassDirectionTr: 'Batı (Paschima • Shani Topraklanma & Sabır Yönü)',
     compassCode: 'B',
     compassAngleDeg: 270,
     sanskritDirectionName: 'Paschima (Shani & Köklenme Yönü)',
+  },
+};
+
+const CHAKRA_TATTVA_GEOMETRY_CATALOG: Record<
+  number,
+  {
+    tattvaName: string;
+    tattvaElementTr: string;
+    tattvaGeometryName: string;
+    tattvaSymbol: string;
+    tattvaColorHex: string;
+    chakraLocationTr: string;
+  }
+> = {
+  1: {
     tattvaName: 'Prithvi Tattva',
-    tattvaElementTr: 'Saf Toprak & Yapılandırma Elementi',
-    tattvaGeometryName: 'Altın-Toprak Sarısı Sabit Küp / Kare',
+    tattvaElementTr: 'Saf Toprak & Kök Yapılandırma Elementi',
+    tattvaGeometryName: 'Altın-Toprak Sarısı Sabit Kare / Küp',
     tattvaSymbol: '■',
-    tattvaColorHex: '#94A3B8',
-    visualizationGuide:
-      'Yüzünüzü Batı yönüne dönerek sağlam ve sarsılmaz bir oturuş alın. Omurganızın tabanında altın-toprak rengi bir karenin (■) size sarsılmaz bir sabır, sınır ve güven verdiğini imgeleyin.',
+    tattvaColorHex: '#EF4444',
+    chakraLocationTr: 'kök çakra (kuyruk sokumu) merkezinizde',
+  },
+  2: {
+    tattvaName: 'Apas (Jala) Tattva',
+    tattvaElementTr: 'Saf Su & Duygusal/Yaratıcı Akış Elementi',
+    tattvaGeometryName: 'Gümüş Beyazı Parlayan Hilal',
+    tattvaSymbol: '🌙',
+    tattvaColorHex: '#F97316',
+    chakraLocationTr: 'sakral çakra (göbek deliğinin 3 parmak altı) merkezinizde',
+  },
+  3: {
+    tattvaName: 'Tejas (Agni) Tattva',
+    tattvaElementTr: 'Kutsal Ateş & Yaşam İradesi Elementi',
+    tattvaGeometryName: 'Altın-Kırmızı Ateş Üçgeni (Piramit)',
+    tattvaSymbol: '▲',
+    tattvaColorHex: '#EAB308',
+    chakraLocationTr: 'solar pleksus (güneş sinirağı / mide) merkezinizde',
+  },
+  4: {
+    tattvaName: 'Vayu Tattva',
+    tattvaElementTr: 'Kutsal Hava, Prana & Kalp Şefkati Elementi',
+    tattvaGeometryName: 'Zümrüt Yeşili Altı Köşeli Yıldız (Hegzagram)',
+    tattvaSymbol: '✡',
+    tattvaColorHex: '#10B981',
+    chakraLocationTr: 'kalp çakrası (göğüs kafesi ortası) merkezinizde',
+  },
+  5: {
+    tattvaName: 'Akasha Tattva',
+    tattvaElementTr: 'Saf Eter, Uzay & Hakikat Sesi Elementi',
+    tattvaGeometryName: 'Saf Turkuaz-Mavi Eter Küresi / Daire',
+    tattvaSymbol: '◯',
+    tattvaColorHex: '#0EA5E9',
+    chakraLocationTr: 'boğaz çakrası merkezinizde',
+  },
+  6: {
+    tattvaName: 'Mahat / Manas Tattva',
+    tattvaElementTr: 'Kozmik Zihin, Durugörü & İdrak Işığı',
+    tattvaGeometryName: 'Çivit Mavisi (İndigo) Kanatlı Işık Küresi (Bindu)',
+    tattvaSymbol: '◉',
+    tattvaColorHex: '#6366F1',
+    chakraLocationTr: 'üçüncü göz (iki kaşın arası) merkezinizde',
+  },
+  7: {
+    tattvaName: 'Paramashiva / Saf Bilinç',
+    tattvaElementTr: 'Element Üstü İlahi Birlik & Taç Işığı',
+    tattvaGeometryName: 'Mor ve Kristal Beyazı Bin Yapraklı Lotus',
+    tattvaSymbol: '✿',
+    tattvaColorHex: '#A855F7',
+    chakraLocationTr: 'taç çakra (başın tepe noktası) merkezinizde',
   },
 };
 
@@ -555,7 +582,7 @@ export function calculateGuidePlanetaryHours(
       index: i + 1,
       isDay: false,
       planetKey: pKey,
-      planetTr: pMeta.symbol,
+      planetTr: pMeta.tr,
       symbol: pMeta.symbol,
       color: pMeta.color,
       startTimeIso: startTime.toISOString(),
@@ -568,14 +595,59 @@ export function calculateGuidePlanetaryHours(
         ? chakraReasonsByPlanet[pKey] || `${pMeta.tr} Saati (Gece ${i + 1}. Saat)`
         : undefined,
     });
-    // Fix planetTr assignment above
-    allNightHours[allNightHours.length - 1].planetTr = pMeta.tr;
     currentPlanetIndex = (currentPlanetIndex + 1) % 7;
   }
 
   const combined = [...allDayHours, ...allNightHours];
   const goldenHours = combined.filter((h) => h.isGoldenForToday);
-  const currentHour = combined.find((h) => h.isCurrentNow) || null;
+  let currentHour = combined.find((h) => h.isCurrentNow) || null;
+
+  if (!currentHour && referenceMoment.getTime() < sunriseDate.getTime()) {
+    const prevSunsetRes = SearchRiseSet(
+      Body.Sun,
+      observer,
+      -1,
+      new Date(sunriseDate.getTime() - 1000),
+      -1
+    );
+    if (prevSunsetRes?.date) {
+      const prevSunset = prevSunsetRes.date;
+      const prevNightHourMs = (sunriseDate.getTime() - prevSunset.getTime()) / 12;
+      const prevDayOfWeek = prevSunset.getDay();
+      let prevPlanetIdx = ((DAY_RULERS[prevDayOfWeek] ?? 3) + 12) % 7;
+      for (let i = 0; i < 12; i++) {
+        const sTime = new Date(prevSunset.getTime() + i * prevNightHourMs);
+        const eTime = new Date(prevSunset.getTime() + (i + 1) * prevNightHourMs);
+        const pKey = CHALDEAN_ORDER[prevPlanetIdx];
+        const pMeta = PLANET_EN_META[pKey];
+        if (
+          referenceMoment.getTime() >= sTime.getTime() &&
+          referenceMoment.getTime() < eTime.getTime()
+        ) {
+          currentHour = {
+            index: i + 1,
+            isDay: false,
+            planetKey: pKey,
+            planetTr: pMeta.tr,
+            symbol: pMeta.symbol,
+            color: pMeta.color,
+            startTimeIso: sTime.toISOString(),
+            endTimeIso: eTime.toISOString(),
+            startFormatted: formatHHMM(sTime),
+            endFormatted: formatHHMM(eTime),
+            isGoldenForToday: targetSet.has(pKey),
+            isCurrentNow: true,
+            goldenReason: targetSet.has(pKey)
+              ? chakraReasonsByPlanet[pKey]
+              : 'Güneş Doğuşu Öncesi Aktif Gece Saati',
+          };
+          break;
+        }
+        prevPlanetIdx = (prevPlanetIdx + 1) % 7;
+      }
+    }
+  }
+
   const nextGoldenHour =
     goldenHours.find((h) => new Date(h.endTimeIso).getTime() > referenceMoment.getTime()) ||
     goldenHours[0] ||
@@ -588,7 +660,7 @@ export function calculateGuidePlanetaryHours(
     sunsetDate
   )}’de batıyor (Günün Hâkimi: ${dayRulerMeta.symbol} ${
     dayRulerMeta.tr
-  }). Bugün haritanızda aktif olan çakra frekansınızla tam rezonansa girmek için meditasyon ve nefes çalışmanızı özellikle ${targetPlanetsTr.join(
+  }). Bugün haritanızda aktif olan çakra merkezlerinizle tam rezonansa girmek için meditasyon ve nefes çalışmanızı özellikle ${targetPlanetsTr.join(
     ' veya '
   )} Gezegen Saatlerinde (Hora) yapmanız etkiyi katlayacaktır.`;
 
@@ -640,51 +712,32 @@ export function generate7LayersDailyGuide(params: {
   if (!personalOverview) return null;
 
   const { chakraPrescription } = personalOverview;
+  const primaryChkItem = chakraPrescription.recommendedChakras[0];
+  const secondaryChkItem = chakraPrescription.recommendedChakras[1];
 
-  const classicalNatalTargets = new Set([
-    'Güneş',
-    'Ay',
-    'Merkür',
-    'Venüs',
-    'Mars',
-    'Jüpiter',
-    'Satürn',
-  ]);
-  const fastPersonalTransits = new Set(['Güneş', 'Merkür', 'Venüs', 'Mars']);
-  const dailyPersonalTriggers = personalOverview.topAspects.filter((a) => {
-    if (a.aspectType === 'Görmeyen') return false;
-    if (a.transitPlanet === 'Ay' && classicalNatalTargets.has(a.natalPlanet)) {
-      return a.orb <= 3.8;
-    }
-    if (
-      fastPersonalTransits.has(a.transitPlanet) &&
-      classicalNatalTargets.has(a.natalPlanet)
-    ) {
-      return a.orb <= 0.65;
-    }
-    return false;
-  });
-
-  const primaryTrigger = dailyPersonalTriggers[0] || null;
   let aspectMode: 'SUSHUMNA_REST' | 'HARMONIOUS' | 'CHALLENGING' | 'CONJUNCTION' =
     'SUSHUMNA_REST';
   let activePlanetEn: 'Saturn' | 'Jupiter' | 'Mars' | 'Sun' | 'Venus' | 'Mercury' | 'Moon' =
     'Sun';
 
-  if (chakraPrescription.mode === 'NATURAL_REST' || !primaryTrigger) {
+  if (chakraPrescription.mode === 'NATURAL_REST' || !primaryChkItem) {
     aspectMode = 'SUSHUMNA_REST';
     const dayRulerIdx = DAY_RULERS[targetDate.getDay()] ?? 3;
     activePlanetEn = CHALDEAN_ORDER[dayRulerIdx];
   } else {
     activePlanetEn =
-      PLANET_TR_TO_EN[primaryTrigger.natalPlanet] ||
-      CHAKRA_TO_RULING_PLANET_EN[
-        chakraPrescription.recommendedChakras[0]?.chakraId || 3
-      ] ||
+      (primaryChkItem.rulingPlanetTr
+        ? PLANET_TR_TO_EN[primaryChkItem.rulingPlanetTr]
+        : undefined) ||
+      (primaryChkItem.natalPlanet
+        ? PLANET_TR_TO_EN[primaryChkItem.natalPlanet]
+        : undefined) ||
+      CHAKRA_TO_RULING_PLANET_EN[primaryChkItem.chakraId] ||
       'Sun';
-    if (primaryTrigger.aspectType === 'Kavuşum') {
-      aspectMode = primaryTrigger.isHarmonious ? 'CONJUNCTION' : 'CHALLENGING';
-    } else if (primaryTrigger.isHarmonious) {
+
+    if (primaryChkItem.aspectType === 'Kavuşum') {
+      aspectMode = primaryChkItem.isHarmonious !== false ? 'CONJUNCTION' : 'CHALLENGING';
+    } else if (primaryChkItem.isHarmonious !== false) {
       aspectMode = 'HARMONIOUS';
     } else {
       aspectMode = 'CHALLENGING';
@@ -697,18 +750,18 @@ export function generate7LayersDailyGuide(params: {
   const chakraReasonsByPlanet: Record<string, string> = {};
 
   for (const chk of chakraPrescription.recommendedChakras) {
-    const pEn = CHAKRA_TO_RULING_PLANET_EN[chk.chakraId] || activePlanetEn;
+    const pEn =
+      (chk.rulingPlanetTr ? PLANET_TR_TO_EN[chk.rulingPlanetTr] : undefined) ||
+      CHAKRA_TO_RULING_PLANET_EN[chk.chakraId] ||
+      activePlanetEn;
     if (!targetPlanetsEn.includes(pEn)) {
       targetPlanetsEn.push(pEn);
     }
-    chakraReasonsByPlanet[pEn] = `${chk.shortName} (${chk.hz} Hz) Meditasyon Vakti`;
+    chakraReasonsByPlanet[pEn] = `${chk.shortName} (${chk.hz} Hz) • ${PLANET_EN_META[pEn].tr} Kanalı Meditasyon Vakti`;
   }
-  if (!targetPlanetsEn.includes(activePlanetEn)) {
+  if (!targetPlanetsEn.includes(activePlanetEn) && primaryChkItem) {
     targetPlanetsEn.unshift(activePlanetEn);
-    const firstChk = chakraPrescription.recommendedChakras[0];
-    if (firstChk) {
-      chakraReasonsByPlanet[activePlanetEn] = `${firstChk.shortName} (${firstChk.hz} Hz) Birincil Açı Vakti`;
-    }
+    chakraReasonsByPlanet[activePlanetEn] = `${primaryChkItem.shortName} (${primaryChkItem.hz} Hz) Birincil Açı Vakti`;
   }
 
   const planetaryHourGuide = calculateGuidePlanetaryHours(
@@ -721,12 +774,17 @@ export function generate7LayersDailyGuide(params: {
   );
 
   let breathGuide: BreathworkGuideSection;
+  const triggerAspectLabel =
+    primaryChkItem?.transitPlanet && primaryChkItem?.natalPlanet
+      ? `Transit ${primaryChkItem.transitPlanet} - Natal ${primaryChkItem.natalPlanet} (${primaryChkItem.aspectType}, ${(primaryChkItem.orb ?? 0).toFixed(1)}°)`
+      : `${PLANET_EN_META[activePlanetEn].tr} kanalı`;
+
   if (aspectMode === 'SUSHUMNA_REST') {
     breathGuide = {
       swaraChannelName: 'Sushumna Nadi (Merkezi Omurga Kanalı)',
       activeNostrilBadge: '🌿 İki Burun Kanalı Dengede • Zorlamasız Akış',
       pranayamaName: 'So-Ham Doğal Gözlem & Nadi Shodhana',
-      sanskritSubtitle: 'Sushumna Dhyana Pranayama',
+      sanskritSubtitle: 'Sushumna Dhyana Pranayama (4 - 2 - 4 Ritmi)',
       inhaleSec: 4,
       holdSec: 2,
       exhaleSec: 4,
@@ -742,17 +800,15 @@ export function generate7LayersDailyGuide(params: {
     };
   } else if (aspectMode === 'CHALLENGING') {
     breathGuide = {
-      swaraChannelName: 'İda Nadi (Sol Burun Kanalı • Ay Serinletici Akış)',
-      activeNostrilBadge: '❄️ Sol Burun Kanalı (İda) • Sürtünme & Stres Dengeleyici',
+      swaraChannelName: 'İda Nadi (Sol Burun Kanalı • Chandra Serinletici Akış)',
+      activeNostrilBadge: '❄️ Sol Burun Kanalı (İda) • Sürtünme & Stres Yatıştırıcı',
       pranayamaName: 'Chandra Bhedana & Uzatılmış Nadi Shodhana',
       sanskritSubtitle: 'Ay Kanalı Yatıştırıcı Nefes (4 - 4 - 8 Ritmi)',
       inhaleSec: 4,
       holdSec: 4,
       exhaleSec: 8,
       recommendedRounds: 12,
-      whyThisBreath: `Bugün haritanızdaki ${primaryTrigger?.transitPlanet} - Natal ${primaryTrigger?.natalPlanet} (${primaryTrigger?.aspectType}, ${primaryTrigger?.orb.toFixed(
-        1
-      )}°) açısı sinir sisteminde içsel gerilim ve acelecilik üretebilir. Nefes verme süresini (8 sn) alış süresinin (4 sn) iki katına çıkarmak ve sol burun (İda/Ay) kanalını aktive etmek vagus sinirini uyararak çakra blokajını hızla çözer.`,
+      whyThisBreath: `Bugün haritanızdaki ${triggerAspectLabel} açısı sinir sisteminde içsel sürtünme ve gerilim üretebilir. Shiva Swarodaya (Swara Yoga) yasasına göre sert açılarda nefes verme süresini (8 sn) alış süresinin (4 sn) iki katına çıkarmak ve sol burun (İda/Ay) kanalını aktive etmek vagus sinirini uyararak çakra blokajını hızla çözer.`,
       stepByStep: [
         'Sağ elinizin başparmağı ile sağ burun deliğinizi nazikçe kapatın (Vishnu Mudra).',
         'Sol burun deliğinizden (İda Kanalı) 4 saniye boyunca derin ve sessiz bir nefes alın.',
@@ -760,43 +816,64 @@ export function generate7LayersDailyGuide(params: {
         'Sol parmağınızı kaldırıp sağ burun deliğinizden 8 saniye boyunca çok yavaşça nefesi boşaltın.',
       ],
     };
-  } else if (['Sun', 'Mars', 'Jupiter'].includes(activePlanetEn)) {
+  } else if (
+    primaryChkItem?.chakraId === 3 ||
+    primaryChkItem?.chakraId === 1 ||
+    ['Sun', 'Mars', 'Saturn'].includes(activePlanetEn)
+  ) {
     breathGuide = {
-      swaraChannelName: 'Pingala Nadi (Sağ Burun Kanalı • Güneş Yaratım Akışı)',
-      activeNostrilBadge: '☀️ Sağ Burun Kanalı (Pingala) • İrade & Canlılık Aktivatörü',
+      swaraChannelName: 'Pingala Nadi (Sağ Burun Kanalı • Surya İrade & Topraklama Akışı)',
+      activeNostrilBadge: '☀️ Sağ Burun Kanalı (Pingala) • İrade & Yaşam Gücü Aktivatörü',
       pranayamaName: 'Surya Bhedana (Güneş Nefesi) & Prana Yüklemesi',
       sanskritSubtitle: 'Pingala Nadi Aktivasyonu (4 - 6 - 4 Ritmi)',
       inhaleSec: 4,
       holdSec: 6,
       exhaleSec: 4,
       recommendedRounds: 12,
-      whyThisBreath: `Bugün haritanızdaki uyumlu/aktif ${
-        PLANET_EN_META[activePlanetEn].tr
-      } tesiri yaşam iradenizi, yaratıcı cesaretinizi ve tezahür gücünüzü destekliyor. Sağ burun kanalından (Pingala) alınan ve 6 saniye merkezde tutulan Surya Bhedana nefesi, gökyüzünden gelen bu fırsatı hücresel prana enerjisine dönüştürür.`,
+      whyThisBreath: `Bugün haritanızdaki uyumlu ${triggerAspectLabel} tesiri ${primaryChkItem?.shortName} (${PLANET_EN_META[activePlanetEn].tr}) üzerinden yaşam iradenizi, dayanıklılığınızı ve tezahür gücünüzü destekliyor. Sağ burun kanalından (Pingala) alınan ve 6 saniye merkezde tutulan Surya Bhedana nefesi, gökyüzünden gelen bu fırsatı hücresel prana enerjisine dönüştürür.`,
       stepByStep: [
         'Sağ elinizin yüzük parmağı ile sol burun deliğinizi nazikçe kapatın.',
         'Sağ burun deliğinizden (Pingala/Güneş Kanalı) 4 saniye boyunca güçlü ve derin nefes alın.',
-        'Nefesi 6 saniye boyunca çakra odağınızda (altın bir ışık küresi gibi) tutun.',
+        'Nefesi 6 saniye boyunca çakra odağınızda (parlak bir ışık küresi gibi) tutun.',
         'Sağ burun deliğinizi kapatıp sol burun deliğinizden 4 saniye boyunca dengeli biçimde verin.',
       ],
     };
-  } else {
+  } else if (
+    primaryChkItem?.chakraId === 2 ||
+    primaryChkItem?.chakraId === 4 ||
+    ['Moon', 'Venus'].includes(activePlanetEn)
+  ) {
     breathGuide = {
-      swaraChannelName: 'İda & Pingala Sentezi (Çift Kanal Koheransı)',
-      activeNostrilBadge: '⚖️ Dönüşümlü Burun Kanalı • Kalp & Zihin Uyumu',
-      pranayamaName: 'Nadi Shodhana & Bhramari (Frekans Tınlama Nefesi)',
-      sanskritSubtitle: 'Sağ-Sol Yarımküre & Çakra Senkronizasyonu (4 - 4 - 6 Ritmi)',
+      swaraChannelName: 'İda Nadi & Kalp Koheransı (Sol Burun Başlangıçlı Su/Hava Akışı)',
+      activeNostrilBadge: '🌙 Sol Burun Başlangıçlı (İda) • Duygusal Akış & Kalp Uyumu',
+      pranayamaName: 'Chandra-Anahata Nadi Shodhana Nefesi',
+      sanskritSubtitle: 'Su & Kalp Elementi Senkronizasyonu (4 - 4 - 6 Ritmi)',
       inhaleSec: 4,
       holdSec: 4,
       exhaleSec: 6,
       recommendedRounds: 10,
-      whyThisBreath: `Bugün haritanızda tetiklenen ${
-        PLANET_EN_META[activePlanetEn].tr
-      } kanalı, sezgi, iletişim ve duygusal akışı aynı potada birleştirmenizi sağlıyor. Dönüşümlü burun nefesi (Nadi Shodhana) sağ ve sol beyin yarımkürelerini eşitlerken, 6 saniyelik yumuşak nefes veriş çakra frekansının bedene yerleşmesini sağlar.`,
+      whyThisBreath: `Bugün haritanızda aktif olan ${primaryChkItem?.shortName} (${PLANET_EN_META[activePlanetEn].tr} - ${triggerAspectLabel}) su ve sevgi kanallarını besliyor. Shiva Swarodaya'ya göre Ay ve Venüs (Saumya) etkilerinde sol burun kanalından (İda) başlanan 4-4-6 ritimli dönüşümlü nefes, duygusal zekayı ve yaratıcı sezgiyi en üst düzeye çıkarır.`,
+      stepByStep: [
+        'Sağ burun deliğinizi kapatıp sol burun deliğinizden (İda) 4 saniye yumuşakça nefes alın.',
+        'Nefesi 4 saniye boyunca kalp ve sakral merkezinizde şefkatle tutun, sağ burundan 6 saniyede verin.',
+        'Ardından sağdan 4 saniye alıp 4 saniye tutun ve soldan 6 saniyede vererek turu tamamlayın.',
+      ],
+    };
+  } else {
+    breathGuide = {
+      swaraChannelName: 'Sushumna & İda-Pingala Sentezi (Üst Çakra Koheransı)',
+      activeNostrilBadge: '⚖️ Dönüşümlü Burun & Tınlama • Zihin & Üçüncü Göz Berraklığı',
+      pranayamaName: 'Nadi Shodhana & Bhramari (Frekans Tınlama Nefesi)',
+      sanskritSubtitle: 'Merkür/Jüpiter Üst Merkez Senkronizasyonu (4 - 4 - 6 Ritmi)',
+      inhaleSec: 4,
+      holdSec: 4,
+      exhaleSec: 6,
+      recommendedRounds: 10,
+      whyThisBreath: `Bugün haritanızda tetiklenen ${primaryChkItem?.shortName} (${PLANET_EN_META[activePlanetEn].tr} - ${triggerAspectLabel}), ifade, sezgi ve yüksek idrak merkezlerinizi çalıştırıyor. Dönüşümlü burun nefesi (Nadi Shodhana) sağ ve sol beyin yarımkürelerini eşitlerken, Bhramari tınlaması epifiz ve boğaz merkezini doğrudan titreştirir.`,
       stepByStep: [
         'Sol burun deliğinden 4 saniye nefes alın, 4 saniye merkezde tutun ve sağdan 6 saniyede verin.',
         'Hemen ardından sağ burun deliğinden 4 saniye nefes alın, 4 saniye tutun ve soldan 6 saniyede verin (1 tam tur).',
-        'Son 3 turda nefes verirken dudaklarınız kapalıyken hafif bir "MMM" (Bhramari arı vızıltısı) sesi çıkararak kafa içi ve kalp rezonansını hissedin.',
+        'Son 3 turda nefes verirken dudaklarınız kapalıyken hafif bir "MMM" (Bhramari arı vızıltısı) sesi çıkararak kafa içi rezonansı hissedin.',
       ],
     };
   }
@@ -814,11 +891,41 @@ export function generate7LayersDailyGuide(params: {
     }
   );
 
-  const directionTattvaGuide =
-    PLANET_DIRECTION_TATTVA_CATALOG[activePlanetEn] || PLANET_DIRECTION_TATTVA_CATALOG.Sun;
+  const primaryChkId = primaryChkItem?.chakraId || 3;
+  const secondaryChkId = secondaryChkItem?.chakraId;
+  const planetDir =
+    PLANET_DIG_SHUDDHI_CATALOG[activePlanetEn] || PLANET_DIG_SHUDDHI_CATALOG.Sun;
+  const primaryTattva =
+    CHAKRA_TATTVA_GEOMETRY_CATALOG[primaryChkId] || CHAKRA_TATTVA_GEOMETRY_CATALOG[3];
+  const secondaryTattva = secondaryChkId
+    ? CHAKRA_TATTVA_GEOMETRY_CATALOG[secondaryChkId]
+    : null;
 
-  const primaryChkId = chakraPrescription.recommendedChakras[0]?.chakraId || 3;
-  const secondaryChkId = chakraPrescription.recommendedChakras[1]?.chakraId;
+  const directionTattvaGuide: DirectionTattvaSection = {
+    rulingPlanetTr: planetDir.rulingPlanetTr,
+    rulingPlanetSymbol: planetDir.rulingPlanetSymbol,
+    compassDirectionTr: planetDir.compassDirectionTr,
+    compassCode: planetDir.compassCode,
+    compassAngleDeg: planetDir.compassAngleDeg,
+    sanskritDirectionName: planetDir.sanskritDirectionName,
+    tattvaName: secondaryTattva
+      ? `${primaryTattva.tattvaName} & ${secondaryTattva.tattvaName}`
+      : primaryTattva.tattvaName,
+    tattvaElementTr: secondaryTattva
+      ? `${primaryTattva.tattvaElementTr} + ${secondaryTattva.tattvaElementTr}`
+      : primaryTattva.tattvaElementTr,
+    tattvaGeometryName: secondaryTattva
+      ? `${primaryTattva.tattvaGeometryName} (${primaryTattva.tattvaSymbol}) & ${secondaryTattva.tattvaGeometryName} (${secondaryTattva.tattvaSymbol})`
+      : primaryTattva.tattvaGeometryName,
+    tattvaSymbol: secondaryTattva
+      ? `${primaryTattva.tattvaSymbol}${secondaryTattva.tattvaSymbol}`
+      : primaryTattva.tattvaSymbol,
+    tattvaColorHex: primaryTattva.tattvaColorHex,
+    visualizationGuide: secondaryTattva
+      ? `Bugünkü birincil yönetici gezegen kanalınız ${planetDir.rulingPlanetSymbol} ${planetDir.rulingPlanetTr} olduğu için meditasyona otururken yüzünüzü ${planetDir.compassDirectionTr} yönüne dönün. Gözlerinizi kapattığınızda önce ${primaryTattva.chakraLocationTr} ${primaryTattva.tattvaGeometryName} (${primaryTattva.tattvaSymbol}), ardından tamamlayıcı ${secondaryTattva.chakraLocationTr} ${secondaryTattva.tattvaGeometryName} (${secondaryTattva.tattvaSymbol}) sembolünün parladığını imgeleyin.`
+      : `Bugünkü yönetici gezegen kanalınız ${planetDir.rulingPlanetSymbol} ${planetDir.rulingPlanetTr} olduğu için meditasyona otururken yüzünüzü ${planetDir.compassDirectionTr} yönüne dönün. Gözlerinizi kapattığınızda ${primaryTattva.chakraLocationTr} ${primaryTattva.tattvaGeometryName} (${primaryTattva.tattvaSymbol}) sembolünün parlayarak enerji merkezinizi dengelediğini imgeleyin.`,
+  };
+
   const primaryCrystalCat =
     CHAKRA_CRYSTAL_AROMA_CATALOG[primaryChkId] || CHAKRA_CRYSTAL_AROMA_CATALOG[3];
   const secondaryCrystalCat = secondaryChkId
@@ -864,9 +971,9 @@ export function generate7LayersDailyGuide(params: {
       } pozisyonuna getirin ve ${breathGuide.pranayamaName} sayacını başlatarak ${
         breathGuide.recommendedRounds
       } tur nefes alın.`,
-      `4. Bija Mantra & Tattva Mührü: İki kaşınızın arasında ${
+      `4. Bija Mantra & Tattva Mührü: Enerji merkezinizde ${
         directionTattvaGuide.tattvaGeometryName
-      } (${directionTattvaGuide.tattvaSymbol}) sembolünü imgeleyerek çalışmayı "${
+      } sembolünü imgeleyerek çalışmayı "${
         firstMudra?.bijaMantra || 'RAM'
       }" tohum sesiyle tamamlayın.`,
     ],

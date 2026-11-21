@@ -1356,6 +1356,12 @@ export interface ChakraFrequencyFocusItem {
   color: string;
   planetSource: string;
   reason: string;
+  rulingPlanetTr?: string;
+  transitPlanet?: string;
+  natalPlanet?: string;
+  aspectType?: string;
+  isHarmonious?: boolean;
+  orb?: number;
 }
 
 export interface DailyChakraPrescription {
@@ -1366,30 +1372,64 @@ export interface DailyChakraPrescription {
   recommendedChakras: ChakraFrequencyFocusItem[];
 }
 
-const CHAKRA_CATALOG: Record<number, { chakraId: number; hz: number; shortName: string; fullName: string; color: string }> = {
-  1: { chakraId: 1, hz: 396, shortName: '1. Kök Çakra', fullName: '1. Katman: Kök Çakra (Muladhara)', color: '#EF4444' },
-  2: { chakraId: 2, hz: 417, shortName: '2. Sakral Çakra', fullName: '2. Katman: Sakral Çakra (Svadhisthana)', color: '#F97316' },
-  3: { chakraId: 3, hz: 528, shortName: '3. Solar Pleksus', fullName: '3. Katman: Solar Pleksus (Manipura)', color: '#EAB308' },
-  4: { chakraId: 4, hz: 639, shortName: '4. Kalp Çakrası', fullName: '4. Katman: Kalp Çakrası (Anahata)', color: '#10B981' },
-  5: { chakraId: 5, hz: 741, shortName: '5. Boğaz Çakrası', fullName: '5. Katman: Boğaz Çakrası (Vishuddha)', color: '#0EA5E9' },
-  6: { chakraId: 6, hz: 852, shortName: '6. Üçüncü Göz', fullName: '6. Katman: Üçüncü Göz (Ajna)', color: '#6366F1' },
-  7: { chakraId: 7, hz: 963, shortName: '7. Taç Çakra', fullName: '7. Katman: Taç Çakra (Sahasrara)', color: '#A855F7' },
+const CHAKRA_CATALOG: Record<number, { chakraId: number; hz: number; shortName: string; fullName: string; color: string; defaultRulerTr: string }> = {
+  1: { chakraId: 1, hz: 396, shortName: '1. Kök Çakra', fullName: '1. Katman: Kök Çakra (Muladhara)', color: '#EF4444', defaultRulerTr: 'Satürn' },
+  2: { chakraId: 2, hz: 417, shortName: '2. Sakral Çakra', fullName: '2. Katman: Sakral Çakra (Svadhisthana)', color: '#F97316', defaultRulerTr: 'Ay' },
+  3: { chakraId: 3, hz: 528, shortName: '3. Solar Pleksus', fullName: '3. Katman: Solar Pleksus (Manipura)', color: '#EAB308', defaultRulerTr: 'Güneş' },
+  4: { chakraId: 4, hz: 639, shortName: '4. Kalp Çakrası', fullName: '4. Katman: Kalp Çakrası (Anahata)', color: '#10B981', defaultRulerTr: 'Venüs' },
+  5: { chakraId: 5, hz: 741, shortName: '5. Boğaz Çakrası', fullName: '5. Katman: Boğaz Çakrası (Vishuddha)', color: '#0EA5E9', defaultRulerTr: 'Merkür' },
+  6: { chakraId: 6, hz: 852, shortName: '6. Üçüncü Göz', fullName: '6. Katman: Üçüncü Göz (Ajna)', color: '#6366F1', defaultRulerTr: 'Jüpiter' },
+  7: { chakraId: 7, hz: 963, shortName: '7. Taç Çakra', fullName: '7. Katman: Taç Çakra (Sahasrara)', color: '#A855F7', defaultRulerTr: 'Güneş' },
 };
 
-function resolveChakraForPlanetOrSign(planetName: string, signName = ''): { chakraId: number; hz: number; shortName: string; fullName: string; color: string } {
-  if (planetName === 'Mars' || planetName === 'Plüton') return CHAKRA_CATALOG[1];
-  if (planetName === 'Venüs' || planetName === 'Lilith') return CHAKRA_CATALOG[2];
-  if (planetName === 'Güneş') return CHAKRA_CATALOG[3];
-  if (planetName === 'Ay' || planetName === 'Kiron') return CHAKRA_CATALOG[4];
-  if (planetName === 'Merkür') return CHAKRA_CATALOG[5];
-  if (planetName === 'Jüpiter' || planetName === 'Neptün') return CHAKRA_CATALOG[6];
-  if (planetName === 'Satürn' || planetName === 'Uranüs') return CHAKRA_CATALOG[7];
+function resolveChakraForPlanetOrSign(
+  planetName: string,
+  signName = ''
+): { chakraId: number; hz: number; shortName: string; fullName: string; color: string; rulingPlanetTr: string } {
+  if (planetName === 'Satürn' || planetName === 'Plüton') {
+    return { ...CHAKRA_CATALOG[1], rulingPlanetTr: 'Satürn' };
+  }
+  if (planetName === 'Ay' || planetName === 'Lilith') {
+    return { ...CHAKRA_CATALOG[2], rulingPlanetTr: 'Ay' };
+  }
+  if (planetName === 'Güneş') {
+    return { ...CHAKRA_CATALOG[3], rulingPlanetTr: 'Güneş' };
+  }
+  if (planetName === 'Mars') {
+    if (signName === 'Akrep' || signName === 'Oğlak') {
+      return { ...CHAKRA_CATALOG[1], rulingPlanetTr: 'Mars' };
+    }
+    return { ...CHAKRA_CATALOG[3], rulingPlanetTr: 'Mars' };
+  }
+  if (planetName === 'Venüs' || planetName === 'Kiron') {
+    return { ...CHAKRA_CATALOG[4], rulingPlanetTr: 'Venüs' };
+  }
+  if (planetName === 'Merkür') {
+    return { ...CHAKRA_CATALOG[5], rulingPlanetTr: 'Merkür' };
+  }
+  if (planetName === 'Jüpiter' || planetName === 'Neptün') {
+    return { ...CHAKRA_CATALOG[6], rulingPlanetTr: 'Jüpiter' };
+  }
+  if (planetName === 'Uranüs') {
+    return { ...CHAKRA_CATALOG[7], rulingPlanetTr: 'Satürn' };
+  }
 
-  const signMap: Record<string, number> = {
-    'Koç': 1, 'Boğa': 2, 'İkizler': 5, 'Yengeç': 4, 'Aslan': 3, 'Başak': 5,
-    'Terazi': 2, 'Akrep': 1, 'Yay': 6, 'Oğlak': 7, 'Kova': 7, 'Balık': 6
+  const signToChakraAndRuler: Record<string, { id: number; ruler: string }> = {
+    'Koç': { id: 3, ruler: 'Mars' },
+    'Boğa': { id: 4, ruler: 'Venüs' },
+    'İkizler': { id: 5, ruler: 'Merkür' },
+    'Yengeç': { id: 2, ruler: 'Ay' },
+    'Aslan': { id: 3, ruler: 'Güneş' },
+    'Başak': { id: 5, ruler: 'Merkür' },
+    'Terazi': { id: 4, ruler: 'Venüs' },
+    'Akrep': { id: 1, ruler: 'Mars' },
+    'Yay': { id: 6, ruler: 'Jüpiter' },
+    'Oğlak': { id: 1, ruler: 'Satürn' },
+    'Kova': { id: 7, ruler: 'Satürn' },
+    'Balık': { id: 6, ruler: 'Jüpiter' },
   };
-  return CHAKRA_CATALOG[signMap[signName] || 4];
+  const match = signToChakraAndRuler[signName] || { id: 4, ruler: 'Venüs' };
+  return { ...CHAKRA_CATALOG[match.id], rulingPlanetTr: match.ruler };
 }
 
 export interface CurrentSkyOverview {
@@ -2159,6 +2199,12 @@ export function generatePersonalTransitOverview(
         const areaName = LIFE_AREA_NAMES[asp.natalHouse] || `${asp.natalHouse}. Ev`;
         focusMap.set(natalChk.chakraId, {
           ...natalChk,
+          rulingPlanetTr: natalChk.rulingPlanetTr,
+          transitPlanet: asp.transitPlanet,
+          natalPlanet: asp.natalPlanet,
+          aspectType: asp.aspectType,
+          isHarmonious: asp.isHarmonious,
+          orb: asp.orb,
           planetSource: `Transit ${asp.transitPlanet} (${asp.transitSign} ${asp.transitDegree}°) ${asp.aspectType} Natal ${asp.natalPlanet} (${asp.natalSign} ${asp.natalDegree}°) [${asp.orb.toFixed(1)}° Orb]`,
           reason: asp.isHarmonious
             ? `${areaName} alanınızdaki Natal ${asp.natalPlanet} (${asp.natalSign} ${asp.natalDegree}°), bugün Transit ${asp.transitPlanet} ile ${asp.orb.toFixed(1)}° hassasiyetle uyumlu ${asp.aspectType} açısında; ${natalChk.shortName} (${natalChk.hz} Hz) merkezinizi aktive etmek yüksek akış sağlar.`
@@ -2167,11 +2213,19 @@ export function generatePersonalTransitOverview(
       }
       if (focusMap.size < 2 && ((asp.orb <= 2.2 && !asp.isHarmonious) || (asp.orb <= 1.8 && asp.isHarmonious))) {
         const secondChk = !asp.isHarmonious
-          ? (asp.aspectType === 'Karşıt' ? CHAKRA_CATALOG[4] : CHAKRA_CATALOG[1])
+          ? (asp.aspectType === 'Karşıt'
+              ? { ...CHAKRA_CATALOG[4], rulingPlanetTr: 'Venüs' }
+              : { ...CHAKRA_CATALOG[1], rulingPlanetTr: 'Satürn' })
           : resolveChakraForPlanetOrSign('', asp.transitSign);
         if (!focusMap.has(secondChk.chakraId)) {
           focusMap.set(secondChk.chakraId, {
             ...secondChk,
+            rulingPlanetTr: secondChk.rulingPlanetTr,
+            transitPlanet: asp.transitPlanet,
+            natalPlanet: asp.natalPlanet,
+            aspectType: asp.aspectType,
+            isHarmonious: asp.isHarmonious,
+            orb: asp.orb,
             planetSource: !asp.isHarmonious
               ? `${asp.aspectType} Açısı Dengeleyici Merkez (${asp.orb.toFixed(1)}° Orb)`
               : `Transit ${asp.transitPlanet} (${asp.transitSign} ${asp.transitDegree}°) Element Kanalı`,
