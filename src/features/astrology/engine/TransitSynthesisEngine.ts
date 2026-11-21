@@ -2304,13 +2304,12 @@ export function generatePersonalTransitOverview(
         : `${capitalizedPeakTopics} konularında beliren sürtüşmeleri bir kriz değil, sizi daha sağlam ve olgun kılan bir basamak olarak görün.`)
     : 'Haritanızdaki sakin akışı içsel dinlenme ve hedeflerinizi sadeleştirme fırsatı olarak değerlendirin.';
 
-  // Kişisel Harita 5-Kaynaklı Ezoterik Astro-Çakra, Gezegen Saati, Topraklanma, Nefes & Renk Reçetesi
+  // Kişisel Harita Kaynak Temelli Astro-Çakra, Gezegen Saati, Topraklanma, Nefes & Renk Reçetesi
   // --------------------------------------------------------------------------------------------------
-  // 1) Kabalistik 4 Alem / Çift Harita Taraması (1. Beden Haritası [Assiah / Tropikal] + 2. Ruh Haritası [Yetzirah / Drakonik])
-  // 2) Kadim Zîc / Ephemeris "Yevmü'l-Kemâl" (24 Saatlik [00:00 - 23:59:59] Tam 0°00' Sıfır Geçişi / Exact Culmination)
-  // 3) Hermetik 7 Küre & Alice Bailey (Esoteric Astrology) Çoklu Çakra Devresi (Ev + Gezegen + Köprü Merkezleri)
-  // 4) Key of Solomon & Sefirot Gezegen Saati (Hora) Seçimi (Satürn/Binah, Jüpiter/Hesed, Merkür/Hod, Güneş/Tiferet, Mars/Gevurah)
-  // 5) Dion Fortune (Mystical Qabalah) Renk Skalası (Ayn-Sof/Binah Siyah, Gevurah Kırmızı, Çakra Rengi) & Shiva Swarodaya Nefes/Topraklanma
+  // 1) Kadim Zîc / Ephemeris "Yevmü'l-Kemâl" (24 Saatlik [00:00 - 23:59:59] Tam 0°00' Sıfır Geçişi / Exact Culmination)
+  // 2) Gerçek 2 Kutuplu Çakra Kuralı (Yapay 4 çakra şişirmesi olmadan yalnızca açıyı yapan 2 gerçek kutup çakra verir)
+  // 3) Key of Solomon & Sefirot Gezegen Saati (Hora) Seçimi (Satürn/Binah, Jüpiter/Hesed, Merkür/Hod, Güneş/Tiferet, Mars/Gevurah)
+  // 4) Dion Fortune (Mystical Qabalah) Renk Skalası (Ayn-Sof/Binah Siyah, Gevurah Kırmızı, Çakra Rengi) & Shiva Swarodaya Nefes/Topraklanma
 
   const dayStart = new Date(
     targetDate.getFullYear(),
@@ -2353,7 +2352,7 @@ export function generatePersonalTransitOverview(
       chartWorldBadge?: string;
     }
   ) => {
-    if (!focusMap.has(chk.chakraId) && focusMap.size < 4) {
+    if (!focusMap.has(chk.chakraId) && focusMap.size < 3) {
       focusMap.set(chk.chakraId, {
         ...chk,
         ...meta,
@@ -2369,46 +2368,15 @@ export function generatePersonalTransitOverview(
     { angle: 180, type: 'Karşıt', harm: false },
   ];
 
-  // Drakonik (2. Harita - Yetzirah / Ruh Haritası) Hesaplaması: Kuzey Ay Düğümü = 0° Koç
-  const natalNorthNode = natalPlanets.find(p => p.name === 'Kuzey Ay Düğümü');
-  const nnLon = natalNorthNode ? natalNorthNode.longitude : 0;
-  const shiftDraconic = (lon: number) => ((lon - nnLon) % 360 + 360) % 360;
-
-  const draconicPlanets: AstroPoint[] = natalNorthNode
-    ? natalPlanets.map(p => ({
-        ...p,
-        longitude: shiftDraconic(p.longitude),
-      }))
-    : [];
-  const draconicHouses: AstroPoint[] = natalNorthNode
-    ? natalHouses.map(h => ({
-        ...h,
-        longitude: shiftDraconic(h.longitude),
-      }))
-    : [];
-
-  // Kraliyet & Ezoterik Sabit Yıldızları (Aldebaran, Regulus, Antares, Fomalhaut, Sirius, Spica, Algol, Pleiades/Alcyone)
-  const ESOTERIC_FIXED_STARS: Array<{ name: string; lon: number; chakraId: number; desc: string }> = [
-    { name: 'Alcyone (Pleiades)', lon: 60.0, chakraId: 6, desc: 'Kozmik Bilinç & Üçüncü Göz Kapısı' },
-    { name: 'Aldebaran (Kraliyet Yıldızı)', lon: 69.8, chakraId: 5, desc: 'Doğu Gözcüsü • Hakikat & Sözün Dürüstlüğü' },
-    { name: 'Sirius (İlahi Güneş)', lon: 104.1, chakraId: 6, desc: 'Ruhsal Güneş • Yüksek Görev & İnisiyasyon' },
-    { name: 'Regulus (Kraliyet Yıldızı)', lon: 150.0, chakraId: 4, desc: 'Kuzey Gözcüsü • Kalp Frekansı & İlahi İrade' },
-    { name: 'Spica', lon: 203.8, chakraId: 6, desc: 'İlahi Armağan & Yüksek İdrak' },
-    { name: 'Antares (Kraliyet Yıldızı)', lon: 249.8, chakraId: 1, desc: 'Batı Gözcüsü • Kök Dönüşüm & Simya' },
-    { name: 'Fomalhaut (Kraliyet Yıldızı)', lon: 333.9, chakraId: 7, desc: 'Güney Gözcüsü • Saf Ruhsal Vizyon' },
-  ];
-
   let isLunationDay = false;
   let lunationType: 'Yeniay' | 'Dolunay' | null = null;
-  let hasFixedStarHit = false;
-  let fixedStarName: string | null = null;
+  const hasFixedStarHit = false;
+  const fixedStarName: string | null = null;
   let hasVertexOrNodeHit = false;
   let hasHard3DFriction = false;
   let hasHighSpiritualVoltage = false;
   let hasPowerActivation = false;
-  let assiahActive = false;
-  let yetzirahActive = false;
-  let beriyahOrAtzilutActive = false;
+  let primaryTriggerSummaryLabel = '';
   const triggeredPlanetsSet = new Set<string>();
   const triggeredHousesSet = new Set<number>();
 
@@ -2441,8 +2409,6 @@ export function generatePersonalTransitOverview(
       const isFullMoon = fullMoonCheck.culminates;
       isLunationDay = true;
       lunationType = isFullMoon ? 'Dolunay' : 'Yeniay';
-      assiahActive = true;
-      yetzirahActive = true;
       const moonHouse = tMoon.house || getHouseFromLongitude(tMoon.longitude, natalHouses);
       triggeredHousesSet.add(moonHouse);
       const houseArea = LIFE_AREA_NAMES[moonHouse] || `${moonHouse}. Ev`;
@@ -2450,49 +2416,36 @@ export function generatePersonalTransitOverview(
       const signChk = resolveChakraForPlanetOrSign('', tMoon.sign);
       triggeredPlanetsSet.add(houseChk.rulingPlanetTr);
       triggeredPlanetsSet.add(signChk.rulingPlanetTr);
+      primaryTriggerSummaryLabel = `${tMoon.sign} ${lunationType}ı (${moonHouse}. Ev: ${houseArea})`;
 
+      // Yeniay / Dolunay Sadece 2 Gerçek Kutup Çakrası Verir: (1) Düştüğü Evin Çakrası + (2) Burç Yöneticisinin Çakrası
       addChakraFocus(houseChk, {
-        planetSource: `${tMoon.sign} ${lunationType}ı • ${moonHouse}. Ev (${houseArea}) [1. Beden & 2. Ruh Haritası]`,
+        planetSource: `${tMoon.sign} ${lunationType}ı • ${moonHouse}. Ev (${houseArea})`,
         reason: `Bugün ${tMoon.sign} burcunda gerçekleşen ${lunationType} doğrudan ${moonHouse}. Evinizde (${houseArea}) tam zirve yapıyor; bu yaşam alanının doğal merkezi olan ${houseChk.shortName} (${houseChk.hz} Hz) aktive oluyor.`,
         transitPlanet: lunationType,
         natalPlanet: `${moonHouse}. Ev`,
         aspectType: isFullMoon ? 'Karşıt' : 'Kavuşum',
         isHarmonious: true,
         orb: 0.0,
-        chartWorldBadge: '1. Beden & 2. Ruh Haritası',
+        chartWorldBadge: `${tMoon.sign} ${lunationType}ı`,
       });
 
-      addChakraFocus(signChk, {
-        planetSource: `${tMoon.sign} ${lunationType}ı (${tMoon.degreeInSign}°) Burç Yöneticisi (${signChk.rulingPlanetTr})`,
-        reason: `${tMoon.sign} burcundaki ${lunationType}ın burç yöneticisi ${signChk.rulingPlanetTr} üzerinden ${signChk.shortName} (${signChk.hz} Hz) merkezinizi yüksek frekansla çalıştırıyor.`,
-        transitPlanet: lunationType,
-        natalPlanet: tMoon.sign,
-        aspectType: isFullMoon ? 'Karşıt' : 'Kavuşum',
-        isHarmonious: true,
-        orb: 0.0,
-        chartWorldBadge: '2. Ruh Haritası (Yetzirah)',
-      });
-
-      // Yeniay ve Dolunaylarda ruhsal kanal (3. Göz veya Taç) güncellemesi
-      if (!focusMap.has(6) && !focusMap.has(7)) {
-        addChakraFocus(
-          { ...CHAKRA_CATALOG[6], rulingPlanetTr: 'Jüpiter' },
-          {
-            planetSource: `${tMoon.sign} ${lunationType}ı • Hücresel & Nöron Aktivasyonu Kanalı`,
-            reason: `${lunationType} günlerinde hücresel güncellemeyi ve epifiz (nöron) aktivasyonunu dengelemek için 6. Üçüncü Göz (852 Hz) devrede.`,
-            transitPlanet: lunationType,
-            natalPlanet: 'Epifiz / Ajna',
-            aspectType: isFullMoon ? 'Karşıt' : 'Kavuşum',
-            isHarmonious: true,
-            orb: 0.0,
-            chartWorldBadge: '3. Zihin & Üst Harita Köprüsü',
-          }
-        );
+      if (signChk.chakraId !== houseChk.chakraId) {
+        addChakraFocus(signChk, {
+          planetSource: `${tMoon.sign} ${lunationType}ı (${tMoon.degreeInSign}°) Burç Yöneticisi (${signChk.rulingPlanetTr})`,
+          reason: `${tMoon.sign} burcundaki ${lunationType}ın burç yöneticisi ${signChk.rulingPlanetTr} üzerinden ${signChk.shortName} (${signChk.hz} Hz) merkezinizi yüksek frekansla çalıştırıyor.`,
+          transitPlanet: lunationType,
+          natalPlanet: tMoon.sign,
+          aspectType: isFullMoon ? 'Karşıt' : 'Kavuşum',
+          isHarmonious: true,
+          orb: 0.0,
+          chartWorldBadge: `${tMoon.sign} ${lunationType}ı`,
+        });
       }
     }
   }
 
-  // 2) 1. Harita (Beden Haritası - Assiah) & 2. Harita (Ruh Haritası - Yetzirah / Drakonik) Tam Zirve (0°00') Taraması
+  // 2) Kişisel Doğum Haritasında (Natal) Ay Dışındaki 9 Gezegenin Tam Zirve (0°00') Yaptığı Açılar
   const nonLunarTransits = ['Güneş', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton'];
   const allowedNatalTargets = new Set([
     'Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn',
@@ -2501,8 +2454,8 @@ export function generatePersonalTransitOverview(
   ]);
 
   interface EsotericExactHit {
-    chartWorld: 'ASSIAH' | 'YETZIRAH';
-    chartWorldLabel: string;
+    isPersonalNatal: boolean;
+    sourceLabel: string;
     tPlanet: AstroPoint;
     nPlanet: AstroPoint;
     tHouse: number;
@@ -2512,13 +2465,12 @@ export function generatePersonalTransitOverview(
     minOrb: number;
   }
 
-  const exactHits: EsotericExactHit[] = [];
+  const personalNatalHits: EsotericExactHit[] = [];
 
   for (const tName of nonLunarTransits) {
     const tObj = transitPlanets.find(p => p.name === tName);
     if (!tObj) continue;
 
-    // A) 1. Harita: Beden Haritası (Assiah - Tropikal Natal)
     for (const nObj of natalPlanets) {
       if (!allowedNatalTargets.has(nObj.name)) continue;
       const isSecondaryNatal = ['Kiron', 'Lilith', 'Vertex (Vx)', 'Kuzey Ay Düğümü', 'Yükselen (ASC)', 'Tepe Noktası (MC)'].includes(nObj.name);
@@ -2540,9 +2492,9 @@ export function generatePersonalTransitOverview(
           const isHarm =
             aDef.harm &&
             !(aDef.type === 'Kavuşum' && ['Mars', 'Satürn', 'Plüton', 'Lilith'].includes(tName));
-          exactHits.push({
-            chartWorld: 'ASSIAH',
-            chartWorldLabel: '1. Beden Haritası (Assiah)',
+          personalNatalHits.push({
+            isPersonalNatal: true,
+            sourceLabel: `Kişisel Harita: Transit ${tName} ${aDef.type} Natal ${nObj.name}`,
             tPlanet: tObj,
             nPlanet: nObj,
             tHouse,
@@ -2554,214 +2506,63 @@ export function generatePersonalTransitOverview(
         }
       }
     }
-
-    // B) 1. Harita: Beden Haritası Ev Girişleri (1., 4., 7., 8., 9., 10., 12. Ev Tam Derece Kavuşumları)
-    for (const hObj of natalHouses) {
-      if (![1, 4, 7, 8, 9, 10, 12].includes(hObj.house)) continue;
-      const checkHouseCusp = checkExactCulminationOnDay(
-        (d) => getZicEclipticLonAt(tName, d),
-        () => hObj.longitude,
-        0,
-        dayStart,
-        dayNoon,
-        dayEnd,
-        prevNoon,
-        nextNoon
-      );
-      if (checkHouseCusp.culminates) {
-        exactHits.push({
-          chartWorld: 'ASSIAH',
-          chartWorldLabel: '1. Beden Haritası (Tam Ev Girişi)',
-          tPlanet: tObj,
-          nPlanet: {
-            name: `${hObj.house}. Ev Girişi`,
-            longitude: hObj.longitude,
-            sign: hObj.sign,
-            degreeInSign: hObj.degreeInSign,
-            minutes: hObj.minutes,
-            house: hObj.house,
-          },
-          tHouse: hObj.house,
-          nHouse: hObj.house,
-          aspectType: 'Kavuşum',
-          isHarmonious: !['Mars', 'Satürn', 'Plüton'].includes(tName),
-          minOrb: checkHouseCusp.minOrb,
-        });
-      }
-    }
-
-    // C) 2. Harita: Ruh Haritası (Yetzirah - Drakonik Harita) Esas Açılar (0°, 90°, 180° + Kişisel Gezegen 60°/120°)
-    const isPersonalTransit = ['Güneş', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn'].includes(tName);
-    for (const dObj of draconicPlanets) {
-      if (!['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Vertex (Vx)'].includes(dObj.name)) continue;
-      for (const aDef of zicAspectDefs) {
-        // Ruh haritasında (Drakonik) esas açılar (0, 90, 180) veya kişisel gezegen kavuşum/üçgenleri
-        if ((aDef.angle === 60 || aDef.angle === 120) && !isPersonalTransit) continue;
-        if (dObj.name === 'Vertex (Vx)' && aDef.angle !== 0 && aDef.angle !== 90 && aDef.angle !== 180) continue;
-        const checkDrac = checkExactCulminationOnDay(
-          (d) => getZicEclipticLonAt(tName, d),
-          () => dObj.longitude,
-          aDef.angle,
-          dayStart,
-          dayNoon,
-          dayEnd,
-          prevNoon,
-          nextNoon
-        );
-        if (checkDrac.culminates) {
-          const tHouse = tObj.house || getHouseFromLongitude(tObj.longitude, natalHouses);
-          const dHouse = dObj.house || getHouseFromLongitude(dObj.longitude, draconicHouses);
-          const isHarm =
-            aDef.harm &&
-            !(aDef.type === 'Kavuşum' && ['Mars', 'Satürn', 'Plüton'].includes(tName));
-          exactHits.push({
-            chartWorld: 'YETZIRAH',
-            chartWorldLabel: '2. Ruh Haritası (Drakonik / Yetzirah)',
-            tPlanet: tObj,
-            nPlanet: dObj,
-            tHouse,
-            nHouse: dHouse,
-            aspectType: aDef.type,
-            isHarmonious: isHarm,
-            minOrb: checkDrac.minOrb,
-          });
-        }
-      }
-    }
-
-    // D) Kraliyet & Ezoterik Sabit Yıldız Tam Derece Kavuşumları (Güneş, Merkür, Venüs, Mars, Jüpiter, Satürn)
-    if (isPersonalTransit) {
-      for (const star of ESOTERIC_FIXED_STARS) {
-        const starCheck = checkExactCulminationOnDay(
-          (d) => getZicEclipticLonAt(tName, d),
-          () => star.lon,
-          0,
-          dayStart,
-          dayNoon,
-          dayEnd,
-          prevNoon,
-          nextNoon
-        );
-        if (starCheck.culminates) {
-          hasFixedStarHit = true;
-          fixedStarName = star.name;
-          const starHouse = tObj.house || getHouseFromLongitude(star.lon, natalHouses);
-          triggeredHousesSet.add(starHouse);
-          triggeredPlanetsSet.add(tName);
-          const starChk = { ...CHAKRA_CATALOG[star.chakraId], rulingPlanetTr: CHAKRA_CATALOG[star.chakraId].defaultRulerTr };
-          const houseChk = resolveChakraForHouse(starHouse);
-          addChakraFocus(houseChk, {
-            planetSource: `Sabit Yıldız Etkileşimi: Transit ${tName} ☌ ${star.name} • ${starHouse}. Ev Tam Derece`,
-            reason: `Bugün Transit ${tName}, ${starHouse}. Evinizde (${LIFE_AREA_NAMES[starHouse] || `${starHouse}. Ev`}) ${star.name} sabit yıldızıyla tam derecede kavuşuyor (${star.desc}); ${houseChk.shortName} (${houseChk.hz} Hz) aktive oluyor.`,
-            transitPlanet: tName,
-            natalPlanet: star.name,
-            aspectType: 'Kavuşum',
-            isHarmonious: true,
-            orb: starCheck.minOrb,
-            chartWorldBadge: '1. Beden Haritası & Sabit Yıldız',
-          });
-          addChakraFocus(starChk, {
-            planetSource: `${star.name} Sabit Yıldız Kanalı (${star.desc})`,
-            reason: `${star.name} sabit yıldız etkileşimi yüksek ruhsal hatırlatma ve nöron aktivasyonu için ${starChk.shortName} (${starChk.hz} Hz) merkezinizi çalıştırıyor.`,
-            transitPlanet: tName,
-            natalPlanet: star.name,
-            aspectType: 'Kavuşum',
-            isHarmonious: true,
-            orb: starCheck.minOrb,
-            chartWorldBadge: '3. & 4. Üst Harita Kapısı',
-          });
-        }
-      }
-    }
   }
 
-  // E) Kolektif Gökyüzünde Ay Dışındaki 9 Gezegenin Birbiriyle (ve Kuzey Ay Düğümü ile) Tam Zirve (0°00') Yaptığı Günler
-  for (let i = 0; i < nonLunarTransits.length; i++) {
-    for (let j = i + 1; j < nonLunarTransits.length; j++) {
-      const p1Name = nonLunarTransits[i];
-      const p2Name = nonLunarTransits[j];
-      const p1Obj = transitPlanets.find(p => p.name === p1Name);
-      const p2Obj = transitPlanets.find(p => p.name === p2Name);
-      if (!p1Obj || !p2Obj) continue;
+  personalNatalHits.sort((a, b) => a.minOrb - b.minOrb);
 
-      for (const aDef of zicAspectDefs) {
-        const check = checkExactCulminationOnDay(
-          (d) => getZicEclipticLonAt(p1Name, d),
-          (d) => getZicEclipticLonAt(p2Name, d),
-          aDef.angle,
-          dayStart,
-          dayNoon,
-          dayEnd,
-          prevNoon,
-          nextNoon
-        );
-        if (check.culminates) {
-          const h1 = p1Obj.house || getHouseFromLongitude(p1Obj.longitude, natalHouses);
-          const h2 = p2Obj.house || getHouseFromLongitude(p2Obj.longitude, natalHouses);
-          const isHarm =
-            aDef.harm &&
-            !(aDef.type === 'Kavuşum' && ['Mars', 'Satürn', 'Plüton'].includes(p2Name));
-          exactHits.push({
-            chartWorld: 'ASSIAH',
-            chartWorldLabel: 'Gökyüzü & Kişisel Ev Aksı',
-            tPlanet: p1Obj,
-            nPlanet: p2Obj,
-            tHouse: h1,
-            nHouse: h2,
-            aspectType: aDef.type,
-            isHarmonious: isHarm,
-            minOrb: check.minOrb,
-          });
+  // 3) Kolektif Gökyüzü Tam Zirve Açısı (YALNIZCA o gün Kişisel Haritada tam açı veya Yeniay/Dolunay YOKSA devreye girer, böylece üst üste binip 4 çakra şişirmez!)
+  const skyExactHits: EsotericExactHit[] = [];
+  if (personalNatalHits.length === 0 && !isLunationDay) {
+    for (let i = 0; i < nonLunarTransits.length; i++) {
+      for (let j = i + 1; j < nonLunarTransits.length; j++) {
+        const p1Name = nonLunarTransits[i];
+        const p2Name = nonLunarTransits[j];
+        const p1Obj = transitPlanets.find(p => p.name === p1Name);
+        const p2Obj = transitPlanets.find(p => p.name === p2Name);
+        if (!p1Obj || !p2Obj) continue;
+
+        for (const aDef of zicAspectDefs) {
+          const check = checkExactCulminationOnDay(
+            (d) => getZicEclipticLonAt(p1Name, d),
+            (d) => getZicEclipticLonAt(p2Name, d),
+            aDef.angle,
+            dayStart,
+            dayNoon,
+            dayEnd,
+            prevNoon,
+            nextNoon
+          );
+          if (check.culminates) {
+            const h1 = p1Obj.house || getHouseFromLongitude(p1Obj.longitude, natalHouses);
+            const h2 = p2Obj.house || getHouseFromLongitude(p2Obj.longitude, natalHouses);
+            const isHarm =
+              aDef.harm &&
+              !(aDef.type === 'Kavuşum' && ['Mars', 'Satürn', 'Plüton'].includes(p2Name));
+            skyExactHits.push({
+              isPersonalNatal: false,
+              sourceLabel: `Gökyüzü Tam Derece Açısı: ${p1Name} – ${p2Name} ${aDef.type}`,
+              tPlanet: p1Obj,
+              nPlanet: p2Obj,
+              tHouse: h1,
+              nHouse: h2,
+              aspectType: aDef.type,
+              isHarmonious: isHarm,
+              minOrb: check.minOrb,
+            });
+          }
         }
       }
     }
+    skyExactHits.sort((a, b) => a.minOrb - b.minOrb);
   }
 
-  // F) Gökyüzünde Gezegenlerin Transit Kuzey Ay Düğümü (Kadersel Düğüm) ile Tam Zirve (0°, 90°, 180°) Yaptığı Günler
-  const tNorthNode = transitPlanets.find(p => p.name === 'Kuzey Ay Düğümü');
-  if (tNorthNode) {
-    for (const pName of nonLunarTransits) {
-      const pObj = transitPlanets.find(p => p.name === pName);
-      if (!pObj) continue;
-      for (const aDef of zicAspectDefs) {
-        if (aDef.angle !== 0 && aDef.angle !== 90 && aDef.angle !== 180) continue;
-        const checkNode = checkExactCulminationOnDay(
-          (d) => getZicEclipticLonAt(pName, d),
-          () => tNorthNode.longitude,
-          aDef.angle,
-          dayStart,
-          dayNoon,
-          dayEnd,
-          prevNoon,
-          nextNoon
-        );
-        if (checkNode.culminates) {
-          hasVertexOrNodeHit = true;
-          const h1 = pObj.house || getHouseFromLongitude(pObj.longitude, natalHouses);
-          const h2 = tNorthNode.house || getHouseFromLongitude(tNorthNode.longitude, natalHouses);
-          exactHits.push({
-            chartWorld: 'YETZIRAH',
-            chartWorldLabel: 'Kadersel Ay Düğümleri & 3. Harita Geçişi',
-            tPlanet: pObj,
-            nPlanet: tNorthNode,
-            tHouse: h1,
-            nHouse: h2,
-            aspectType: aDef.type,
-            isHarmonious: aDef.angle === 0 && !['Mars', 'Satürn', 'Plüton'].includes(pName),
-            minOrb: checkNode.minOrb,
-          });
-        }
-      }
-    }
-  }
+  // O günün en güçlü tek ana açısını (veya varsa en yakın 2 kişisel açıyı) işle — her açı yalnızca kendi 2 kutbunun çakrasını verir!
+  const activeHitsToProcess =
+    personalNatalHits.length > 0
+      ? personalNatalHits.slice(0, 1)
+      : skyExactHits.slice(0, 1);
 
-  // Önce Beden Haritası (ASSIAH), sonra Ruh Haritası (YETZIRAH) ve dar orb sırasına göre sırala
-  exactHits.sort((a, b) => a.minOrb - b.minOrb);
-
-  for (const hit of exactHits) {
-    if (hit.chartWorld === 'ASSIAH') assiahActive = true;
-    if (hit.chartWorld === 'YETZIRAH') yetzirahActive = true;
-
+  for (const hit of activeHitsToProcess) {
     const tName = hit.tPlanet.name;
     const nName = hit.nPlanet.name;
     triggeredPlanetsSet.add(tName);
@@ -2769,8 +2570,11 @@ export function generatePersonalTransitOverview(
     triggeredHousesSet.add(hit.tHouse);
     triggeredHousesSet.add(hit.nHouse);
 
+    if (!primaryTriggerSummaryLabel) {
+      primaryTriggerSummaryLabel = hit.sourceLabel;
+    }
+
     if (['Uranüs', 'Neptün', 'Plüton'].includes(tName) || ['Uranüs', 'Neptün', 'Plüton'].includes(nName)) {
-      beriyahOrAtzilutActive = true;
       hasHighSpiritualVoltage = true;
     }
     if ([8, 9, 12].includes(hit.nHouse) || [8, 9, 12].includes(hit.tHouse)) {
@@ -2789,102 +2593,39 @@ export function generatePersonalTransitOverview(
       hasPowerActivation = true;
     }
 
-    // Alice Bailey (Esoteric Astrology) & Hermetik 7 Küre Çoklu Çakra Devresi (Circuit) Kuralı:
-    // 1. Açı yapan transit ve hedef gezegenlerin çakraları
-    // 2. Tetiklenen evin (Bhava) yaşam alanı çakrası
-    // 3. Açı türüne göre üst oktav / dengeleyici köprü çakra
+    // GERÇEK 2 KUTUPLU ÇAKRA KURALI:
+    // 1. Kutup: Tetiklenen Natal Gezegenin Çakrası (nChk)
+    // 2. Kutup: Açı Yapan Transit Gezegenin Çakrası (tChk)
     const tChk = resolveChakraForPlanetOrSign(tName, hit.tPlanet.sign);
-    const nChk = nName.includes('Ev Girişi')
-      ? resolveChakraForHouse(hit.nHouse)
-      : resolveChakraForPlanetOrSign(nName, hit.nPlanet.sign);
-    const houseChk = resolveChakraForHouse(hit.nHouse);
-    const tHouseChk = resolveChakraForHouse(hit.tHouse);
+    const nChk = resolveChakraForPlanetOrSign(nName, hit.nPlanet.sign);
     const areaName = LIFE_AREA_NAMES[hit.nHouse] || `${hit.nHouse}. Ev`;
 
-    // Birincil: Tetiklenen Ev veya Natal Gezegen Çakrası
     addChakraFocus(nChk, {
-      planetSource: `${hit.chartWorldLabel}: ${tName} – ${nName} ${hit.aspectType} (${hit.nHouse}. Ev: ${areaName})`,
+      planetSource: hit.isPersonalNatal
+        ? `Transit ${tName} (${hit.tPlanet.sign} ${hit.tPlanet.degreeInSign}°) ${hit.aspectType} Natal ${nName} (${hit.nHouse}. Ev: ${areaName})`
+        : `Gökyüzü Tam Zirve: ${tName} – ${nName} ${hit.aspectType} (${hit.nHouse}. Ev: ${areaName})`,
       reason: hit.isHarmonious
-        ? `[${hit.chartWorldLabel}] ${hit.nHouse}. Evinizdeki (${areaName}) ${nName}, bugün ${tName} ile tam derecede (0°00') uyumlu ${hit.aspectType} açısında; ${nChk.shortName} (${nChk.hz} Hz) merkeziniz aktive oluyor.`
-        : `[${hit.chartWorldLabel}] ${hit.nHouse}. Evinizdeki (${areaName}) ${nName}, bugün ${tName} ile tam derecede (0°00') ${hit.aspectType} sınavında; ${nChk.shortName} (${nChk.hz} Hz) merkezinizi gözlemci kalarak dengeleyin.`,
+        ? `${hit.nHouse}. Evinizdeki (${areaName}) ${nName}, bugün ${tName} ile tam derecede (0°00') uyumlu ${hit.aspectType} açısında; ${nChk.shortName} (${nChk.hz} Hz) merkeziniz aktive oluyor.`
+        : `${hit.nHouse}. Evinizdeki (${areaName}) ${nName}, bugün ${tName} ile tam derecede (0°00') ${hit.aspectType} sınavında; ${nChk.shortName} (${nChk.hz} Hz) merkezinizi gözlemci kalarak dengeleyin.`,
       transitPlanet: tName,
       natalPlanet: nName,
       aspectType: hit.aspectType,
       isHarmonious: hit.isHarmonious,
       orb: hit.minOrb,
-      chartWorldBadge: hit.chartWorldLabel,
+      chartWorldBadge: hit.sourceLabel,
     });
 
-    // İkincil: Transit Gezegenin Küre Çakrası
     if (tChk.chakraId !== nChk.chakraId) {
       addChakraFocus(tChk, {
         planetSource: `${tName} – ${nName} ${hit.aspectType} • ${tName} Küresi (${hit.tHouse}. Ev: ${LIFE_AREA_NAMES[hit.tHouse] || `${hit.tHouse}. Ev`})`,
-        reason: `Açının aktif kutbu olan ${tName} (${hit.tHouse}. Ev), ${tChk.shortName} (${tChk.hz} Hz) merkezini eşzamanlı çalıştırıyor.`,
+        reason: `Açının diğer kutbu olan ${tName} (${hit.tHouse}. Ev), ${tChk.shortName} (${tChk.hz} Hz) merkezini eşzamanlı çalıştırıyor.`,
         transitPlanet: tName,
         natalPlanet: nName,
         aspectType: hit.aspectType,
         isHarmonious: hit.isHarmonious,
         orb: hit.minOrb,
-        chartWorldBadge: hit.chartWorldLabel,
+        chartWorldBadge: hit.sourceLabel,
       });
-    }
-
-    // Üçüncül: Tetiklenen Yaşam Alanı (Ev / Bhava) Çakrası
-    if (houseChk.chakraId !== nChk.chakraId && houseChk.chakraId !== tChk.chakraId) {
-      addChakraFocus(houseChk, {
-        planetSource: `${hit.nHouse}. Ev (${areaName}) Yaşam Alanı Rezonansı`,
-        reason: `Açının düştüğü ${hit.nHouse}. Ev (${areaName}) yaşam alanının doğal merkezi olan ${houseChk.shortName} (${houseChk.hz} Hz) devreye giriyor.`,
-        transitPlanet: tName,
-        natalPlanet: nName,
-        aspectType: hit.aspectType,
-        isHarmonious: hit.isHarmonious,
-        orb: hit.minOrb,
-        chartWorldBadge: hit.chartWorldLabel,
-      });
-    }
-
-    // Dördüncül: Alice Bailey Köprü Çakrası (İlişkiler/Vertex sınavlarında Kalp [4] veya Sakral [2]; Zihin/8.Ev/Üst Gezegen açılarında Boğaz [5], 3. Göz [6] veya Taç [7])
-    if (focusMap.size < 4) {
-      if (([7, 5].includes(hit.nHouse) || ['Venüs', 'Vertex (Vx)'].includes(nName)) && !focusMap.has(4) && !hit.isHarmonious) {
-        addChakraFocus(
-          { ...CHAKRA_CATALOG[4], rulingPlanetTr: 'Ay' },
-          {
-            planetSource: `Kalp Frekansı & Gözlemci Köprüsü (${hit.nHouse}. Ev İlişkiler/Kontrat Dengesi)`,
-            reason: `İlişkiler ve kontrat alanında (${hit.nHouse}. Ev) duygu üretmeden sevgi frekansında ve gözlemci kalmak için 4. Kalp Çakrası (639 Hz) dengeleyici köprü olarak çalışıyor.`,
-            transitPlanet: tName,
-            natalPlanet: nName,
-            aspectType: hit.aspectType,
-            isHarmonious: hit.isHarmonious,
-            orb: hit.minOrb,
-            chartWorldBadge: 'Kalp Köprüsü (Tiferet)',
-          }
-        );
-      } else if (([8, 9, 12].includes(hit.nHouse) || ['Uranüs', 'Neptün', 'Kuzey Ay Düğümü'].includes(tName)) && !focusMap.has(6)) {
-        addChakraFocus(
-          { ...CHAKRA_CATALOG[6], rulingPlanetTr: 'Jüpiter' },
-          {
-            planetSource: `Üst Harita & Nöron Aktivasyonu Köprüsü (${hit.nHouse}. Ev / Üst Bilinç)`,
-            reason: `Bugünkü yüksek ruhsal/zihinsel etkileşimi 3. boyuttan üst haritaya taşımak ve nöron aktivasyonunu desteklemek için 6. Üçüncü Göz (852 Hz) devrede.`,
-            transitPlanet: tName,
-            natalPlanet: nName,
-            aspectType: hit.aspectType,
-            isHarmonious: hit.isHarmonious,
-            orb: hit.minOrb,
-            chartWorldBadge: '3. Zihin Haritası (Beriyah)',
-          }
-        );
-      } else if (tHouseChk.chakraId !== nChk.chakraId && tHouseChk.chakraId !== tChk.chakraId && !focusMap.has(tHouseChk.chakraId)) {
-        addChakraFocus(tHouseChk, {
-          planetSource: `${hit.tHouse}. Ev (${LIFE_AREA_NAMES[hit.tHouse] || `${hit.tHouse}. Ev`}) Çıkış Kanalı`,
-          reason: `Transit ${tName} gezegeninin bulunduğu ${hit.tHouse}. Ev üzerinden ${tHouseChk.shortName} (${tHouseChk.hz} Hz) enerji devresini tamamlıyor.`,
-          transitPlanet: tName,
-          natalPlanet: nName,
-          aspectType: hit.aspectType,
-          isHarmonious: hit.isHarmonious,
-          orb: hit.minOrb,
-          chartWorldBadge: hit.chartWorldLabel,
-        });
-      }
     }
   }
 
@@ -2896,17 +2637,17 @@ export function generatePersonalTransitOverview(
     chakraPrescription = {
       mode: 'NATURAL_REST',
       badge: '🌿 DOĞAL AKIŞ & DİNLENME GÜNÜ (ÖZEL ÇAKRA YÜKLEMESİ GEREKMEZ)',
-      headline: 'Bugün Beden (1.) veya Ruh (2. Drakonik) Haritanızda Tam Zirve (0°00\') Yapan Bir Açı Yok',
-      explanation: 'Kadim Zîc (Ephemeris), Kabalistik 4 Alem ve Swara Yoga kurallarına göre bir transit açı yalnızca Beden (1. Harita) veya Ruh (2. Drakonik Harita) katmanında tam zirve (0°00\' Exact Culmination) yaptığı günde özel çakra yüklemesi gerektirir. Bugün haritalarınızda tam zirve yapan bir gezegen açısı, sabit yıldız kavuşumu ya da Yeniay/Dolunay bulunmadığı için enerji bedeniniz kendi doğal dengesinde (Sushumna akışında) dinleniyor. Bugün zorunlu çakra çalışması yapmanıza gerek yoktur; doğayı veya 432 Hz dinleyerek akışta kalabilirsiniz.',
+      headline: 'Bugün Haritanızda Tam Zirve (0°00\' Yevmü\'l-Kemâl) Yapan Bir Gezegen Açısı Yok',
+      explanation: 'Kadim Zîc (Ephemeris) ve Swara Yoga kurallarına göre bir transit açı yalnızca tam zirve (0°00\' Exact Culmination) yaptığı günde özel çakra yüklemesi gerektirir. Bugün haritanızda veya gökyüzünde tam zirve yapan bir gezegen açısı ya da Yeniay/Dolunay bulunmadığı için enerji bedeniniz kendi doğal dengesinde (Sushumna akışında) dinleniyor. Bugün zorunlu çakra çalışması yapmanıza gerek yoktur; doğayı veya 432 Hz dinleyerek akışta kalabilirsiniz.',
       recommendedChakras: [
         {
           ...sunChk,
           planetSource: '🌿 Doğal Akış (Sushumna • Açısız Dinlenme Günü)',
           reason: 'Bugün zorunlu çakra müdahalesi gerekmiyor; yalnızca isteğe bağlı hafif dinlenme frekansı.',
-          chartWorldBadge: 'Sushumna Doğal Denge',
+          chartWorldBadge: 'Doğal Sushumna Dengesi',
         }
       ],
-      activeWorldsLabel: 'Doğal Sushumna Dengesi (Açısız Dinlenme Günü)',
+      activeWorldsLabel: 'Doğal Akış & Dinlenme Günü (Tam Derece Açı Yok)',
       isLunationDay: false,
       lunationType: null,
       hasFixedStarHit: false,
@@ -2925,21 +2666,11 @@ export function generatePersonalTransitOverview(
   } else {
     const list = Array.from(focusMap.values())
       .sort((a, b) => a.chakraId - b.chakraId)
-      .slice(0, 4);
+      .slice(0, 3);
     const activeChakraIds = new Set(list.map(c => c.chakraId));
-
-    // Aktif Harita Katmanları Etiketi (1. Beden, 2. Ruh/Drakonik, 3. Zihin/Üst Harita)
-    const activeWorldNames: string[] = [];
-    if (assiahActive) activeWorldNames.push('1. Beden Haritası (Assiah)');
-    if (yetzirahActive) activeWorldNames.push('2. Ruh Haritası (Drakonik / Yetzirah)');
-    if (beriyahOrAtzilutActive) activeWorldNames.push('3. & 4. Üst Harita Geçiş Kapısı (Beriyah / Atziluth)');
-    const activeWorldsLabel = activeWorldNames.join(' + ') || '1. Beden Haritası (Assiah)';
+    const activeWorldsLabel = primaryTriggerSummaryLabel || 'Kişisel Harita Tam Derece Açısı';
 
     // 1) Kaynak Temelli Gezegen Saati (Hora) Seçimi (Key of Solomon & Kabalistik Sefirot Yasası):
-    // - Satürn Saati (Binah): Açı içinde Satürn varsa VEYA aktif çakralarda 7. Taç Çakra (Sahasrara) varsa VEYA 10. Ev/Neptün-Merkür kare sınavı varsa
-    // - Merkür Saati (Hod): Zihin evinde (3. Ev / Yay-İkizler) Dolunay/Yeniay veya yalnızca Boğaz (5) + 3. Göz (6) zihinsel güncellemesi varsa
-    // - Jüpiter Saati (Hesed): En üst aktif çakra 6. Üçüncü Göz (Ajna) ise veya 8./9./12. ev Gaia/DNA/Bilinçaltı açılımı varsa
-    // - Güneş / Mars Yardımcı Saati: Büyük Yeniay/Dolunay veya Kök+Taç aktivasyonlarında çift saat (örn. Jüpiter + Güneş veya Mars + Satürn)
     const recommendedPlanetaryHoursTr: string[] = [];
     const onlyThroatAndThirdEye =
       activeChakraIds.has(5) &&
@@ -2984,7 +2715,6 @@ export function generatePersonalTransitOverview(
       groundingDurationLabel = '1 saat+++ Topraklan';
     } else if (
       isLunationDay ||
-      hasFixedStarHit ||
       hasHighSpiritualVoltage ||
       triggeredPlanetsSet.has('Uranüs') ||
       triggeredPlanetsSet.has('Plüton') ||
@@ -2996,12 +2726,9 @@ export function generatePersonalTransitOverview(
     }
 
     // 3) Kaynak Temelli Nefes Seçimi (Shiva Swarodaya: 4-4-8 Nefes vs Pranayama Nefesi):
-    // - 4-4-8 Nefes: Satürn/Mars/Lilith/Vertex 3. boyut sürtünmesi ve duygusal/ilişkisel sınav günlerinde (Yeniay/Dolunay değilse ve 8./9./12. ev/Uranüs/Neptün ruhsal kanal baskın değilse)
-    // - Pranayama Nefesi: Dolunay/Yeniay, 8./9./12. ev, sabit yıldız, Uranüs/Neptün/Jüpiter nöron aktivasyonu ve üst haritaya geçiş günlerinde
     let breathTypeLabel: '4-4-8 Nefes' | 'Pranayama Nefesi' = 'Pranayama Nefesi';
     if (
       !isLunationDay &&
-      !hasFixedStarHit &&
       !triggeredPlanetsSet.has('Uranüs') &&
       !triggeredPlanetsSet.has('Neptün') &&
       !triggeredHousesSet.has(8) &&
@@ -3012,9 +2739,7 @@ export function generatePersonalTransitOverview(
       breathTypeLabel = '4-4-8 Nefes';
     }
 
-    // 4) Kaynak Temelli Renk Rezonansı (Dion Fortune Mystical Qabalah & Kullanıcımızın Ezoterik Kuralı):
-    // KURAL: "Eğer dolunay yeni ay değilse güçlü günlerde Ruhsal bağlantıları siyah renk ile kurabilirsin,
-    //         Güç aktivasyonu ya da bir bağlantı oluşturmak içinse kırmızı en kolay kullanırsın."
+    // 4) Kaynak Temelli Renk Rezonansı:
     let resonanceColorName = 'Turuncu Renk';
     let resonanceColorHex = '#F97316';
     let resonanceColorReason =
@@ -3022,14 +2747,13 @@ export function generatePersonalTransitOverview(
 
     if (
       !isLunationDay &&
-      (hasFixedStarHit ||
-        (triggeredPlanetsSet.has('Uranüs') && (hasVertexOrNodeHit || triggeredHousesSet.has(9) || activeChakraIds.has(6))) ||
-        (triggeredHousesSet.has(8) && activeChakraIds.has(1) && activeChakraIds.has(6)))
+      ((triggeredPlanetsSet.has('Uranüs') && (hasVertexOrNodeHit || triggeredHousesSet.has(9) || activeChakraIds.has(6))) ||
+        (triggeredHousesSet.has(8) && (activeChakraIds.has(1) || activeChakraIds.has(6))))
     ) {
-      resonanceColorName = 'Siyah Renk (Ruhsal Bağlantı & Ayn-Sof Mühürü)';
+      resonanceColorName = 'Siyah Renk (Ruhsal Bağlantı & Topraklama)';
       resonanceColorHex = '#334155';
       resonanceColorReason =
-        'Dolunay/Yeniay olmayan yüksek voltajlı ruhsal günlerde (8./9. Ev, Sabit Yıldız veya Uranüs-Üst Benlik açılarında) dış parazitleri kapatıp derin ruhsal bağlantıyı bedende mühürlemek için Siyah renk kullanılır.';
+        'Dolunay/Yeniay olmayan güçlü ruhsal günlerde (8./9. Ev veya Uranüs-Üst Benlik açılarında) dış parazitleri kapatıp derin ruhsal bağlantıyı kurmak için Siyah renk kullanılır.';
     } else if (
       !isLunationDay &&
       hasPowerActivation &&
@@ -3040,36 +2764,22 @@ export function generatePersonalTransitOverview(
       resonanceColorName = 'Kırmızı Renk (Güç Aktivasyonu & Bağlantı)';
       resonanceColorHex = '#EF4444';
       resonanceColorReason =
-        'Güç aktivasyonu, yaşamsal irade ve yeni bir enerjetik bağlantı oluşturmak için Kök/Gevurah frekansındaki Kırmızı renk en hızlı rezonansı sağlar.';
+        'Güç aktivasyonu, yaşamsal irade ve yeni bir enerjetik bağlantı oluşturmak için Kırmızı renk en hızlı rezonansı sağlar.';
     } else if (isLunationDay && activeChakraIds.has(6)) {
       resonanceColorName = 'İndigo Mavi (Gece Mavisi) Renk';
       resonanceColorHex = '#6366F1';
       resonanceColorReason =
         `${lunationType} gününde Üçüncü Göz (Ajna) ve nöron aktivasyonu güncellemelerini en berrak şekilde almak için İndigo Mavi renk kullanılır.`;
     } else if (activeChakraIds.has(2)) {
-      // Venüs-Satürn ilk ilişkiler/ruh haritası karesinde sakinleşme için Açık Mavi, diğer Sakral günlerde Turuncu
-      if (
-        yetzirahActive &&
-        !assiahActive &&
-        triggeredPlanetsSet.has('Venüs') &&
-        triggeredPlanetsSet.has('Satürn') &&
-        list.length === 2
-      ) {
-        resonanceColorName = 'Açık Mavi Renk';
-        resonanceColorHex = '#38BDF8';
-        resonanceColorReason =
-          'Ruh haritasında çalışan Venüs-Satürn karesinde içsel sakinliği, gözlemci bilincini ve iletişim huzurunu korumak için Açık Mavi renk kullanılır.';
-      } else {
-        resonanceColorName = 'Turuncu Renk';
-        resonanceColorHex = '#F97316';
-        resonanceColorReason =
-          'Aktif çakra devrenizdeki Sakral (Svadhisthana) merkezini besleyerek duygusal/ilişkisel sürtünmeyi yaratıcı yaşam enerjisine dönüştürür.';
-      }
+      resonanceColorName = 'Turuncu Renk';
+      resonanceColorHex = '#F97316';
+      resonanceColorReason =
+        'Aktif çakra devrenizdeki Sakral (Svadhisthana) merkezini besleyerek duygusal/ilişkisel sürtünmeyi yaratıcı yaşam enerjisine dönüştürür.';
     } else if (activeChakraIds.has(4)) {
       resonanceColorName = 'Yeşil Renk';
       resonanceColorHex = '#10B981';
       resonanceColorReason =
-        'Kalp çakrası (Anahata) ve sevgi frekansında kalarak üst benlik bağlantısını kalp merkezinde dengelemek için Yeşil renk kullanılır.';
+        'Kalp çakrası (Anahata) ve sevgi frekansında kalarak içsel dengeyi korumak için Yeşil renk kullanılır.';
     } else if (activeChakraIds.has(5)) {
       resonanceColorName = 'Açık Mavi Renk';
       resonanceColorHex = '#0EA5E9';
@@ -3080,6 +2790,11 @@ export function generatePersonalTransitOverview(
       resonanceColorHex = '#6366F1';
       resonanceColorReason =
         'Üçüncü Göz (Ajna) sezgisel idrak ve nöron aktivasyonu kanalını desteklemek için İndigo Mavi renk kullanılır.';
+    } else if (activeChakraIds.has(3)) {
+      resonanceColorName = 'Altın Sarısı Renk';
+      resonanceColorHex = '#EAB308';
+      resonanceColorReason =
+        'Solar Pleksus (Manipura) öz-irade ve yaşamsal ateş merkezini güçlendirmek için Altın Sarısı renk kullanılır.';
     } else if (activeChakraIds.has(1)) {
       resonanceColorName = 'Kırmızı Renk';
       resonanceColorHex = '#EF4444';
@@ -3090,10 +2805,10 @@ export function generatePersonalTransitOverview(
     chakraPrescription = {
       mode: list.length > 1 ? 'MULTI_FOCUS' : 'SINGLE_FOCUS',
       badge: list.length > 1
-        ? `⚡ BUGÜN ${list.length} AKTİF ÇAKRA DEVRESİ (${activeWorldsLabel.toUpperCase()})`
-        : `🎯 BUGÜN 1 AKTİF ÇAKRA ODAĞI (${activeWorldsLabel.toUpperCase()})`,
+        ? `⚡ BUGÜN HARİTANIZDA ${list.length} AKTİF ÇAKRA ODAĞI VAR`
+        : '🎯 BUGÜN HARİTANIZDA 1 AKTİF ÇAKRA ODAĞI VAR',
       headline: list.map(c => `${c.shortName} (${c.hz} Hz)`).join(' • '),
-      explanation: `Bugün [${activeWorldsLabel}] katmanında tam 0°00' zirvesine (Yevmü'l-Kemâl) ulaşan gezegen açıları ${list.map(c => c.shortName).join(' - ')} enerji devresini birlikte çalıştırıyor. Önerilen Uygulama: ${breathTypeLabel} • ${groundingDurationLabel} • ${recommendedPlanetaryHoursTr.join(' + ')} Saati • ${resonanceColorName}.`,
+      explanation: `Bugün haritanızda tam 0°00' zirvesine (Yevmü'l-Kemâl) ulaşan [${activeWorldsLabel}] etkisi ${list.map(c => c.shortName).join(' - ')} merkezini çalıştırıyor. Önerilen Uygulama: ${breathTypeLabel} • ${groundingDurationLabel} • ${recommendedPlanetaryHoursTr.join(' + ')} Saati • ${resonanceColorName}.`,
       recommendedChakras: list,
       activeWorldsLabel,
       isLunationDay,

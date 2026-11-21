@@ -997,7 +997,7 @@ export function generate7LayersDailyGuide(params: {
     colorSummary: resolvedColorName,
     colorHex: resolvedColorHex,
     activeWorldsSummary:
-      chakraPrescription.activeWorldsLabel || '1. Beden Haritası (Assiah)',
+      chakraPrescription.activeWorldsLabel || 'Kişisel Harita Tam Derece Açısı',
   };
 
   const crystalAromaGuide: CrystalAromaSection = {

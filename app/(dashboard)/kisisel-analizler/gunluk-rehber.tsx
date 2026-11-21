@@ -940,7 +940,7 @@ export default function GunlukRehberScreen() {
                 }}
               >
                 <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FDE68A' }}>
-                  ✨ GÜNÜN 5&apos;Lİ EZOTERİİK REÇETESİ ({appliedDateStr})
+                  ✨ GÜNÜN 5&apos;Lİ EZOTERİK REÇETESİ ({appliedDateStr})
                 </Text>
                 <View
                   style={{
