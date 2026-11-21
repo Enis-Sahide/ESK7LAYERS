@@ -6,6 +6,8 @@ import Svg, { Circle, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { WebView } from 'react-native-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { DAILY_GUIDE_STORAGE_KEY } from './gunluk-rehber';
 import moment from 'moment-timezone';
 // @ts-ignore
 import tzlookup from 'tz-lookup';
@@ -1079,6 +1081,52 @@ export default function AnlikGokyuzuScreen() {
             </View>
           );
         })}
+
+        {/* 7Layers Günlük Uygulama Rehberine Geçiş Butonu */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={async () => {
+            freqWebviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
+            setPlayingChakraHz(null);
+            try {
+              if (natalDateStr && natalDateStr.length === 10 && selectedCityData) {
+                await AsyncStorage.setItem(
+                  DAILY_GUIDE_STORAGE_KEY,
+                  JSON.stringify({
+                    natalDateStr,
+                    natalTimeStr: natalTimeStr || '12:00',
+                    selectedCityData,
+                    selectedTransitCityData,
+                    transitDateStr,
+                    transitTimeStr,
+                    autoLoad: true,
+                  })
+                );
+              }
+            } catch {}
+            router.push('/(dashboard)/kisisel-analizler/gunluk-rehber' as any);
+          }}
+          style={{
+            marginTop: 10,
+            backgroundColor: 'rgba(212,175,55,0.18)',
+            borderWidth: 1,
+            borderColor: 'rgba(212,175,55,0.55)',
+            borderRadius: 12,
+            paddingVertical: 10,
+            paddingHorizontal: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+            <Ionicons name="book-outline" size={16} color="#FDE68A" style={{ marginRight: 8 }} />
+            <Text style={{ fontSize: 12, fontWeight: '800', color: '#FDE68A', flex: 1 }}>
+              📖 Bu Günün 7Layers Uygulama Rehberini Aç (Saat • Nefes • Mudra • Yön • Taş)
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color="#FDE68A" />
+        </TouchableOpacity>
       </View>
     );
   };

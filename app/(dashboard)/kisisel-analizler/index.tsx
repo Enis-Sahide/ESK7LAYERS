@@ -36,6 +36,15 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
     isAvailable: true,
   },
   {
+    id: 'gunlukrehber',
+    title: '7Layers Günlük Rehber',
+    description: 'Kişisel günlük çakra frekansı, en etkili meditasyon gezegen saati, nefes sayacı, mudra, yön ve doğal taş reçeteniz.',
+    icon: 'book-outline',
+    route: '/(dashboard)/kisisel-analizler/gunluk-rehber',
+    color: '#F59E0B',
+    isAvailable: true,
+  },
+  {
     id: 'aydonguleri',
     title: 'Ay Döngüleri & Tutulmalar',
     description: 'Aktif Ay fazını, tutulma koridorlarını ve kişisel evinizdeki kadersel yansımalarını keşfedin.',
