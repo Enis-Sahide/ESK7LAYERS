@@ -120,6 +120,8 @@ export default function GunlukRehberScreen() {
 
   const [transitDateStr, setTransitDateStr] = useState(defaultTDate);
   const [transitTimeStr, setTransitTimeStr] = useState(defaultTTime);
+  const [appliedDateStr, setAppliedDateStr] = useState(defaultTDate);
+  const [appliedTimeStr, setAppliedTimeStr] = useState(defaultTTime);
   const [selectedTransitCityData, setSelectedTransitCityData] = useState<any>(null);
   const [transitSearchQuery, setTransitSearchQuery] = useState('');
   const [transitSuggestions, setTransitSuggestions] = useState<any[]>([]);
@@ -302,6 +304,8 @@ export default function GunlukRehberScreen() {
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'Günlük rehber hesaplaması başarısız oldu.');
       }
+      setAppliedDateStr(params.tDate);
+      setAppliedTimeStr(params.tTime);
       setTransitData(result.data);
       try {
         await AsyncStorage.setItem(
@@ -395,8 +399,8 @@ export default function GunlukRehberScreen() {
   const dailyGuide: SevenLayersDailyGuideReport | null = useMemo(() => {
     if (!transitData) return null;
     const activeCity = selectedTransitCityData || selectedCityData || ASTRO_CITIES[0];
-    const [y, m, d] = transitDateStr.split('-').map(Number);
-    const [hh, mm] = (transitTimeStr || '12:00').split(':').map(Number);
+    const [y, m, d] = appliedDateStr.split('-').map(Number);
+    const [hh, mm] = (appliedTimeStr || '12:00').split(':').map(Number);
     const targetDateObj =
       y && m && d ? new Date(y, m - 1, d, hh || 12, mm || 0, 0) : new Date();
 
@@ -406,12 +410,12 @@ export default function GunlukRehberScreen() {
       natalPlanets: transitData.natalChart.planets,
       natalHouses: transitData.natalChart.houses,
       targetDate: targetDateObj,
-      dateStr: transitDateStr,
+      dateStr: appliedDateStr,
       lat: activeCity?.lat ?? activeCity?.latitude ?? 41.0082,
       lon: activeCity?.lon ?? activeCity?.longitude ?? 28.9784,
       cityName: activeCity?.name || 'İstanbul',
     });
-  }, [transitData, transitDateStr, transitTimeStr, selectedCityData, selectedTransitCityData]);
+  }, [transitData, appliedDateStr, appliedTimeStr, selectedCityData, selectedTransitCityData]);
 
   // Interactive Breathwork Timer Effect
   useEffect(() => {
@@ -936,7 +940,7 @@ export default function GunlukRehberScreen() {
                 }}
               >
                 <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FDE68A' }}>
-                  ✨ GÜNÜN 4 ADIMLI UYGULAMA PLANI ({transitDateStr})
+                  ✨ GÜNÜN 4 ADIMLI UYGULAMA PLANI ({appliedDateStr})
                 </Text>
                 <View
                   style={{
