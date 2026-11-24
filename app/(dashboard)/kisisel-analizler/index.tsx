@@ -1,10 +1,10 @@
 import SacredBackground from '@/components/SacredBackground';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '@/src/theme';
-import { getMe } from '@/src/core/api/client';
+import { getMe, apiFetch } from '@/src/core/api/client';
 
 interface AnalysisTool {
   id: string;
@@ -39,7 +39,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   },
   {
     id: 'gunlukrehber',
-    title: 'Günlük Meditasyon Rehberi (Admin)',
+    title: 'Günlük Meditasyon Rehberi',
     description: 'Kişisel günlük çakra frekansı, en etkili meditasyon gezegen saati, nefes sayacı, mudra, yön ve doğal taş reçeteniz.',
     icon: 'book-outline',
     route: '/(dashboard)/kisisel-analizler/gunluk-rehber',
@@ -181,28 +181,69 @@ export default function AnalysisHubScreen() {
   const router = useRouter();
   const [selectedWebTool, setSelectedWebTool] = useState<AnalysisTool | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showDailyGuideLockModal, setShowDailyGuideLockModal] = useState(false);
+  const [showContactFormInModal, setShowContactFormInModal] = useState(false);
+  const [reqName, setReqName] = useState('');
+  const [reqEmail, setReqEmail] = useState('');
+  const [reqMessage, setReqMessage] = useState(
+    'Merhaba, Günlük Meditasyon Rehberi analizinden faydalanmak istiyorum. Erişim açıldığında bilgilendirilmek üzere talebimi iletmek isterim.'
+  );
+  const [sendingReq, setSendingReq] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const me: any = await getMe();
         setIsAdmin(me?.role === 'admin');
+        if (me?.user?.fullName) setReqName(me.user.fullName);
+        if (me?.user?.email) setReqEmail(me.user.email);
       } catch {
         setIsAdmin(false);
       }
     })();
   }, []);
 
-  const visibleTools = ANALYSIS_TOOLS.filter((t) => !t.isAdminOnly || isAdmin);
-
   const handlePress = (tool: AnalysisTool) => {
     if (!tool.isAvailable) return;
-    if (tool.isAdminOnly && !isAdmin) return;
+    if (tool.isAdminOnly && !isAdmin) {
+      setShowContactFormInModal(false);
+      setShowDailyGuideLockModal(true);
+      return;
+    }
     if (tool.isWebExclusive) {
       setSelectedWebTool(tool);
       return;
     }
     router.push(tool.route as any);
+  };
+
+  const handleSendDailyGuideRequest = async () => {
+    if (!reqName.trim() || !reqEmail.trim() || !reqMessage.trim()) {
+      Alert.alert('Eksik Bilgi', 'Lütfen adınızı, e-posta adresinizi ve mesajınızı giriniz.');
+      return;
+    }
+    setSendingReq(true);
+    try {
+      const res: any = await apiFetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: reqName.trim(),
+          email: reqEmail.trim(),
+          subjectCategory: 'Analiz Raporu & Sipariş Desteği',
+          message: reqMessage.trim(),
+        }),
+      });
+      if (res?.success) {
+        setShowDailyGuideLockModal(false);
+        Alert.alert('Talebiniz Alındı', 'Günlük Meditasyon Rehberi talebiniz İletişim masamıza başarıyla iletildi.');
+      } else {
+        Alert.alert('Bilgi', res?.error || 'Talebiniz gönderilemedi, lütfen tekrar deneyin.');
+      }
+    } catch (e: any) {
+      Alert.alert('Hata', e?.message || 'Bağlantı hatası oluştu.');
+    } finally {
+      setSendingReq(false);
+    }
   };
 
   return (
@@ -219,7 +260,9 @@ export default function AnalysisHubScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {visibleTools.map((tool) => (
+        {ANALYSIS_TOOLS.map((tool) => {
+          const isLockedForUser = Boolean(tool.isAdminOnly && !isAdmin);
+          return (
           <TouchableOpacity
             key={tool.id}
             style={[styles.toolCard, !tool.isAvailable && { opacity: 0.6 }]}
@@ -233,6 +276,12 @@ export default function AnalysisHubScreen() {
             <View style={styles.cardContent}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
                 <Text style={[styles.cardTitle, { color: '#FFFFFF', flexShrink: 1 }]}>{tool.title}</Text>
+                {isLockedForUser && (
+                  <View style={styles.webBadge}>
+                    <Ionicons name="lock-closed" size={10} color="#FDE68A" />
+                    <Text style={styles.webBadgeText}>Özel Analiz</Text>
+                  </View>
+                )}
                 {tool.isWebExclusive && (
                   <View style={styles.webBadge}>
                     <Ionicons name="desktop-outline" size={10} color="#FDE68A" />
@@ -247,16 +296,155 @@ export default function AnalysisHubScreen() {
 
             {tool.isAvailable && (
               <Ionicons
-                name="chevron-forward"
+                name={isLockedForUser ? 'lock-closed' : 'chevron-forward'}
                 size={18}
-                color={COLORS.textMuted}
+                color={isLockedForUser ? '#F59E0B' : COLORS.textMuted}
                 style={{ marginLeft: 8 }}
               />
             )}
           </TouchableOpacity>
-        ))}
+          );
+        })}
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Günlük Meditasyon Rehberi Kilit & İletişim Talep Penceresi */}
+      <Modal
+        visible={showDailyGuideLockModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDailyGuideLockModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconBox}>
+              <Ionicons name="lock-closed" size={26} color="#D4AF37" />
+            </View>
+            <Text style={styles.modalTitle}>Günlük Meditasyon Rehberi</Text>
+            {!showContactFormInModal ? (
+              <>
+                <Text style={styles.modalDesc}>
+                  Bu analiz şu anda kullanıcılara kilitlidir. İsterseniz{' '}
+                  <Text style={{ color: '#FDE68A', fontWeight: '700' }}>İletişim</Text> bölümünden{' '}
+                  <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>
+                    &ldquo;Günlük Meditasyon Rehberi analizinden faydalanmak istiyorum&rdquo;
+                  </Text>{' '}
+                  talebinde bulunabilirsiniz.
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalCloseBtn,
+                      {
+                        flex: 1,
+                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                      },
+                    ]}
+                    onPress={() => setShowDailyGuideLockModal(false)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={[styles.modalCloseBtnText, { color: '#E5E7EB' }]}>Kapat</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalCloseBtn, { flex: 1.3 }]}
+                    onPress={() => setShowContactFormInModal(true)}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={styles.modalCloseBtnText}>Talep Gönder</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <View style={{ width: '100%', gap: 10 }}>
+                <TextInput
+                  value={reqName}
+                  onChangeText={setReqName}
+                  placeholder="Adınız Soyadınız"
+                  placeholderTextColor="#6B7280"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                  }}
+                />
+                <TextInput
+                  value={reqEmail}
+                  onChangeText={setReqEmail}
+                  placeholder="E-Posta Adresiniz"
+                  placeholderTextColor="#6B7280"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 13,
+                  }}
+                />
+                <TextInput
+                  value={reqMessage}
+                  onChangeText={setReqMessage}
+                  placeholder="Mesajınız"
+                  placeholderTextColor="#6B7280"
+                  multiline
+                  numberOfLines={3}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.15)',
+                    borderRadius: 10,
+                    paddingHorizontal: 12,
+                    paddingVertical: 9,
+                    color: '#FFFFFF',
+                    fontSize: 12.5,
+                    minHeight: 74,
+                    textAlignVertical: 'top',
+                  }}
+                />
+                <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+                  <TouchableOpacity
+                    style={[
+                      styles.modalCloseBtn,
+                      {
+                        flex: 1,
+                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                      },
+                    ]}
+                    onPress={() => setShowDailyGuideLockModal(false)}
+                    disabled={sendingReq}
+                  >
+                    <Text style={[styles.modalCloseBtnText, { color: '#E5E7EB' }]}>İptal</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalCloseBtn, { flex: 1.3 }]}
+                    onPress={handleSendDailyGuideRequest}
+                    disabled={sendingReq}
+                  >
+                    {sendingReq ? (
+                      <ActivityIndicator size="small" color="#000" />
+                    ) : (
+                      <Text style={styles.modalCloseBtnText}>Mesajı Gönder</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </div>
+      </Modal>
 
       {/* 7Layers Kozmik Matris & Karmik Enkarnasyon Bilgilendirme Penceresi */}
       <Modal
