@@ -576,7 +576,7 @@ export default function GunlukRehberScreen() {
           <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={styles.headerTitle}>7Layers Günlük Rehber</Text>
+          <Text style={styles.headerTitle}>Günlük Meditasyon Rehberi</Text>
           <Text style={styles.headerSubtitle}>
             Çakra • Gezegen Saati • Nefes • Mudra • Yön • Taş
           </Text>
@@ -618,7 +618,7 @@ export default function GunlukRehberScreen() {
                   marginBottom: 16,
                 }}
               >
-                7Layers Günlük Rehber modülü kalibrasyon aşamasında olduğu için şu anda yalnızca Admin yetkisine sahip hesaplarla görüntülenebilir.
+                Günlük Meditasyon Rehberi modülü kalibrasyon aşamasında olduğu için şu anda yalnızca Admin yetkisine sahip hesaplarla görüntülenebilir.
               </Text>
               <TouchableOpacity
                 style={[styles.calcBtn, { paddingHorizontal: 24 }]}
@@ -785,7 +785,7 @@ export default function GunlukRehberScreen() {
               ) : (
                 <>
                   <Ionicons name="book" size={18} color="#000" />
-                  <Text style={styles.calcBtnText}>7Layers Günlük Rehberimi Aç</Text>
+                  <Text style={styles.calcBtnText}>Günlük Meditasyon Rehberimi Aç</Text>
                 </>
               )}
             </TouchableOpacity>

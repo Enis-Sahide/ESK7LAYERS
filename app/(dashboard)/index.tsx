@@ -1005,7 +1005,7 @@ const QuickFrequencyPlayerWidget = ({
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 6 }}>
               <Ionicons name="book-outline" size={15} color="#FDE68A" style={{ marginRight: 7 }} />
               <Text style={{ fontSize: 11.5, fontWeight: '800', color: '#FDE68A', flex: 1 }}>
-                📖 7Layers Günlük Rehber (Admin • Saat • Nefes • Mudra • Yön • Taş)
+                📖 Günlük Meditasyon Rehberi (Admin • Saat • Nefes • Mudra • Yön • Taş)
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={15} color="#FDE68A" />
@@ -2346,7 +2346,7 @@ export default function DashboardScreen() {
                         key: 'frequencyPlayer' as const,
                         storageKey: '@show_frequency_widget',
                         title: '🎵 7Layers Kişisel Çakra & Rehber Widget\'ı (Admin)',
-                        sub: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını hesaplar ve 7Layers Günlük Rehber kısayolu sunar.',
+                        sub: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını hesaplar ve Günlük Meditasyon Rehberi kısayolu sunar.',
                       },
                     ]
                   : []),

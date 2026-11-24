@@ -39,7 +39,7 @@ const ANALYSIS_TOOLS: AnalysisTool[] = [
   },
   {
     id: 'gunlukrehber',
-    title: '7Layers Günlük Rehber (Admin)',
+    title: 'Günlük Meditasyon Rehberi (Admin)',
     description: 'Kişisel günlük çakra frekansı, en etkili meditasyon gezegen saati, nefes sayacı, mudra, yön ve doğal taş reçeteniz.',
     icon: 'book-outline',
     route: '/(dashboard)/kisisel-analizler/gunluk-rehber',
