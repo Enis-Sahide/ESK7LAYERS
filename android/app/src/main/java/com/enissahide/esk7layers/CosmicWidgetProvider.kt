@@ -1,7 +1,13 @@
 package com.enissahide.esk7layers
 
 import android.app.AlarmManager
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.Service
+import android.os.Build
+import android.os.IBinder
 import android.os.PowerManager
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -138,6 +144,110 @@ object CosmicWidgetAudioPlayer {
             isDaemon = true
             start()
         }
+    }
+}
+
+class CosmicWidgetAudioService : Service() {
+
+    override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val action = intent?.action ?: ""
+        if (action == ACTION_STOP_AUDIO) {
+            CosmicWidgetAudioPlayer.stop()
+            refreshFreqWidgets()
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        val targetHz = intent?.getIntExtra("hz", 528) ?: 528
+        val nowPlaying = CosmicWidgetAudioPlayer.toggle(targetHz)
+        refreshFreqWidgets()
+
+        if (nowPlaying) {
+            startAsForeground(targetHz)
+        } else {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+        return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        CosmicWidgetAudioPlayer.stop()
+        refreshFreqWidgets()
+        super.onDestroy()
+    }
+
+    private fun refreshFreqWidgets() {
+        val mgr = AppWidgetManager.getInstance(applicationContext)
+        val qfbIds = mgr.getAppWidgetIds(ComponentName(applicationContext, QuickFrequencyBarWidgetProvider::class.java))
+        if (qfbIds.isNotEmpty()) {
+            QuickFrequencyBarWidgetProvider().onUpdate(applicationContext, mgr, qfbIds)
+        }
+        val cmIds = mgr.getAppWidgetIds(ComponentName(applicationContext, ChakraMoonWidgetProvider::class.java))
+        if (cmIds.isNotEmpty()) {
+            ChakraMoonWidgetProvider().onUpdate(applicationContext, mgr, cmIds)
+        }
+    }
+
+    private fun startAsForeground(hz: Int) {
+        val channelId = "7layers_widget_freq_audio"
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val ch = NotificationChannel(
+                channelId,
+                "7Layers Frekans Çalar",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Ana ekran widget'ı üzerinden çalınan Solfeggio frekansı"
+                setSound(null, null)
+            }
+            nm.createNotificationChannel(ch)
+        }
+
+        val stopIntent = Intent(this, CosmicWidgetAudioService::class.java).apply {
+            action = ACTION_STOP_AUDIO
+        }
+        val stopPending = PendingIntent.getService(
+            this,
+            9401,
+            stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, channelId)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this)
+        }
+
+        val notif = builder
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("🔊 7Layers • $hz Hz Frekansı Çalıyor")
+            .setContentText("Durdurmak için widget üzerindeki $hz butonuna veya buraya dokunun.")
+            .setContentIntent(stopPending)
+            .setOngoing(true)
+            .build()
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    9400,
+                    notif,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                )
+            } else {
+                startForeground(9400, notif)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    companion object {
+        const val ACTION_STOP_AUDIO = "com.enissahide.esk7layers.ACTION_STOP_WIDGET_AUDIO"
     }
 }
 
@@ -1194,10 +1304,21 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
             val cal = Calendar.getInstance()
             val dayInfo = CosmicWidgetHelper.getDayCosmicInfo(context, cal)
             val targetHz = intent.getIntExtra("hz", dayInfo.recommendedHz)
-            CosmicWidgetAudioPlayer.toggle(targetHz)
-            val mgr = AppWidgetManager.getInstance(context)
-            val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
-            onUpdate(context, mgr, ids)
+            val svcIntent = Intent(context, CosmicWidgetAudioService::class.java).apply {
+                putExtra("hz", targetHz)
+            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(svcIntent)
+                } else {
+                    context.startService(svcIntent)
+                }
+            } catch (_: Exception) {
+                CosmicWidgetAudioPlayer.toggle(targetHz)
+                val mgr = AppWidgetManager.getInstance(context)
+                val ids = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
+                onUpdate(context, mgr, ids)
+            }
             return
         }
         if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
@@ -1295,19 +1416,28 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ) {
-            val targetHz = intent.getIntExtra("hz", 528)
-            CosmicWidgetAudioPlayer.toggle(targetHz)
-            val mgr = AppWidgetManager.getInstance(context)
-            val ids = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
-            onUpdate(context, mgr, ids)
-            val cmIds = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
-            if (cmIds.isNotEmpty()) {
-                ChakraMoonWidgetProvider().onUpdate(context, mgr, cmIds)
+        val act = intent.action ?: ""
+        if (act.startsWith(CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ)) {
+            val parsedFromAction = act.substringAfterLast("_", "").toIntOrNull()
+            val targetHz = parsedFromAction ?: intent.getIntExtra("hz", 528)
+            val svcIntent = Intent(context, CosmicWidgetAudioService::class.java).apply {
+                putExtra("hz", targetHz)
+            }
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(svcIntent)
+                } else {
+                    context.startService(svcIntent)
+                }
+            } catch (_: Exception) {
+                CosmicWidgetAudioPlayer.toggle(targetHz)
+                val mgr = AppWidgetManager.getInstance(context)
+                val ids = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
+                onUpdate(context, mgr, ids)
             }
             return
         }
-        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(act)) {
             val mgr = AppWidgetManager.getInstance(context)
             val ids = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
             onUpdate(context, mgr, ids)
@@ -1346,7 +1476,8 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
                 val active = isPlaying && activeHz == hz
                 views.setTextViewText(btnId, if (active) "⏹$hz" else "$hz")
                 val toggleIntent = Intent(context, QuickFrequencyBarWidgetProvider::class.java).apply {
-                    action = CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ
+                    action = "${CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ}_$hz"
+                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND or Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                     putExtra("hz", hz)
                 }
                 val pending = PendingIntent.getBroadcast(
@@ -1356,6 +1487,21 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
                 views.setOnClickPendingIntent(btnId, pending)
+            }
+
+            if (isPlaying && activeHz > 0) {
+                val stopToggle = Intent(context, QuickFrequencyBarWidgetProvider::class.java).apply {
+                    action = "${CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ}_$activeHz"
+                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND or Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                    putExtra("hz", activeHz)
+                }
+                val stopPending = PendingIntent.getBroadcast(
+                    context,
+                    9290,
+                    stopToggle,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.qfb_status_pill, stopPending)
             }
 
             val roomHz = if (activeHz > 0) activeHz else 528
@@ -1374,10 +1520,7 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.qfb_open_room_btn, freqPending)
-            views.setOnClickPendingIntent(
-                R.id.qfb_widget_root,
-                CosmicWidgetHelper.getLaunchPendingIntent(context)
-            )
+            views.setOnClickPendingIntent(R.id.qfb_title, freqPending)
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
