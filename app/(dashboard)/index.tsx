@@ -1016,16 +1016,44 @@ const QuickFrequencyPlayerWidget = ({
   );
 };
 
+const MINI_WIDGET_FREQ_OPTIONS: { hz: number; label: string; shortLabel: string; color: string; isPopular?: boolean }[] = [
+  { hz: 432, label: 'Evrensel Denge (En Çok Tercih Edilen)', shortLabel: '432 Hz ★', color: '#D4AF37', isPopular: true },
+  { hz: 437, label: 'Derin Kozmik Rezonans (Popüler)', shortLabel: '437 Hz ★', color: '#38BDF8', isPopular: true },
+  { hz: 528, label: 'Mucize & DNA Onarım Frekansı', shortLabel: '528 Hz ★', color: '#EAB308', isPopular: true },
+  { hz: 639, label: 'Kalp & Sevgi Uyumu', shortLabel: '639 Hz', color: '#10B981' },
+  { hz: 396, label: 'Kökleniş & Korku Arınması', shortLabel: '396 Hz', color: '#EF4444' },
+  { hz: 417, label: 'Dönüşüm & Negatif Enerji Temizliği', shortLabel: '417 Hz', color: '#F97316' },
+  { hz: 741, label: 'Zihinsel Berraklık & İfade', shortLabel: '741 Hz', color: '#0EA5E9' },
+  { hz: 852, label: 'Üçüncü Göz & Sezgi Uyanışı', shortLabel: '852 Hz', color: '#6366F1' },
+  { hz: 963, label: 'İlahi Bilinç & Taç Rezonansı', shortLabel: '963 Hz', color: '#A855F7' },
+];
+
 /**
- * Sadece istediğin frekansı seçip anında çalan, ekranda çok az yer kaplayan
- * yeni kompakt "Mini Hızlı Frekans Çalar" Bar Widget'ı
+ * Widget Ayarlarından seçilen tek favori frekansı (örn. 432 Hz, 437 Hz, 528 Hz)
+ * ekranda çok az yer kaplayarak (2x1 kompakt boyutta) tek dokunuşla çalan Mini Frekans Çalar Widget'ı
  */
-const CompactFrequencyBarWidget = ({ visible = true }: { visible?: boolean }) => {
-  const router = useRouter();
+const CompactFrequencyBarWidget = ({
+  visible = true,
+  configuredHz = 432,
+  configuredLabel = 'Evrensel Denge (En Çok Tercih Edilen)',
+  onOpenSettings,
+}: {
+  visible?: boolean;
+  configuredHz?: number;
+  configuredLabel?: string;
+  onOpenSettings?: () => void;
+}) => {
   const webviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedHz, setSelectedHz] = useState<number>(528);
-  const [selectedColor, setSelectedColor] = useState<string>('#EAB308');
+
+  const matchedOpt = MINI_WIDGET_FREQ_OPTIONS.find((o) => o.hz === configuredHz);
+  const activeColor = matchedOpt?.color || '#D4AF37';
+
+  useEffect(() => {
+    if (isPlaying && webviewRef.current) {
+      webviewRef.current.postMessage(JSON.stringify({ type: 'PLAY', freq: configuredHz }));
+    }
+  }, [configuredHz]);
 
   useFocusEffect(
     useCallback(() => {
@@ -1040,14 +1068,12 @@ const CompactFrequencyBarWidget = ({ visible = true }: { visible?: boolean }) =>
 
   if (!visible) return null;
 
-  const toggleHz = (hz: number, color: string) => {
-    if (isPlaying && selectedHz === hz) {
+  const togglePlay = () => {
+    if (isPlaying) {
       webviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
       setIsPlaying(false);
     } else {
-      setSelectedHz(hz);
-      setSelectedColor(color);
-      webviewRef.current?.postMessage(JSON.stringify({ type: 'PLAY', freq: hz }));
+      webviewRef.current?.postMessage(JSON.stringify({ type: 'PLAY', freq: configuredHz }));
       setIsPlaying(true);
     }
   };
@@ -1057,10 +1083,10 @@ const CompactFrequencyBarWidget = ({ visible = true }: { visible?: boolean }) =>
       style={[
         styles.schumannWidget,
         {
-          borderLeftColor: selectedColor,
+          borderLeftColor: activeColor,
           marginBottom: 12,
-          paddingVertical: 8,
-          paddingHorizontal: 10,
+          paddingVertical: 9,
+          paddingHorizontal: 12,
         },
       ]}
     >
@@ -1074,90 +1100,83 @@ const CompactFrequencyBarWidget = ({ visible = true }: { visible?: boolean }) =>
         javaScriptEnabled={true}
       />
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <TouchableOpacity
-          onPress={() => toggleHz(selectedHz, selectedColor)}
+          onPress={togglePlay}
           activeOpacity={0.8}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 15,
-            backgroundColor: isPlaying ? selectedColor : selectedColor + '22',
-            borderWidth: 1,
-            borderColor: selectedColor,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 10 }}
         >
-          <Ionicons
-            name={isPlaying ? 'stop' : 'play'}
-            size={14}
-            color={isPlaying ? '#000000' : selectedColor}
-          />
-        </TouchableOpacity>
+          <View
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 17,
+              backgroundColor: isPlaying ? activeColor : activeColor + '22',
+              borderWidth: 1,
+              borderColor: activeColor,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ionicons
+              name={isPlaying ? 'stop' : 'play'}
+              size={15}
+              color={isPlaying ? '#000000' : activeColor}
+            />
+          </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ flex: 1 }}
-          contentContainerStyle={{ alignItems: 'center', gap: 5 }}
-        >
-          {QUICK_EXTRA_FREQS.map((item) => {
-            const active = isPlaying && selectedHz === item.hz;
-            const picked = selectedHz === item.hz;
-            return (
-              <TouchableOpacity
-                key={item.hz}
-                onPress={() => toggleHz(item.hz, item.color)}
-                activeOpacity={0.8}
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 13.5, fontWeight: '800' }}>
+                🎧 {configuredHz} Hz
+              </Text>
+              <View
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 3,
-                  backgroundColor: active
-                    ? item.color + '38'
-                    : picked
-                    ? 'rgba(212,175,55,0.14)'
-                    : 'rgba(255,255,255,0.05)',
+                  backgroundColor: isPlaying ? 'rgba(16,185,129,0.2)' : 'rgba(212,175,55,0.16)',
                   borderWidth: 1,
-                  borderColor: active
-                    ? item.color
-                    : picked
-                    ? 'rgba(212,175,55,0.45)'
-                    : 'rgba(255,255,255,0.1)',
-                  borderRadius: 8,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
+                  borderColor: isPlaying ? '#10B981' : 'rgba(212,175,55,0.45)',
+                  borderRadius: 7,
+                  paddingHorizontal: 6,
+                  paddingVertical: 1.5,
                 }}
               >
                 <Text
                   style={{
-                    color: active ? '#FFFFFF' : picked ? '#FDE68A' : '#D1D5DB',
-                    fontSize: 10.5,
-                    fontWeight: active || picked ? '800' : '600',
+                    color: isPlaying ? '#34D399' : '#FDE68A',
+                    fontSize: 9,
+                    fontWeight: '800',
                   }}
                 >
-                  {active ? `⏹ ${item.hz}` : `${item.hz} Hz`}
+                  {isPlaying ? '🔊 ÇALIYOR' : 'TEK TUŞLA AÇ'}
                 </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-
-        <TouchableOpacity
-          onPress={() => router.push(`/(dashboard)/meditation?hz=${selectedHz}` as any)}
-          activeOpacity={0.75}
-          style={{
-            paddingHorizontal: 6,
-            paddingVertical: 4,
-            borderRadius: 8,
-            backgroundColor: 'rgba(212,175,55,0.12)',
-            borderWidth: 1,
-            borderColor: 'rgba(212,175,55,0.35)',
-          }}
-        >
-          <Ionicons name="musical-notes-outline" size={13} color="#FDE68A" />
+              </View>
+            </View>
+            <Text style={{ color: '#9CA3AF', fontSize: 10.5, marginTop: 1 }} numberOfLines={1}>
+              {isPlaying ? 'Durdurmak için dokunun' : configuredLabel}
+            </Text>
+          </View>
         </TouchableOpacity>
+
+        {onOpenSettings && (
+          <TouchableOpacity
+            onPress={onOpenSettings}
+            activeOpacity={0.75}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 3,
+              paddingHorizontal: 8,
+              paddingVertical: 6,
+              borderRadius: 9,
+              backgroundColor: 'rgba(212,175,55,0.12)',
+              borderWidth: 1,
+              borderColor: 'rgba(212,175,55,0.35)',
+            }}
+          >
+            <Ionicons name="options-outline" size={12} color="#FDE68A" />
+            <Text style={{ color: '#FDE68A', fontSize: 10, fontWeight: '800' }}>Hz Seç</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -1360,6 +1379,9 @@ export default function DashboardScreen() {
   const [widgetBirthTime, setWidgetBirthTime] = useState('');
   const [widgetChartMode, setWidgetChartMode] = useState<WidgetChartMode>('soul');
   const [savedBirthProfile, setSavedBirthProfile] = useState<WidgetBirthProfile | null>(null);
+  const [customMiniHz, setCustomMiniHz] = useState<number>(432);
+  const [customMiniHzLabel, setCustomMiniHzLabel] = useState<string>('Evrensel Denge (En Çok Tercih Edilen)');
+  const [customMiniHzInput, setCustomMiniHzInput] = useState<string>('432');
   const [widgetPrefs, setWidgetPrefs] = useState({
     compactFreqBar: true,
     frequencyPlayer: true,
@@ -1381,7 +1403,7 @@ export default function DashboardScreen() {
             sound: null,
           }).catch(() => {});
         }
-        const [compFreqW, freqW, pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
+        const [compFreqW, freqW, pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode, savedCustomHz, savedCustomHzLabel] = await Promise.all([
           AsyncStorage.getItem('@show_compact_freq_widget'),
           AsyncStorage.getItem('@show_frequency_widget'),
           AsyncStorage.getItem('@show_planetary_widget'),
@@ -1392,7 +1414,21 @@ export default function DashboardScreen() {
           AsyncStorage.getItem('@widget_birth_date'),
           AsyncStorage.getItem('@widget_birth_time'),
           AsyncStorage.getItem('@widget_chart_mode'),
+          AsyncStorage.getItem('@widget_custom_mini_hz'),
+          AsyncStorage.getItem('@widget_custom_mini_hz_label'),
         ]);
+        if (savedCustomHz) {
+          const parsedHz = parseInt(savedCustomHz, 10);
+          if (!isNaN(parsedHz) && parsedHz >= 20 && parsedHz <= 4000) {
+            setCustomMiniHz(parsedHz);
+            setCustomMiniHzInput(String(parsedHz));
+            const lbl = savedCustomHzLabel || 'Özel Rezonans Frekansı';
+            setCustomMiniHzLabel(lbl);
+            if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveCustomWidgetFrequency) {
+              NativeModules.CosmicWidgetModule.saveCustomWidgetFrequency(parsedHz, lbl).catch(() => {});
+            }
+          }
+        }
         const activeMode: WidgetChartMode =
           savedCMode === 'body' || savedCMode === 'soul' || savedCMode === 'synthesis'
             ? savedCMode
@@ -1546,6 +1582,26 @@ export default function DashboardScreen() {
       }
       if (widgetPrefs.lockScreenNotif) {
         await syncLockScreenCosmicWidget(true);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleSelectCustomMiniHz = async (hz: number, label?: string) => {
+    const safeHz = Math.max(20, Math.min(4000, Math.round(hz)));
+    const matched = MINI_WIDGET_FREQ_OPTIONS.find((o) => o.hz === safeHz);
+    const resolvedLabel = label || matched?.label || `${safeHz} Hz Özel Rezonans`;
+    setCustomMiniHz(safeHz);
+    setCustomMiniHzInput(String(safeHz));
+    setCustomMiniHzLabel(resolvedLabel);
+    try {
+      await Promise.all([
+        AsyncStorage.setItem('@widget_custom_mini_hz', String(safeHz)),
+        AsyncStorage.setItem('@widget_custom_mini_hz_label', resolvedLabel),
+      ]);
+      if (Platform.OS === 'android' && NativeModules.CosmicWidgetModule?.saveCustomWidgetFrequency) {
+        await NativeModules.CosmicWidgetModule.saveCustomWidgetFrequency(safeHz, resolvedLabel);
       }
     } catch {
       // ignore
@@ -1945,7 +2001,12 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        <CompactFrequencyBarWidget visible={widgetPrefs.compactFreqBar} />
+        <CompactFrequencyBarWidget
+          visible={widgetPrefs.compactFreqBar}
+          configuredHz={customMiniHz}
+          configuredLabel={customMiniHzLabel}
+          onOpenSettings={() => setShowWidgetModal(true)}
+        />
         {userRole === 'admin' && (
           <QuickFrequencyPlayerWidget
             visible={widgetPrefs.frequencyPlayer}
@@ -2337,8 +2398,8 @@ export default function DashboardScreen() {
                 {
                   key: 'compactFreqBar' as const,
                   storageKey: '@show_compact_freq_widget',
-                  title: '🎧 Mini Hızlı Frekans Çalar Barı (Sadece Frekans Aç)',
-                  sub: 'Ekranda yer kaplamayan tek satırlık ince bar; 396 - 963 Hz arası istediğiniz frekansı tek tuşla çalar.',
+                  title: `🎧 Mini Frekans Çalar Widget'ı (${customMiniHz} Hz • 2x1)`,
+                  sub: 'Ekranda çok az yer kaplayan 2x1 mini çalar; seçtiğiniz tek favori frekansı (örn. 432 Hz, 437 Hz, 528 Hz) tek tuşla açar ve durdurur.',
                 },
                 ...(userRole === 'admin'
                   ? [
@@ -2405,6 +2466,125 @@ export default function DashboardScreen() {
                 </View>
               ))}
 
+              {/* Mini Frekans Çalar (2x1) İçin Özelleştirilebilir Frekans Seçici */}
+              <View
+                style={{
+                  marginTop: 12,
+                  padding: 12,
+                  borderRadius: 14,
+                  backgroundColor: 'rgba(56,189,248,0.07)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(212,175,55,0.35)',
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800' }}>
+                    🎧 Mini Frekans Widget&apos;ı Frekans Seçimi (2x1)
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: 'rgba(16,185,129,0.2)',
+                      borderWidth: 1,
+                      borderColor: '#10B981',
+                      borderRadius: 8,
+                      paddingHorizontal: 7,
+                      paddingVertical: 2,
+                    }}
+                  >
+                    <Text style={{ color: '#34D399', fontSize: 9.5, fontWeight: '800' }}>
+                      AKTİF: {customMiniHz} HZ
+                    </Text>
+                  </View>
+                </View>
+                <Text style={{ color: '#D1D5DB', fontSize: 10.5, lineHeight: 14.5, marginBottom: 8 }}>
+                  Mini Frekans Çalar widget&apos;ında tek dokunuşla çalmasını istediğiniz favori frekansı seçin (En çok tercih edilenler: <Text style={{ color: '#FDE68A', fontWeight: '800' }}>432 Hz, 437 Hz, 528 Hz</Text>):
+                </Text>
+
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                  {MINI_WIDGET_FREQ_OPTIONS.map((opt) => {
+                    const isSelected = customMiniHz === opt.hz;
+                    return (
+                      <TouchableOpacity
+                        key={opt.hz}
+                        onPress={() => handleSelectCustomMiniHz(opt.hz, opt.label)}
+                        activeOpacity={0.8}
+                        style={{
+                          backgroundColor: isSelected
+                            ? 'rgba(212,175,55,0.28)'
+                            : opt.isPopular
+                            ? 'rgba(212,175,55,0.1)'
+                            : 'rgba(0,0,0,0.45)',
+                          borderWidth: 1,
+                          borderColor: isSelected
+                            ? '#D4AF37'
+                            : opt.isPopular
+                            ? 'rgba(212,175,55,0.4)'
+                            : 'rgba(255,255,255,0.12)',
+                          borderRadius: 9,
+                          paddingHorizontal: 9,
+                          paddingVertical: 6,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: isSelected ? '#FDE68A' : opt.isPopular ? '#FEF08A' : '#E5E7EB',
+                            fontSize: 10.5,
+                            fontWeight: isSelected || opt.isPopular ? '800' : '600',
+                          }}
+                        >
+                          {opt.shortLabel}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                {/* Özel Frekans (Hz) Manuel Giriş */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ flex: 1 }}>
+                    <TextInput
+                      value={customMiniHzInput}
+                      onChangeText={(t) => setCustomMiniHzInput(t.replace(/\D/g, '').slice(0, 4))}
+                      placeholder="Özel Hz yazın (örn: 437)"
+                      placeholderTextColor="#6B7280"
+                      keyboardType="number-pad"
+                      maxLength={4}
+                      style={{
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        borderWidth: 1,
+                        borderColor: 'rgba(255,255,255,0.15)',
+                        borderRadius: 9,
+                        paddingHorizontal: 10,
+                        paddingVertical: 7,
+                        color: '#FFFFFF',
+                        fontSize: 12,
+                        fontWeight: '700',
+                      }}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      const val = parseInt(customMiniHzInput, 10);
+                      if (isNaN(val) || val < 20 || val > 4000) {
+                        Alert.alert('Geçersiz Frekans', 'Lütfen 20 Hz ile 4000 Hz arasında bir değer girin (Örn: 432 veya 437).');
+                        return;
+                      }
+                      void handleSelectCustomMiniHz(val);
+                    }}
+                    style={{
+                      backgroundColor: '#D4AF37',
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
+                      borderRadius: 9,
+                    }}
+                  >
+                    <Text style={{ color: '#000000', fontSize: 11, fontWeight: '800' }}>
+                      Hz Ayarla
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
               <View style={{ marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)' }}>
                 <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800', marginBottom: 4 }}>
                   📌 Telefon Ana Ekranına Widget Ekle
@@ -2416,9 +2596,9 @@ export default function DashboardScreen() {
                 {[
                   {
                     type: 'quick_freq' as const,
-                    badge: '1. SEÇENEK • 4x1 İNCE FREKANS BARI',
-                    title: '🎧 Mini Hızlı Frekans Çalar (Sadece Frekans Aç)',
-                    desc: 'Ekranda çok az yer kaplayan tek satırlık bar (396, 417, 432, 528, 639, 741, 852, 963 Hz). İstediğiniz frekansı tek tuşla çalar.',
+                    badge: '1. SEÇENEK • 2x1 DAR BOY FREKANS ÇALAR',
+                    title: `🎧 Mini Frekans Çalar (${customMiniHz} Hz • 2x1)`,
+                    desc: `Ekranda çok az yer kaplayan 2x1 mini çalar. Yukarıdan seçtiğiniz ${customMiniHz} Hz frekansını ana ekranda tek dokunuşla açar ve durdurur.`,
                   },
                   {
                     type: 'mini' as const,
@@ -2500,27 +2680,21 @@ export default function DashboardScreen() {
                     >
                       {w.type === 'quick_freq' && (
                         <View style={{ gap: 4 }}>
-                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{ color: '#FDE68A', fontSize: 8.5, fontWeight: '800' }}>🎧 HIZLI FREKANS ÇALAR</Text>
-                            <Text style={{ color: '#34D399', fontSize: 8, fontWeight: '800' }}>Frekans Seç &amp; Aç</Text>
-                          </View>
-                          <View style={{ flexDirection: 'row', gap: 3 }}>
-                            {['396', '417', '432', '528', '639', '741', '852', '963'].map((hz) => (
-                              <View
-                                key={hz}
-                                style={{
-                                  flex: 1,
-                                  backgroundColor: hz === '528' ? 'rgba(212,175,55,0.22)' : 'rgba(255,255,255,0.06)',
-                                  borderRadius: 5,
-                                  paddingVertical: 4,
-                                  alignItems: 'center',
-                                  borderWidth: 1,
-                                  borderColor: hz === '528' ? '#D4AF37' : 'rgba(255,255,255,0.1)',
-                                }}
-                              >
-                                <Text style={{ color: hz === '528' ? '#FDE68A' : '#E5E7EB', fontSize: 7.5, fontWeight: '800' }}>{hz}</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(212,175,55,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ color: '#FFD700', fontSize: 10, fontWeight: '800' }}>▶</Text>
                               </View>
-                            ))}
+                              <Text style={{ color: '#FFFFFF', fontSize: 11.5, fontWeight: '800' }}>{customMiniHz} Hz</Text>
+                            </View>
+                            <View style={{ backgroundColor: 'rgba(212,175,55,0.2)', borderRadius: 8, paddingHorizontal: 7, paddingVertical: 1.5 }}>
+                              <Text style={{ color: '#FDE68A', fontSize: 9, fontWeight: '800' }}>AÇ</Text>
+                            </View>
+                          </View>
+                          <View style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 3, alignItems: 'center' }}>
+                            <Text style={{ color: '#D1D5DB', fontSize: 8.5, fontWeight: '700' }} numberOfLines={1}>
+                              🎧 {customMiniHzLabel} • Dokun &amp; Dinle
+                            </Text>
                           </View>
                         </View>
                       )}

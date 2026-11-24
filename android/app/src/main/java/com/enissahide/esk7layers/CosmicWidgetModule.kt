@@ -114,6 +114,34 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
+    fun saveCustomWidgetFrequency(
+        hz: Int,
+        label: String,
+        promise: Promise
+    ) {
+        try {
+            val safeHz = hz.coerceIn(20, 4000)
+            val safeLabel = label.trim().ifEmpty { "Özel Rezonans" }
+            val prefs = reactApplicationContext.getSharedPreferences(
+                CosmicWidgetHelper.PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+            prefs.edit()
+                .putInt("customWidgetHz", safeHz)
+                .putString("customWidgetHzLabel", safeLabel)
+                .apply()
+
+            if (CosmicWidgetAudioPlayer.isCurrentlyPlaying()) {
+                CosmicWidgetAudioPlayer.start(safeHz)
+            }
+            CosmicWidgetHelper.refreshAllWidgets(reactApplicationContext)
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("WIDGET_FREQ_SAVE_ERROR", e.message, e)
+        }
+    }
+
+    @ReactMethod
     fun pinWidgetToHomeScreen(widgetType: String, promise: Promise) {
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {

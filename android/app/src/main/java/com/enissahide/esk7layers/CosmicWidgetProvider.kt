@@ -1418,8 +1418,9 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
         val act = intent.action ?: ""
         if (act.startsWith(CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ)) {
-            val parsedFromAction = act.substringAfterLast("_", "").toIntOrNull()
-            val targetHz = parsedFromAction ?: intent.getIntExtra("hz", 528)
+            val prefs = context.getSharedPreferences(CosmicWidgetHelper.PREFS_NAME, Context.MODE_PRIVATE)
+            val savedHz = prefs.getInt("customWidgetHz", 432).coerceIn(20, 4000)
+            val targetHz = intent.getIntExtra("hz", savedHz)
             val svcIntent = Intent(context, CosmicWidgetAudioService::class.java).apply {
                 putExtra("hz", targetHz)
             }
@@ -1449,78 +1450,55 @@ class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        val prefs = context.getSharedPreferences(CosmicWidgetHelper.PREFS_NAME, Context.MODE_PRIVATE)
+        val configuredHz = prefs.getInt("customWidgetHz", 432).coerceIn(20, 4000)
+        val configuredLabel = prefs.getString("customWidgetHzLabel", "Evrensel Rezonans")?.trim()?.ifEmpty { "Evrensel Rezonans" } ?: "Evrensel Rezonans"
+
         val isPlaying = CosmicWidgetAudioPlayer.isCurrentlyPlaying()
         val activeHz = CosmicWidgetAudioPlayer.getActiveHz()
-        val freqs = intArrayOf(396, 417, 432, 528, 639, 741, 852, 963)
-        val btnIds = intArrayOf(
-            R.id.qfb_btn_396,
-            R.id.qfb_btn_417,
-            R.id.qfb_btn_432,
-            R.id.qfb_btn_528,
-            R.id.qfb_btn_639,
-            R.id.qfb_btn_741,
-            R.id.qfb_btn_852,
-            R.id.qfb_btn_963
-        )
+        val isThisPlaying = isPlaying && activeHz == configuredHz
 
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.quick_freq_bar_widget)
+            views.setTextViewText(R.id.qfb_play_icon, if (isThisPlaying) "⏹" else "▶")
+            views.setTextViewText(R.id.qfb_hz_title, "$configuredHz Hz")
             views.setTextViewText(
                 R.id.qfb_status_pill,
-                if (isPlaying && activeHz > 0) "🔊 $activeHz Hz Çalıyor" else "Frekans Seç & Aç"
+                if (isThisPlaying) "🔊 ÇALIYOR" else "AÇ"
+            )
+            views.setTextViewText(
+                R.id.qfb_sub_label,
+                if (isThisPlaying) "⏹ Durdurmak için dokunun • $configuredLabel"
+                else "🎧 $configuredLabel • Dokun & Dinle"
             )
 
-            for (i in freqs.indices) {
-                val hz = freqs[i]
-                val btnId = btnIds[i]
-                val active = isPlaying && activeHz == hz
-                views.setTextViewText(btnId, if (active) "⏹$hz" else "$hz")
-                val toggleIntent = Intent(context, QuickFrequencyBarWidgetProvider::class.java).apply {
-                    action = "${CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ}_$hz"
-                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND or Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-                    putExtra("hz", hz)
-                }
-                val pending = PendingIntent.getBroadcast(
+            val svcIntent = Intent(context, CosmicWidgetAudioService::class.java).apply {
+                putExtra("hz", configuredHz)
+            }
+            val togglePending = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                PendingIntent.getForegroundService(
                     context,
-                    9200 + i,
-                    toggleIntent,
+                    9250,
+                    svcIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                views.setOnClickPendingIntent(btnId, pending)
-            }
-
-            if (isPlaying && activeHz > 0) {
-                val stopToggle = Intent(context, QuickFrequencyBarWidgetProvider::class.java).apply {
-                    action = "${CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ}_$activeHz"
-                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND or Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-                    putExtra("hz", activeHz)
-                }
-                val stopPending = PendingIntent.getBroadcast(
+            } else {
+                PendingIntent.getService(
                     context,
-                    9290,
-                    stopToggle,
+                    9250,
+                    svcIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                views.setOnClickPendingIntent(R.id.qfb_status_pill, stopPending)
             }
 
-            val roomHz = if (activeHz > 0) activeHz else 528
-            val freqIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("proje1://(dashboard)/meditation?hz=$roomHz&autoPlay=1"),
-                context,
-                MainActivity::class.java
-            ).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            }
-            val freqPending = PendingIntent.getActivity(
-                context,
-                9299,
-                freqIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.qfb_open_room_btn, freqPending)
-            views.setOnClickPendingIntent(R.id.qfb_title, freqPending)
+            views.setOnClickPendingIntent(R.id.qfb_widget_root, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_top_row, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_bottom_row, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_play_icon, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_hz_title, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_status_pill, togglePending)
+            views.setOnClickPendingIntent(R.id.qfb_sub_label, togglePending)
+
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
