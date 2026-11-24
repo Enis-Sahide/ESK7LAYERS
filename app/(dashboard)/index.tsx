@@ -2571,17 +2571,46 @@ export default function DashboardScreen() {
                       void handleSelectCustomMiniHz(val);
                     }}
                     style={{
-                      backgroundColor: '#D4AF37',
+                      backgroundColor: 'rgba(212,175,55,0.22)',
+                      borderWidth: 1,
+                      borderColor: '#D4AF37',
                       paddingHorizontal: 12,
                       paddingVertical: 8,
                       borderRadius: 9,
                     }}
                   >
-                    <Text style={{ color: '#000000', fontSize: 11, fontWeight: '800' }}>
+                    <Text style={{ color: '#FDE68A', fontSize: 11, fontWeight: '800' }}>
                       Hz Ayarla
                     </Text>
                   </TouchableOpacity>
                 </View>
+
+                {/* Doğrudan Telefon Ana Ekranına 2x1 Mini Frekans Widget'ı Ekleme Butonu */}
+                <TouchableOpacity
+                  onPress={async () => {
+                    const val = parseInt(customMiniHzInput, 10);
+                    const finalHz = !isNaN(val) && val >= 20 && val <= 4000 ? val : customMiniHz;
+                    await handleSelectCustomMiniHz(finalHz);
+                    void handlePinHomeWidget('quick_freq', `Mini Frekans Çalar (${finalHz} Hz)`);
+                  }}
+                  activeOpacity={0.85}
+                  style={{
+                    marginTop: 10,
+                    backgroundColor: '#D4AF37',
+                    borderRadius: 10,
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  <Ionicons name="add-circle" size={16} color="#000000" />
+                  <Text style={{ color: '#000000', fontSize: 12, fontWeight: '900' }}>
+                    + Ana Ekrana Widget Ekle ({customMiniHz} Hz • 2x1)
+                  </Text>
+                </TouchableOpacity>
               </View>
 
               <View style={{ marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)' }}>
