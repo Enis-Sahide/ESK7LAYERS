@@ -443,7 +443,7 @@ export default function AnalysisHubScreen() {
               </View>
             )}
           </View>
-        </div>
+        </View>
       </Modal>
 
       {/* 7Layers Kozmik Matris & Karmik Enkarnasyon Bilgilendirme Penceresi */}
