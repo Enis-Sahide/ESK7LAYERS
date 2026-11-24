@@ -1047,6 +1047,10 @@ object CosmicWidgetHelper {
         if (cmIds.isNotEmpty()) {
             ChakraMoonWidgetProvider().onUpdate(context, mgr, cmIds)
         }
+        val qfbIds = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
+        if (qfbIds.isNotEmpty()) {
+            QuickFrequencyBarWidgetProvider().onUpdate(context, mgr, qfbIds)
+        }
         val schIds = mgr.getAppWidgetIds(ComponentName(context, SchumannWidgetProvider::class.java))
         if (schIds.isNotEmpty()) {
             SchumannWidgetProvider.refreshSchumannWidgets(context.applicationContext, mgr, schIds, null, false)
@@ -1280,6 +1284,98 @@ class ChakraMoonWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.cm_open_freq_btn, freqPending)
             views.setOnClickPendingIntent(
                 R.id.cm_widget_root,
+                CosmicWidgetHelper.getLaunchPendingIntent(context)
+            )
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+    }
+}
+
+class QuickFrequencyBarWidgetProvider : AppWidgetProvider() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ) {
+            val targetHz = intent.getIntExtra("hz", 528)
+            CosmicWidgetAudioPlayer.toggle(targetHz)
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+            val cmIds = mgr.getAppWidgetIds(ComponentName(context, ChakraMoonWidgetProvider::class.java))
+            if (cmIds.isNotEmpty()) {
+                ChakraMoonWidgetProvider().onUpdate(context, mgr, cmIds)
+            }
+            return
+        }
+        if (CosmicWidgetHelper.shouldTriggerImmediateRefresh(intent.action)) {
+            val mgr = AppWidgetManager.getInstance(context)
+            val ids = mgr.getAppWidgetIds(ComponentName(context, QuickFrequencyBarWidgetProvider::class.java))
+            onUpdate(context, mgr, ids)
+        }
+    }
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        val isPlaying = CosmicWidgetAudioPlayer.isCurrentlyPlaying()
+        val activeHz = CosmicWidgetAudioPlayer.getActiveHz()
+        val freqs = intArrayOf(396, 417, 432, 528, 639, 741, 852, 963)
+        val btnIds = intArrayOf(
+            R.id.qfb_btn_396,
+            R.id.qfb_btn_417,
+            R.id.qfb_btn_432,
+            R.id.qfb_btn_528,
+            R.id.qfb_btn_639,
+            R.id.qfb_btn_741,
+            R.id.qfb_btn_852,
+            R.id.qfb_btn_963
+        )
+
+        for (appWidgetId in appWidgetIds) {
+            val views = RemoteViews(context.packageName, R.layout.quick_freq_bar_widget)
+            views.setTextViewText(
+                R.id.qfb_status_pill,
+                if (isPlaying && activeHz > 0) "🔊 $activeHz Hz Çalıyor" else "Frekans Seç & Aç"
+            )
+
+            for (i in freqs.indices) {
+                val hz = freqs[i]
+                val btnId = btnIds[i]
+                val active = isPlaying && activeHz == hz
+                views.setTextViewText(btnId, if (active) "⏹$hz" else "$hz")
+                val toggleIntent = Intent(context, QuickFrequencyBarWidgetProvider::class.java).apply {
+                    action = CosmicWidgetHelper.ACTION_TOGGLE_WIDGET_FREQ
+                    putExtra("hz", hz)
+                }
+                val pending = PendingIntent.getBroadcast(
+                    context,
+                    9200 + i,
+                    toggleIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(btnId, pending)
+            }
+
+            val roomHz = if (activeHz > 0) activeHz else 528
+            val freqIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("proje1://(dashboard)/meditation?hz=$roomHz&autoPlay=1"),
+                context,
+                MainActivity::class.java
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val freqPending = PendingIntent.getActivity(
+                context,
+                9299,
+                freqIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.qfb_open_room_btn, freqPending)
+            views.setOnClickPendingIntent(
+                R.id.qfb_widget_root,
                 CosmicWidgetHelper.getLaunchPendingIntent(context)
             )
             appWidgetManager.updateAppWidget(appWidgetId, views)

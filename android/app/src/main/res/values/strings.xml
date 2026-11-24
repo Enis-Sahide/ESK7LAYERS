@@ -18,4 +18,7 @@
 
   <string name="widget_chakra_label">7Layers • Kişisel Çakra &amp; Frekans Açma (4x2)</string>
   <string name="widget_chakra_desc">Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını (Hz) gösterir ve tek tuşla ana ekrandan çalar (4x2).</string>
+
+  <string name="widget_quick_freq_label">7Layers • Mini Hızlı Frekans Çalar (4x1)</string>
+  <string name="widget_quick_freq_desc">Ekranda yer kaplamayan ince bar; 396 Hz - 963 Hz arası istediğiniz frekansı tek dokunuşla açar ve durdurur (4x1).</string>
 </resources>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/qfb_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cosmic_widget_bg"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="5dp">
+
+    <!-- Top Compact Header Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/qfb_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="🎧 HIZLI FREKANS ÇALAR"
+            android:textColor="#FDE68A"
+            android:textSize="9.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_status_pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/cosmic_pill_bg"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="1.5dp"
+            android:text="Frekans Seç &amp; Aç"
+            android:textColor="#34D399"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_open_room_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:paddingHorizontal="4dp"
+            android:text="Oda →"
+            android:textColor="#D4AF37"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Single-Line Frequency Pills Row (396..963 Hz) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/qfb_btn_396"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="396"
+            android:textColor="#FCA5A5"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_417"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="417"
+            android:textColor="#FDBA74"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_432"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="432"
+            android:textColor="#FDE68A"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_528"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="528"
+            android:textColor="#FEF08A"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_639"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="639"
+            android:textColor="#6EE7B7"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_741"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="741"
+            android:textColor="#7DD3FC"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_852"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="852"
+            android:textColor="#A5B4FC"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/qfb_btn_963"
+            android:layout_width="0dp"
+            android:layout_height="24dp"
+            android:layout_weight="1"
+            android:background="@drawable/cosmic_inner_card_bg"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="963"
+            android:textColor="#D8B4FE"
+            android:textSize="8.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

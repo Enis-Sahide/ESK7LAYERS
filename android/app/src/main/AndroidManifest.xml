@@ -120,5 +120,20 @@
         android:name="android.appwidget.provider"
         android:resource="@xml/chakra_moon_widget_info" />
     </receiver>
+    <receiver
+      android:name=".QuickFrequencyBarWidgetProvider"
+      android:exported="true"
+      android:label="@string/widget_quick_freq_label">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="com.enissahide.esk7layers.ACTION_REFRESH_WIDGETS" />
+        <action android:name="com.enissahide.esk7layers.ACTION_TOGGLE_WIDGET_FREQ" />
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+      </intent-filter>
+      <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/quick_freq_bar_widget_info" />
+    </receiver>
   </application>
 </manifest>

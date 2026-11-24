@@ -130,6 +130,7 @@ class CosmicWidgetModule(reactContext: ReactApplicationContext) :
                 "schumann" -> SchumannWidgetProvider::class.java
                 "planetary" -> PlanetaryHoursWidgetProvider::class.java
                 "chakra" -> ChakraMoonWidgetProvider::class.java
+                "quick_freq" -> QuickFrequencyBarWidgetProvider::class.java
                 else -> CosmicWidgetProvider::class.java
             }
             val provider = ComponentName(reactApplicationContext, providerClass)

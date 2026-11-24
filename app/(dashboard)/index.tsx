@@ -1016,6 +1016,153 @@ const QuickFrequencyPlayerWidget = ({
   );
 };
 
+/**
+ * Sadece istediğin frekansı seçip anında çalan, ekranda çok az yer kaplayan
+ * yeni kompakt "Mini Hızlı Frekans Çalar" Bar Widget'ı
+ */
+const CompactFrequencyBarWidget = ({ visible = true }: { visible?: boolean }) => {
+  const router = useRouter();
+  const webviewRef = useRef<WebView>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedHz, setSelectedHz] = useState<number>(528);
+  const [selectedColor, setSelectedColor] = useState<string>('#EAB308');
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (webviewRef.current) {
+          webviewRef.current.postMessage(JSON.stringify({ type: 'STOP' }));
+        }
+        setIsPlaying(false);
+      };
+    }, [])
+  );
+
+  if (!visible) return null;
+
+  const toggleHz = (hz: number, color: string) => {
+    if (isPlaying && selectedHz === hz) {
+      webviewRef.current?.postMessage(JSON.stringify({ type: 'STOP' }));
+      setIsPlaying(false);
+    } else {
+      setSelectedHz(hz);
+      setSelectedColor(color);
+      webviewRef.current?.postMessage(JSON.stringify({ type: 'PLAY', freq: hz }));
+      setIsPlaying(true);
+    }
+  };
+
+  return (
+    <View
+      style={[
+        styles.schumannWidget,
+        {
+          borderLeftColor: selectedColor,
+          marginBottom: 12,
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+        },
+      ]}
+    >
+      <WebView
+        ref={webviewRef}
+        source={{ html: WIDGET_FREQ_WEBVIEW_HTML }}
+        style={{ width: 0, height: 0, opacity: 0 }}
+        originWhitelist={['*']}
+        mediaPlaybackRequiresUserAction={false}
+        allowsInlineMediaPlayback={true}
+        javaScriptEnabled={true}
+      />
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <TouchableOpacity
+          onPress={() => toggleHz(selectedHz, selectedColor)}
+          activeOpacity={0.8}
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 15,
+            backgroundColor: isPlaying ? selectedColor : selectedColor + '22',
+            borderWidth: 1,
+            borderColor: selectedColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Ionicons
+            name={isPlaying ? 'stop' : 'play'}
+            size={14}
+            color={isPlaying ? '#000000' : selectedColor}
+          />
+        </TouchableOpacity>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ alignItems: 'center', gap: 5 }}
+        >
+          {QUICK_EXTRA_FREQS.map((item) => {
+            const active = isPlaying && selectedHz === item.hz;
+            const picked = selectedHz === item.hz;
+            return (
+              <TouchableOpacity
+                key={item.hz}
+                onPress={() => toggleHz(item.hz, item.color)}
+                activeOpacity={0.8}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 3,
+                  backgroundColor: active
+                    ? item.color + '38'
+                    : picked
+                    ? 'rgba(212,175,55,0.14)'
+                    : 'rgba(255,255,255,0.05)',
+                  borderWidth: 1,
+                  borderColor: active
+                    ? item.color
+                    : picked
+                    ? 'rgba(212,175,55,0.45)'
+                    : 'rgba(255,255,255,0.1)',
+                  borderRadius: 8,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                }}
+              >
+                <Text
+                  style={{
+                    color: active ? '#FFFFFF' : picked ? '#FDE68A' : '#D1D5DB',
+                    fontSize: 10.5,
+                    fontWeight: active || picked ? '800' : '600',
+                  }}
+                >
+                  {active ? `⏹ ${item.hz}` : `${item.hz} Hz`}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        <TouchableOpacity
+          onPress={() => router.push(`/(dashboard)/meditation?hz=${selectedHz}` as any)}
+          activeOpacity={0.75}
+          style={{
+            paddingHorizontal: 6,
+            paddingVertical: 4,
+            borderRadius: 8,
+            backgroundColor: 'rgba(212,175,55,0.12)',
+            borderWidth: 1,
+            borderColor: 'rgba(212,175,55,0.35)',
+          }}
+        >
+          <Ionicons name="musical-notes-outline" size={13} color="#FDE68A" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
 const PlanetaryHourWidget = ({ visible = true }: { visible?: boolean }) => {
   const router = useRouter();
   const [data, setData] = useState<{ hour: PlanetaryHour, info: any, minsLeft: number, cityName: string } | null>(null);
@@ -1214,6 +1361,7 @@ export default function DashboardScreen() {
   const [widgetChartMode, setWidgetChartMode] = useState<WidgetChartMode>('soul');
   const [savedBirthProfile, setSavedBirthProfile] = useState<WidgetBirthProfile | null>(null);
   const [widgetPrefs, setWidgetPrefs] = useState({
+    compactFreqBar: true,
     frequencyPlayer: true,
     planetaryHour: true,
     cosmicWeather: true,
@@ -1233,7 +1381,8 @@ export default function DashboardScreen() {
             sound: null,
           }).catch(() => {});
         }
-        const [freqW, pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
+        const [compFreqW, freqW, pHour, cWeather, sch, mec, lockN, savedBDate, savedBTime, savedCMode] = await Promise.all([
+          AsyncStorage.getItem('@show_compact_freq_widget'),
           AsyncStorage.getItem('@show_frequency_widget'),
           AsyncStorage.getItem('@show_planetary_widget'),
           AsyncStorage.getItem('@show_cosmic_weather_widget'),
@@ -1273,6 +1422,7 @@ export default function DashboardScreen() {
         }
         const isLockEnabled = lockN !== 'false';
         setWidgetPrefs({
+          compactFreqBar: compFreqW !== 'false',
           frequencyPlayer: freqW !== 'false',
           planetaryHour: pHour !== 'false',
           cosmicWeather: cWeather !== 'false',
@@ -1402,7 +1552,7 @@ export default function DashboardScreen() {
     }
   };
 
-  const handlePinHomeWidget = async (widgetType: 'mini' | 'schumann' | 'cosmic' | 'planetary' | 'chakra', label: string) => {
+  const handlePinHomeWidget = async (widgetType: 'mini' | 'schumann' | 'cosmic' | 'planetary' | 'chakra' | 'quick_freq', label: string) => {
     if (Platform.OS !== 'android') {
       Alert.alert('Bilgi', 'Ana ekran widget sabitleme özelliği Android cihazlarda desteklenmektedir.');
       return;
@@ -1503,7 +1653,7 @@ export default function DashboardScreen() {
   }, []);
 
   const toggleWidgetPref = async (
-    key: 'frequencyPlayer' | 'planetaryHour' | 'cosmicWeather' | 'schumann' | 'meclis' | 'lockScreenNotif',
+    key: 'compactFreqBar' | 'frequencyPlayer' | 'planetaryHour' | 'cosmicWeather' | 'schumann' | 'meclis' | 'lockScreenNotif',
     storageKey: string,
     val: boolean
   ) => {
@@ -1795,12 +1945,15 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        <QuickFrequencyPlayerWidget
-          visible={widgetPrefs.frequencyPlayer}
-          birthProfile={savedBirthProfile}
-          onOpenSettings={() => setShowWidgetModal(true)}
-          isAdmin={userRole === 'admin'}
-        />
+        <CompactFrequencyBarWidget visible={widgetPrefs.compactFreqBar} />
+        {userRole === 'admin' && (
+          <QuickFrequencyPlayerWidget
+            visible={widgetPrefs.frequencyPlayer}
+            birthProfile={savedBirthProfile}
+            onOpenSettings={() => setShowWidgetModal(true)}
+            isAdmin={userRole === 'admin'}
+          />
+        )}
         <PlanetaryHourWidget visible={widgetPrefs.planetaryHour} />
         <CosmicMoonWeatherWidget visible={widgetPrefs.cosmicWeather} />
         {widgetPrefs.schumann && <SchumannMiniWidget />}
@@ -2182,11 +2335,21 @@ export default function DashboardScreen() {
 
               {[
                 {
-                  key: 'frequencyPlayer' as const,
-                  storageKey: '@show_frequency_widget',
-                  title: '🎵 Kişisel Çakra & Hızlı Frekans Widget\'ı',
-                  sub: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını hesaplar ve Frekans Odasına girmeden tek tuşla çalar.',
+                  key: 'compactFreqBar' as const,
+                  storageKey: '@show_compact_freq_widget',
+                  title: '🎧 Mini Hızlı Frekans Çalar Barı (Sadece Frekans Aç)',
+                  sub: 'Ekranda yer kaplamayan tek satırlık ince bar; 396 - 963 Hz arası istediğiniz frekansı tek tuşla çalar.',
                 },
+                ...(userRole === 'admin'
+                  ? [
+                      {
+                        key: 'frequencyPlayer' as const,
+                        storageKey: '@show_frequency_widget',
+                        title: '🎵 7Layers Kişisel Çakra & Rehber Widget\'ı (Admin)',
+                        sub: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını hesaplar ve 7Layers Günlük Rehber kısayolu sunar.',
+                      },
+                    ]
+                  : []),
                 {
                   key: 'planetaryHour' as const,
                   storageKey: '@show_planetary_widget',
@@ -2244,43 +2407,53 @@ export default function DashboardScreen() {
 
               <View style={{ marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: 'rgba(212,175,55,0.08)', borderWidth: 1, borderColor: 'rgba(212,175,55,0.28)' }}>
                 <Text style={{ color: '#FDE68A', fontSize: 12, fontWeight: '800', marginBottom: 4 }}>
-                  📌 Telefon Ana Ekranına Widget Ekle (5 Seçenek)
+                  📌 Telefon Ana Ekranına Widget Ekle
                 </Text>
                 <Text style={{ color: '#D1D5DB', fontSize: 10.5, lineHeight: 15, marginBottom: 10 }}>
                   Aşağıdaki butonlara dokunarak veya telefonunuzun ana ekranında boş bir yere basılı tutup &ldquo;Widget&apos;lar &rarr; 7LAYERS&rdquo; menüsünden istediğiniz boyuttaki widget&apos;ı ekleyebilirsiniz:
                 </Text>
 
-                                {[
+                {[
+                  {
+                    type: 'quick_freq' as const,
+                    badge: '1. SEÇENEK • 4x1 İNCE FREKANS BARI',
+                    title: '🎧 Mini Hızlı Frekans Çalar (Sadece Frekans Aç)',
+                    desc: 'Ekranda çok az yer kaplayan tek satırlık bar (396, 417, 432, 528, 639, 741, 852, 963 Hz). İstediğiniz frekansı tek tuşla çalar.',
+                  },
                   {
                     type: 'mini' as const,
-                    badge: '1. SEÇENEK • 2x1 DAR BOY',
+                    badge: '2. SEÇENEK • 2x1 DAR BOY',
                     title: '🪐 Mini Kozmik Saat',
                     desc: 'Dar alanlar için aktif Gezegen Saati, kalan dakika, önceki ve sıradaki gezegen saati.',
                   },
                   {
                     type: 'schumann' as const,
-                    badge: '2. SEÇENEK • 4x2 CANLI GRAFİK',
+                    badge: '3. SEÇENEK • 4x2 CANLI GRAFİK',
                     title: '⚡ Canlı Schumann Spektrogramı',
                     desc: 'Dünya’nın anlık elektromanyetik kalp atışı (7.83 Hz Tomsk 0-40 Hz) canlı grafik ekranı.',
                   },
                   {
                     type: 'cosmic' as const,
-                    badge: '3. SEÇENEK • 4x2 TAM BOY',
+                    badge: '4. SEÇENEK • 4x2 TAM BOY',
                     title: '🧭 Kozmik Pusula (Hepsi Bir Arada)',
                     desc: 'Gezegen saati, canlı Ay fazı, Beden/Ruh haritası sentezi ve gölge uyarısı.',
                   },
                   {
                     type: 'planetary' as const,
-                    badge: '4. SEÇENEK • 4x2 ORTA BOY',
+                    badge: '5. SEÇENEK • 4x2 ORTA BOY',
                     title: '⏳ Canlı Gezegen Saatleri Akışı',
                     desc: 'Aktif gezegen saati anlamı ve sıradaki 3 gezegen saatinin gerçek geçiş vakitleri.',
                   },
-                  {
-                    type: 'chakra' as const,
-                    badge: '5. SEÇENEK • 4x2 FREKANS ÇALAR',
-                    title: '🎵 Kişisel Çakra & Frekans Açma Widget\'ı',
-                    desc: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını ayarlı gösterir ve tek tuşla ana ekrandan çalar.',
-                  },
+                  ...(userRole === 'admin'
+                    ? [
+                        {
+                          type: 'chakra' as const,
+                          badge: '6. SEÇENEK • 4x2 KİŞİSEL REHBER (ADMİN)',
+                          title: '🎵 7Layers Kişisel Çakra & Frekans Widget\'ı',
+                          desc: 'Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını ayarlı gösterir ve tek tuşla ana ekrandan çalar.',
+                        },
+                      ]
+                    : []),
                 ].map((w) => (
                   <View
                     key={w.type}
@@ -2325,6 +2498,33 @@ export default function DashboardScreen() {
                         borderColor: 'rgba(212,175,55,0.28)',
                       }}
                     >
+                      {w.type === 'quick_freq' && (
+                        <View style={{ gap: 4 }}>
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{ color: '#FDE68A', fontSize: 8.5, fontWeight: '800' }}>🎧 HIZLI FREKANS ÇALAR</Text>
+                            <Text style={{ color: '#34D399', fontSize: 8, fontWeight: '800' }}>Frekans Seç &amp; Aç</Text>
+                          </View>
+                          <View style={{ flexDirection: 'row', gap: 3 }}>
+                            {['396', '417', '432', '528', '639', '741', '852', '963'].map((hz) => (
+                              <View
+                                key={hz}
+                                style={{
+                                  flex: 1,
+                                  backgroundColor: hz === '528' ? 'rgba(212,175,55,0.22)' : 'rgba(255,255,255,0.06)',
+                                  borderRadius: 5,
+                                  paddingVertical: 4,
+                                  alignItems: 'center',
+                                  borderWidth: 1,
+                                  borderColor: hz === '528' ? '#D4AF37' : 'rgba(255,255,255,0.1)',
+                                }}
+                              >
+                                <Text style={{ color: hz === '528' ? '#FDE68A' : '#E5E7EB', fontSize: 7.5, fontWeight: '800' }}>{hz}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      )}
+
                       {w.type === 'mini' && (
                         <View style={{ gap: 4 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
