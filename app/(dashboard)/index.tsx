@@ -1017,8 +1017,7 @@ const QuickFrequencyPlayerWidget = ({
 };
 
 const MINI_WIDGET_FREQ_OPTIONS: { hz: number; label: string; shortLabel: string; color: string; isPopular?: boolean }[] = [
-  { hz: 432, label: 'Evrensel Denge (En Çok Tercih Edilen)', shortLabel: '432 Hz ★', color: '#D4AF37', isPopular: true },
-  { hz: 437, label: 'Derin Kozmik Rezonans (Popüler)', shortLabel: '437 Hz ★', color: '#38BDF8', isPopular: true },
+  { hz: 432, label: 'Doğa & Evrensel Denge (En Çok Tercih Edilen)', shortLabel: '432 Hz ★', color: '#D4AF37', isPopular: true },
   { hz: 528, label: 'Mucize & DNA Onarım Frekansı', shortLabel: '528 Hz ★', color: '#EAB308', isPopular: true },
   { hz: 639, label: 'Kalp & Sevgi Uyumu', shortLabel: '639 Hz', color: '#10B981' },
   { hz: 396, label: 'Kökleniş & Korku Arınması', shortLabel: '396 Hz', color: '#EF4444' },
@@ -2399,7 +2398,7 @@ export default function DashboardScreen() {
                   key: 'compactFreqBar' as const,
                   storageKey: '@show_compact_freq_widget',
                   title: `🎧 Mini Frekans Çalar Widget'ı (${customMiniHz} Hz • 2x1)`,
-                  sub: 'Ekranda çok az yer kaplayan 2x1 mini çalar; seçtiğiniz tek favori frekansı (örn. 432 Hz, 437 Hz, 528 Hz) tek tuşla açar ve durdurur.',
+                  sub: 'Ekranda çok az yer kaplayan 2x1 mini çalar; seçtiğiniz tek favori frekansı (örn. 432 Hz, 528 Hz) tek tuşla açar ve durdurur.',
                 },
                 ...(userRole === 'admin'
                   ? [
@@ -2497,7 +2496,7 @@ export default function DashboardScreen() {
                   </View>
                 </View>
                 <Text style={{ color: '#D1D5DB', fontSize: 10.5, lineHeight: 14.5, marginBottom: 8 }}>
-                  Mini Frekans Çalar widget&apos;ında tek dokunuşla çalmasını istediğiniz favori frekansı seçin (En çok tercih edilenler: <Text style={{ color: '#FDE68A', fontWeight: '800' }}>432 Hz, 437 Hz, 528 Hz</Text>):
+                  Mini Frekans Çalar widget&apos;ında tek dokunuşla çalmasını istediğiniz favori frekansı seçin (En çok tercih edilen: <Text style={{ color: '#FDE68A', fontWeight: '800' }}>432 Hz Doğa Frekansı &amp; 528 Hz</Text>):
                 </Text>
 
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
@@ -2545,7 +2544,7 @@ export default function DashboardScreen() {
                     <TextInput
                       value={customMiniHzInput}
                       onChangeText={(t) => setCustomMiniHzInput(t.replace(/\D/g, '').slice(0, 4))}
-                      placeholder="Özel Hz yazın (örn: 437)"
+                      placeholder="Özel Hz yazın (örn: 432)"
                       placeholderTextColor="#6B7280"
                       keyboardType="number-pad"
                       maxLength={4}
@@ -2566,7 +2565,7 @@ export default function DashboardScreen() {
                     onPress={() => {
                       const val = parseInt(customMiniHzInput, 10);
                       if (isNaN(val) || val < 20 || val > 4000) {
-                        Alert.alert('Geçersiz Frekans', 'Lütfen 20 Hz ile 4000 Hz arasında bir değer girin (Örn: 432 veya 437).');
+                        Alert.alert('Geçersiz Frekans', 'Lütfen 20 Hz ile 4000 Hz arasında bir değer girin (Örn: 432 veya 528).');
                         return;
                       }
                       void handleSelectCustomMiniHz(val);

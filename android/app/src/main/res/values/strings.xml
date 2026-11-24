@@ -20,5 +20,5 @@
   <string name="widget_chakra_desc">Doğum tarihinize göre o gün yoğunlaşmanız gereken çakra frekansını (Hz) gösterir ve tek tuşla ana ekrandan çalar (4x2).</string>
 
   <string name="widget_quick_freq_label">7Layers • Mini Frekans Çalar (2x1)</string>
-  <string name="widget_quick_freq_desc">Widget ayarlarından seçtiğiniz favori frekansı (örn. 432 Hz, 437 Hz, 528 Hz) ana ekranda tek dokunuşla çalar ve durdurur (2x1).</string>
+  <string name="widget_quick_freq_desc">Widget ayarlarından seçtiğiniz favori frekansı (örn. 432 Hz Doğa Frekansı, 528 Hz) ana ekranda tek dokunuşla çalar ve durdurur (2x1).</string>
 </resources>
