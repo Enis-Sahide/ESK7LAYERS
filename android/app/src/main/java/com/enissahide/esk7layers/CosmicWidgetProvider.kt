@@ -83,12 +83,14 @@ object CosmicWidgetAudioPlayer {
     @Synchronized
     fun start(hz: Int) {
         stop()
-        val sampleRate = 22050
-        val minBuf = AudioTrack.getMinBufferSize(
+        val sampleRate = 44100
+        val rawMin = AudioTrack.getMinBufferSize(
             sampleRate,
             AudioFormat.CHANNEL_OUT_MONO,
             AudioFormat.ENCODING_PCM_16BIT
-        ).coerceAtLeast(sampleRate / 2)
+        )
+        val safeBase = if (rawMin > 0) rawMin.coerceAtLeast(sampleRate) else sampleRate
+        val minBuf = ((safeBase + 3) / 4) * 4
 
         val track = AudioTrack.Builder()
             .setAudioAttributes(
