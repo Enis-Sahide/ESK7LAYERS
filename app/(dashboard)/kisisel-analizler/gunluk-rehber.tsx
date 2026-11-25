@@ -26,8 +26,26 @@ import {
   SevenLayersDailyGuideReport,
   GuidePlanetaryHourSlot,
 } from '@/src/features/astrology/engine/DailyRitualGuideEngine';
+import {
+  scanActiveChartScheduleRange,
+  ActiveChartScheduleDayItem,
+} from '@/src/features/astrology/engine/TransitSynthesisEngine';
 
 export const DAILY_GUIDE_STORAGE_KEY = '@7layers_daily_guide_context_v1';
+const TR_MONTH_NAMES = [
+  'Ocak',
+  'Şubat',
+  'Mart',
+  'Nisan',
+  'Mayıs',
+  'Haziran',
+  'Temmuz',
+  'Ağustos',
+  'Eylül',
+  'Ekim',
+  'Kasım',
+  'Aralık',
+];
 
 const COLORS = {
   background: '#000000',
@@ -146,6 +164,15 @@ export default function GunlukRehberScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [transitData, setTransitData] = useState<any>(null);
   const [showFullHoraTable, setShowFullHoraTable] = useState(false);
+
+  // Aylık / Yıllık Aktif Harita Takvimi
+  const [showSchedulePanel, setShowSchedulePanel] = useState(false);
+  const [scheduleMode, setScheduleMode] = useState<'month' | 'year'>('month');
+  const [scheduleYear, setScheduleYear] = useState<number>(() => today.getFullYear());
+  const [scheduleMonth0, setScheduleMonth0] = useState<number>(() => today.getMonth());
+  const [scheduleFilter, setScheduleFilter] = useState<
+    'ALL' | 'ACTIVE_ONLY' | 'ASSIAH' | 'YETZIRAH' | 'BOTH' | 'REST'
+  >('ALL');
 
   // Canlı Frekans Çalar
   const freqWebViewRef = useRef<WebView>(null);
@@ -323,6 +350,11 @@ export default function GunlukRehberScreen() {
       setAppliedDateStr(params.tDate);
       setAppliedTimeStr(params.tTime);
       setTransitData(result.data);
+      const [tY, tM] = params.tDate.split('-').map(Number);
+      if (tY && tM) {
+        setScheduleYear(tY);
+        setScheduleMonth0(tM - 1);
+      }
       try {
         await AsyncStorage.setItem(
           DAILY_GUIDE_STORAGE_KEY,
@@ -432,6 +464,47 @@ export default function GunlukRehberScreen() {
       cityName: activeCity?.name || 'İstanbul',
     });
   }, [transitData, appliedDateStr, appliedTimeStr, selectedCityData, selectedTransitCityData]);
+
+  const scheduleItems: ActiveChartScheduleDayItem[] = useMemo(() => {
+    if (!transitData || !showSchedulePanel) return [];
+    const startM = scheduleMode === 'month' ? scheduleMonth0 : 0;
+    const daysCount =
+      scheduleMode === 'month'
+        ? new Date(Date.UTC(scheduleYear, scheduleMonth0 + 1, 0)).getUTCDate()
+        : (scheduleYear % 4 === 0 && scheduleYear % 100 !== 0) || scheduleYear % 400 === 0
+        ? 366
+        : 365;
+
+    return scanActiveChartScheduleRange(
+      transitData.natalChart.planets,
+      transitData.natalChart.houses,
+      scheduleYear,
+      startM,
+      daysCount
+    );
+  }, [transitData, showSchedulePanel, scheduleMode, scheduleYear, scheduleMonth0]);
+
+  const scheduleCounts = useMemo(() => {
+    let assiah = 0;
+    let yetzirah = 0;
+    let both = 0;
+    let rest = 0;
+    for (const it of scheduleItems) {
+      if (it.worldCode === 'ASSIAH') assiah++;
+      else if (it.worldCode === 'YETZIRAH') yetzirah++;
+      else if (it.worldCode === 'BOTH') both++;
+      else rest++;
+    }
+    return { assiah, yetzirah, both, rest, total: scheduleItems.length };
+  }, [scheduleItems]);
+
+  const filteredScheduleItems = useMemo(() => {
+    if (scheduleFilter === 'ALL') return scheduleItems;
+    if (scheduleFilter === 'ACTIVE_ONLY') {
+      return scheduleItems.filter((it) => it.worldCode !== 'REST');
+    }
+    return scheduleItems.filter((it) => it.worldCode === scheduleFilter);
+  }, [scheduleItems, scheduleFilter]);
 
   // Interactive Breathwork Timer Effect
   useEffect(() => {
@@ -997,19 +1070,371 @@ export default function GunlukRehberScreen() {
                 <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FDE68A' }}>
                   ✨ GÜNÜN 5&apos;Lİ EZOTERİK REÇETESİ ({appliedDateStr})
                 </Text>
-                <View
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    paddingHorizontal: 8,
-                    paddingVertical: 3,
-                    borderRadius: 8,
-                  }}
-                >
-                  <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>
-                    {dailyGuide.fivePillarSummary.activeWorldsSummary}
-                  </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                  <View
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      paddingHorizontal: 8,
+                      paddingVertical: 3,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#FFF' }}>
+                      {dailyGuide.fivePillarSummary.activeWorldsSummary}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => setShowSchedulePanel((prev) => !prev)}
+                    style={{
+                      backgroundColor: showSchedulePanel ? '#D4AF37' : 'rgba(212,175,55,0.18)',
+                      borderWidth: 1,
+                      borderColor: '#D4AF37',
+                      paddingHorizontal: 9,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <Ionicons
+                      name="calendar-outline"
+                      size={12}
+                      color={showSchedulePanel ? '#000' : '#FDE68A'}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        fontWeight: '900',
+                        color: showSchedulePanel ? '#000' : '#FDE68A',
+                      }}
+                    >
+                      {showSchedulePanel
+                        ? 'Takvimi Kapat'
+                        : '📅 Aylık / Yıllık Aktif Harita Takvimi'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
+
+              {showSchedulePanel && (
+                <View
+                  style={{
+                    backgroundColor: 'rgba(0,0,0,0.75)',
+                    borderWidth: 1,
+                    borderColor: 'rgba(212,175,55,0.45)',
+                    borderRadius: 14,
+                    padding: 12,
+                    marginBottom: 12,
+                  }}
+                >
+                  <Text style={{ fontSize: 10, fontWeight: '900', color: '#D4AF37' }}>
+                    AYLIK & YILLIK AKTİF HARİTA LİSTESİ (0°00&apos; TAM DERECE TARAMASI)
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: '900',
+                      color: '#FFF',
+                      marginTop: 2,
+                      marginBottom: 8,
+                    }}
+                  >
+                    Hangi Gün Hangi Harita Çalışıyor? (
+                    {scheduleMode === 'month'
+                      ? `${TR_MONTH_NAMES[scheduleMonth0]} ${scheduleYear}`
+                      : `${scheduleYear} Tüm Yıl`}
+                    )
+                  </Text>
+
+                  {/* Mod & Tarih Seçici */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      marginBottom: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        backgroundColor: 'rgba(255,255,255,0.06)',
+                        borderRadius: 9,
+                        padding: 2,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => setScheduleMode('month')}
+                        style={{
+                          paddingHorizontal: 10,
+                          paddingVertical: 5,
+                          borderRadius: 7,
+                          backgroundColor: scheduleMode === 'month' ? '#D4AF37' : 'transparent',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '800',
+                            color: scheduleMode === 'month' ? '#000' : '#D1D5DB',
+                          }}
+                        >
+                          Aylık (Gün Gün)
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => setScheduleMode('year')}
+                        style={{
+                          paddingHorizontal: 10,
+                          paddingVertical: 5,
+                          borderRadius: 7,
+                          backgroundColor: scheduleMode === 'year' ? '#D4AF37' : 'transparent',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '800',
+                            color: scheduleMode === 'year' ? '#000' : '#D1D5DB',
+                          }}
+                        >
+                          Yıllık (365 Gün)
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      {scheduleMode === 'month' && (
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            borderRadius: 8,
+                            paddingHorizontal: 6,
+                            paddingVertical: 4,
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={() =>
+                              setScheduleMonth0((m) => (m === 0 ? 11 : m - 1))
+                            }
+                            style={{ paddingHorizontal: 5 }}
+                          >
+                            <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11 }}>
+                              ◀
+                            </Text>
+                          </TouchableOpacity>
+                          <Text
+                            style={{
+                              color: '#FDE68A',
+                              fontWeight: '800',
+                              fontSize: 11,
+                              marginHorizontal: 4,
+                            }}
+                          >
+                            {TR_MONTH_NAMES[scheduleMonth0]}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() =>
+                              setScheduleMonth0((m) => (m === 11 ? 0 : m + 1))
+                            }
+                            style={{ paddingHorizontal: 5 }}
+                          >
+                            <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11 }}>
+                              ▶
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          backgroundColor: 'rgba(255,255,255,0.08)',
+                          borderRadius: 8,
+                          paddingHorizontal: 6,
+                          paddingVertical: 4,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => setScheduleYear((y) => y - 1)}
+                          style={{ paddingHorizontal: 5 }}
+                        >
+                          <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11 }}>◀</Text>
+                        </TouchableOpacity>
+                        <Text
+                          style={{
+                            color: '#FFF',
+                            fontWeight: '800',
+                            fontSize: 11,
+                            marginHorizontal: 4,
+                          }}
+                        >
+                          {scheduleYear}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => setScheduleYear((y) => y + 1)}
+                          style={{ paddingHorizontal: 5 }}
+                        >
+                          <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11 }}>▶</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Filtre Butonları */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flexWrap: 'wrap',
+                      gap: 6,
+                      marginBottom: 10,
+                    }}
+                  >
+                    {[
+                      { key: 'ALL', label: `Tümü (${scheduleCounts.total})` },
+                      {
+                        key: 'ACTIVE_ONLY',
+                        label: `⚡ Aktif Günler (${
+                          scheduleCounts.assiah + scheduleCounts.yetzirah + scheduleCounts.both
+                        })`,
+                      },
+                      {
+                        key: 'ASSIAH',
+                        label: `1. Beden (Assiah): ${scheduleCounts.assiah}`,
+                      },
+                      {
+                        key: 'YETZIRAH',
+                        label: `2. Ruh (Drakonik): ${scheduleCounts.yetzirah}`,
+                      },
+                      {
+                        key: 'BOTH',
+                        label: `Beden & Ruh: ${scheduleCounts.both}`,
+                      },
+                      {
+                        key: 'REST',
+                        label: `🌿 Doğal Akış: ${scheduleCounts.rest}`,
+                      },
+                    ].map((chip) => {
+                      const active = scheduleFilter === chip.key;
+                      return (
+                        <TouchableOpacity
+                          key={chip.key}
+                          onPress={() => setScheduleFilter(chip.key as any)}
+                          style={{
+                            paddingHorizontal: 8,
+                            paddingVertical: 4,
+                            borderRadius: 8,
+                            borderWidth: 1,
+                            backgroundColor: active ? '#D4AF37' : 'rgba(255,255,255,0.06)',
+                            borderColor: active ? '#D4AF37' : 'rgba(255,255,255,0.14)',
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              fontWeight: '800',
+                              color: active ? '#000' : '#E5E7EB',
+                            }}
+                          >
+                            {chip.label}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+
+                  {/* Gün Gün Kaydırılabilir Liste */}
+                  <ScrollView style={{ maxHeight: 280 }} nestedScrollEnabled>
+                    {filteredScheduleItems.map((item) => {
+                      const isSelected = item.dateStr === appliedDateStr;
+                      const badgeColor =
+                        item.worldCode === 'ASSIAH'
+                          ? '#FBBF24'
+                          : item.worldCode === 'YETZIRAH'
+                          ? '#C084FC'
+                          : item.worldCode === 'BOTH'
+                          ? '#38BDF8'
+                          : '#34D399';
+
+                      return (
+                        <TouchableOpacity
+                          key={item.dateStr}
+                          onPress={() => {
+                            setTransitDateStr(item.dateStr);
+                            void executeCalculation({
+                              nDate: natalDateStr,
+                              nTime: natalTimeStr,
+                              nCity: selectedCityData,
+                              tCity: selectedTransitCityData,
+                              tDate: item.dateStr,
+                              tTime: transitTimeStr,
+                            });
+                          }}
+                          style={{
+                            backgroundColor: isSelected
+                              ? 'rgba(212,175,55,0.2)'
+                              : 'rgba(255,255,255,0.04)',
+                            borderWidth: 1,
+                            borderColor: isSelected ? '#D4AF37' : 'rgba(255,255,255,0.1)',
+                            borderRadius: 10,
+                            padding: 9,
+                            marginBottom: 6,
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              flexWrap: 'wrap',
+                              gap: 4,
+                            }}
+                          >
+                            <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FFF' }}>
+                              {item.dayLabelTr}
+                            </Text>
+                            <View
+                              style={{
+                                backgroundColor: badgeColor + '22',
+                                borderWidth: 1,
+                                borderColor: badgeColor + '70',
+                                paddingHorizontal: 7,
+                                paddingVertical: 2,
+                                borderRadius: 6,
+                              }}
+                            >
+                              <Text
+                                style={{ fontSize: 9.5, fontWeight: '900', color: badgeColor }}
+                              >
+                                {item.worldBadgeLabel}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text
+                            style={{
+                              fontSize: 10.5,
+                              color: '#FDE68A',
+                              fontWeight: '700',
+                              marginTop: 3,
+                            }}
+                          >
+                            ✦ {item.activeChakrasText}
+                          </Text>
+                          <Text style={{ fontSize: 10, color: '#D1D5DB', marginTop: 2 }}>
+                            {item.triggerSummary}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              )}
 
               {/* 5'li Hızlı Reçete Kartları */}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginBottom: 10 }}>

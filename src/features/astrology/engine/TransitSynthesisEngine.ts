@@ -3106,3 +3106,335 @@ export function generatePersonalTransitOverview(
     chakraPrescription
   };
 }
+
+export interface ActiveChartScheduleDayItem {
+  dateStr: string;
+  dayOfMonth: number;
+  monthIndex: number;
+  year: number;
+  weekdayTr: string;
+  worldCode: 'ASSIAH' | 'YETZIRAH' | 'BOTH' | 'REST';
+  worldBadgeLabel: string;
+  triggerSummary: string;
+  activeChakrasText: string;
+  isLunationDay: boolean;
+}
+
+const WEEKDAY_NAMES_TR = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+const ZODIAC_NAMES_TR = [
+  'Koç', 'Boğa', 'İkizler', 'Yengeç', 'Aslan', 'Başak',
+  'Terazi', 'Akrep', 'Yay', 'Oğlak', 'Kova', 'Balık'
+];
+
+function getSignFromLon(lon: number): string {
+  const norm = ((lon % 360) + 360) % 360;
+  return ZODIAC_NAMES_TR[Math.floor(norm / 30) % 12] || 'Koç';
+}
+
+export function scanActiveChartScheduleRange(
+  natalPlanets: AstroPoint[],
+  natalHouses: AstroPoint[],
+  startYear: number,
+  startMonth0: number,
+  totalDays: number
+): ActiveChartScheduleDayItem[] {
+  if (!natalPlanets || natalPlanets.length === 0) return [];
+
+  const nonLunarTransits = ['Güneş', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Uranüs', 'Neptün', 'Plüton'];
+  const allSampleBodies = [...nonLunarTransits, 'Ay'];
+
+  const totalSamples = totalDays * 2 + 5;
+  const sampleDates: Date[] = new Array(totalSamples);
+  for (let k = 0; k < totalSamples; k++) {
+    const dayOffset = Math.floor((k - 1) / 2);
+    const isNoonSlot = (k - 1) % 2 !== 0;
+    sampleDates[k] = new Date(startYear, startMonth0, 1 + dayOffset, isNoonSlot ? 12 : 0, 0, 0);
+  }
+
+  const lonTable: Record<string, Float64Array> = {};
+  for (const pName of allSampleBodies) {
+    const arr = new Float64Array(totalSamples);
+    for (let k = 0; k < totalSamples; k++) {
+      const val = getZicEclipticLonAt(pName, sampleDates[k]);
+      arr[k] = val ?? 0;
+    }
+    lonTable[pName] = arr;
+  }
+
+  const checkFastCulmination = (
+    l1Prev: number,
+    l1Start: number,
+    l1Noon: number,
+    l1End: number,
+    l1Next: number,
+    l2Prev: number,
+    l2Start: number,
+    l2Noon: number,
+    l2End: number,
+    l2Next: number,
+    aspectAngle: number
+  ): { culminates: boolean; minOrb: number } => {
+    const angles = aspectAngle === 0 || aspectAngle === 180 ? [aspectAngle] : [aspectAngle, -aspectAngle];
+    for (const targetSigned of angles) {
+      const dStart = wrapSigned180(l1Start - l2Start - targetSigned);
+      const dEnd = wrapSigned180(l1End - l2End - targetSigned);
+      const dNoon = wrapSigned180(l1Noon - l2Noon - targetSigned);
+      if (Math.abs(dStart) <= 2.5 && Math.abs(dEnd) <= 2.5 && dStart * dEnd <= 0) {
+        if (dStart === 0 && dEnd !== 0) continue;
+        return { culminates: true, minOrb: Math.min(Math.abs(dNoon), 0.05) };
+      }
+    }
+    const calcOrb = (a: number, b: number) => {
+      const raw = Math.abs(a - b) % 360;
+      const sep = raw > 180 ? 360 - raw : raw;
+      return Math.abs(sep - aspectAngle);
+    };
+    const orbNoon = calcOrb(l1Noon, l2Noon);
+    if (orbNoon <= 0.12) {
+      const orbPrev = calcOrb(l1Prev, l2Prev);
+      const orbNext = calcOrb(l1Next, l2Next);
+      if (orbNoon < orbPrev - 0.0002 && orbNoon <= orbNext) {
+        return { culminates: true, minOrb: orbNoon };
+      }
+    }
+    return { culminates: false, minOrb: orbNoon };
+  };
+
+  const natalNorthNode = natalPlanets.find((p) => p.name === 'Kuzey Ay Düğümü');
+  const nnLon = natalNorthNode ? natalNorthNode.longitude : 0;
+  const shiftDraconic = (lon: number) => ((lon - nnLon) % 360 + 360) % 360;
+
+  const draconicPlanets: AstroPoint[] = natalNorthNode
+    ? natalPlanets.map((p) => ({
+        ...p,
+        longitude: shiftDraconic(p.longitude),
+      }))
+    : [];
+
+  const allowedNatalTargets = new Set([
+    'Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn',
+    'Uranüs', 'Neptün', 'Plüton', 'Kiron', 'Lilith', 'Vertex (Vx)',
+    'Kuzey Ay Düğümü', 'Yükselen (ASC)', 'Tepe Noktası (MC)'
+  ]);
+
+  const zicAspectDefs: Array<{ angle: number; type: 'Kavuşum' | 'Sekstil' | 'Kare' | 'Üçgen' | 'Karşıt'; symbol: string }> = [
+    { angle: 0, type: 'Kavuşum', symbol: '☌' },
+    { angle: 60, type: 'Sekstil', symbol: '✶' },
+    { angle: 90, type: 'Kare', symbol: '□' },
+    { angle: 120, type: 'Üçgen', symbol: '△' },
+    { angle: 180, type: 'Karşıt', symbol: '☍' },
+  ];
+
+  const ESOTERIC_FIXED_STARS: Array<{ name: string; lon: number; chakraId: number }> = [
+    { name: 'Alcyone', lon: 60.0, chakraId: 6 },
+    { name: 'Aldebaran', lon: 69.8, chakraId: 5 },
+    { name: 'Sirius', lon: 104.1, chakraId: 6 },
+    { name: 'Regulus', lon: 150.0, chakraId: 4 },
+    { name: 'Spica', lon: 203.8, chakraId: 6 },
+    { name: 'Antares', lon: 249.8, chakraId: 1 },
+    { name: 'Fomalhaut', lon: 333.9, chakraId: 7 },
+  ];
+
+  const results: ActiveChartScheduleDayItem[] = [];
+
+  for (let d = 0; d < totalDays; d++) {
+    const idxPrev = 2 * d;
+    const idxStart = 2 * d + 1;
+    const idxNoon = 2 * d + 2;
+    const idxEnd = 2 * d + 3;
+    const idxNext = 2 * d + 4;
+
+    const currentDate = sampleDates[idxNoon];
+    const yr = currentDate.getFullYear();
+    const mo = currentDate.getMonth();
+    const dy = currentDate.getDate();
+    const dateStr = `${yr}-${String(mo + 1).padStart(2, '0')}-${String(dy).padStart(2, '0')}`;
+    const weekdayTr = WEEKDAY_NAMES_TR[currentDate.getDay()] || '';
+
+    let assiahActive = false;
+    let yetzirahActive = false;
+    let isLunationDay = false;
+    let primaryBadge = '';
+    const triggers: Array<{ orb: number; label: string; world: 'ASSIAH' | 'YETZIRAH' | 'BOTH'; chakras: string[] }> = [];
+
+    const moonArr = lonTable['Ay'];
+    const sunArr = lonTable['Güneş'];
+    const nm = checkFastCulmination(
+      moonArr[idxPrev], moonArr[idxStart], moonArr[idxNoon], moonArr[idxEnd], moonArr[idxNext],
+      sunArr[idxPrev], sunArr[idxStart], sunArr[idxNoon], sunArr[idxEnd], sunArr[idxNext],
+      0
+    );
+    const fm = checkFastCulmination(
+      moonArr[idxPrev], moonArr[idxStart], moonArr[idxNoon], moonArr[idxEnd], moonArr[idxNext],
+      sunArr[idxPrev], sunArr[idxStart], sunArr[idxNoon], sunArr[idxEnd], sunArr[idxNext],
+      180
+    );
+    if (nm.culminates || fm.culminates) {
+      isLunationDay = true;
+      assiahActive = true;
+      yetzirahActive = true;
+      const lType = fm.culminates ? 'Dolunay' : 'Yeniay';
+      const mLon = moonArr[idxNoon];
+      const mSign = getSignFromLon(mLon);
+      const mHouse = getHouseFromLongitude(mLon, natalHouses);
+      const hChk = resolveChakraForHouse(mHouse);
+      const sChk = resolveChakraForPlanetOrSign('', mSign);
+      primaryBadge = `${mSign} ${lType}ı (${mHouse}. Ev)`;
+      triggers.push({
+        orb: 0,
+        label: `🌕 ${mSign} ${lType}ı (${mHouse}. Ev)`,
+        world: 'BOTH',
+        chakras: Array.from(new Set([hChk.shortName.replace(/^\d+\.\s*/, ''), sChk.shortName.replace(/^\d+\.\s*/, '')])),
+      });
+    }
+
+    for (const tName of nonLunarTransits) {
+      const tArr = lonTable[tName];
+      const l1Prev = tArr[idxPrev];
+      const l1Start = tArr[idxStart];
+      const l1Noon = tArr[idxNoon];
+      const l1End = tArr[idxEnd];
+      const l1Next = tArr[idxNext];
+
+      for (const nObj of natalPlanets) {
+        if (!allowedNatalTargets.has(nObj.name)) continue;
+        const isSecondaryNatal = ['Kiron', 'Lilith', 'Vertex (Vx)', 'Kuzey Ay Düğümü', 'Yükselen (ASC)', 'Tepe Noktası (MC)'].includes(nObj.name);
+        const nLon = nObj.longitude;
+        for (const aDef of zicAspectDefs) {
+          if (isSecondaryNatal && (aDef.angle === 60 || aDef.angle === 120)) continue;
+          const chk = checkFastCulmination(l1Prev, l1Start, l1Noon, l1End, l1Next, nLon, nLon, nLon, nLon, nLon, aDef.angle);
+          if (chk.culminates) {
+            assiahActive = true;
+            if (!primaryBadge) primaryBadge = '1. Beden Haritası (Assiah)';
+            const nChk = resolveChakraForPlanetOrSign(nObj.name, nObj.sign);
+            const tChk = resolveChakraForPlanetOrSign(tName, getSignFromLon(l1Noon));
+            triggers.push({
+              orb: chk.minOrb,
+              label: `${tName} ${aDef.symbol} ${nObj.name} (Beden)`,
+              world: 'ASSIAH',
+              chakras: Array.from(new Set([nChk.shortName.replace(/^\d+\.\s*/, ''), tChk.shortName.replace(/^\d+\.\s*/, '')])),
+            });
+          }
+        }
+      }
+
+      for (const hObj of natalHouses) {
+        if (![1, 4, 7, 8, 9, 10, 12].includes(hObj.house)) continue;
+        const hLon = hObj.longitude;
+        const chkH = checkFastCulmination(l1Prev, l1Start, l1Noon, l1End, l1Next, hLon, hLon, hLon, hLon, hLon, 0);
+        if (chkH.culminates) {
+          assiahActive = true;
+          if (!primaryBadge) primaryBadge = '1. Beden Haritası (Tam Ev Girişi)';
+          const hChk = resolveChakraForHouse(hObj.house);
+          triggers.push({
+            orb: chkH.minOrb,
+            label: `${tName} ☌ ${hObj.house}. Ev Girişi (Beden)`,
+            world: 'ASSIAH',
+            chakras: [hChk.shortName.replace(/^\d+\.\s*/, '')],
+          });
+        }
+      }
+
+      const isPersonalTransit = ['Güneş', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn'].includes(tName);
+      for (const dObj of draconicPlanets) {
+        if (!['Güneş', 'Ay', 'Merkür', 'Venüs', 'Mars', 'Jüpiter', 'Satürn', 'Vertex (Vx)'].includes(dObj.name)) continue;
+        const dLon = dObj.longitude;
+        for (const aDef of zicAspectDefs) {
+          if ((aDef.angle === 60 || aDef.angle === 120) && !isPersonalTransit) continue;
+          if (dObj.name === 'Vertex (Vx)' && aDef.angle !== 0 && aDef.angle !== 90 && aDef.angle !== 180) continue;
+          const chkD = checkFastCulmination(l1Prev, l1Start, l1Noon, l1End, l1Next, dLon, dLon, dLon, dLon, dLon, aDef.angle);
+          if (chkD.culminates) {
+            yetzirahActive = true;
+            if (!primaryBadge) primaryBadge = '2. Ruh Haritası (Drakonik / Yetzirah)';
+            const dChk = resolveChakraForPlanetOrSign(dObj.name, getSignFromLon(dLon));
+            const tChk = resolveChakraForPlanetOrSign(tName, getSignFromLon(l1Noon));
+            triggers.push({
+              orb: chkD.minOrb,
+              label: `${tName} ${aDef.symbol} Drakonik ${dObj.name} (Ruh)`,
+              world: 'YETZIRAH',
+              chakras: Array.from(new Set([dChk.shortName.replace(/^\d+\.\s*/, ''), tChk.shortName.replace(/^\d+\.\s*/, '')])),
+            });
+          }
+        }
+      }
+
+      if (isPersonalTransit) {
+        for (const star of ESOTERIC_FIXED_STARS) {
+          const sLon = star.lon;
+          const chkS = checkFastCulmination(l1Prev, l1Start, l1Noon, l1End, l1Next, sLon, sLon, sLon, sLon, sLon, 0);
+          if (chkS.culminates) {
+            assiahActive = true;
+            if (!primaryBadge) primaryBadge = `1. Beden Haritası & Sabit Yıldız (${star.name})`;
+            const sChk = CHAKRA_CATALOG[star.chakraId];
+            triggers.push({
+              orb: chkS.minOrb,
+              label: `${tName} ☌ ${star.name} Yıldızı`,
+              world: 'ASSIAH',
+              chakras: [sChk.shortName.replace(/^\d+\.\s*/, '')],
+            });
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < nonLunarTransits.length; i++) {
+      for (let j = i + 1; j < nonLunarTransits.length; j++) {
+        const p1Name = nonLunarTransits[i];
+        const p2Name = nonLunarTransits[j];
+        const a1 = lonTable[p1Name];
+        const a2 = lonTable[p2Name];
+        for (const aDef of zicAspectDefs) {
+          const chkC = checkFastCulmination(
+            a1[idxPrev], a1[idxStart], a1[idxNoon], a1[idxEnd], a1[idxNext],
+            a2[idxPrev], a2[idxStart], a2[idxNoon], a2[idxEnd], a2[idxNext],
+            aDef.angle
+          );
+          if (chkC.culminates) {
+            assiahActive = true;
+            if (!primaryBadge) primaryBadge = '1. Beden Haritası (Assiah)';
+            const c1 = resolveChakraForPlanetOrSign(p1Name, getSignFromLon(a1[idxNoon]));
+            const c2 = resolveChakraForPlanetOrSign(p2Name, getSignFromLon(a2[idxNoon]));
+            triggers.push({
+              orb: chkC.minOrb,
+              label: `Gökyüzü: ${p1Name} ${aDef.symbol} ${p2Name}`,
+              world: 'ASSIAH',
+              chakras: Array.from(new Set([c1.shortName.replace(/^\d+\.\s*/, ''), c2.shortName.replace(/^\d+\.\s*/, '')])),
+            });
+          }
+        }
+      }
+    }
+
+    triggers.sort((a, b) => a.orb - b.orb);
+
+    let worldCode: 'ASSIAH' | 'YETZIRAH' | 'BOTH' | 'REST' = 'REST';
+    let worldBadgeLabel = '🌿 Doğal Akış (Sushumna)';
+    if (assiahActive && yetzirahActive) {
+      worldCode = 'BOTH';
+      worldBadgeLabel = isLunationDay ? primaryBadge : '1. Beden & 2. Ruh Haritası';
+    } else if (assiahActive) {
+      worldCode = 'ASSIAH';
+      worldBadgeLabel = primaryBadge || '1. Beden Haritası (Assiah)';
+    } else if (yetzirahActive) {
+      worldCode = 'YETZIRAH';
+      worldBadgeLabel = primaryBadge || '2. Ruh Haritası (Drakonik / Yetzirah)';
+    }
+
+    const allChakras = Array.from(new Set(triggers.flatMap((t) => t.chakras))).slice(0, 3);
+
+    results.push({
+      dateStr,
+      dayOfMonth: dy,
+      monthIndex: mo,
+      year: yr,
+      weekdayTr,
+      worldCode,
+      worldBadgeLabel,
+      triggerSummary: triggers.length > 0 ? triggers.slice(0, 2).map((t) => t.label).join(' • ') : 'Tam zirve (0°00\') açı yok • Doğal dinlenme',
+      activeChakrasText: allChakras.length > 0 ? allChakras.join(' - ') : 'Doğal Denge (432 Hz)',
+      isLunationDay,
+    });
+  }
+
+  return results;
+}
