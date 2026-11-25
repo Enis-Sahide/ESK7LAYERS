@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "com.enissahide.esk7layers",
-      "versionCode": 16,
+      "versionCode": 17,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/android-icon-foreground.png"

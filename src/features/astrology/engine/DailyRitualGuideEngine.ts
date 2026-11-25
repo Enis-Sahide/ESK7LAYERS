@@ -564,8 +564,9 @@ export function calculateGuidePlanetaryHours(
     const pMeta = PLANET_EN_META[pKey];
     const isGolden = targetSet.has(pKey);
     const isCurrent =
-      referenceMoment.getTime() >= startTime.getTime() &&
-      referenceMoment.getTime() < endTime.getTime();
+      isSameDayAsNow &&
+      now.getTime() >= startTime.getTime() &&
+      now.getTime() < endTime.getTime();
 
     allDayHours.push({
       index: i + 1,
@@ -594,8 +595,9 @@ export function calculateGuidePlanetaryHours(
     const pMeta = PLANET_EN_META[pKey];
     const isGolden = targetSet.has(pKey);
     const isCurrent =
-      referenceMoment.getTime() >= startTime.getTime() &&
-      referenceMoment.getTime() < endTime.getTime();
+      isSameDayAsNow &&
+      now.getTime() >= startTime.getTime() &&
+      now.getTime() < endTime.getTime();
 
     allNightHours.push({
       index: i + 1,
@@ -621,9 +623,9 @@ export function calculateGuidePlanetaryHours(
   const goldenHours = combined.filter((h) => h.isGoldenForToday);
   let currentHour = combined.find((h) => h.isCurrentNow) || null;
 
-  // Surya Siddhanta Kuralı: Gece 00:00 ile sabah Güneş doğuşu arasında sorgu yapılıyorsa,
+  // Surya Siddhanta Kuralı: Yalnızca bugün (isSameDayAsNow) gece 00:00 ile sabah Güneş doğuşu arasında sorgu yapılıyorsa,
   // henüz bir önceki astrolojik günün gece saatleri devam etmektedir.
-  if (!currentHour && referenceMoment.getTime() < sunriseDate.getTime()) {
+  if (isSameDayAsNow && !currentHour && now.getTime() < sunriseDate.getTime()) {
     const prevSunsetRes = SearchRiseSet(
       Body.Sun,
       observer,
@@ -643,8 +645,8 @@ export function calculateGuidePlanetaryHours(
         const pKey = CHALDEAN_ORDER[prevPlanetIdx];
         const pMeta = PLANET_EN_META[pKey];
         if (
-          referenceMoment.getTime() >= sTime.getTime() &&
-          referenceMoment.getTime() < eTime.getTime()
+          now.getTime() >= sTime.getTime() &&
+          now.getTime() < eTime.getTime()
         ) {
           currentHour = {
             index: i + 1,
@@ -670,10 +672,11 @@ export function calculateGuidePlanetaryHours(
     }
   }
 
-  const nextGoldenHour =
-    goldenHours.find((h) => new Date(h.endTimeIso).getTime() > referenceMoment.getTime()) ||
-    goldenHours[0] ||
-    null;
+  const nextGoldenHour = isSameDayAsNow
+    ? goldenHours.find((h) => new Date(h.endTimeIso).getTime() > now.getTime()) ||
+      goldenHours[0] ||
+      null
+    : goldenHours[0] || null;
 
   const targetPlanetsTr = targetPlanetsEn.map((k) => PLANET_EN_META[k].tr);
   const guidanceText = `${cityName} konumunda bugün Güneş ${formatHHMM(
