@@ -1397,7 +1397,7 @@ export default function GunlukRehberScreen() {
                             }}
                           >
                             <Text style={{ fontSize: 11.5, fontWeight: '900', color: '#FFF' }}>
-                              {item.dayLabelTr}
+                              {item.dayOfMonth} {TR_MONTH_NAMES[item.monthIndex]} • {item.weekdayTr}
                             </Text>
                             <View
                               style={{
